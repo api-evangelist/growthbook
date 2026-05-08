@@ -3,21 +3,40 @@ url: https://raw.githubusercontent.com/api-evangelist/growthbook/refs/heads/main
 name: GrowthBook
 x-type: company
 description: >-
-  GrowthBook is an open-source feature flag and A/B testing platform with Bayesian and frequentist statistical analysis. Self-host or cloud, warehouse-native experimentation.
+  GrowthBook is an open source feature flagging and experimentation platform with a warehouse-native statistics engine.
 image: https://kinlane-productions.s3.amazonaws.com/apis-json/apis-json-logo.jpg
 tags:
-  - A/B Testing
   - Feature Flags
-  - Open Source
   - Experimentation
+  - Open Source
+  - AB Testing
   - Analytics
 created: '2026-05-08'
 modified: '2026-05-08'
 specificationVersion: '0.19'
-apis: []
+apis:
+  - aid: growthbook:growthbook-rest-api
+    name: GrowthBook REST API
+    description: >-
+      GrowthBook REST API for managing projects, environments, feature flags, feature revisions, experiments, snapshots, metrics, fact tables, dimensions, segments, saved groups, teams, members, organizations, and dashboards.
+    image: https://kinlane-productions.s3.amazonaws.com/apis-json/apis-json-logo.jpg
+    humanURL: https://docs.growthbook.io/api
+    baseURL: https://api.growthbook.io/api
+    tags:
+      - Feature Flags
+      - Experimentation
+      - REST
+      - Open Source
+    properties:
+      - type: Documentation
+        url: https://docs.growthbook.io/api
+      - type: OpenAPI
+        url: openapi/growthbook-openapi.yaml
 common:
   - type: Website
     url: https://www.growthbook.io/
+  - type: Documentation
+    url: https://docs.growthbook.io/api
   - type: Plans
     url: plans/growthbook-plans-pricing.yml
   - type: RateLimits

@@ -1,6 +1,6 @@
 # GrowthBook (growthbook)
 
-GrowthBook is an open-source feature flag and A/B testing platform with Bayesian and frequentist statistical analysis. Self-host or cloud, warehouse-native experimentation.
+GrowthBook is an open source feature flagging and experimentation platform with a warehouse-native statistics engine.
 
 **URL:** [Visit APIs.json URL](https://raw.githubusercontent.com/api-evangelist/growthbook/refs/heads/main/apis.yml)
 
@@ -10,14 +10,24 @@ GrowthBook is an open-source feature flag and A/B testing platform with Bayesian
 - **x-type:** company
 
 ## Tags:
- - A/B Testing, Feature Flags, Open Source, Experimentation, Analytics
+ - Feature Flags, Experimentation, Open Source, AB Testing, Analytics
 
 ## Timestamps
 - **Created:** 2026-05-08
 - **Modified:** 2026-05-08
 
+## APIs
+
+### GrowthBook REST API
+GrowthBook REST API for managing projects, environments, feature flags, feature revisions, experiments, snapshots, metrics, fact tables, dimensions, segments, saved groups, teams, members, organizations, and dashboards.
+
+- **Human URL:** https://docs.growthbook.io/api
+- **Base URL:** https://api.growthbook.io/api
+- **OpenAPI:** [openapi/growthbook-openapi.yaml](openapi/growthbook-openapi.yaml)
+
 ## Common Properties
 - [Website](https://www.growthbook.io/)
+- [Documentation](https://docs.growthbook.io/api)
 - [Plans](plans/growthbook-plans-pricing.yml) — placeholder, pipeline reconciles later
 - [RateLimits](rate-limits/growthbook-rate-limits.yml) — placeholder
 - [FinOps](finops/growthbook-finops.yml) — FOCUS-aligned placeholder
