@@ -1,7 +1,7 @@
 aid: growthbook
 url: https://raw.githubusercontent.com/api-evangelist/growthbook/refs/heads/main/apis.yml
 name: GrowthBook
-x-type: company
+kind: company
 description: >-
   GrowthBook is an open source feature flagging and experimentation platform with a warehouse-native statistics engine.
 image: https://kinlane-productions.s3.amazonaws.com/apis-json/apis-json-logo.jpg
