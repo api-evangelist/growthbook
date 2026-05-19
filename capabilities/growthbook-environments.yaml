@@ -1,0 +1,172 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: GrowthBook REST API — environments
+  description: 'GrowthBook REST API — environments. 4 operations. Lead operation: Get the organization''s environments. Self-contained
+    Naftiko capability covering one Growthbook business surface.'
+  tags:
+  - Growthbook
+  - environments
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    GROWTHBOOK_API_KEY: GROWTHBOOK_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: growthbook-environments
+    baseUri: https://api.growthbook.io/api
+    description: GrowthBook REST API — environments business capability. Self-contained, no shared references.
+    resources:
+    - name: v1-environments
+      path: /v1/environments
+      operations:
+      - name: listenvironments
+        method: GET
+        description: Get the organization's environments
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+      - name: postenvironment
+        method: POST
+        description: Create a new environment
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    - name: v1-environments-id
+      path: /v1/environments/{id}
+      operations:
+      - name: putenvironment
+        method: PUT
+        description: Update an environment
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+      - name: deleteenvironment
+        method: DELETE
+        description: Deletes a single environment
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    authentication:
+      type: bearer
+      token: '{{env.GROWTHBOOK_API_KEY}}'
+  exposes:
+  - type: rest
+    namespace: growthbook-environments-rest
+    port: 8080
+    description: REST adapter for GrowthBook REST API — environments. One Spectral-compliant resource per consumed operation,
+      prefixed with /v1.
+    resources:
+    - path: /v1/v1/environments
+      name: v1-environments
+      description: REST surface for v1-environments.
+      operations:
+      - method: GET
+        name: listenvironments
+        description: Get the organization's environments
+        call: growthbook-environments.listenvironments
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: POST
+        name: postenvironment
+        description: Create a new environment
+        call: growthbook-environments.postenvironment
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v1/environments/{id}
+      name: v1-environments-id
+      description: REST surface for v1-environments-id.
+      operations:
+      - method: PUT
+        name: putenvironment
+        description: Update an environment
+        call: growthbook-environments.putenvironment
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: DELETE
+        name: deleteenvironment
+        description: Deletes a single environment
+        call: growthbook-environments.deleteenvironment
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: growthbook-environments-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for GrowthBook REST API — environments. One tool per consumed operation, routed inline through
+      this capability's consumes block.
+    tools:
+    - name: get-organization-s-environments
+      description: Get the organization's environments
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: growthbook-environments.listenvironments
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: create-new-environment
+      description: Create a new environment
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: growthbook-environments.postenvironment
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: update-environment
+      description: Update an environment
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: true
+      call: growthbook-environments.putenvironment
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: deletes-single-environment
+      description: Deletes a single environment
+      hints:
+        readOnly: false
+        destructive: true
+        idempotent: true
+      call: growthbook-environments.deleteenvironment
+      outputParameters:
+      - type: object
+        mapping: $.

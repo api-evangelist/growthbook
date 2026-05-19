@@ -1,0 +1,221 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: GrowthBook REST API — RampScheduleTemplates
+  description: 'GrowthBook REST API — RampScheduleTemplates. 5 operations. Lead operation: Create a single rampScheduleTemplate.
+    Self-contained Naftiko capability covering one Growthbook business surface.'
+  tags:
+  - Growthbook
+  - RampScheduleTemplates
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    GROWTHBOOK_API_KEY: GROWTHBOOK_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: growthbook-rampscheduletemplates
+    baseUri: https://api.growthbook.io/api
+    description: GrowthBook REST API — RampScheduleTemplates business capability. Self-contained, no shared references.
+    resources:
+    - name: v1-ramp-schedule-templates
+      path: /v1/ramp-schedule-templates
+      operations:
+      - name: createrampscheduletemplate
+        method: POST
+        description: Create a single rampScheduleTemplate
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+      - name: listrampscheduletemplates
+        method: GET
+        description: Get all rampScheduleTemplates
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: v1-ramp-schedule-templates-id
+      path: /v1/ramp-schedule-templates/{id}
+      operations:
+      - name: getrampscheduletemplate
+        method: GET
+        description: Get a single rampScheduleTemplate
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: id
+          in: path
+          type: string
+          required: true
+      - name: deleterampscheduletemplate
+        method: DELETE
+        description: Delete a single rampScheduleTemplate
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: id
+          in: path
+          type: string
+          required: true
+      - name: updaterampscheduletemplate
+        method: PUT
+        description: Update a single rampScheduleTemplate
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: id
+          in: path
+          type: string
+          required: true
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    authentication:
+      type: bearer
+      token: '{{env.GROWTHBOOK_API_KEY}}'
+  exposes:
+  - type: rest
+    namespace: growthbook-rampscheduletemplates-rest
+    port: 8080
+    description: REST adapter for GrowthBook REST API — RampScheduleTemplates. One Spectral-compliant resource per consumed
+      operation, prefixed with /v1.
+    resources:
+    - path: /v1/v1/ramp-schedule-templates
+      name: v1-ramp-schedule-templates
+      description: REST surface for v1-ramp-schedule-templates.
+      operations:
+      - method: POST
+        name: createrampscheduletemplate
+        description: Create a single rampScheduleTemplate
+        call: growthbook-rampscheduletemplates.createrampscheduletemplate
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: GET
+        name: listrampscheduletemplates
+        description: Get all rampScheduleTemplates
+        call: growthbook-rampscheduletemplates.listrampscheduletemplates
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v1/ramp-schedule-templates/{id}
+      name: v1-ramp-schedule-templates-id
+      description: REST surface for v1-ramp-schedule-templates-id.
+      operations:
+      - method: GET
+        name: getrampscheduletemplate
+        description: Get a single rampScheduleTemplate
+        call: growthbook-rampscheduletemplates.getrampscheduletemplate
+        with:
+          id: rest.id
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: DELETE
+        name: deleterampscheduletemplate
+        description: Delete a single rampScheduleTemplate
+        call: growthbook-rampscheduletemplates.deleterampscheduletemplate
+        with:
+          id: rest.id
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: PUT
+        name: updaterampscheduletemplate
+        description: Update a single rampScheduleTemplate
+        call: growthbook-rampscheduletemplates.updaterampscheduletemplate
+        with:
+          id: rest.id
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: growthbook-rampscheduletemplates-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for GrowthBook REST API — RampScheduleTemplates. One tool per consumed operation, routed inline
+      through this capability's consumes block.
+    tools:
+    - name: create-single-rampscheduletemplate
+      description: Create a single rampScheduleTemplate
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: growthbook-rampscheduletemplates.createrampscheduletemplate
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: get-all-rampscheduletemplates
+      description: Get all rampScheduleTemplates
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: growthbook-rampscheduletemplates.listrampscheduletemplates
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: get-single-rampscheduletemplate
+      description: Get a single rampScheduleTemplate
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: growthbook-rampscheduletemplates.getrampscheduletemplate
+      with:
+        id: tools.id
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: delete-single-rampscheduletemplate
+      description: Delete a single rampScheduleTemplate
+      hints:
+        readOnly: false
+        destructive: true
+        idempotent: true
+      call: growthbook-rampscheduletemplates.deleterampscheduletemplate
+      with:
+        id: tools.id
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: update-single-rampscheduletemplate
+      description: Update a single rampScheduleTemplate
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: true
+      call: growthbook-rampscheduletemplates.updaterampscheduletemplate
+      with:
+        id: tools.id
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.

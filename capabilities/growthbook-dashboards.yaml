@@ -1,0 +1,262 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: GrowthBook REST API — Dashboards
+  description: 'GrowthBook REST API — Dashboards. 6 operations. Lead operation: Create a single dashboard. Self-contained
+    Naftiko capability covering one Growthbook business surface.'
+  tags:
+  - Growthbook
+  - Dashboards
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    GROWTHBOOK_API_KEY: GROWTHBOOK_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: growthbook-dashboards
+    baseUri: https://api.growthbook.io/api
+    description: GrowthBook REST API — Dashboards business capability. Self-contained, no shared references.
+    resources:
+    - name: v1-dashboards
+      path: /v1/dashboards
+      operations:
+      - name: createdashboard
+        method: POST
+        description: Create a single dashboard
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+      - name: listdashboards
+        method: GET
+        description: Get all dashboards
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: v1-dashboards-by-experiment-experimentId
+      path: /v1/dashboards/by-experiment/{experimentId}
+      operations:
+      - name: getdashboardsforexperiment
+        method: GET
+        description: Get all dashboards for an experiment
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: experimentId
+          in: path
+          type: string
+          required: true
+    - name: v1-dashboards-id
+      path: /v1/dashboards/{id}
+      operations:
+      - name: getdashboard
+        method: GET
+        description: Get a single dashboard
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: id
+          in: path
+          type: string
+          required: true
+      - name: deletedashboard
+        method: DELETE
+        description: Delete a single dashboard
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: id
+          in: path
+          type: string
+          required: true
+      - name: updatedashboard
+        method: PUT
+        description: Update a single dashboard
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: id
+          in: path
+          type: string
+          required: true
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    authentication:
+      type: bearer
+      token: '{{env.GROWTHBOOK_API_KEY}}'
+  exposes:
+  - type: rest
+    namespace: growthbook-dashboards-rest
+    port: 8080
+    description: REST adapter for GrowthBook REST API — Dashboards. One Spectral-compliant resource per consumed operation,
+      prefixed with /v1.
+    resources:
+    - path: /v1/v1/dashboards
+      name: v1-dashboards
+      description: REST surface for v1-dashboards.
+      operations:
+      - method: POST
+        name: createdashboard
+        description: Create a single dashboard
+        call: growthbook-dashboards.createdashboard
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: GET
+        name: listdashboards
+        description: Get all dashboards
+        call: growthbook-dashboards.listdashboards
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v1/dashboards/by-experiment/{experimentid}
+      name: v1-dashboards-by-experiment-experimentid
+      description: REST surface for v1-dashboards-by-experiment-experimentId.
+      operations:
+      - method: GET
+        name: getdashboardsforexperiment
+        description: Get all dashboards for an experiment
+        call: growthbook-dashboards.getdashboardsforexperiment
+        with:
+          experimentId: rest.experimentId
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v1/dashboards/{id}
+      name: v1-dashboards-id
+      description: REST surface for v1-dashboards-id.
+      operations:
+      - method: GET
+        name: getdashboard
+        description: Get a single dashboard
+        call: growthbook-dashboards.getdashboard
+        with:
+          id: rest.id
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: DELETE
+        name: deletedashboard
+        description: Delete a single dashboard
+        call: growthbook-dashboards.deletedashboard
+        with:
+          id: rest.id
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: PUT
+        name: updatedashboard
+        description: Update a single dashboard
+        call: growthbook-dashboards.updatedashboard
+        with:
+          id: rest.id
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: growthbook-dashboards-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for GrowthBook REST API — Dashboards. One tool per consumed operation, routed inline through
+      this capability's consumes block.
+    tools:
+    - name: create-single-dashboard
+      description: Create a single dashboard
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: growthbook-dashboards.createdashboard
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: get-all-dashboards
+      description: Get all dashboards
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: growthbook-dashboards.listdashboards
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: get-all-dashboards-experiment
+      description: Get all dashboards for an experiment
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: growthbook-dashboards.getdashboardsforexperiment
+      with:
+        experimentId: tools.experimentId
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: get-single-dashboard
+      description: Get a single dashboard
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: growthbook-dashboards.getdashboard
+      with:
+        id: tools.id
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: delete-single-dashboard
+      description: Delete a single dashboard
+      hints:
+        readOnly: false
+        destructive: true
+        idempotent: true
+      call: growthbook-dashboards.deletedashboard
+      with:
+        id: tools.id
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: update-single-dashboard
+      description: Update a single dashboard
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: true
+      call: growthbook-dashboards.updatedashboard
+      with:
+        id: tools.id
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.

@@ -1,0 +1,166 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: GrowthBook REST API — data-sources
+  description: 'GrowthBook REST API — data-sources. 4 operations. Lead operation: Get all data sources. Self-contained Naftiko
+    capability covering one Growthbook business surface.'
+  tags:
+  - Growthbook
+  - data-sources
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    GROWTHBOOK_API_KEY: GROWTHBOOK_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: growthbook-data-sources
+    baseUri: https://api.growthbook.io/api
+    description: GrowthBook REST API — data-sources business capability. Self-contained, no shared references.
+    resources:
+    - name: v1-data-sources
+      path: /v1/data-sources
+      operations:
+      - name: listdatasources
+        method: GET
+        description: Get all data sources
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: v1-data-sources-dataSourceId-information-schema
+      path: /v1/data-sources/{dataSourceId}/information-schema
+      operations:
+      - name: getinformationschema
+        method: GET
+        description: Get a Data Source's Information Schema
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: v1-data-sources-id
+      path: /v1/data-sources/{id}
+      operations:
+      - name: getdatasource
+        method: GET
+        description: Get a single data source
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: v1-information-schema-tables-tableId
+      path: /v1/information-schema-tables/{tableId}
+      operations:
+      - name: getinformationschematable
+        method: GET
+        description: Get a single Information Schema Table by id
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    authentication:
+      type: bearer
+      token: '{{env.GROWTHBOOK_API_KEY}}'
+  exposes:
+  - type: rest
+    namespace: growthbook-data-sources-rest
+    port: 8080
+    description: REST adapter for GrowthBook REST API — data-sources. One Spectral-compliant resource per consumed operation,
+      prefixed with /v1.
+    resources:
+    - path: /v1/v1/data-sources
+      name: v1-data-sources
+      description: REST surface for v1-data-sources.
+      operations:
+      - method: GET
+        name: listdatasources
+        description: Get all data sources
+        call: growthbook-data-sources.listdatasources
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v1/data-sources/{datasourceid}/information-schema
+      name: v1-data-sources-datasourceid-information-schema
+      description: REST surface for v1-data-sources-dataSourceId-information-schema.
+      operations:
+      - method: GET
+        name: getinformationschema
+        description: Get a Data Source's Information Schema
+        call: growthbook-data-sources.getinformationschema
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v1/data-sources/{id}
+      name: v1-data-sources-id
+      description: REST surface for v1-data-sources-id.
+      operations:
+      - method: GET
+        name: getdatasource
+        description: Get a single data source
+        call: growthbook-data-sources.getdatasource
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v1/information-schema-tables/{tableid}
+      name: v1-information-schema-tables-tableid
+      description: REST surface for v1-information-schema-tables-tableId.
+      operations:
+      - method: GET
+        name: getinformationschematable
+        description: Get a single Information Schema Table by id
+        call: growthbook-data-sources.getinformationschematable
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: growthbook-data-sources-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for GrowthBook REST API — data-sources. One tool per consumed operation, routed inline through
+      this capability's consumes block.
+    tools:
+    - name: get-all-data-sources
+      description: Get all data sources
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: growthbook-data-sources.listdatasources
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: get-data-source-s-information-schema
+      description: Get a Data Source's Information Schema
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: growthbook-data-sources.getinformationschema
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: get-single-data-source
+      description: Get a single data source
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: growthbook-data-sources.getdatasource
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: get-single-information-schema-table
+      description: Get a single Information Schema Table by id
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: growthbook-data-sources.getinformationschematable
+      outputParameters:
+      - type: object
+        mapping: $.

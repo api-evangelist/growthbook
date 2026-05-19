@@ -1,0 +1,310 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: GrowthBook REST API — Teams
+  description: 'GrowthBook REST API — Teams. 7 operations. Lead operation: Create a single team. Self-contained Naftiko capability
+    covering one Growthbook business surface.'
+  tags:
+  - Growthbook
+  - Teams
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    GROWTHBOOK_API_KEY: GROWTHBOOK_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: growthbook-teams
+    baseUri: https://api.growthbook.io/api
+    description: GrowthBook REST API — Teams business capability. Self-contained, no shared references.
+    resources:
+    - name: v1-teams
+      path: /v1/teams
+      operations:
+      - name: createteam
+        method: POST
+        description: Create a single team
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+      - name: listteams
+        method: GET
+        description: Get all teams
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: v1-teams-id
+      path: /v1/teams/{id}
+      operations:
+      - name: getteam
+        method: GET
+        description: Get a single team
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: id
+          in: path
+          type: string
+          required: true
+      - name: updateteam
+        method: PUT
+        description: Update a single team
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: id
+          in: path
+          type: string
+          required: true
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+      - name: deleteteam
+        method: DELETE
+        description: Delete a single team
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: id
+          in: path
+          type: string
+          required: true
+    - name: v1-teams-id-members
+      path: /v1/teams/{id}/members
+      operations:
+      - name: addteammembers
+        method: POST
+        description: Add members to team
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: id
+          in: path
+          type: string
+          required: true
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+      - name: removeteammember
+        method: DELETE
+        description: Remove members from team
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: id
+          in: path
+          type: string
+          required: true
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    authentication:
+      type: bearer
+      token: '{{env.GROWTHBOOK_API_KEY}}'
+  exposes:
+  - type: rest
+    namespace: growthbook-teams-rest
+    port: 8080
+    description: REST adapter for GrowthBook REST API — Teams. One Spectral-compliant resource per consumed operation, prefixed
+      with /v1.
+    resources:
+    - path: /v1/v1/teams
+      name: v1-teams
+      description: REST surface for v1-teams.
+      operations:
+      - method: POST
+        name: createteam
+        description: Create a single team
+        call: growthbook-teams.createteam
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: GET
+        name: listteams
+        description: Get all teams
+        call: growthbook-teams.listteams
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v1/teams/{id}
+      name: v1-teams-id
+      description: REST surface for v1-teams-id.
+      operations:
+      - method: GET
+        name: getteam
+        description: Get a single team
+        call: growthbook-teams.getteam
+        with:
+          id: rest.id
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: PUT
+        name: updateteam
+        description: Update a single team
+        call: growthbook-teams.updateteam
+        with:
+          id: rest.id
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: DELETE
+        name: deleteteam
+        description: Delete a single team
+        call: growthbook-teams.deleteteam
+        with:
+          id: rest.id
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v1/teams/{id}/members
+      name: v1-teams-id-members
+      description: REST surface for v1-teams-id-members.
+      operations:
+      - method: POST
+        name: addteammembers
+        description: Add members to team
+        call: growthbook-teams.addteammembers
+        with:
+          id: rest.id
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: DELETE
+        name: removeteammember
+        description: Remove members from team
+        call: growthbook-teams.removeteammember
+        with:
+          id: rest.id
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: growthbook-teams-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for GrowthBook REST API — Teams. One tool per consumed operation, routed inline through this
+      capability's consumes block.
+    tools:
+    - name: create-single-team
+      description: Create a single team
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: growthbook-teams.createteam
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: get-all-teams
+      description: Get all teams
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: growthbook-teams.listteams
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: get-single-team
+      description: Get a single team
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: growthbook-teams.getteam
+      with:
+        id: tools.id
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: update-single-team
+      description: Update a single team
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: true
+      call: growthbook-teams.updateteam
+      with:
+        id: tools.id
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: delete-single-team
+      description: Delete a single team
+      hints:
+        readOnly: false
+        destructive: true
+        idempotent: true
+      call: growthbook-teams.deleteteam
+      with:
+        id: tools.id
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: add-members-team
+      description: Add members to team
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: growthbook-teams.addteammembers
+      with:
+        id: tools.id
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: remove-members-team
+      description: Remove members from team
+      hints:
+        readOnly: false
+        destructive: true
+        idempotent: true
+      call: growthbook-teams.removeteammember
+      with:
+        id: tools.id
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.

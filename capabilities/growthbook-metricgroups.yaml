@@ -1,0 +1,221 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: GrowthBook REST API — MetricGroups
+  description: 'GrowthBook REST API — MetricGroups. 5 operations. Lead operation: Create a single metricGroup. Self-contained
+    Naftiko capability covering one Growthbook business surface.'
+  tags:
+  - Growthbook
+  - MetricGroups
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    GROWTHBOOK_API_KEY: GROWTHBOOK_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: growthbook-metricgroups
+    baseUri: https://api.growthbook.io/api
+    description: GrowthBook REST API — MetricGroups business capability. Self-contained, no shared references.
+    resources:
+    - name: v1-metric-groups
+      path: /v1/metric-groups
+      operations:
+      - name: createmetricgroup
+        method: POST
+        description: Create a single metricGroup
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+      - name: listmetricgroups
+        method: GET
+        description: Get all metricGroups
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: v1-metric-groups-id
+      path: /v1/metric-groups/{id}
+      operations:
+      - name: getmetricgroup
+        method: GET
+        description: Get a single metricGroup
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: id
+          in: path
+          type: string
+          required: true
+      - name: deletemetricgroup
+        method: DELETE
+        description: Delete a single metricGroup
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: id
+          in: path
+          type: string
+          required: true
+      - name: updatemetricgroup
+        method: PUT
+        description: Update a single metricGroup
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: id
+          in: path
+          type: string
+          required: true
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    authentication:
+      type: bearer
+      token: '{{env.GROWTHBOOK_API_KEY}}'
+  exposes:
+  - type: rest
+    namespace: growthbook-metricgroups-rest
+    port: 8080
+    description: REST adapter for GrowthBook REST API — MetricGroups. One Spectral-compliant resource per consumed operation,
+      prefixed with /v1.
+    resources:
+    - path: /v1/v1/metric-groups
+      name: v1-metric-groups
+      description: REST surface for v1-metric-groups.
+      operations:
+      - method: POST
+        name: createmetricgroup
+        description: Create a single metricGroup
+        call: growthbook-metricgroups.createmetricgroup
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: GET
+        name: listmetricgroups
+        description: Get all metricGroups
+        call: growthbook-metricgroups.listmetricgroups
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v1/metric-groups/{id}
+      name: v1-metric-groups-id
+      description: REST surface for v1-metric-groups-id.
+      operations:
+      - method: GET
+        name: getmetricgroup
+        description: Get a single metricGroup
+        call: growthbook-metricgroups.getmetricgroup
+        with:
+          id: rest.id
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: DELETE
+        name: deletemetricgroup
+        description: Delete a single metricGroup
+        call: growthbook-metricgroups.deletemetricgroup
+        with:
+          id: rest.id
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: PUT
+        name: updatemetricgroup
+        description: Update a single metricGroup
+        call: growthbook-metricgroups.updatemetricgroup
+        with:
+          id: rest.id
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: growthbook-metricgroups-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for GrowthBook REST API — MetricGroups. One tool per consumed operation, routed inline through
+      this capability's consumes block.
+    tools:
+    - name: create-single-metricgroup
+      description: Create a single metricGroup
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: growthbook-metricgroups.createmetricgroup
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: get-all-metricgroups
+      description: Get all metricGroups
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: growthbook-metricgroups.listmetricgroups
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: get-single-metricgroup
+      description: Get a single metricGroup
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: growthbook-metricgroups.getmetricgroup
+      with:
+        id: tools.id
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: delete-single-metricgroup
+      description: Delete a single metricGroup
+      hints:
+        readOnly: false
+        destructive: true
+        idempotent: true
+      call: growthbook-metricgroups.deletemetricgroup
+      with:
+        id: tools.id
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: update-single-metricgroup
+      description: Update a single metricGroup
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: true
+      call: growthbook-metricgroups.updatemetricgroup
+      with:
+        id: tools.id
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.

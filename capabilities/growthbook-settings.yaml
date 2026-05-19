@@ -1,0 +1,70 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: GrowthBook REST API — settings
+  description: 'GrowthBook REST API — settings. 1 operations. Lead operation: Get organization settings. Self-contained Naftiko
+    capability covering one Growthbook business surface.'
+  tags:
+  - Growthbook
+  - settings
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    GROWTHBOOK_API_KEY: GROWTHBOOK_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: growthbook-settings
+    baseUri: https://api.growthbook.io/api
+    description: GrowthBook REST API — settings business capability. Self-contained, no shared references.
+    resources:
+    - name: v1-settings
+      path: /v1/settings
+      operations:
+      - name: getsettings
+        method: GET
+        description: Get organization settings
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    authentication:
+      type: bearer
+      token: '{{env.GROWTHBOOK_API_KEY}}'
+  exposes:
+  - type: rest
+    namespace: growthbook-settings-rest
+    port: 8080
+    description: REST adapter for GrowthBook REST API — settings. One Spectral-compliant resource per consumed operation,
+      prefixed with /v1.
+    resources:
+    - path: /v1/v1/settings
+      name: v1-settings
+      description: REST surface for v1-settings.
+      operations:
+      - method: GET
+        name: getsettings
+        description: Get organization settings
+        call: growthbook-settings.getsettings
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: growthbook-settings-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for GrowthBook REST API — settings. One tool per consumed operation, routed inline through this
+      capability's consumes block.
+    tools:
+    - name: get-organization-settings
+      description: Get organization settings
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: growthbook-settings.getsettings
+      outputParameters:
+      - type: object
+        mapping: $.

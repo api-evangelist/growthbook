@@ -1,0 +1,620 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: GrowthBook REST API — ramp-schedules
+  description: 'GrowthBook REST API — ramp-schedules. 14 operations. Lead operation: Get all rampSchedules. Self-contained
+    Naftiko capability covering one Growthbook business surface.'
+  tags:
+  - Growthbook
+  - ramp-schedules
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    GROWTHBOOK_API_KEY: GROWTHBOOK_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: growthbook-ramp-schedules
+    baseUri: https://api.growthbook.io/api
+    description: GrowthBook REST API — ramp-schedules business capability. Self-contained, no shared references.
+    resources:
+    - name: v1-ramp-schedules
+      path: /v1/ramp-schedules
+      operations:
+      - name: listrampschedules
+        method: GET
+        description: Get all rampSchedules
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: status
+          in: query
+          type: string
+          description: Filter by schedule status
+      - name: createrampschedule
+        method: POST
+        description: Create a single rampSchedule
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    - name: v1-ramp-schedules-id
+      path: /v1/ramp-schedules/{id}
+      operations:
+      - name: getrampschedule
+        method: GET
+        description: Get a single rampSchedule
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: id
+          in: path
+          type: string
+          required: true
+      - name: deleterampschedule
+        method: DELETE
+        description: Delete a single rampSchedule
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: id
+          in: path
+          type: string
+          required: true
+      - name: updaterampschedule
+        method: PUT
+        description: Update a single rampSchedule
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: id
+          in: path
+          type: string
+          required: true
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    - name: v1-ramp-schedules-id-actions-add-target
+      path: /v1/ramp-schedules/{id}/actions/add-target
+      operations:
+      - name: addtargetrampschedule
+        method: POST
+        description: Add a target rule to a ramp schedule
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: id
+          in: path
+          type: string
+          required: true
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    - name: v1-ramp-schedules-id-actions-approve-step
+      path: /v1/ramp-schedules/{id}/actions/approve-step
+      operations:
+      - name: approvesteprampschedule
+        method: POST
+        description: Approve the current pending-approval step
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: id
+          in: path
+          type: string
+          required: true
+    - name: v1-ramp-schedules-id-actions-complete
+      path: /v1/ramp-schedules/{id}/actions/complete
+      operations:
+      - name: completerampschedule
+        method: POST
+        description: Complete a ramp schedule immediately
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: id
+          in: path
+          type: string
+          required: true
+    - name: v1-ramp-schedules-id-actions-eject-target
+      path: /v1/ramp-schedules/{id}/actions/eject-target
+      operations:
+      - name: ejecttargetrampschedule
+        method: POST
+        description: Remove a target rule from a ramp schedule
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: id
+          in: path
+          type: string
+          required: true
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    - name: v1-ramp-schedules-id-actions-jump
+      path: /v1/ramp-schedules/{id}/actions/jump
+      operations:
+      - name: jumprampschedule
+        method: POST
+        description: Jump to a specific step
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: id
+          in: path
+          type: string
+          required: true
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    - name: v1-ramp-schedules-id-actions-pause
+      path: /v1/ramp-schedules/{id}/actions/pause
+      operations:
+      - name: pauserampschedule
+        method: POST
+        description: Pause a ramp schedule
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: id
+          in: path
+          type: string
+          required: true
+    - name: v1-ramp-schedules-id-actions-resume
+      path: /v1/ramp-schedules/{id}/actions/resume
+      operations:
+      - name: resumerampschedule
+        method: POST
+        description: Resume a paused ramp schedule
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: id
+          in: path
+          type: string
+          required: true
+    - name: v1-ramp-schedules-id-actions-rollback
+      path: /v1/ramp-schedules/{id}/actions/rollback
+      operations:
+      - name: rollbackrampschedule
+        method: POST
+        description: Roll back a ramp schedule
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: id
+          in: path
+          type: string
+          required: true
+    - name: v1-ramp-schedules-id-actions-start
+      path: /v1/ramp-schedules/{id}/actions/start
+      operations:
+      - name: startrampschedule
+        method: POST
+        description: Start a ramp schedule
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: id
+          in: path
+          type: string
+          required: true
+    authentication:
+      type: bearer
+      token: '{{env.GROWTHBOOK_API_KEY}}'
+  exposes:
+  - type: rest
+    namespace: growthbook-ramp-schedules-rest
+    port: 8080
+    description: REST adapter for GrowthBook REST API — ramp-schedules. One Spectral-compliant resource per consumed operation,
+      prefixed with /v1.
+    resources:
+    - path: /v1/v1/ramp-schedules
+      name: v1-ramp-schedules
+      description: REST surface for v1-ramp-schedules.
+      operations:
+      - method: GET
+        name: listrampschedules
+        description: Get all rampSchedules
+        call: growthbook-ramp-schedules.listrampschedules
+        with:
+          status: rest.status
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: POST
+        name: createrampschedule
+        description: Create a single rampSchedule
+        call: growthbook-ramp-schedules.createrampschedule
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v1/ramp-schedules/{id}
+      name: v1-ramp-schedules-id
+      description: REST surface for v1-ramp-schedules-id.
+      operations:
+      - method: GET
+        name: getrampschedule
+        description: Get a single rampSchedule
+        call: growthbook-ramp-schedules.getrampschedule
+        with:
+          id: rest.id
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: DELETE
+        name: deleterampschedule
+        description: Delete a single rampSchedule
+        call: growthbook-ramp-schedules.deleterampschedule
+        with:
+          id: rest.id
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: PUT
+        name: updaterampschedule
+        description: Update a single rampSchedule
+        call: growthbook-ramp-schedules.updaterampschedule
+        with:
+          id: rest.id
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v1/ramp-schedules/{id}/actions/add-target
+      name: v1-ramp-schedules-id-actions-add-target
+      description: REST surface for v1-ramp-schedules-id-actions-add-target.
+      operations:
+      - method: POST
+        name: addtargetrampschedule
+        description: Add a target rule to a ramp schedule
+        call: growthbook-ramp-schedules.addtargetrampschedule
+        with:
+          id: rest.id
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v1/ramp-schedules/{id}/actions/approve-step
+      name: v1-ramp-schedules-id-actions-approve-step
+      description: REST surface for v1-ramp-schedules-id-actions-approve-step.
+      operations:
+      - method: POST
+        name: approvesteprampschedule
+        description: Approve the current pending-approval step
+        call: growthbook-ramp-schedules.approvesteprampschedule
+        with:
+          id: rest.id
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v1/ramp-schedules/{id}/actions/complete
+      name: v1-ramp-schedules-id-actions-complete
+      description: REST surface for v1-ramp-schedules-id-actions-complete.
+      operations:
+      - method: POST
+        name: completerampschedule
+        description: Complete a ramp schedule immediately
+        call: growthbook-ramp-schedules.completerampschedule
+        with:
+          id: rest.id
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v1/ramp-schedules/{id}/actions/eject-target
+      name: v1-ramp-schedules-id-actions-eject-target
+      description: REST surface for v1-ramp-schedules-id-actions-eject-target.
+      operations:
+      - method: POST
+        name: ejecttargetrampschedule
+        description: Remove a target rule from a ramp schedule
+        call: growthbook-ramp-schedules.ejecttargetrampschedule
+        with:
+          id: rest.id
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v1/ramp-schedules/{id}/actions/jump
+      name: v1-ramp-schedules-id-actions-jump
+      description: REST surface for v1-ramp-schedules-id-actions-jump.
+      operations:
+      - method: POST
+        name: jumprampschedule
+        description: Jump to a specific step
+        call: growthbook-ramp-schedules.jumprampschedule
+        with:
+          id: rest.id
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v1/ramp-schedules/{id}/actions/pause
+      name: v1-ramp-schedules-id-actions-pause
+      description: REST surface for v1-ramp-schedules-id-actions-pause.
+      operations:
+      - method: POST
+        name: pauserampschedule
+        description: Pause a ramp schedule
+        call: growthbook-ramp-schedules.pauserampschedule
+        with:
+          id: rest.id
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v1/ramp-schedules/{id}/actions/resume
+      name: v1-ramp-schedules-id-actions-resume
+      description: REST surface for v1-ramp-schedules-id-actions-resume.
+      operations:
+      - method: POST
+        name: resumerampschedule
+        description: Resume a paused ramp schedule
+        call: growthbook-ramp-schedules.resumerampschedule
+        with:
+          id: rest.id
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v1/ramp-schedules/{id}/actions/rollback
+      name: v1-ramp-schedules-id-actions-rollback
+      description: REST surface for v1-ramp-schedules-id-actions-rollback.
+      operations:
+      - method: POST
+        name: rollbackrampschedule
+        description: Roll back a ramp schedule
+        call: growthbook-ramp-schedules.rollbackrampschedule
+        with:
+          id: rest.id
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v1/ramp-schedules/{id}/actions/start
+      name: v1-ramp-schedules-id-actions-start
+      description: REST surface for v1-ramp-schedules-id-actions-start.
+      operations:
+      - method: POST
+        name: startrampschedule
+        description: Start a ramp schedule
+        call: growthbook-ramp-schedules.startrampschedule
+        with:
+          id: rest.id
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: growthbook-ramp-schedules-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for GrowthBook REST API — ramp-schedules. One tool per consumed operation, routed inline through
+      this capability's consumes block.
+    tools:
+    - name: get-all-rampschedules
+      description: Get all rampSchedules
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: growthbook-ramp-schedules.listrampschedules
+      with:
+        status: tools.status
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: create-single-rampschedule
+      description: Create a single rampSchedule
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: growthbook-ramp-schedules.createrampschedule
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: get-single-rampschedule
+      description: Get a single rampSchedule
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: growthbook-ramp-schedules.getrampschedule
+      with:
+        id: tools.id
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: delete-single-rampschedule
+      description: Delete a single rampSchedule
+      hints:
+        readOnly: false
+        destructive: true
+        idempotent: true
+      call: growthbook-ramp-schedules.deleterampschedule
+      with:
+        id: tools.id
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: update-single-rampschedule
+      description: Update a single rampSchedule
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: true
+      call: growthbook-ramp-schedules.updaterampschedule
+      with:
+        id: tools.id
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: add-target-rule-ramp-schedule
+      description: Add a target rule to a ramp schedule
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: false
+      call: growthbook-ramp-schedules.addtargetrampschedule
+      with:
+        id: tools.id
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: approve-current-pending-approval-step
+      description: Approve the current pending-approval step
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: growthbook-ramp-schedules.approvesteprampschedule
+      with:
+        id: tools.id
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: complete-ramp-schedule-immediately
+      description: Complete a ramp schedule immediately
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: growthbook-ramp-schedules.completerampschedule
+      with:
+        id: tools.id
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: remove-target-rule-ramp-schedule
+      description: Remove a target rule from a ramp schedule
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: false
+      call: growthbook-ramp-schedules.ejecttargetrampschedule
+      with:
+        id: tools.id
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: jump-specific-step
+      description: Jump to a specific step
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: growthbook-ramp-schedules.jumprampschedule
+      with:
+        id: tools.id
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: pause-ramp-schedule
+      description: Pause a ramp schedule
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: growthbook-ramp-schedules.pauserampschedule
+      with:
+        id: tools.id
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: resume-paused-ramp-schedule
+      description: Resume a paused ramp schedule
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: growthbook-ramp-schedules.resumerampschedule
+      with:
+        id: tools.id
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: roll-back-ramp-schedule
+      description: Roll back a ramp schedule
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: growthbook-ramp-schedules.rollbackrampschedule
+      with:
+        id: tools.id
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: start-ramp-schedule
+      description: Start a ramp schedule
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: growthbook-ramp-schedules.startrampschedule
+      with:
+        id: tools.id
+      outputParameters:
+      - type: object
+        mapping: $.

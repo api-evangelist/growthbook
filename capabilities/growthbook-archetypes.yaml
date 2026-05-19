@@ -1,0 +1,197 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: GrowthBook REST API — archetypes
+  description: 'GrowthBook REST API — archetypes. 5 operations. Lead operation: Get the organization''s archetypes. Self-contained
+    Naftiko capability covering one Growthbook business surface.'
+  tags:
+  - Growthbook
+  - archetypes
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    GROWTHBOOK_API_KEY: GROWTHBOOK_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: growthbook-archetypes
+    baseUri: https://api.growthbook.io/api
+    description: GrowthBook REST API — archetypes business capability. Self-contained, no shared references.
+    resources:
+    - name: v1-archetypes
+      path: /v1/archetypes
+      operations:
+      - name: listarchetypes
+        method: GET
+        description: Get the organization's archetypes
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+      - name: postarchetype
+        method: POST
+        description: Create a single archetype
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    - name: v1-archetypes-id
+      path: /v1/archetypes/{id}
+      operations:
+      - name: getarchetype
+        method: GET
+        description: Get a single archetype
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+      - name: putarchetype
+        method: PUT
+        description: Update a single archetype
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+      - name: deletearchetype
+        method: DELETE
+        description: Deletes a single archetype
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    authentication:
+      type: bearer
+      token: '{{env.GROWTHBOOK_API_KEY}}'
+  exposes:
+  - type: rest
+    namespace: growthbook-archetypes-rest
+    port: 8080
+    description: REST adapter for GrowthBook REST API — archetypes. One Spectral-compliant resource per consumed operation,
+      prefixed with /v1.
+    resources:
+    - path: /v1/v1/archetypes
+      name: v1-archetypes
+      description: REST surface for v1-archetypes.
+      operations:
+      - method: GET
+        name: listarchetypes
+        description: Get the organization's archetypes
+        call: growthbook-archetypes.listarchetypes
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: POST
+        name: postarchetype
+        description: Create a single archetype
+        call: growthbook-archetypes.postarchetype
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v1/archetypes/{id}
+      name: v1-archetypes-id
+      description: REST surface for v1-archetypes-id.
+      operations:
+      - method: GET
+        name: getarchetype
+        description: Get a single archetype
+        call: growthbook-archetypes.getarchetype
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: PUT
+        name: putarchetype
+        description: Update a single archetype
+        call: growthbook-archetypes.putarchetype
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: DELETE
+        name: deletearchetype
+        description: Deletes a single archetype
+        call: growthbook-archetypes.deletearchetype
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: growthbook-archetypes-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for GrowthBook REST API — archetypes. One tool per consumed operation, routed inline through
+      this capability's consumes block.
+    tools:
+    - name: get-organization-s-archetypes
+      description: Get the organization's archetypes
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: growthbook-archetypes.listarchetypes
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: create-single-archetype
+      description: Create a single archetype
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: growthbook-archetypes.postarchetype
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: get-single-archetype
+      description: Get a single archetype
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: growthbook-archetypes.getarchetype
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: update-single-archetype
+      description: Update a single archetype
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: true
+      call: growthbook-archetypes.putarchetype
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: deletes-single-archetype
+      description: Deletes a single archetype
+      hints:
+        readOnly: false
+        destructive: true
+        idempotent: true
+      call: growthbook-archetypes.deletearchetype
+      outputParameters:
+      - type: object
+        mapping: $.

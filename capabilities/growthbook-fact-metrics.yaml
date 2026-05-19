@@ -1,0 +1,255 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: GrowthBook REST API — fact-metrics
+  description: 'GrowthBook REST API — fact-metrics. 6 operations. Lead operation: Get all fact metrics. Self-contained Naftiko
+    capability covering one Growthbook business surface.'
+  tags:
+  - Growthbook
+  - fact-metrics
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    GROWTHBOOK_API_KEY: GROWTHBOOK_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: growthbook-fact-metrics
+    baseUri: https://api.growthbook.io/api
+    description: GrowthBook REST API — fact-metrics business capability. Self-contained, no shared references.
+    resources:
+    - name: v1-fact-metrics
+      path: /v1/fact-metrics
+      operations:
+      - name: listfactmetrics
+        method: GET
+        description: Get all fact metrics
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: factTableId
+          in: query
+          type: string
+          description: Filter by Fact Table Id (for ratio metrics, we only look at the numerator)
+      - name: postfactmetric
+        method: POST
+        description: Create a single fact metric
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    - name: v1-fact-metrics-id
+      path: /v1/fact-metrics/{id}
+      operations:
+      - name: getfactmetric
+        method: GET
+        description: Get a single fact metric
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+      - name: updatefactmetric
+        method: POST
+        description: Update a single fact metric
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+      - name: deletefactmetric
+        method: DELETE
+        description: Deletes a single fact metric
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: v1-fact-metrics-id-analysis
+      path: /v1/fact-metrics/{id}/analysis
+      operations:
+      - name: postfactmetricanalysis
+        method: POST
+        description: Create a fact metric analysis
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: id
+          in: path
+          type: string
+          description: The fact metric id to analyze
+          required: true
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: false
+    authentication:
+      type: bearer
+      token: '{{env.GROWTHBOOK_API_KEY}}'
+  exposes:
+  - type: rest
+    namespace: growthbook-fact-metrics-rest
+    port: 8080
+    description: REST adapter for GrowthBook REST API — fact-metrics. One Spectral-compliant resource per consumed operation,
+      prefixed with /v1.
+    resources:
+    - path: /v1/v1/fact-metrics
+      name: v1-fact-metrics
+      description: REST surface for v1-fact-metrics.
+      operations:
+      - method: GET
+        name: listfactmetrics
+        description: Get all fact metrics
+        call: growthbook-fact-metrics.listfactmetrics
+        with:
+          factTableId: rest.factTableId
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: POST
+        name: postfactmetric
+        description: Create a single fact metric
+        call: growthbook-fact-metrics.postfactmetric
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v1/fact-metrics/{id}
+      name: v1-fact-metrics-id
+      description: REST surface for v1-fact-metrics-id.
+      operations:
+      - method: GET
+        name: getfactmetric
+        description: Get a single fact metric
+        call: growthbook-fact-metrics.getfactmetric
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: POST
+        name: updatefactmetric
+        description: Update a single fact metric
+        call: growthbook-fact-metrics.updatefactmetric
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: DELETE
+        name: deletefactmetric
+        description: Deletes a single fact metric
+        call: growthbook-fact-metrics.deletefactmetric
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v1/fact-metrics/{id}/analysis
+      name: v1-fact-metrics-id-analysis
+      description: REST surface for v1-fact-metrics-id-analysis.
+      operations:
+      - method: POST
+        name: postfactmetricanalysis
+        description: Create a fact metric analysis
+        call: growthbook-fact-metrics.postfactmetricanalysis
+        with:
+          id: rest.id
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: growthbook-fact-metrics-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for GrowthBook REST API — fact-metrics. One tool per consumed operation, routed inline through
+      this capability's consumes block.
+    tools:
+    - name: get-all-fact-metrics
+      description: Get all fact metrics
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: growthbook-fact-metrics.listfactmetrics
+      with:
+        factTableId: tools.factTableId
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: create-single-fact-metric
+      description: Create a single fact metric
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: growthbook-fact-metrics.postfactmetric
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: get-single-fact-metric
+      description: Get a single fact metric
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: growthbook-fact-metrics.getfactmetric
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: update-single-fact-metric
+      description: Update a single fact metric
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: growthbook-fact-metrics.updatefactmetric
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: deletes-single-fact-metric
+      description: Deletes a single fact metric
+      hints:
+        readOnly: false
+        destructive: true
+        idempotent: true
+      call: growthbook-fact-metrics.deletefactmetric
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: create-fact-metric-analysis
+      description: Create a fact metric analysis
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: growthbook-fact-metrics.postfactmetricanalysis
+      with:
+        id: tools.id
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.

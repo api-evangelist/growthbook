@@ -1,0 +1,147 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: GrowthBook REST API — organizations
+  description: 'GrowthBook REST API — organizations. 3 operations. Lead operation: Get all organizations (only for super admins
+    on multi-org Enterprise Plan only). Self-contained Naftiko capability covering one Growthbook business surface.'
+  tags:
+  - Growthbook
+  - organizations
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    GROWTHBOOK_API_KEY: GROWTHBOOK_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: growthbook-organizations
+    baseUri: https://api.growthbook.io/api
+    description: GrowthBook REST API — organizations business capability. Self-contained, no shared references.
+    resources:
+    - name: v1-organizations
+      path: /v1/organizations
+      operations:
+      - name: listorganizations
+        method: GET
+        description: Get all organizations (only for super admins on multi-org Enterprise Plan only)
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+      - name: postorganization
+        method: POST
+        description: Create a single organization (only for super admins on multi-org Enterprise Plan only)
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    - name: v1-organizations-id
+      path: /v1/organizations/{id}
+      operations:
+      - name: putorganization
+        method: PUT
+        description: Edit a single organization (only for super admins on multi-org Enterprise Plan only)
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    authentication:
+      type: bearer
+      token: '{{env.GROWTHBOOK_API_KEY}}'
+  exposes:
+  - type: rest
+    namespace: growthbook-organizations-rest
+    port: 8080
+    description: REST adapter for GrowthBook REST API — organizations. One Spectral-compliant resource per consumed operation,
+      prefixed with /v1.
+    resources:
+    - path: /v1/v1/organizations
+      name: v1-organizations
+      description: REST surface for v1-organizations.
+      operations:
+      - method: GET
+        name: listorganizations
+        description: Get all organizations (only for super admins on multi-org Enterprise Plan only)
+        call: growthbook-organizations.listorganizations
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: POST
+        name: postorganization
+        description: Create a single organization (only for super admins on multi-org Enterprise Plan only)
+        call: growthbook-organizations.postorganization
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v1/organizations/{id}
+      name: v1-organizations-id
+      description: REST surface for v1-organizations-id.
+      operations:
+      - method: PUT
+        name: putorganization
+        description: Edit a single organization (only for super admins on multi-org Enterprise Plan only)
+        call: growthbook-organizations.putorganization
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: growthbook-organizations-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for GrowthBook REST API — organizations. One tool per consumed operation, routed inline through
+      this capability's consumes block.
+    tools:
+    - name: get-all-organizations-only-super
+      description: Get all organizations (only for super admins on multi-org Enterprise Plan only)
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: growthbook-organizations.listorganizations
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: create-single-organization-only-super
+      description: Create a single organization (only for super admins on multi-org Enterprise Plan only)
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: growthbook-organizations.postorganization
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: edit-single-organization-only-super
+      description: Edit a single organization (only for super admins on multi-org Enterprise Plan only)
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: true
+      call: growthbook-organizations.putorganization
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.

@@ -1,0 +1,229 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: GrowthBook REST API — sdk-connections
+  description: 'GrowthBook REST API — sdk-connections. 6 operations. Lead operation: Get all sdk connections. Self-contained
+    Naftiko capability covering one Growthbook business surface.'
+  tags:
+  - Growthbook
+  - sdk-connections
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    GROWTHBOOK_API_KEY: GROWTHBOOK_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: growthbook-sdk-connections
+    baseUri: https://api.growthbook.io/api
+    description: GrowthBook REST API — sdk-connections business capability. Self-contained, no shared references.
+    resources:
+    - name: v1-sdk-connections
+      path: /v1/sdk-connections
+      operations:
+      - name: listsdkconnections
+        method: GET
+        description: Get all sdk connections
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+      - name: postsdkconnection
+        method: POST
+        description: Create a single sdk connection
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    - name: v1-sdk-connections-lookup-key
+      path: /v1/sdk-connections/lookup/{key}
+      operations:
+      - name: lookupsdkconnectionbykey
+        method: GET
+        description: Find a single sdk connection by its key
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: v1-sdk-connections-id
+      path: /v1/sdk-connections/{id}
+      operations:
+      - name: getsdkconnection
+        method: GET
+        description: Get a single sdk connection
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+      - name: putsdkconnection
+        method: PUT
+        description: Update a single sdk connection
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+      - name: deletesdkconnection
+        method: DELETE
+        description: Deletes a single SDK connection
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    authentication:
+      type: bearer
+      token: '{{env.GROWTHBOOK_API_KEY}}'
+  exposes:
+  - type: rest
+    namespace: growthbook-sdk-connections-rest
+    port: 8080
+    description: REST adapter for GrowthBook REST API — sdk-connections. One Spectral-compliant resource per consumed operation,
+      prefixed with /v1.
+    resources:
+    - path: /v1/v1/sdk-connections
+      name: v1-sdk-connections
+      description: REST surface for v1-sdk-connections.
+      operations:
+      - method: GET
+        name: listsdkconnections
+        description: Get all sdk connections
+        call: growthbook-sdk-connections.listsdkconnections
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: POST
+        name: postsdkconnection
+        description: Create a single sdk connection
+        call: growthbook-sdk-connections.postsdkconnection
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v1/sdk-connections/lookup/{key}
+      name: v1-sdk-connections-lookup-key
+      description: REST surface for v1-sdk-connections-lookup-key.
+      operations:
+      - method: GET
+        name: lookupsdkconnectionbykey
+        description: Find a single sdk connection by its key
+        call: growthbook-sdk-connections.lookupsdkconnectionbykey
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v1/sdk-connections/{id}
+      name: v1-sdk-connections-id
+      description: REST surface for v1-sdk-connections-id.
+      operations:
+      - method: GET
+        name: getsdkconnection
+        description: Get a single sdk connection
+        call: growthbook-sdk-connections.getsdkconnection
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: PUT
+        name: putsdkconnection
+        description: Update a single sdk connection
+        call: growthbook-sdk-connections.putsdkconnection
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: DELETE
+        name: deletesdkconnection
+        description: Deletes a single SDK connection
+        call: growthbook-sdk-connections.deletesdkconnection
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: growthbook-sdk-connections-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for GrowthBook REST API — sdk-connections. One tool per consumed operation, routed inline through
+      this capability's consumes block.
+    tools:
+    - name: get-all-sdk-connections
+      description: Get all sdk connections
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: growthbook-sdk-connections.listsdkconnections
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: create-single-sdk-connection
+      description: Create a single sdk connection
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: growthbook-sdk-connections.postsdkconnection
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: find-single-sdk-connection-its
+      description: Find a single sdk connection by its key
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: growthbook-sdk-connections.lookupsdkconnectionbykey
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: get-single-sdk-connection
+      description: Get a single sdk connection
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: growthbook-sdk-connections.getsdkconnection
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: update-single-sdk-connection
+      description: Update a single sdk connection
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: true
+      call: growthbook-sdk-connections.putsdkconnection
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: deletes-single-sdk-connection
+      description: Deletes a single SDK connection
+      hints:
+        readOnly: false
+        destructive: true
+        idempotent: true
+      call: growthbook-sdk-connections.deletesdkconnection
+      outputParameters:
+      - type: object
+        mapping: $.

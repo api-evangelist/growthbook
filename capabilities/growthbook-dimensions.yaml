@@ -1,0 +1,197 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: GrowthBook REST API — dimensions
+  description: 'GrowthBook REST API — dimensions. 5 operations. Lead operation: Get all dimensions. Self-contained Naftiko
+    capability covering one Growthbook business surface.'
+  tags:
+  - Growthbook
+  - dimensions
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    GROWTHBOOK_API_KEY: GROWTHBOOK_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: growthbook-dimensions
+    baseUri: https://api.growthbook.io/api
+    description: GrowthBook REST API — dimensions business capability. Self-contained, no shared references.
+    resources:
+    - name: v1-dimensions
+      path: /v1/dimensions
+      operations:
+      - name: listdimensions
+        method: GET
+        description: Get all dimensions
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+      - name: postdimension
+        method: POST
+        description: Create a single dimension
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    - name: v1-dimensions-id
+      path: /v1/dimensions/{id}
+      operations:
+      - name: getdimension
+        method: GET
+        description: Get a single dimension
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+      - name: updatedimension
+        method: POST
+        description: Update a single dimension
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+      - name: deletedimension
+        method: DELETE
+        description: Deletes a single dimension
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    authentication:
+      type: bearer
+      token: '{{env.GROWTHBOOK_API_KEY}}'
+  exposes:
+  - type: rest
+    namespace: growthbook-dimensions-rest
+    port: 8080
+    description: REST adapter for GrowthBook REST API — dimensions. One Spectral-compliant resource per consumed operation,
+      prefixed with /v1.
+    resources:
+    - path: /v1/v1/dimensions
+      name: v1-dimensions
+      description: REST surface for v1-dimensions.
+      operations:
+      - method: GET
+        name: listdimensions
+        description: Get all dimensions
+        call: growthbook-dimensions.listdimensions
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: POST
+        name: postdimension
+        description: Create a single dimension
+        call: growthbook-dimensions.postdimension
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v1/dimensions/{id}
+      name: v1-dimensions-id
+      description: REST surface for v1-dimensions-id.
+      operations:
+      - method: GET
+        name: getdimension
+        description: Get a single dimension
+        call: growthbook-dimensions.getdimension
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: POST
+        name: updatedimension
+        description: Update a single dimension
+        call: growthbook-dimensions.updatedimension
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: DELETE
+        name: deletedimension
+        description: Deletes a single dimension
+        call: growthbook-dimensions.deletedimension
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: growthbook-dimensions-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for GrowthBook REST API — dimensions. One tool per consumed operation, routed inline through
+      this capability's consumes block.
+    tools:
+    - name: get-all-dimensions
+      description: Get all dimensions
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: growthbook-dimensions.listdimensions
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: create-single-dimension
+      description: Create a single dimension
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: growthbook-dimensions.postdimension
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: get-single-dimension
+      description: Get a single dimension
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: growthbook-dimensions.getdimension
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: update-single-dimension
+      description: Update a single dimension
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: growthbook-dimensions.updatedimension
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: deletes-single-dimension
+      description: Deletes a single dimension
+      hints:
+        readOnly: false
+        destructive: true
+        idempotent: true
+      call: growthbook-dimensions.deletedimension
+      outputParameters:
+      - type: object
+        mapping: $.

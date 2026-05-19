@@ -1,0 +1,137 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: GrowthBook REST API — code-references
+  description: 'GrowthBook REST API — code-references. 3 operations. Lead operation: Submit list of code references. Self-contained
+    Naftiko capability covering one Growthbook business surface.'
+  tags:
+  - Growthbook
+  - code-references
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    GROWTHBOOK_API_KEY: GROWTHBOOK_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: growthbook-code-references
+    baseUri: https://api.growthbook.io/api
+    description: GrowthBook REST API — code-references business capability. Self-contained, no shared references.
+    resources:
+    - name: v1-code-refs
+      path: /v1/code-refs
+      operations:
+      - name: postcoderefs
+        method: POST
+        description: Submit list of code references
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+      - name: listcoderefs
+        method: GET
+        description: Get list of all code references for the current organization
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: v1-code-refs-id
+      path: /v1/code-refs/{id}
+      operations:
+      - name: getcoderefs
+        method: GET
+        description: Get list of code references for a single feature id
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    authentication:
+      type: bearer
+      token: '{{env.GROWTHBOOK_API_KEY}}'
+  exposes:
+  - type: rest
+    namespace: growthbook-code-references-rest
+    port: 8080
+    description: REST adapter for GrowthBook REST API — code-references. One Spectral-compliant resource per consumed operation,
+      prefixed with /v1.
+    resources:
+    - path: /v1/v1/code-refs
+      name: v1-code-refs
+      description: REST surface for v1-code-refs.
+      operations:
+      - method: POST
+        name: postcoderefs
+        description: Submit list of code references
+        call: growthbook-code-references.postcoderefs
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: GET
+        name: listcoderefs
+        description: Get list of all code references for the current organization
+        call: growthbook-code-references.listcoderefs
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v1/code-refs/{id}
+      name: v1-code-refs-id
+      description: REST surface for v1-code-refs-id.
+      operations:
+      - method: GET
+        name: getcoderefs
+        description: Get list of code references for a single feature id
+        call: growthbook-code-references.getcoderefs
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: growthbook-code-references-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for GrowthBook REST API — code-references. One tool per consumed operation, routed inline through
+      this capability's consumes block.
+    tools:
+    - name: submit-list-code-references
+      description: Submit list of code references
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: false
+      call: growthbook-code-references.postcoderefs
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: get-list-all-code-references
+      description: Get list of all code references for the current organization
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: growthbook-code-references.listcoderefs
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: get-list-code-references-single
+      description: Get list of code references for a single feature id
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: growthbook-code-references.getcoderefs
+      outputParameters:
+      - type: object
+        mapping: $.

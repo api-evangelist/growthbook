@@ -1,0 +1,236 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: GrowthBook REST API — visual-changesets
+  description: 'GrowthBook REST API — visual-changesets. 6 operations. Lead operation: Get all visual changesets. Self-contained
+    Naftiko capability covering one Growthbook business surface.'
+  tags:
+  - Growthbook
+  - visual-changesets
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    GROWTHBOOK_API_KEY: GROWTHBOOK_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: growthbook-visual-changesets
+    baseUri: https://api.growthbook.io/api
+    description: GrowthBook REST API — visual-changesets business capability. Self-contained, no shared references.
+    resources:
+    - name: v1-experiments-id-visual-changesets
+      path: /v1/experiments/{id}/visual-changesets
+      operations:
+      - name: listvisualchangesets
+        method: GET
+        description: Get all visual changesets
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: id
+          in: path
+          type: string
+          description: The experiment id the visual changesets belong to
+          required: true
+      - name: postvisualchangesets
+        method: POST
+        description: Create a visual changeset for an experiment
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    - name: v1-visual-changesets-id
+      path: /v1/visual-changesets/{id}
+      operations:
+      - name: getvisualchangeset
+        method: GET
+        description: Get a single visual changeset
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+      - name: putvisualchangeset
+        method: PUT
+        description: Update a visual changeset
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: v1-visual-changesets-id-visual-change
+      path: /v1/visual-changesets/{id}/visual-change
+      operations:
+      - name: postvisualchange
+        method: POST
+        description: Create a visual change for a visual changeset
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: v1-visual-changesets-id-visual-change-visualChangeId
+      path: /v1/visual-changesets/{id}/visual-change/{visualChangeId}
+      operations:
+      - name: putvisualchange
+        method: PUT
+        description: Update a visual change for a visual changeset
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    authentication:
+      type: bearer
+      token: '{{env.GROWTHBOOK_API_KEY}}'
+  exposes:
+  - type: rest
+    namespace: growthbook-visual-changesets-rest
+    port: 8080
+    description: REST adapter for GrowthBook REST API — visual-changesets. One Spectral-compliant resource per consumed operation,
+      prefixed with /v1.
+    resources:
+    - path: /v1/v1/experiments/{id}/visual-changesets
+      name: v1-experiments-id-visual-changesets
+      description: REST surface for v1-experiments-id-visual-changesets.
+      operations:
+      - method: GET
+        name: listvisualchangesets
+        description: Get all visual changesets
+        call: growthbook-visual-changesets.listvisualchangesets
+        with:
+          id: rest.id
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: POST
+        name: postvisualchangesets
+        description: Create a visual changeset for an experiment
+        call: growthbook-visual-changesets.postvisualchangesets
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v1/visual-changesets/{id}
+      name: v1-visual-changesets-id
+      description: REST surface for v1-visual-changesets-id.
+      operations:
+      - method: GET
+        name: getvisualchangeset
+        description: Get a single visual changeset
+        call: growthbook-visual-changesets.getvisualchangeset
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: PUT
+        name: putvisualchangeset
+        description: Update a visual changeset
+        call: growthbook-visual-changesets.putvisualchangeset
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v1/visual-changesets/{id}/visual-change
+      name: v1-visual-changesets-id-visual-change
+      description: REST surface for v1-visual-changesets-id-visual-change.
+      operations:
+      - method: POST
+        name: postvisualchange
+        description: Create a visual change for a visual changeset
+        call: growthbook-visual-changesets.postvisualchange
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v1/visual-changesets/{id}/visual-change/{visualchangeid}
+      name: v1-visual-changesets-id-visual-change-visualchangeid
+      description: REST surface for v1-visual-changesets-id-visual-change-visualChangeId.
+      operations:
+      - method: PUT
+        name: putvisualchange
+        description: Update a visual change for a visual changeset
+        call: growthbook-visual-changesets.putvisualchange
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: growthbook-visual-changesets-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for GrowthBook REST API — visual-changesets. One tool per consumed operation, routed inline through
+      this capability's consumes block.
+    tools:
+    - name: get-all-visual-changesets
+      description: Get all visual changesets
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: growthbook-visual-changesets.listvisualchangesets
+      with:
+        id: tools.id
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: create-visual-changeset-experiment
+      description: Create a visual changeset for an experiment
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: growthbook-visual-changesets.postvisualchangesets
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: get-single-visual-changeset
+      description: Get a single visual changeset
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: growthbook-visual-changesets.getvisualchangeset
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: update-visual-changeset
+      description: Update a visual changeset
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: true
+      call: growthbook-visual-changesets.putvisualchangeset
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: create-visual-change-visual-changeset
+      description: Create a visual change for a visual changeset
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: growthbook-visual-changesets.postvisualchange
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: update-visual-change-visual-changeset
+      description: Update a visual change for a visual changeset
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: true
+      call: growthbook-visual-changesets.putvisualchange
+      outputParameters:
+      - type: object
+        mapping: $.

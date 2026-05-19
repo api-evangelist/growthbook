@@ -1,0 +1,197 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: GrowthBook REST API — segments
+  description: 'GrowthBook REST API — segments. 5 operations. Lead operation: Get all segments. Self-contained Naftiko capability
+    covering one Growthbook business surface.'
+  tags:
+  - Growthbook
+  - segments
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    GROWTHBOOK_API_KEY: GROWTHBOOK_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: growthbook-segments
+    baseUri: https://api.growthbook.io/api
+    description: GrowthBook REST API — segments business capability. Self-contained, no shared references.
+    resources:
+    - name: v1-segments
+      path: /v1/segments
+      operations:
+      - name: listsegments
+        method: GET
+        description: Get all segments
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+      - name: postsegment
+        method: POST
+        description: Create a single segment
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    - name: v1-segments-id
+      path: /v1/segments/{id}
+      operations:
+      - name: getsegment
+        method: GET
+        description: Get a single segment
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+      - name: updatesegment
+        method: POST
+        description: Update a single segment
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+      - name: deletesegment
+        method: DELETE
+        description: Deletes a single segment
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    authentication:
+      type: bearer
+      token: '{{env.GROWTHBOOK_API_KEY}}'
+  exposes:
+  - type: rest
+    namespace: growthbook-segments-rest
+    port: 8080
+    description: REST adapter for GrowthBook REST API — segments. One Spectral-compliant resource per consumed operation,
+      prefixed with /v1.
+    resources:
+    - path: /v1/v1/segments
+      name: v1-segments
+      description: REST surface for v1-segments.
+      operations:
+      - method: GET
+        name: listsegments
+        description: Get all segments
+        call: growthbook-segments.listsegments
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: POST
+        name: postsegment
+        description: Create a single segment
+        call: growthbook-segments.postsegment
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v1/segments/{id}
+      name: v1-segments-id
+      description: REST surface for v1-segments-id.
+      operations:
+      - method: GET
+        name: getsegment
+        description: Get a single segment
+        call: growthbook-segments.getsegment
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: POST
+        name: updatesegment
+        description: Update a single segment
+        call: growthbook-segments.updatesegment
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: DELETE
+        name: deletesegment
+        description: Deletes a single segment
+        call: growthbook-segments.deletesegment
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: growthbook-segments-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for GrowthBook REST API — segments. One tool per consumed operation, routed inline through this
+      capability's consumes block.
+    tools:
+    - name: get-all-segments
+      description: Get all segments
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: growthbook-segments.listsegments
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: create-single-segment
+      description: Create a single segment
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: growthbook-segments.postsegment
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: get-single-segment
+      description: Get a single segment
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: growthbook-segments.getsegment
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: update-single-segment
+      description: Update a single segment
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: growthbook-segments.updatesegment
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: deletes-single-segment
+      description: Deletes a single segment
+      hints:
+        readOnly: false
+        destructive: true
+        idempotent: true
+      call: growthbook-segments.deletesegment
+      outputParameters:
+      - type: object
+        mapping: $.

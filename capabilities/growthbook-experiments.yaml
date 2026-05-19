@@ -1,0 +1,515 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: GrowthBook REST API — experiments
+  description: 'GrowthBook REST API — experiments. 12 operations. Lead operation: Get a list of experiments with names and
+    ids. Self-contained Naftiko capability covering one Growthbook business surface.'
+  tags:
+  - Growthbook
+  - experiments
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    GROWTHBOOK_API_KEY: GROWTHBOOK_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: growthbook-experiments
+    baseUri: https://api.growthbook.io/api
+    description: GrowthBook REST API — experiments business capability. Self-contained, no shared references.
+    resources:
+    - name: v1-experiment-names
+      path: /v1/experiment-names
+      operations:
+      - name: getexperimentnames
+        method: GET
+        description: Get a list of experiments with names and ids
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: v1-experiments
+      path: /v1/experiments
+      operations:
+      - name: listexperiments
+        method: GET
+        description: Get all experiments
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: status
+          in: query
+          type: string
+      - name: postexperiment
+        method: POST
+        description: Create a single experiment
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    - name: v1-experiments-id
+      path: /v1/experiments/{id}
+      operations:
+      - name: getexperiment
+        method: GET
+        description: Get a single experiment
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+      - name: updateexperiment
+        method: POST
+        description: Update a single experiment
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    - name: v1-experiments-id-modify-temporary-rollout
+      path: /v1/experiments/{id}/modify-temporary-rollout
+      operations:
+      - name: postexperimentmodifytemporaryrollout
+        method: POST
+        description: Modify temporary rollout status for a stopped experiment
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    - name: v1-experiments-id-results
+      path: /v1/experiments/{id}/results
+      operations:
+      - name: getexperimentresults
+        method: GET
+        description: Get results for an experiment
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    - name: v1-experiments-id-snapshot
+      path: /v1/experiments/{id}/snapshot
+      operations:
+      - name: postexperimentsnapshot
+        method: POST
+        description: Create Experiment Snapshot
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: id
+          in: path
+          type: string
+          description: The experiment id of the experiment to update
+          required: true
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: false
+    - name: v1-experiments-id-start
+      path: /v1/experiments/{id}/start
+      operations:
+      - name: postexperimentstart
+        method: POST
+        description: Start an experiment
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: false
+    - name: v1-experiments-id-stop
+      path: /v1/experiments/{id}/stop
+      operations:
+      - name: postexperimentstop
+        method: POST
+        description: Stop an experiment
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    - name: v1-experiments-id-variation-variationId-screenshot
+      path: /v1/experiments/{id}/variation/{variationId}/screenshot
+      operations:
+      - name: deletevariationscreenshot
+        method: DELETE
+        description: Delete a variation screenshot
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: id
+          in: path
+          type: string
+          required: true
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    - name: v1-experiments-id-variation-variationId-screenshot-upload
+      path: /v1/experiments/{id}/variation/{variationId}/screenshot/upload
+      operations:
+      - name: postvariationimageupload
+        method: POST
+        description: Upload a variation screenshot
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: id
+          in: path
+          type: string
+          required: true
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    authentication:
+      type: bearer
+      token: '{{env.GROWTHBOOK_API_KEY}}'
+  exposes:
+  - type: rest
+    namespace: growthbook-experiments-rest
+    port: 8080
+    description: REST adapter for GrowthBook REST API — experiments. One Spectral-compliant resource per consumed operation,
+      prefixed with /v1.
+    resources:
+    - path: /v1/v1/experiment-names
+      name: v1-experiment-names
+      description: REST surface for v1-experiment-names.
+      operations:
+      - method: GET
+        name: getexperimentnames
+        description: Get a list of experiments with names and ids
+        call: growthbook-experiments.getexperimentnames
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v1/experiments
+      name: v1-experiments
+      description: REST surface for v1-experiments.
+      operations:
+      - method: GET
+        name: listexperiments
+        description: Get all experiments
+        call: growthbook-experiments.listexperiments
+        with:
+          status: rest.status
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: POST
+        name: postexperiment
+        description: Create a single experiment
+        call: growthbook-experiments.postexperiment
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v1/experiments/{id}
+      name: v1-experiments-id
+      description: REST surface for v1-experiments-id.
+      operations:
+      - method: GET
+        name: getexperiment
+        description: Get a single experiment
+        call: growthbook-experiments.getexperiment
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: POST
+        name: updateexperiment
+        description: Update a single experiment
+        call: growthbook-experiments.updateexperiment
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v1/experiments/{id}/modify-temporary-rollout
+      name: v1-experiments-id-modify-temporary-rollout
+      description: REST surface for v1-experiments-id-modify-temporary-rollout.
+      operations:
+      - method: POST
+        name: postexperimentmodifytemporaryrollout
+        description: Modify temporary rollout status for a stopped experiment
+        call: growthbook-experiments.postexperimentmodifytemporaryrollout
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v1/experiments/{id}/results
+      name: v1-experiments-id-results
+      description: REST surface for v1-experiments-id-results.
+      operations:
+      - method: GET
+        name: getexperimentresults
+        description: Get results for an experiment
+        call: growthbook-experiments.getexperimentresults
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v1/experiments/{id}/snapshot
+      name: v1-experiments-id-snapshot
+      description: REST surface for v1-experiments-id-snapshot.
+      operations:
+      - method: POST
+        name: postexperimentsnapshot
+        description: Create Experiment Snapshot
+        call: growthbook-experiments.postexperimentsnapshot
+        with:
+          id: rest.id
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v1/experiments/{id}/start
+      name: v1-experiments-id-start
+      description: REST surface for v1-experiments-id-start.
+      operations:
+      - method: POST
+        name: postexperimentstart
+        description: Start an experiment
+        call: growthbook-experiments.postexperimentstart
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v1/experiments/{id}/stop
+      name: v1-experiments-id-stop
+      description: REST surface for v1-experiments-id-stop.
+      operations:
+      - method: POST
+        name: postexperimentstop
+        description: Stop an experiment
+        call: growthbook-experiments.postexperimentstop
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v1/experiments/{id}/variation/{variationid}/screenshot
+      name: v1-experiments-id-variation-variationid-screenshot
+      description: REST surface for v1-experiments-id-variation-variationId-screenshot.
+      operations:
+      - method: DELETE
+        name: deletevariationscreenshot
+        description: Delete a variation screenshot
+        call: growthbook-experiments.deletevariationscreenshot
+        with:
+          id: rest.id
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/v1/experiments/{id}/variation/{variationid}/screenshot/upload
+      name: v1-experiments-id-variation-variationid-screenshot-upload
+      description: REST surface for v1-experiments-id-variation-variationId-screenshot-upload.
+      operations:
+      - method: POST
+        name: postvariationimageupload
+        description: Upload a variation screenshot
+        call: growthbook-experiments.postvariationimageupload
+        with:
+          id: rest.id
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: growthbook-experiments-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for GrowthBook REST API — experiments. One tool per consumed operation, routed inline through
+      this capability's consumes block.
+    tools:
+    - name: get-list-experiments-names-and
+      description: Get a list of experiments with names and ids
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: growthbook-experiments.getexperimentnames
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: get-all-experiments
+      description: Get all experiments
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: growthbook-experiments.listexperiments
+      with:
+        status: tools.status
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: create-single-experiment
+      description: Create a single experiment
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: growthbook-experiments.postexperiment
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: get-single-experiment
+      description: Get a single experiment
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: growthbook-experiments.getexperiment
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: update-single-experiment
+      description: Update a single experiment
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: growthbook-experiments.updateexperiment
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: modify-temporary-rollout-status-stopped
+      description: Modify temporary rollout status for a stopped experiment
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: growthbook-experiments.postexperimentmodifytemporaryrollout
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: get-results-experiment
+      description: Get results for an experiment
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: growthbook-experiments.getexperimentresults
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: create-experiment-snapshot
+      description: Create Experiment Snapshot
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: growthbook-experiments.postexperimentsnapshot
+      with:
+        id: tools.id
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: start-experiment
+      description: Start an experiment
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: growthbook-experiments.postexperimentstart
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: stop-experiment
+      description: Stop an experiment
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: growthbook-experiments.postexperimentstop
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: delete-variation-screenshot
+      description: Delete a variation screenshot
+      hints:
+        readOnly: false
+        destructive: true
+        idempotent: true
+      call: growthbook-experiments.deletevariationscreenshot
+      with:
+        id: tools.id
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: upload-variation-screenshot
+      description: Upload a variation screenshot
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: growthbook-experiments.postvariationimageupload
+      with:
+        id: tools.id
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
