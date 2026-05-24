@@ -117,6 +117,8 @@ common:
     url: rate-limits/growthbook-rate-limits.yml
   - type: FinOps
     url: finops/growthbook-finops.yml
+  - type: LLMsTxt
+    url: https://docs.growthbook.io/llms.txt
 maintainers:
   - FN: Kin Lane
     email: kin@apievangelist.com
