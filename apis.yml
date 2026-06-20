@@ -4,7 +4,7 @@ name: GrowthBook
 kind: company
 description: GrowthBook is an open source feature flagging and experimentation platform with a warehouse-native statistics
   engine.
-image: https://kinlane-productions.s3.amazonaws.com/apis-json/apis-json-logo.jpg
+image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
 tags:
   - Feature Flags
   - Experimentation
@@ -19,7 +19,7 @@ apis:
     name: GrowthBook REST API
     description: GrowthBook REST API for managing projects, environments, feature flags, feature revisions, experiments, snapshots,
       metrics, fact tables, dimensions, segments, saved groups, teams, members, organizations, and dashboards.
-    image: https://kinlane-productions.s3.amazonaws.com/apis-json/apis-json-logo.jpg
+    image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
     humanURL: https://docs.growthbook.io/api
     baseURL: https://api.growthbook.io/api
     tags:
