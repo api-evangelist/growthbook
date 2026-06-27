@@ -32,75 +32,75 @@ apis:
       url: https://docs.growthbook.io/api
     - type: OpenAPI
       url: openapi/growthbook-openapi.yaml
-    - type: NaftikoCapability
+    - type: X-NaftikoCapability
       url: capabilities/growthbook-general.yaml
-    - type: NaftikoCapability
+    - type: X-NaftikoCapability
       url: capabilities/growthbook-analyticsexplorations.yaml
-    - type: NaftikoCapability
+    - type: X-NaftikoCapability
       url: capabilities/growthbook-customfields.yaml
-    - type: NaftikoCapability
+    - type: X-NaftikoCapability
       url: capabilities/growthbook-dashboards.yaml
-    - type: NaftikoCapability
+    - type: X-NaftikoCapability
       url: capabilities/growthbook-experimenttemplates.yaml
-    - type: NaftikoCapability
+    - type: X-NaftikoCapability
       url: capabilities/growthbook-metricgroups.yaml
-    - type: NaftikoCapability
+    - type: X-NaftikoCapability
       url: capabilities/growthbook-rampscheduletemplates.yaml
-    - type: NaftikoCapability
+    - type: X-NaftikoCapability
       url: capabilities/growthbook-teams.yaml
-    - type: NaftikoCapability
+    - type: X-NaftikoCapability
       url: capabilities/growthbook-archetypes.yaml
-    - type: NaftikoCapability
+    - type: X-NaftikoCapability
       url: capabilities/growthbook-attributes.yaml
-    - type: NaftikoCapability
+    - type: X-NaftikoCapability
       url: capabilities/growthbook-code-references.yaml
-    - type: NaftikoCapability
+    - type: X-NaftikoCapability
       url: capabilities/growthbook-data-sources.yaml
-    - type: NaftikoCapability
+    - type: X-NaftikoCapability
       url: capabilities/growthbook-dimensions.yaml
-    - type: NaftikoCapability
+    - type: X-NaftikoCapability
       url: capabilities/growthbook-environments.yaml
-    - type: NaftikoCapability
+    - type: X-NaftikoCapability
       url: capabilities/growthbook-experiments.yaml
-    - type: NaftikoCapability
+    - type: X-NaftikoCapability
       url: capabilities/growthbook-fact-metrics.yaml
-    - type: NaftikoCapability
+    - type: X-NaftikoCapability
       url: capabilities/growthbook-fact-tables.yaml
-    - type: NaftikoCapability
+    - type: X-NaftikoCapability
       url: capabilities/growthbook-feature-revisions.yaml
-    - type: NaftikoCapability
+    - type: X-NaftikoCapability
       url: capabilities/growthbook-feature-revisions-v2.yaml
-    - type: NaftikoCapability
+    - type: X-NaftikoCapability
       url: capabilities/growthbook-features.yaml
-    - type: NaftikoCapability
+    - type: X-NaftikoCapability
       url: capabilities/growthbook-features-v2.yaml
-    - type: NaftikoCapability
+    - type: X-NaftikoCapability
       url: capabilities/growthbook-members.yaml
-    - type: NaftikoCapability
+    - type: X-NaftikoCapability
       url: capabilities/growthbook-metrics.yaml
-    - type: NaftikoCapability
+    - type: X-NaftikoCapability
       url: capabilities/growthbook-namespaces.yaml
-    - type: NaftikoCapability
+    - type: X-NaftikoCapability
       url: capabilities/growthbook-organizations.yaml
-    - type: NaftikoCapability
+    - type: X-NaftikoCapability
       url: capabilities/growthbook-projects.yaml
-    - type: NaftikoCapability
+    - type: X-NaftikoCapability
       url: capabilities/growthbook-queries.yaml
-    - type: NaftikoCapability
+    - type: X-NaftikoCapability
       url: capabilities/growthbook-ramp-schedules.yaml
-    - type: NaftikoCapability
+    - type: X-NaftikoCapability
       url: capabilities/growthbook-saved-groups.yaml
-    - type: NaftikoCapability
+    - type: X-NaftikoCapability
       url: capabilities/growthbook-sdk-connections.yaml
-    - type: NaftikoCapability
+    - type: X-NaftikoCapability
       url: capabilities/growthbook-segments.yaml
-    - type: NaftikoCapability
+    - type: X-NaftikoCapability
       url: capabilities/growthbook-settings.yaml
-    - type: NaftikoCapability
+    - type: X-NaftikoCapability
       url: capabilities/growthbook-snapshots.yaml
-    - type: NaftikoCapability
+    - type: X-NaftikoCapability
       url: capabilities/growthbook-usage.yaml
-    - type: NaftikoCapability
+    - type: X-NaftikoCapability
       url: capabilities/growthbook-visual-changesets.yaml
 common:
   - type: GitHubOrganization
@@ -117,7 +117,7 @@ common:
     url: rate-limits/growthbook-rate-limits.yml
   - type: FinOps
     url: finops/growthbook-finops.yml
-  - type: LLMsTxt
+  - type: LlmsText
     url: https://docs.growthbook.io/llms.txt
 maintainers:
   - FN: Kin Lane
