@@ -103,6 +103,12 @@ apis:
     - type: X-NaftikoCapability
       url: capabilities/growthbook-visual-changesets.yaml
 common:
+  - type: TrustCenter
+    url: security/growthbook-trust-center.yml
+  - type: DomainSecurity
+    url: security/growthbook-domain-security.yml
+  - type: Authentication
+    url: authentication/growthbook-authentication.yml
   - type: GitHubOrganization
     url: https://github.com/growthbook
   - type: LinkedIn
@@ -119,6 +125,8 @@ common:
     url: finops/growthbook-finops.yml
   - type: LlmsText
     url: https://docs.growthbook.io/llms.txt
+  - type: Blog
+    url: https://www.growthbook.io/blog
 maintainers:
   - FN: Kin Lane
     email: kin@apievangelist.com
