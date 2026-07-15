@@ -103,6 +103,8 @@ apis:
     - type: X-NaftikoCapability
       url: capabilities/growthbook-visual-changesets.yaml
 common:
+  - type: AgenticAccess
+    url: agentic-access/growthbook-agentic-access.yml
   - type: TrustCenter
     url: security/growthbook-trust-center.yml
   - type: DomainSecurity
