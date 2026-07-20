@@ -11,7 +11,7 @@ schemes:
   description: |-
     If using Bearer auth, pass the Secret Key as the token:
     ```bash
-    curl https://api.growthbook.io/api/v1/features   -H "Authorization: Bearer secret_abc123DEF456"
+    curl https://api.growthbook.io/api/v1/features   -H "Authorization: Bearer [example key]"
     ```
   sources:
   - openapi/growthbook-openapi.yaml
