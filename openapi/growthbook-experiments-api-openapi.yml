@@ -1,0 +1,2501 @@
+openapi: 3.1.0
+info:
+  version: 1.0.0
+  title: GrowthBook REST AnalyticsExplorations experiments API
+  description: "GrowthBook offers a full REST API for interacting with the application.\n\nRequest data can use either JSON or Form data encoding (with proper `Content-Type` headers). All response bodies are JSON-encoded.\n\nThe API base URL for GrowthBook Cloud is `https://api.growthbook.io/api`. For self-hosted deployments, it is the same as your API_HOST environment variable (defaults to `http://localhost:3100/api`). The rest of these docs will assume you are using GrowthBook Cloud.\n\n## Versioning\n\nEndpoints are versioned by path prefix:\n\n- `/v1/...` — stable, widely-supported endpoints\n- `/v2/...` — updated endpoints with improved shapes (e.g. unified per-rule environment scope for feature flags)\n\nNew integrations should prefer v2 where available.\n\n## Authentication\n\nWe support both the HTTP Basic and Bearer authentication schemes for convenience.\n\nYou first need to generate a new API Key in GrowthBook. Different keys have different permissions:\n\n- **Personal Access Tokens**: These are sensitive and provide the same level of access as the user has to an organization. These can be created by going to `Personal Access Tokens` under the your user menu.\n- **Secret Keys**: These are sensitive and provide the level of access for the role, which currently is either `admin` or `readonly`. Only Admins with the `manageApiKeys` permission can manage Secret Keys on behalf of an organization. These can be created by going to `Settings -> API Keys`\n\nIf using HTTP Basic auth, pass the Secret Key as the username and leave the password blank (when using curl, add `:` at the end of the secret to indicate an empty password)\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n  -u secret_abc123DEF456:\n```\n\nIf using Bearer auth, pass the Secret Key as the token:\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n-H \"Authorization: Bearer secret_abc123DEF456\"\n```\n\n## Errors\n\nThe API may return the following error status codes:\n\n- **400** - Bad Request - Often due to a missing required parameter\n- **401** - Unauthorized - No valid API key provided\n- **402** - Request Failed - The parameters are valid, but the request failed\n- **403** - Forbidden - Provided API key does not have the required access\n- **404** - Not Found - Unknown API route or requested resource\n- **429** - Too Many Requests - You exceeded the rate limit of 60 requests per minute. Try again later.\n- **5XX** - Server Error - Something went wrong on GrowthBook's end (these are rare)\n\nThe response body will be a JSON object with the following properties:\n\n- **message** - Information about the error\n"
+servers:
+- url: https://api.growthbook.io/api
+  description: GrowthBook Cloud
+- url: https://{domain}/api
+  description: Self-hosted GrowthBook
+security:
+- bearerAuth: []
+- basicAuth: []
+tags:
+- name: experiments
+  x-displayName: Experiments
+  description: Experiments (A/B Tests)
+paths:
+  /v1/experiments:
+    get:
+      operationId: listExperiments
+      summary: Get all experiments
+      tags:
+      - experiments
+      parameters:
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/projectId'
+      - $ref: '#/components/parameters/datasourceId'
+      - $ref: '#/components/parameters/trackingKey'
+      - $ref: '#/components/parameters/experimentId'
+      - name: status
+        in: query
+        description: ''
+        schema:
+          type: string
+          enum:
+          - draft
+          - running
+          - stopped
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                allOf:
+                - type: object
+                  properties:
+                    experiments:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/Experiment'
+                  required:
+                  - experiments
+                  additionalProperties: false
+                - $ref: '#/components/schemas/PaginationFields'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/experiments' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+    post:
+      operationId: postExperiment
+      summary: Create a single experiment
+      tags:
+      - experiments
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                datasourceId:
+                  description: ID for the [DataSource](#tag/DataSource_model). Can only be set if a templateId is not provided.
+                  type: string
+                assignmentQueryId:
+                  description: The ID property of one of the assignment query objects associated with the datasource. Can only be set if a templateId is not provided.
+                  type: string
+                trackingKey:
+                  type: string
+                bypassDuplicateKeyCheck:
+                  description: If true, allow creating an experiment even if another experiment with the same tracking key already exists. This is ignored if the organization requires unique tracking keys as a rule.
+                  type: boolean
+                name:
+                  description: Name of the experiment
+                  type: string
+                type:
+                  type: string
+                  enum:
+                  - standard
+                  - multi-armed-bandit
+                project:
+                  description: Project ID which the experiment belongs to
+                  type: string
+                templateId:
+                  description: ID of the [ExperimentTemplate](#tag/ExperimentTemplate_model) this experiment was created from. Template fields are applied by default and overridden by explicitly provided payload fields.
+                  type: string
+                hypothesis:
+                  description: Hypothesis of the experiment
+                  type: string
+                description:
+                  description: Description of the experiment
+                  type: string
+                tags:
+                  type: array
+                  items:
+                    type: string
+                metrics:
+                  type: array
+                  items:
+                    type: string
+                secondaryMetrics:
+                  type: array
+                  items:
+                    type: string
+                guardrailMetrics:
+                  type: array
+                  items:
+                    type: string
+                activationMetric:
+                  description: Users must convert on this metric before being included
+                  type: string
+                segmentId:
+                  description: Only users in this segment will be included
+                  type: string
+                queryFilter:
+                  description: WHERE clause to add to the default experiment query
+                  type: string
+                owner:
+                  description: The userId or email address of the owner. If an email address is provided, it will be used to look up the userId of the matching organization member. If an ID is provided, it will be validated as existing in the organization.
+                  type: string
+                archived:
+                  type: boolean
+                status:
+                  type: string
+                  enum:
+                  - draft
+                  - running
+                  - stopped
+                autoRefresh:
+                  type: boolean
+                hashAttribute:
+                  type: string
+                fallbackAttribute:
+                  type: string
+                hashVersion:
+                  anyOf:
+                  - type: number
+                    const: 1
+                  - type: number
+                    const: 2
+                disableStickyBucketing:
+                  type: boolean
+                bucketVersion:
+                  type: number
+                minBucketVersion:
+                  type: number
+                releasedVariationId:
+                  type: string
+                excludeFromPayload:
+                  type: boolean
+                inProgressConversions:
+                  type: string
+                  enum:
+                  - loose
+                  - strict
+                attributionModel:
+                  description: Setting attribution model to `"experimentDuration"` is the same as selecting "Ignore Conversion Windows" for the Conversion Window Override. Setting it to `"lookbackOverride"` requires a `lookbackOverride` object to be provided.
+                  type: string
+                  enum:
+                  - firstExposure
+                  - experimentDuration
+                  - lookbackOverride
+                lookbackOverride:
+                  description: Controls the lookback override for the experiment. For type "window", value must be a non-negative number and valueUnit is required.
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - date
+                      - window
+                    value:
+                      description: For "window" type - non-negative numeric value (e.g. 7 for 7 days). For "date" type a date string.
+                      anyOf:
+                      - description: For "window" type - non-negative numeric value (e.g. 7 for 7 days). For "date" type a date string.
+                        type: number
+                      - format: date-time
+                        description: For "window" type - non-negative numeric value (e.g. 7 for 7 days). For "date" type a date string.
+                        type: string
+                    valueUnit:
+                      description: Used when type is "window". Defaults to "days".
+                      type: string
+                      enum:
+                      - minutes
+                      - hours
+                      - days
+                      - weeks
+                  required:
+                  - type
+                  - value
+                  additionalProperties: false
+                statsEngine:
+                  type: string
+                  enum:
+                  - bayesian
+                  - frequentist
+                variations:
+                  minItems: 2
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      key:
+                        type: string
+                      name:
+                        type: string
+                      description:
+                        type: string
+                      screenshots:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            path:
+                              type: string
+                            width:
+                              type: number
+                            height:
+                              type: number
+                            description:
+                              type: string
+                          required:
+                          - path
+                          additionalProperties: false
+                    required:
+                    - key
+                    - name
+                    additionalProperties: false
+                phases:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      dateStarted:
+                        format: date-time
+                        type: string
+                      dateEnded:
+                        format: date-time
+                        type: string
+                      reasonForStopping:
+                        type: string
+                      seed:
+                        type: string
+                      coverage:
+                        type: number
+                      trafficSplit:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            variationId:
+                              type: string
+                            weight:
+                              type: number
+                          required:
+                          - variationId
+                          - weight
+                          additionalProperties: false
+                      namespace:
+                        type: object
+                        properties:
+                          namespaceId:
+                            type: string
+                          enabled:
+                            type: boolean
+                          range:
+                            minItems: 2
+                            maxItems: 2
+                            type: array
+                            items:
+                              type: number
+                          ranges:
+                            type: array
+                            items:
+                              type: array
+                              prefixItems:
+                              - type: number
+                              - type: number
+                        required:
+                        - namespaceId
+                        additionalProperties: false
+                      targetingCondition:
+                        type: string
+                      prerequisites:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              description: Feature ID
+                              type: string
+                            condition:
+                              type: string
+                          required:
+                          - id
+                          - condition
+                          additionalProperties: false
+                      reason:
+                        type: string
+                      condition:
+                        type: string
+                      savedGroupTargeting:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            matchType:
+                              type: string
+                              enum:
+                              - all
+                              - any
+                              - none
+                            savedGroups:
+                              type: array
+                              items:
+                                type: string
+                          required:
+                          - matchType
+                          - savedGroups
+                          additionalProperties: false
+                      variationWeights:
+                        type: array
+                        items:
+                          type: number
+                    required:
+                    - name
+                    - dateStarted
+                    additionalProperties: false
+                regressionAdjustmentEnabled:
+                  description: Controls whether regression adjustment (CUPED) is enabled for experiment analyses
+                  type: boolean
+                sequentialTestingEnabled:
+                  description: Only applicable to frequentist analyses
+                  type: boolean
+                sequentialTestingTuningParameter:
+                  type: number
+                shareLevel:
+                  type: string
+                  enum:
+                  - public
+                  - organization
+                banditScheduleValue:
+                  type: number
+                banditScheduleUnit:
+                  type: string
+                  enum:
+                  - days
+                  - hours
+                banditBurnInValue:
+                  type: number
+                banditBurnInUnit:
+                  type: string
+                  enum:
+                  - days
+                  - hours
+                banditConversionWindowValue:
+                  type: number
+                banditConversionWindowUnit:
+                  type: string
+                  enum:
+                  - days
+                  - hours
+                postStratificationEnabled:
+                  description: When null, the organization default is used.
+                  anyOf:
+                  - description: When null, the organization default is used.
+                    type: boolean
+                  - description: When null, the organization default is used.
+                    type: 'null'
+                decisionFrameworkSettings:
+                  description: Controls the decision framework and metric overrides for the experiment. Replaces the entire stored object on update (does not patch individual fields).
+                  type: object
+                  properties:
+                    decisionCriteriaId:
+                      type: string
+                    decisionFrameworkMetricOverrides:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            description: ID of the metric to override settings for.
+                            type: string
+                          targetMDE:
+                            description: The target relative MDE to use for the metric, expressed as proportions (e.g. use 0.1 for 10%). Must be greater than 0.
+                            type: number
+                            exclusiveMinimum: 0
+                        required:
+                        - id
+                        additionalProperties: false
+                  additionalProperties: false
+                metricOverrides:
+                  description: Per-metric analysis overrides for this experiment. Replaces the entire stored array (does not patch individual entries).
+                  type: array
+                  items:
+                    description: Per-metric analysis overrides stored on the experiment (matches internal metricOverrides).
+                    type: object
+                    properties:
+                      id:
+                        description: ID of the metric to override settings for.
+                        type: string
+                      windowType:
+                        type: string
+                        enum:
+                        - conversion
+                        - lookback
+                        - ''
+                      windowHours:
+                        type: number
+                      delayHours:
+                        type: number
+                      properPriorOverride:
+                        description: Must be true for the override to take effect. If true, the other proper prior settings in this object will be used if present.
+                        type: boolean
+                      properPriorEnabled:
+                        type: boolean
+                      properPriorMean:
+                        type: number
+                      properPriorStdDev:
+                        type: number
+                      regressionAdjustmentOverride:
+                        description: Must be true for the override to take effect. If true, the other regression adjustment settings in this object will be used if present.
+                        type: boolean
+                      regressionAdjustmentEnabled:
+                        type: boolean
+                      regressionAdjustmentDays:
+                        type: number
+                    required:
+                    - id
+                    additionalProperties: false
+                defaultDashboardId:
+                  description: ID of the default dashboard for this experiment.
+                  type: string
+                customFields:
+                  type: object
+                  propertyNames:
+                    type: string
+                  additionalProperties:
+                    type: string
+                customMetricSlices:
+                  description: Custom slices that apply to ALL applicable metrics in the experiment
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      slices:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            column:
+                              type: string
+                            levels:
+                              type: array
+                              items:
+                                type: string
+                          required:
+                          - column
+                          - levels
+                          additionalProperties: false
+                    required:
+                    - slices
+                    additionalProperties: false
+              required:
+              - trackingKey
+              - name
+              - variations
+              additionalProperties: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  experiment:
+                    $ref: '#/components/schemas/Experiment'
+                required:
+                - experiment
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/experiments' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/experiments/{id}:
+    get:
+      operationId: getExperiment
+      summary: Get a single experiment
+      tags:
+      - experiments
+      parameters:
+      - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  experiment:
+                    $ref: '#/components/schemas/ExperimentWithEnhancedStatus'
+                required:
+                - experiment
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/experiments/abc123' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+    post:
+      operationId: updateExperiment
+      summary: Update a single experiment
+      tags:
+      - experiments
+      parameters:
+      - $ref: '#/components/parameters/id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                datasourceId:
+                  description: Can only be set if existing experiment does not have a datasource
+                  type: string
+                assignmentQueryId:
+                  type: string
+                trackingKey:
+                  type: string
+                bypassDuplicateKeyCheck:
+                  description: If true, allow updating the tracking key even if another experiment with the same tracking key already exist. This is ignored if the organization requires unique tracking keys as a rule.
+                  type: boolean
+                name:
+                  description: Name of the experiment
+                  type: string
+                type:
+                  type: string
+                  enum:
+                  - standard
+                  - multi-armed-bandit
+                project:
+                  description: Project ID which the experiment belongs to
+                  type: string
+                hypothesis:
+                  description: Hypothesis of the experiment
+                  type: string
+                description:
+                  description: Description of the experiment
+                  type: string
+                tags:
+                  type: array
+                  items:
+                    type: string
+                metrics:
+                  type: array
+                  items:
+                    type: string
+                secondaryMetrics:
+                  type: array
+                  items:
+                    type: string
+                guardrailMetrics:
+                  type: array
+                  items:
+                    type: string
+                activationMetric:
+                  description: Users must convert on this metric before being included
+                  type: string
+                segmentId:
+                  description: Only users in this segment will be included
+                  type: string
+                queryFilter:
+                  description: WHERE clause to add to the default experiment query
+                  type: string
+                owner:
+                  description: The userId or email address of the owner. If an email address is provided, it will be used to look up the userId of the matching organization member. If an ID is provided, it will be validated as existing in the organization.
+                  type: string
+                archived:
+                  type: boolean
+                status:
+                  type: string
+                  enum:
+                  - draft
+                  - running
+                  - stopped
+                autoRefresh:
+                  type: boolean
+                hashAttribute:
+                  type: string
+                fallbackAttribute:
+                  type: string
+                hashVersion:
+                  anyOf:
+                  - type: number
+                    const: 1
+                  - type: number
+                    const: 2
+                disableStickyBucketing:
+                  type: boolean
+                bucketVersion:
+                  type: number
+                minBucketVersion:
+                  type: number
+                results:
+                  description: The result status of the experiment. Maps to resultSummary.status in the GET response.
+                  type: string
+                  enum:
+                  - dnf
+                  - won
+                  - lost
+                  - inconclusive
+                winner:
+                  description: The index of the winning variation (0-indexed). Maps to resultSummary.winner (variation ID) in the GET response.
+                  type: number
+                analysis:
+                  description: Analysis summary or conclusions for the experiment. Maps to resultSummary.conclusions in the GET response.
+                  type: string
+                releasedVariationId:
+                  description: The ID of the released variation. Maps to resultSummary.releasedVariationId in the GET response.
+                  type: string
+                excludeFromPayload:
+                  description: If true, the experiment is excluded from the SDK payload. Maps to resultSummary.excludeFromPayload in the GET response.
+                  type: boolean
+                inProgressConversions:
+                  type: string
+                  enum:
+                  - loose
+                  - strict
+                attributionModel:
+                  description: Setting attribution model to `"experimentDuration"` is the same as selecting "Ignore Conversion Windows" for the Conversion Window Override. Setting it to `"lookbackOverride"` requires a `lookbackOverride` object to be provided.
+                  type: string
+                  enum:
+                  - firstExposure
+                  - experimentDuration
+                  - lookbackOverride
+                lookbackOverride:
+                  description: Controls the lookback override for the experiment. For type "window", value must be a non-negative number and valueUnit is required.
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - date
+                      - window
+                    value:
+                      description: For "window" type - non-negative numeric value (e.g. 7 for 7 days). For "date" type a date string.
+                      anyOf:
+                      - description: For "window" type - non-negative numeric value (e.g. 7 for 7 days). For "date" type a date string.
+                        type: number
+                      - format: date-time
+                        description: For "window" type - non-negative numeric value (e.g. 7 for 7 days). For "date" type a date string.
+                        type: string
+                    valueUnit:
+                      description: Used when type is "window". Defaults to "days".
+                      type: string
+                      enum:
+                      - minutes
+                      - hours
+                      - days
+                      - weeks
+                  required:
+                  - type
+                  - value
+                  additionalProperties: false
+                statsEngine:
+                  type: string
+                  enum:
+                  - bayesian
+                  - frequentist
+                variations:
+                  minItems: 2
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      key:
+                        type: string
+                      name:
+                        type: string
+                      description:
+                        type: string
+                      screenshots:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            path:
+                              type: string
+                            width:
+                              type: number
+                            height:
+                              type: number
+                            description:
+                              type: string
+                          required:
+                          - path
+                          additionalProperties: false
+                    required:
+                    - key
+                    - name
+                    additionalProperties: false
+                phases:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      dateStarted:
+                        format: date-time
+                        type: string
+                      dateEnded:
+                        format: date-time
+                        type: string
+                      reasonForStopping:
+                        type: string
+                      seed:
+                        type: string
+                      coverage:
+                        type: number
+                      trafficSplit:
+                        deprecated: true
+                        description: Deprecated and unused. Use variationWeights instead.
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            variationId:
+                              type: string
+                            weight:
+                              type: number
+                          required:
+                          - variationId
+                          - weight
+                          additionalProperties: false
+                      namespace:
+                        type: object
+                        properties:
+                          namespaceId:
+                            type: string
+                          range:
+                            minItems: 2
+                            maxItems: 2
+                            type: array
+                            items:
+                              type: number
+                          enabled:
+                            type: boolean
+                        required:
+                        - namespaceId
+                        - range
+                        additionalProperties: false
+                      targetingCondition:
+                        type: string
+                      prerequisites:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              description: Feature ID
+                              type: string
+                            condition:
+                              type: string
+                          required:
+                          - id
+                          - condition
+                          additionalProperties: false
+                      reason:
+                        type: string
+                      condition:
+                        type: string
+                      savedGroupTargeting:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            matchType:
+                              type: string
+                              enum:
+                              - all
+                              - any
+                              - none
+                            savedGroups:
+                              type: array
+                              items:
+                                type: string
+                          required:
+                          - matchType
+                          - savedGroups
+                          additionalProperties: false
+                      variationWeights:
+                        type: array
+                        items:
+                          type: number
+                    required:
+                    - name
+                    - dateStarted
+                    additionalProperties: false
+                regressionAdjustmentEnabled:
+                  description: Controls whether regression adjustment (CUPED) is enabled for experiment analyses
+                  type: boolean
+                sequentialTestingEnabled:
+                  description: Only applicable to frequentist analyses
+                  type: boolean
+                sequentialTestingTuningParameter:
+                  type: number
+                shareLevel:
+                  type: string
+                  enum:
+                  - public
+                  - organization
+                banditScheduleValue:
+                  type: number
+                banditScheduleUnit:
+                  type: string
+                  enum:
+                  - days
+                  - hours
+                banditBurnInValue:
+                  type: number
+                banditBurnInUnit:
+                  type: string
+                  enum:
+                  - days
+                  - hours
+                banditConversionWindowValue:
+                  type: number
+                banditConversionWindowUnit:
+                  type: string
+                  enum:
+                  - days
+                  - hours
+                postStratificationEnabled:
+                  description: When null, the organization default is used.
+                  anyOf:
+                  - description: When null, the organization default is used.
+                    type: boolean
+                  - description: When null, the organization default is used.
+                    type: 'null'
+                decisionFrameworkSettings:
+                  description: Controls the decision framework and metric overrides for the experiment. Replaces the entire stored object on update (does not patch individual fields).
+                  type: object
+                  properties:
+                    decisionCriteriaId:
+                      type: string
+                    decisionFrameworkMetricOverrides:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            description: ID of the metric to override settings for.
+                            type: string
+                          targetMDE:
+                            description: The target relative MDE to use for the metric, expressed as proportions (e.g. use 0.1 for 10%). Must be greater than 0.
+                            type: number
+                            exclusiveMinimum: 0
+                        required:
+                        - id
+                        additionalProperties: false
+                  additionalProperties: false
+                metricOverrides:
+                  description: Per-metric analysis overrides for this experiment. Replaces the entire stored array (does not patch individual entries).
+                  type: array
+                  items:
+                    description: Per-metric analysis overrides stored on the experiment (matches internal metricOverrides).
+                    type: object
+                    properties:
+                      id:
+                        description: ID of the metric to override settings for.
+                        type: string
+                      windowType:
+                        type: string
+                        enum:
+                        - conversion
+                        - lookback
+                        - ''
+                      windowHours:
+                        type: number
+                      delayHours:
+                        type: number
+                      properPriorOverride:
+                        description: Must be true for the override to take effect. If true, the other proper prior settings in this object will be used if present.
+                        type: boolean
+                      properPriorEnabled:
+                        type: boolean
+                      properPriorMean:
+                        type: number
+                      properPriorStdDev:
+                        type: number
+                      regressionAdjustmentOverride:
+                        description: Must be true for the override to take effect. If true, the other regression adjustment settings in this object will be used if present.
+                        type: boolean
+                      regressionAdjustmentEnabled:
+                        type: boolean
+                      regressionAdjustmentDays:
+                        type: number
+                    required:
+                    - id
+                    additionalProperties: false
+                defaultDashboardId:
+                  description: ID of the default dashboard for this experiment.
+                  type: string
+                customFields:
+                  type: object
+                  propertyNames:
+                    type: string
+                  additionalProperties:
+                    type: string
+                customMetricSlices:
+                  description: Custom slices that apply to ALL applicable metrics in the experiment
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      slices:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            column:
+                              type: string
+                            levels:
+                              type: array
+                              items:
+                                type: string
+                          required:
+                          - column
+                          - levels
+                          additionalProperties: false
+                    required:
+                    - slices
+                    additionalProperties: false
+              additionalProperties: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  experiment:
+                    $ref: '#/components/schemas/Experiment'
+                required:
+                - experiment
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/experiments/{id}' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/experiments/{id}/results:
+    get:
+      operationId: getExperimentResults
+      summary: Get results for an experiment
+      tags:
+      - experiments
+      parameters:
+      - $ref: '#/components/parameters/id'
+      - $ref: '#/components/parameters/phase'
+      - $ref: '#/components/parameters/dimension'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    $ref: '#/components/schemas/ExperimentResults'
+                required:
+                - result
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/experiments/{id}/results' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/experiments/{id}/start:
+    post:
+      operationId: postExperimentStart
+      summary: Start an experiment
+      tags:
+      - experiments
+      parameters:
+      - $ref: '#/components/parameters/id'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                skipChecklist:
+                  description: If true, skips validating the experiment satisifies all pre-launch checklist items
+                  type: boolean
+              additionalProperties: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  experiment:
+                    $ref: '#/components/schemas/ExperimentWithEnhancedStatus'
+                required:
+                - experiment
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/experiments/exp_abc123/start' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/experiments/{id}/stop:
+    post:
+      operationId: postExperimentStop
+      summary: Stop an experiment
+      tags:
+      - experiments
+      parameters:
+      - $ref: '#/components/parameters/id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                results:
+                  description: The experiment conclusion status.
+                  type: string
+                  enum:
+                  - dnf
+                  - won
+                  - lost
+                  - inconclusive
+                enableTemporaryRollout:
+                  description: If true, include this stopped experiment in SDK payload and force the release variation (`releasedVariationId`) to all traffic.
+                  type: boolean
+                releasedVariationId:
+                  description: Required if enableTemporaryRollout is true. Variation ID (e.g. var_abc123) to release to 100% of traffic eligible for this experiment.
+                  type: string
+                winnerVariationId:
+                  description: Variation ID (e.g. var_abc123) of the winning variation. Used only as metadata. Required if results is 'won' and there are multiple test variations. Otherwise, defaults to the test variation when results is 'won' and to the baseline variation for other results.
+                  type: string
+                analysis:
+                  description: Optional markdown summary displayed on the experiment results page.
+                  type: string
+                reason:
+                  description: Optional reason for ending the phase stored on the latest phase metadata.
+                  type: string
+                dateEnded:
+                  description: Optional ISO datetime for ending the latest phase. Defaults to the current date and time.
+                  type: string
+              required:
+              - results
+              additionalProperties: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  experiment:
+                    $ref: '#/components/schemas/ExperimentWithEnhancedStatus'
+                required:
+                - experiment
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/experiments/exp_abc123/stop' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"results\":\"won\",\"releasedVariationId\":\"var_treatment\",\"winnerVariationId\":\"var_treatment\",\"enableTemporaryRollout\":true,\"analysis\":\"Reached desired sample size with statistically significant positive lift; shipping treatment\"}'"
+  /v1/experiments/{id}/modify-temporary-rollout:
+    post:
+      operationId: postExperimentModifyTemporaryRollout
+      summary: Modify temporary rollout status for a stopped experiment
+      tags:
+      - experiments
+      parameters:
+      - $ref: '#/components/parameters/id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                enableTemporaryRollout:
+                  description: If true, keep the stopped experiment in SDK payload and force traffic to the winner variation. If false, end temporary rollout and remove from SDK payload.
+                  type: boolean
+                releasedVariationId:
+                  description: Variation ID (e.g. var_abc123) to release to 100% of traffic eligible for this experiment. Required if enableTemporaryRollout is true.
+                  type: string
+              required:
+              - enableTemporaryRollout
+              additionalProperties: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  experiment:
+                    $ref: '#/components/schemas/ExperimentWithEnhancedStatus'
+                required:
+                - experiment
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/experiments/exp_abc123/modify-temporary-rollout' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"enableTemporaryRollout\":false}'"
+  /v1/experiments/{id}/snapshot:
+    post:
+      operationId: postExperimentSnapshot
+      summary: Create Experiment Snapshot
+      tags:
+      - experiments
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: The experiment id of the experiment to update
+        schema:
+          description: The experiment id of the experiment to update
+          type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                triggeredBy:
+                  description: Set to "schedule" if you want this request to trigger notifications and other events as it if were a scheduled update. Defaults to manual.
+                  type: string
+                  enum:
+                  - manual
+                  - schedule
+                dimension:
+                  description: Dimension to break results down by. For Unit Dimensions, use the dimension id (e.g. "dim_abc123"). For Experiment Dimensions, use "exp:<dimensionName>" (e.g. "exp:country"). Built-in pre-exposure dimensions include "pre:date" and, when configured, "pre:activation". Omit this field to create a standard snapshot.
+                  type: string
+                phase:
+                  description: Zero-based phase index to snapshot, where 0 is the first experiment phase. Defaults to the latest phase.
+                  type: integer
+                  minimum: 0
+              additionalProperties: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  snapshot:
+                    $ref: '#/components/schemas/snapshot'
+                required:
+                - snapshot
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/experiments/{id}/snapshot' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"triggeredBy\":\"schedule\"}'"
+  /v1/experiments/{id}/variation/{variationId}/screenshot/upload:
+    post:
+      operationId: postVariationImageUpload
+      summary: Upload a variation screenshot
+      tags:
+      - experiments
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - $ref: '#/components/parameters/variationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                screenshot:
+                  contentEncoding: base64
+                  description: Base64-encoded screenshot data
+                  type: string
+                contentType:
+                  description: MIME type of the screenshot
+                  type: string
+                  enum:
+                  - image/png
+                  - image/jpeg
+                  - image/gif
+                description:
+                  description: Optional description for the screenshot
+                  type: string
+              required:
+              - screenshot
+              - contentType
+              additionalProperties: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  screenshot:
+                    $ref: '#/components/schemas/screenshot'
+                required:
+                - screenshot
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/experiments/{id}/variation/{variationId}/screenshot/upload' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/experiments/{id}/variation/{variationId}/screenshot:
+    delete:
+      operationId: deleteVariationScreenshot
+      summary: Delete a variation screenshot
+      tags:
+      - experiments
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - $ref: '#/components/parameters/variationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                path:
+                  description: The screenshot path/URL to delete (from upload response)
+                  type: string
+              required:
+              - path
+              additionalProperties: false
+      responses:
+        '200':
+          description: Screenshot deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X DELETE 'https://api.growthbook.io/api/v1/experiments/{id}/variation/{variationId}/screenshot' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/experiment-names:
+    get:
+      operationId: getExperimentNames
+      summary: Get a list of experiments with names and ids
+      tags:
+      - experiments
+      parameters:
+      - $ref: '#/components/parameters/projectId'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  experiments:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/experiments'
+                required:
+                - experiments
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/experiment-names' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+components:
+  schemas:
+    ExperimentResults:
+      type: object
+      properties:
+        id:
+          type: string
+        dateUpdated:
+          type: string
+        experimentId:
+          type: string
+        phase:
+          type: string
+        dateStart:
+          type: string
+        dateEnd:
+          type: string
+        dimension:
+          type: object
+          properties:
+            type:
+              type: string
+            id:
+              type: string
+          required:
+          - type
+          additionalProperties: false
+        settings:
+          $ref: '#/components/schemas/ExperimentAnalysisSettings'
+        queryIds:
+          type: array
+          items:
+            type: string
+        results:
+          type: array
+          items:
+            type: object
+            properties:
+              dimension:
+                type: string
+              totalUsers:
+                type: number
+              checks:
+                type: object
+                properties:
+                  srm:
+                    type: number
+                required:
+                - srm
+                additionalProperties: false
+              metrics:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    metricId:
+                      type: string
+                    variations:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          variationId:
+                            type: string
+                          users:
+                            type: number
+                          analyses:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                engine:
+                                  type: string
+                                  enum:
+                                  - bayesian
+                                  - frequentist
+                                numerator:
+                                  type: number
+                                denominator:
+                                  type: number
+                                mean:
+                                  type: number
+                                stddev:
+                                  type: number
+                                percentChange:
+                                  type: number
+                                ciLow:
+                                  type: number
+                                ciHigh:
+                                  type: number
+                                pValue:
+                                  type: number
+                                risk:
+                                  type: number
+                                chanceToBeatControl:
+                                  type: number
+                              required:
+                              - engine
+                              - numerator
+                              - denominator
+                              - mean
+                              - stddev
+                              - percentChange
+                              - ciLow
+                              - ciHigh
+                              additionalProperties: false
+                        required:
+                        - variationId
+                        - analyses
+                        additionalProperties: false
+                  required:
+                  - metricId
+                  - variations
+                  additionalProperties: false
+            required:
+            - dimension
+            - totalUsers
+            - checks
+            - metrics
+            additionalProperties: false
+      required:
+      - id
+      - dateUpdated
+      - experimentId
+      - phase
+      - dateStart
+      - dateEnd
+      - dimension
+      - settings
+      - queryIds
+      - results
+      additionalProperties: false
+    Experiment:
+      type: object
+      properties:
+        id:
+          type: string
+        trackingKey:
+          type: string
+        dateCreated:
+          format: date-time
+          type: string
+        dateUpdated:
+          format: date-time
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+          enum:
+          - standard
+          - multi-armed-bandit
+        project:
+          type: string
+        hypothesis:
+          type: string
+        description:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        owner:
+          description: The userId of the owner (or raw owner name/email for legacy records)
+          type: string
+        ownerEmail:
+          description: The email address of the owner, when the owner can be resolved to a known user.
+          type: string
+        archived:
+          type: boolean
+        status:
+          type: string
+        autoRefresh:
+          type: boolean
+        hashAttribute:
+          type: string
+        fallbackAttribute:
+          type: string
+        hashVersion:
+          anyOf:
+          - type: number
+            const: 1
+          - type: number
+            const: 2
+        disableStickyBucketing:
+          type: boolean
+        bucketVersion:
+          type: number
+        minBucketVersion:
+          type: number
+        variations:
+          type: array
+          items:
+            type: object
+            properties:
+              variationId:
+                type: string
+              key:
+                type: string
+              name:
+                type: string
+              description:
+                type: string
+              screenshots:
+                type: array
+                items:
+                  type: string
+            required:
+            - variationId
+            - key
+            - name
+            - description
+            - screenshots
+            additionalProperties: false
+        phases:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              dateStarted:
+                type: string
+              dateEnded:
+                type: string
+              reasonForStopping:
+                type: string
+              seed:
+                type: string
+              coverage:
+                type: number
+              trafficSplit:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    variationId:
+                      type: string
+                    weight:
+                      type: number
+                  required:
+                  - variationId
+                  - weight
+                  additionalProperties: false
+              namespace:
+                type: object
+                properties:
+                  namespaceId:
+                    type: string
+                  enabled:
+                    type: boolean
+                  range:
+                    minItems: 2
+                    maxItems: 2
+                    type: array
+                    items:
+                      type: number
+                  ranges:
+                    type: array
+                    items:
+                      type: array
+                      prefixItems:
+                      - type: number
+                      - type: number
+                required:
+                - namespaceId
+                additionalProperties: false
+              targetingCondition:
+                type: string
+              prerequisites:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    condition:
+                      type: string
+                  required:
+                  - id
+                  - condition
+                  additionalProperties: false
+              savedGroupTargeting:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    matchType:
+                      type: string
+                      enum:
+                      - all
+                      - any
+                      - none
+                    savedGroups:
+                      type: array
+                      items:
+                        type: string
+                  required:
+                  - matchType
+                  - savedGroups
+                  additionalProperties: false
+            required:
+            - name
+            - dateStarted
+            - dateEnded
+            - reasonForStopping
+            - seed
+            - coverage
+            - trafficSplit
+            - targetingCondition
+            additionalProperties: false
+        settings:
+          $ref: '#/components/schemas/ExperimentAnalysisSettings'
+        resultSummary:
+          type: object
+          properties:
+            status:
+              type: string
+            winner:
+              type: string
+            conclusions:
+              type: string
+            releasedVariationId:
+              type: string
+            excludeFromPayload:
+              type: boolean
+          required:
+          - status
+          - winner
+          - conclusions
+          - releasedVariationId
+          - excludeFromPayload
+          additionalProperties: false
+        shareLevel:
+          type: string
+          enum:
+          - public
+          - organization
+        publicUrl:
+          type: string
+        banditScheduleValue:
+          type: number
+        banditScheduleUnit:
+          type: string
+          enum:
+          - days
+          - hours
+        banditBurnInValue:
+          type: number
+        banditBurnInUnit:
+          type: string
+          enum:
+          - days
+          - hours
+        banditConversionWindowValue:
+          type: number
+        banditConversionWindowUnit:
+          type: string
+          enum:
+          - days
+          - hours
+        linkedFeatures:
+          type: array
+          items:
+            type: string
+        hasVisualChangesets:
+          type: boolean
+        hasURLRedirects:
+          type: boolean
+        customFields:
+          type: object
+          propertyNames:
+            type: string
+          additionalProperties: {}
+        customMetricSlices:
+          description: Custom slices that apply to ALL applicable metrics in the experiment
+          type: array
+          items:
+            type: object
+            properties:
+              slices:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    column:
+                      type: string
+                    levels:
+                      type: array
+                      items:
+                        type: string
+                  required:
+                  - column
+                  - levels
+                  additionalProperties: false
+            required:
+            - slices
+            additionalProperties: false
+        defaultDashboardId:
+          description: ID of the default dashboard for this experiment.
+          type: string
+        templateId:
+          type: string
+      required:
+      - id
+      - trackingKey
+      - dateCreated
+      - dateUpdated
+      - name
+      - type
+      - project
+      - hypothesis
+      - description
+      - tags
+      - owner
+      - archived
+      - status
+      - autoRefresh
+      - hashAttribute
+      - hashVersion
+      - variations
+      - phases
+      - settings
+      additionalProperties: false
+    ExperimentMetric:
+      type: object
+      properties:
+        metricId:
+          type: string
+        overrides:
+          type: object
+          properties:
+            delayHours:
+              type: number
+            windowHours:
+              type: number
+            window:
+              type: string
+              enum:
+              - conversion
+              - lookback
+              - ''
+            winRiskThreshold:
+              deprecated: true
+              type: number
+            loseRiskThreshold:
+              deprecated: true
+              type: number
+            properPriorOverride:
+              type: boolean
+            properPriorEnabled:
+              type: boolean
+            properPriorMean:
+              type: number
+            properPriorStdDev:
+              type: number
+            regressionAdjustmentOverride:
+              type: boolean
+            regressionAdjustmentEnabled:
+              type: boolean
+            regressionAdjustmentDays:
+              type: number
+          additionalProperties: false
+      required:
+      - metricId
+      - overrides
+      additionalProperties: false
+    LookbackOverride:
+      description: Controls the lookback override for the experiment. For type "window", value must be a non-negative number and valueUnit is required.
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - date
+          - window
+        value:
+          description: For "window" type - non-negative numeric value (e.g. 7 for 7 days). For "date" type a date string.
+          anyOf:
+          - description: For "window" type - non-negative numeric value (e.g. 7 for 7 days). For "date" type a date string.
+            type: number
+          - format: date-time
+            description: For "window" type - non-negative numeric value (e.g. 7 for 7 days). For "date" type a date string.
+            type: string
+        valueUnit:
+          description: Used when type is "window". Defaults to "days".
+          type: string
+          enum:
+          - minutes
+          - hours
+          - days
+          - weeks
+      required:
+      - type
+      - value
+      additionalProperties: false
+    experiments:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+      required:
+      - id
+      - name
+      additionalProperties: false
+    PaginationFields:
+      type: object
+      properties:
+        limit:
+          type: integer
+        offset:
+          type: integer
+        count:
+          type: integer
+        total:
+          type: integer
+        hasMore:
+          type: boolean
+        nextOffset:
+          anyOf:
+          - type: integer
+          - type: 'null'
+      required:
+      - limit
+      - offset
+      - count
+      - total
+      - hasMore
+      - nextOffset
+      additionalProperties: false
+    ExperimentDecisionFrameworkSettings:
+      description: Controls the decision framework and metric overrides for the experiment. Replaces the entire stored object on update (does not patch individual fields).
+      type: object
+      properties:
+        decisionCriteriaId:
+          type: string
+        decisionFrameworkMetricOverrides:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                description: ID of the metric to override settings for.
+                type: string
+              targetMDE:
+                description: The target relative MDE to use for the metric, expressed as proportions (e.g. use 0.1 for 10%). Must be greater than 0.
+                type: number
+                exclusiveMinimum: 0
+            required:
+            - id
+            additionalProperties: false
+      additionalProperties: false
+    ExperimentMetricOverrideEntry:
+      description: Per-metric analysis overrides stored on the experiment (matches internal metricOverrides).
+      type: object
+      properties:
+        id:
+          description: ID of the metric to override settings for.
+          type: string
+        windowType:
+          type: string
+          enum:
+          - conversion
+          - lookback
+          - ''
+        windowHours:
+          type: number
+        delayHours:
+          type: number
+        properPriorOverride:
+          description: Must be true for the override to take effect. If true, the other proper prior settings in this object will be used if present.
+          type: boolean
+        properPriorEnabled:
+          type: boolean
+        properPriorMean:
+          type: number
+        properPriorStdDev:
+          type: number
+        regressionAdjustmentOverride:
+          description: Must be true for the override to take effect. If true, the other regression adjustment settings in this object will be used if present.
+          type: boolean
+        regressionAdjustmentEnabled:
+          type: boolean
+        regressionAdjustmentDays:
+          type: number
+      required:
+      - id
+      additionalProperties: false
+    ExperimentAnalysisSettings:
+      type: object
+      properties:
+        datasourceId:
+          type: string
+        assignmentQueryId:
+          type: string
+        experimentId:
+          type: string
+        segmentId:
+          type: string
+        queryFilter:
+          type: string
+        inProgressConversions:
+          type: string
+          enum:
+          - include
+          - exclude
+        attributionModel:
+          description: Setting attribution model to `"experimentDuration"` is the same as selecting "Ignore Conversion Windows" for the Conversion Window Override. Setting it to `"lookbackOverride"` requires a `lookbackOverride` object to be provided.
+          type: string
+          enum:
+          - firstExposure
+          - experimentDuration
+          - lookbackOverride
+        lookbackOverride:
+          $ref: '#/components/schemas/LookbackOverride'
+        statsEngine:
+          type: string
+          enum:
+          - bayesian
+          - frequentist
+        regressionAdjustmentEnabled:
+          type: boolean
+        sequentialTestingEnabled:
+          type: boolean
+        sequentialTestingTuningParameter:
+          type: number
+        postStratificationEnabled:
+          description: When null, the organization default is used.
+          anyOf:
+          - description: When null, the organization default is used.
+            type: boolean
+          - description: When null, the organization default is used.
+            type: 'null'
+        decisionFrameworkSettings:
+          $ref: '#/components/schemas/ExperimentDecisionFrameworkSettings'
+        metricOverrides:
+          description: Per-metric analysis overrides; also reflected in goals/secondaryMetrics/guardrails overrides when applicable. On create/update, this replaces the entire stored array (it does not patch individual entries).
+          type: array
+          items:
+            $ref: '#/components/schemas/ExperimentMetricOverrideEntry'
+        goals:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExperimentMetric'
+        secondaryMetrics:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExperimentMetric'
+        guardrails:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExperimentMetric'
+        activationMetric:
+          $ref: '#/components/schemas/ExperimentMetric'
+      required:
+      - datasourceId
+      - assignmentQueryId
+      - experimentId
+      - segmentId
+      - queryFilter
+      - inProgressConversions
+      - attributionModel
+      - statsEngine
+      - goals
+      - secondaryMetrics
+      - guardrails
+      additionalProperties: false
+    screenshot:
+      type: object
+      properties:
+        path:
+          description: URL or path to the uploaded screenshot
+          type: string
+        description:
+          description: Description of the screenshot
+          type: string
+      required:
+      - path
+      - description
+      additionalProperties: false
+    ExperimentWithEnhancedStatus:
+      allOf:
+      - type: object
+        properties:
+          id:
+            type: string
+          trackingKey:
+            type: string
+          dateCreated:
+            format: date-time
+            type: string
+          dateUpdated:
+            format: date-time
+            type: string
+          name:
+            type: string
+          type:
+            type: string
+            enum:
+            - standard
+            - multi-armed-bandit
+          project:
+            type: string
+          hypothesis:
+            type: string
+          description:
+            type: string
+          tags:
+            type: array
+            items:
+              type: string
+          owner:
+            description: The userId of the owner (or raw owner name/email for legacy records)
+            type: string
+          ownerEmail:
+            description: The email address of the owner, when the owner can be resolved to a known user.
+            type: string
+          archived:
+            type: boolean
+          status:
+            type: string
+          autoRefresh:
+            type: boolean
+          hashAttribute:
+            type: string
+          fallbackAttribute:
+            type: string
+          hashVersion:
+            anyOf:
+            - type: number
+              const: 1
+            - type: number
+              const: 2
+          disableStickyBucketing:
+            type: boolean
+          bucketVersion:
+            type: number
+          minBucketVersion:
+            type: number
+          variations:
+            type: array
+            items:
+              type: object
+              properties:
+                variationId:
+                  type: string
+                key:
+                  type: string
+                name:
+                  type: string
+                description:
+                  type: string
+                screenshots:
+                  type: array
+                  items:
+                    type: string
+              required:
+              - variationId
+              - key
+              - name
+              - description
+              - screenshots
+              additionalProperties: false
+          phases:
+            type: array
+            items:
+              type: object
+              properties:
+                name:
+                  type: string
+                dateStarted:
+                  type: string
+                dateEnded:
+                  type: string
+                reasonForStopping:
+                  type: string
+                seed:
+                  type: string
+                coverage:
+                  type: number
+                trafficSplit:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      variationId:
+                        type: string
+                      weight:
+                        type: number
+                    required:
+                    - variationId
+                    - weight
+                    additionalProperties: false
+                namespace:
+                  type: object
+                  properties:
+                    namespaceId:
+                      type: string
+                    enabled:
+                      type: boolean
+                    range:
+                      minItems: 2
+                      maxItems: 2
+                      type: array
+                      items:
+                        type: number
+                    ranges:
+                      type: array
+                      items:
+                        type: array
+                        prefixItems:
+                        - type: number
+                        - type: number
+                  required:
+                  - namespaceId
+                  additionalProperties: false
+                targetingCondition:
+                  type: string
+                prerequisites:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      condition:
+                        type: string
+                    required:
+                    - id
+                    - condition
+                    additionalProperties: false
+                savedGroupTargeting:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      matchType:
+                        type: string
+                        enum:
+                        - all
+                        - any
+                        - none
+                      savedGroups:
+                        type: array
+                        items:
+                          type: string
+                    required:
+                    - matchType
+                    - savedGroups
+                    additionalProperties: false
+              required:
+              - name
+              - dateStarted
+              - dateEnded
+              - reasonForStopping
+              - seed
+              - coverage
+              - trafficSplit
+              - targetingCondition
+              additionalProperties: false
+          settings:
+            $ref: '#/components/schemas/ExperimentAnalysisSettings'
+          resultSummary:
+            type: object
+            properties:
+              status:
+                type: string
+              winner:
+                type: string
+              conclusions:
+                type: string
+              releasedVariationId:
+                type: string
+              excludeFromPayload:
+                type: boolean
+            required:
+            - status
+            - winner
+            - conclusions
+            - releasedVariationId
+            - excludeFromPayload
+            additionalProperties: false
+          shareLevel:
+            type: string
+            enum:
+            - public
+            - organization
+          publicUrl:
+            type: string
+          banditScheduleValue:
+            type: number
+          banditScheduleUnit:
+            type: string
+            enum:
+            - days
+            - hours
+          banditBurnInValue:
+            type: number
+          banditBurnInUnit:
+            type: string
+            enum:
+            - days
+            - hours
+          banditConversionWindowValue:
+            type: number
+          banditConversionWindowUnit:
+            type: string
+            enum:
+            - days
+            - hours
+          linkedFeatures:
+            type: array
+            items:
+              type: string
+          hasVisualChangesets:
+            type: boolean
+          hasURLRedirects:
+            type: boolean
+          customFields:
+            type: object
+            propertyNames:
+              type: string
+            additionalProperties: {}
+          customMetricSlices:
+            description: Custom slices that apply to ALL applicable metrics in the experiment
+            type: array
+            items:
+              type: object
+              properties:
+                slices:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      column:
+                        type: string
+                      levels:
+                        type: array
+                        items:
+                          type: string
+                    required:
+                    - column
+                    - levels
+                    additionalProperties: false
+              required:
+              - slices
+              additionalProperties: false
+          defaultDashboardId:
+            description: ID of the default dashboard for this experiment.
+            type: string
+          templateId:
+            type: string
+        required:
+        - id
+        - trackingKey
+        - dateCreated
+        - dateUpdated
+        - name
+        - type
+        - project
+        - hypothesis
+        - description
+        - tags
+        - owner
+        - archived
+        - status
+        - autoRefresh
+        - hashAttribute
+        - hashVersion
+        - variations
+        - phases
+        - settings
+        additionalProperties: false
+      - type: object
+        properties:
+          enhancedStatus:
+            type: object
+            properties:
+              status:
+                type: string
+                enum:
+                - Running
+                - Stopped
+                - Draft
+                - Archived
+              detailedStatus:
+                type: string
+            required:
+            - status
+            additionalProperties: false
+        additionalProperties: false
+    snapshot:
+      type: object
+      properties:
+        id:
+          type: string
+        experiment:
+          type: string
+        status:
+          type: string
+      required:
+      - id
+      - experiment
+      - status
+      additionalProperties: false
+  parameters:
+    projectId:
+      name: projectId
+      in: query
+      description: Filter by project id
+      schema:
+        description: Filter by project id
+        type: string
+    limit:
+      name: limit
+      in: query
+      description: The number of items to return
+      schema:
+        default: 10
+        description: The number of items to return
+        type: integer
+        minimum: 1
+        maximum: 100
+    offset:
+      name: offset
+      in: query
+      description: How many items to skip (use in conjunction with limit for pagination)
+      schema:
+        default: 0
+        description: How many items to skip (use in conjunction with limit for pagination)
+        type: integer
+        minimum: 0
+    experimentId:
+      name: experimentId
+      in: query
+      description: Filter the returned list by the experiment tracking key (not the internal experiment ID). Note, this was deprecated to help reduce confusion, consider using `trackingKey` instead, which is functionally identical. You cannot use both params at the same time.
+      schema:
+        deprecated: true
+        description: Filter the returned list by the experiment tracking key (not the internal experiment ID). Note, this was deprecated to help reduce confusion, consider using `trackingKey` instead, which is functionally identical. You cannot use both params at the same time.
+        type: string
+    trackingKey:
+      name: trackingKey
+      in: query
+      description: Filter by experiment tracking key
+      schema:
+        description: Filter by experiment tracking key
+        type: string
+    phase:
+      name: phase
+      in: query
+      description: ''
+      schema:
+        type: string
+    id:
+      name: id
+      in: path
+      required: true
+      description: The id of the requested resource
+      schema:
+        description: The id of the requested resource
+        type: string
+    dimension:
+      name: dimension
+      in: query
+      description: ''
+      schema:
+        type: string
+    variationId:
+      name: variationId
+      in: path
+      required: true
+      description: ''
+      schema:
+        type: string
+    datasourceId:
+      name: datasourceId
+      in: query
+      description: Filter by Data Source
+      schema:
+        description: Filter by Data Source
+        type: string
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: 'If using Bearer auth, pass the Secret Key as the token:
+
+        ```bash
+
+        curl https://api.growthbook.io/api/v1/features   -H "Authorization: Bearer secret_abc123DEF456"
+
+        ```
+
+        '
+    basicAuth:
+      type: http
+      scheme: basic
+      description: 'If using HTTP Basic auth, pass the Secret Key as the username and leave the password blank:
+
+        ```bash
+
+        curl https://api.growthbook.io/api/v1/features   -u secret_abc123DEF456:
+
+        # The ":" at the end stops curl from asking for a password
+
+        ```
+
+        '
+x-tagGroups:
+- name: Endpoints
+  tags:
+  - projects
+  - environments
+  - features-v2
+  - feature-revisions-v2
+  - features
+  - feature-revisions
+  - ramp-schedules
+  - data-sources
+  - fact-tables
+  - fact-metrics
+  - metrics
+  - experiments
+  - namespaces
+  - snapshots
+  - dimensions
+  - segments
+  - sdk-connections
+  - visual-changesets
+  - saved-groups
+  - organizations
+  - members
+  - code-references
+  - archetypes
+  - queries
+  - settings
+  - attributes
+  - usage
+  - Dashboards
+  - CustomFields
+  - MetricGroups
+  - Teams
+  - ExperimentTemplates
+  - AnalyticsExplorations
+  - RampScheduleTemplates
+- name: Models
+  tags:
+  - AnalyticsExploration_model
+  - Archetype_model
+  - Attribute_model
+  - CodeRef_model
+  - CustomField_model
+  - Dashboard_model
+  - DataSource_model
+  - Dimension_model
+  - Environment_model
+  - Experiment_model
+  - ExperimentAnalysisSettings_model
+  - ExperimentDecisionFrameworkSettings_model
+  - ExperimentMetric_model
+  - ExperimentMetricOverrideEntry_model
+  - ExperimentResults_model
+  - ExperimentSnapshot_model
+  - ExperimentTemplate_model
+  - ExperimentWithEnhancedStatus_model
+  - FactMetric_model
+  - FactTable_model
+  - FactTableColumn_model
+  - FactTableFilter_model
+  - Feature_model
+  - FeatureBaseRule_model
+  - FeatureDefinition_model
+  - FeatureEnvironment_model
+  - FeatureEnvironmentV2_model
+  - FeatureExperimentRefRule_model
+  - FeatureExperimentRule_model
+  - FeatureForceRule_model
+  - FeatureRevision_model
+  - FeatureRevisionV2_model
+  - FeatureRolloutRule_model
+  - FeatureRule_model
+  - FeatureRuleV2_model
+  - FeatureSafeRolloutRule_model
+  - FeatureV2_model
+  - FeatureWithRevisions_model
+  - FeatureWithRevisionsV2_model
+  - InformationSchema_model
+  - InformationSchemaTable_model
+  - LookbackOverride_model
+  - Member_model
+  - Metric_model
+  - MetricAnalysis_model
+  - MetricGroup_model
+  - MetricUsage_model
+  - Namespace_model
+  - NamespaceExperimentMember_model
+  - Organization_model
+  - PaginationFields_model
+  - Project_model
+  - Query_model
+  - RampSchedule_model
+  - RampScheduleTemplate_model
+  - SavedGroup_model
+  - ScheduleRule_model
+  - SdkConnection_model
+  - Segment_model
+  - Settings_model
+  - Team_model
+  - VisualChange_model
+  - VisualChangeset_model

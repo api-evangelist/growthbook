@@ -1,0 +1,1498 @@
+openapi: 3.1.0
+info:
+  version: 1.0.0
+  title: GrowthBook REST AnalyticsExplorations fact-metrics API
+  description: "GrowthBook offers a full REST API for interacting with the application.\n\nRequest data can use either JSON or Form data encoding (with proper `Content-Type` headers). All response bodies are JSON-encoded.\n\nThe API base URL for GrowthBook Cloud is `https://api.growthbook.io/api`. For self-hosted deployments, it is the same as your API_HOST environment variable (defaults to `http://localhost:3100/api`). The rest of these docs will assume you are using GrowthBook Cloud.\n\n## Versioning\n\nEndpoints are versioned by path prefix:\n\n- `/v1/...` — stable, widely-supported endpoints\n- `/v2/...` — updated endpoints with improved shapes (e.g. unified per-rule environment scope for feature flags)\n\nNew integrations should prefer v2 where available.\n\n## Authentication\n\nWe support both the HTTP Basic and Bearer authentication schemes for convenience.\n\nYou first need to generate a new API Key in GrowthBook. Different keys have different permissions:\n\n- **Personal Access Tokens**: These are sensitive and provide the same level of access as the user has to an organization. These can be created by going to `Personal Access Tokens` under the your user menu.\n- **Secret Keys**: These are sensitive and provide the level of access for the role, which currently is either `admin` or `readonly`. Only Admins with the `manageApiKeys` permission can manage Secret Keys on behalf of an organization. These can be created by going to `Settings -> API Keys`\n\nIf using HTTP Basic auth, pass the Secret Key as the username and leave the password blank (when using curl, add `:` at the end of the secret to indicate an empty password)\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n  -u secret_abc123DEF456:\n```\n\nIf using Bearer auth, pass the Secret Key as the token:\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n-H \"Authorization: Bearer secret_abc123DEF456\"\n```\n\n## Errors\n\nThe API may return the following error status codes:\n\n- **400** - Bad Request - Often due to a missing required parameter\n- **401** - Unauthorized - No valid API key provided\n- **402** - Request Failed - The parameters are valid, but the request failed\n- **403** - Forbidden - Provided API key does not have the required access\n- **404** - Not Found - Unknown API route or requested resource\n- **429** - Too Many Requests - You exceeded the rate limit of 60 requests per minute. Try again later.\n- **5XX** - Server Error - Something went wrong on GrowthBook's end (these are rare)\n\nThe response body will be a JSON object with the following properties:\n\n- **message** - Information about the error\n"
+servers:
+- url: https://api.growthbook.io/api
+  description: GrowthBook Cloud
+- url: https://{domain}/api
+  description: Self-hosted GrowthBook
+security:
+- bearerAuth: []
+- basicAuth: []
+tags:
+- name: fact-metrics
+  x-displayName: Fact Metrics
+  description: Fact Metrics are metrics built on top of Fact Table definitions
+paths:
+  /v1/fact-metrics:
+    get:
+      operationId: listFactMetrics
+      summary: Get all fact metrics
+      tags:
+      - fact-metrics
+      parameters:
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/datasourceId'
+      - $ref: '#/components/parameters/projectId'
+      - name: factTableId
+        in: query
+        description: Filter by Fact Table Id (for ratio metrics, we only look at the numerator)
+        schema:
+          description: Filter by Fact Table Id (for ratio metrics, we only look at the numerator)
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                allOf:
+                - type: object
+                  properties:
+                    factMetrics:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/FactMetric'
+                  required:
+                  - factMetrics
+                  additionalProperties: false
+                - $ref: '#/components/schemas/PaginationFields'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/fact-metrics' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+    post:
+      operationId: postFactMetric
+      summary: Create a single fact metric
+      tags:
+      - fact-metrics
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                owner:
+                  description: The userId or email address of the owner. If an email address is provided, it will be used to look up the userId of the matching organization member. If an ID is provided, it will be validated as existing in the organization.
+                  type: string
+                projects:
+                  type: array
+                  items:
+                    type: string
+                tags:
+                  type: array
+                  items:
+                    type: string
+                metricType:
+                  type: string
+                  enum:
+                  - proportion
+                  - retention
+                  - mean
+                  - quantile
+                  - ratio
+                  - dailyParticipation
+                numerator:
+                  type: object
+                  properties:
+                    factTableId:
+                      type: string
+                    column:
+                      description: 'Must be empty for proportion metrics and dailyParticipation metrics. Otherwise, the column name or one of the special values: ''$$distinctUsers'' or ''$$count'' (or ''$$distinctDates'' if metricType is ''mean'' or ''ratio'' or ''quantile'' and quantileSettings.type is ''unit'')'
+                      type: string
+                    aggregation:
+                      description: 'User aggregation of selected column. Either sum or max for numeric columns; count distinct for string columns; hll merge / kll merge for pre-built sketch columns (requires data-source support); ignored for special columns. Default: sum. If you specify a string column you must explicitly specify count distinct. Not used for proportion metrics; for event quantile metrics only kll merge is applicable.'
+                      type: string
+                      enum:
+                      - sum
+                      - max
+                      - count distinct
+                      - hll merge
+                      - kll merge
+                    filters:
+                      deprecated: true
+                      description: Array of Fact Table Filter Ids. Deprecated, use rowFilters instead.
+                      type: array
+                      items:
+                        type: string
+                    inlineFilters:
+                      deprecated: true
+                      description: Inline filters to apply to the fact table. Keys are column names, values are arrays of values to filter by. Deprecated, use rowFilters instead.
+                      type: object
+                      propertyNames:
+                        type: string
+                      additionalProperties:
+                        type: array
+                        items:
+                          type: string
+                    rowFilters:
+                      description: Filters to apply to the rows of the fact table before aggregation.
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          operator:
+                            type: string
+                            enum:
+                            - '='
+                            - '!='
+                            - '>'
+                            - <
+                            - '>='
+                            - <=
+                            - in
+                            - not_in
+                            - is_null
+                            - not_null
+                            - is_true
+                            - is_false
+                            - contains
+                            - not_contains
+                            - starts_with
+                            - ends_with
+                            - sql_expr
+                            - saved_filter
+                          values:
+                            description: Not required for is_null, not_null, is_true, is_false operators.
+                            type: array
+                            items:
+                              type: string
+                          column:
+                            description: Required for all operators except sql_expr and saved_filter.
+                            type: string
+                        required:
+                        - operator
+                        additionalProperties: false
+                    aggregateFilterColumn:
+                      description: Column to use to filter users after aggregation. Either '$$count' of rows or the name of a numeric column that will be summed by user. Must specify `aggregateFilter` if using this. Only can be used with 'retention' and 'proportion' metrics.
+                      type: string
+                    aggregateFilter:
+                      description: Simple comparison operator and value to apply after aggregation (e.g. '= 10' or '>= 1'). Requires `aggregateFilterColumn`.
+                      type: string
+                  required:
+                  - factTableId
+                  additionalProperties: false
+                denominator:
+                  description: Only when metricType is 'ratio'
+                  type: object
+                  properties:
+                    factTableId:
+                      type: string
+                    column:
+                      description: 'The column name or one of the special values: ''$$distinctUsers'' or ''$$count'' (or ''$$distinctDates'' if metricType is ''mean'' or ''ratio'' or ''quantile'' and quantileSettings.type is ''unit'')'
+                      type: string
+                    aggregation:
+                      description: 'User aggregation of selected column. Either sum or max for numeric columns; count distinct for string columns; hll merge / kll merge for pre-built sketch columns (requires data-source support); ignored for special columns. Default: sum. If you specify a string column you must explicitly specify count distinct. Not used for proportion metrics; for event quantile metrics only kll merge is applicable.'
+                      type: string
+                      enum:
+                      - sum
+                      - max
+                      - count distinct
+                      - hll merge
+                      - kll merge
+                    filters:
+                      deprecated: true
+                      description: Array of Fact Table Filter Ids. Deprecated, use rowFilters instead.
+                      type: array
+                      items:
+                        type: string
+                    inlineFilters:
+                      deprecated: true
+                      description: Inline filters to apply to the fact table. Keys are column names, values are arrays of values to filter by. Deprecated, use rowFilters instead.
+                      type: object
+                      propertyNames:
+                        type: string
+                      additionalProperties:
+                        type: array
+                        items:
+                          type: string
+                    rowFilters:
+                      description: Filters to apply to the rows of the fact table before aggregation.
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          operator:
+                            type: string
+                            enum:
+                            - '='
+                            - '!='
+                            - '>'
+                            - <
+                            - '>='
+                            - <=
+                            - in
+                            - not_in
+                            - is_null
+                            - not_null
+                            - is_true
+                            - is_false
+                            - contains
+                            - not_contains
+                            - starts_with
+                            - ends_with
+                            - sql_expr
+                            - saved_filter
+                          values:
+                            description: Not required for is_null, not_null, is_true, is_false operators.
+                            type: array
+                            items:
+                              type: string
+                          column:
+                            description: Required for all operators except sql_expr and saved_filter.
+                            type: string
+                        required:
+                        - operator
+                        additionalProperties: false
+                  required:
+                  - factTableId
+                  - column
+                  additionalProperties: false
+                inverse:
+                  description: Set to true for things like Bounce Rate, where you want the metric to decrease
+                  type: boolean
+                quantileSettings:
+                  description: Controls the settings for quantile metrics (mandatory if metricType is "quantile")
+                  type: object
+                  properties:
+                    type:
+                      description: Whether the quantile is over unit aggregations or raw event values
+                      type: string
+                      enum:
+                      - event
+                      - unit
+                    ignoreZeros:
+                      description: If true, zero values will be ignored when calculating the quantile
+                      type: boolean
+                    quantile:
+                      description: The quantile value (from 0.001 to 0.999)
+                      type: number
+                      minimum: 0.001
+                      maximum: 0.999
+                      multipleOf: 0.001
+                    quantileEventCountColumn:
+                      description: Optional override for the source-column name used to recover per-row event counts when numerator.aggregation is 'kll merge'. Defaults to '<numerator.column>_n_events'. Only valid for event-quantile metrics with a 'kll merge' numerator.
+                      type: string
+                  required:
+                  - type
+                  - ignoreZeros
+                  - quantile
+                  additionalProperties: false
+                cappingSettings:
+                  description: Controls how outliers are handled
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - none
+                      - absolute
+                      - percentile
+                    value:
+                      description: When type is absolute, this is the absolute value. When type is percentile, this is the percentile value (from 0.0 to 1.0).
+                      type: number
+                    ignoreZeros:
+                      description: If true and capping is `percentile`, zeros will be ignored when calculating the percentile.
+                      type: boolean
+                  required:
+                  - type
+                  additionalProperties: false
+                windowSettings:
+                  description: Controls the conversion window for the metric
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - none
+                      - conversion
+                      - lookback
+                    delayHours:
+                      deprecated: true
+                      description: Wait this many hours after experiment exposure before counting conversions. Ignored if delayValue is set.
+                      type: number
+                    delayValue:
+                      description: Wait this long after experiment exposure before counting conversions.
+                      type: number
+                    delayUnit:
+                      description: Default `hours`.
+                      type: string
+                      enum:
+                      - minutes
+                      - hours
+                      - days
+                      - weeks
+                    windowValue:
+                      type: number
+                    windowUnit:
+                      description: Default `hours`.
+                      type: string
+                      enum:
+                      - minutes
+                      - hours
+                      - days
+                      - weeks
+                  required:
+                  - type
+                  additionalProperties: false
+                priorSettings:
+                  description: Controls the bayesian prior for the metric. If omitted, organization defaults will be used.
+                  type: object
+                  properties:
+                    override:
+                      description: If false, the organization default settings will be used instead of the other settings in this object
+                      type: boolean
+                    proper:
+                      description: If true, the `mean` and `stddev` will be used, otherwise we will use an improper flat prior.
+                      type: boolean
+                    mean:
+                      description: The mean of the prior distribution of relative effects in proportion terms (e.g. 0.01 is 1%)
+                      type: number
+                    stddev:
+                      description: Must be > 0. The standard deviation of the prior distribution of relative effects in proportion terms.
+                      type: number
+                      exclusiveMinimum: 0
+                  required:
+                  - override
+                  - proper
+                  - mean
+                  - stddev
+                  additionalProperties: false
+                regressionAdjustmentSettings:
+                  description: Controls the regression adjustment (CUPED) settings for the metric
+                  type: object
+                  properties:
+                    override:
+                      description: If false, the organization default settings will be used
+                      type: boolean
+                    enabled:
+                      description: Controls whether or not regression adjustment is applied to the metric
+                      type: boolean
+                    days:
+                      description: Number of pre-exposure days to use for the regression adjustment
+                      type: number
+                  required:
+                  - override
+                  additionalProperties: false
+                riskThresholdSuccess:
+                  deprecated: true
+                  description: No longer used. Threshold for Risk to be considered low enough, as a proportion (e.g. put 0.0025 for 0.25%). <br/> Must be a non-negative number and must not be higher than `riskThresholdDanger`.
+                  type: number
+                  minimum: 0
+                riskThresholdDanger:
+                  deprecated: true
+                  description: No longer used. Threshold for Risk to be considered too high, as a proportion (e.g. put 0.0125 for 1.25%). <br/> Must be a non-negative number.
+                  type: number
+                  minimum: 0
+                displayAsPercentage:
+                  description: If true and the metric is a ratio or dailyParticipation metric, variation means will be displayed as a percentage. Defaults to true for dailyParticipation metrics and false for ratio metrics.
+                  type: boolean
+                minPercentChange:
+                  description: Minimum percent change to consider uplift significant, as a proportion (e.g. put 0.005 for 0.5%)
+                  type: number
+                  minimum: 0
+                maxPercentChange:
+                  description: Maximum percent change to consider uplift significant, as a proportion (e.g. put 0.5 for 50%)
+                  type: number
+                  minimum: 0
+                minSampleSize:
+                  type: number
+                  minimum: 0
+                targetMDE:
+                  description: The percentage change that you want to reliably detect before ending an experiment, as a proportion (e.g. put 0.1 for 10%). This is used to estimate the "Days Left" for running experiments.
+                  type: number
+                  minimum: 0
+                managedBy:
+                  description: Set this to "api" to disable editing in the GrowthBook UI
+                  type: string
+                  enum:
+                  - ''
+                  - api
+                  - admin
+                metricAutoSlices:
+                  description: Array of slice column names that will be automatically included in metric analysis. This is an enterprise feature.
+                  type: array
+                  items:
+                    type: string
+              required:
+              - name
+              - metricType
+              - numerator
+              additionalProperties: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  factMetric:
+                    $ref: '#/components/schemas/FactMetric'
+                required:
+                - factMetric
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/fact-metrics' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"name\":\"Purchased\",\"metricType\":\"proportion\",\"numerator\":{\"factTableId\":\"ftb_abc123\",\"column\":\"$$distinctUsers\",\"filters\":[]},\"priorSettings\":{\"override\":false,\"proper\":false,\"mean\":0,\"stddev\":0.3}}'"
+  /v1/fact-metrics/{id}:
+    get:
+      operationId: getFactMetric
+      summary: Get a single fact metric
+      tags:
+      - fact-metrics
+      parameters:
+      - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  factMetric:
+                    $ref: '#/components/schemas/FactMetric'
+                required:
+                - factMetric
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/fact-metrics/abc123' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+    post:
+      operationId: updateFactMetric
+      summary: Update a single fact metric
+      tags:
+      - fact-metrics
+      parameters:
+      - $ref: '#/components/parameters/id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                owner:
+                  description: The userId or email address of the owner. If an email address is provided, it will be used to look up the userId of the matching organization member. If an ID is provided, it will be validated as existing in the organization.
+                  type: string
+                projects:
+                  type: array
+                  items:
+                    type: string
+                tags:
+                  type: array
+                  items:
+                    type: string
+                metricType:
+                  type: string
+                  enum:
+                  - proportion
+                  - retention
+                  - mean
+                  - quantile
+                  - ratio
+                  - dailyParticipation
+                numerator:
+                  type: object
+                  properties:
+                    factTableId:
+                      type: string
+                    column:
+                      description: 'Must be empty for proportion metrics and dailyParticipation metrics. Otherwise, the column name or one of the special values: ''$$distinctUsers'' or ''$$count'' (or ''$$distinctDates'' if metricType is ''mean'' or ''ratio'' or ''quantile'' and quantileSettings.type is ''unit'')'
+                      type: string
+                    aggregation:
+                      description: 'User aggregation of selected column. Either sum or max for numeric columns; count distinct for string columns; hll merge / kll merge for pre-built sketch columns (requires data-source support); ignored for special columns. Default: sum. If you specify a string column you must explicitly specify count distinct. Not used for proportion metrics; for event quantile metrics only kll merge is applicable.'
+                      type: string
+                      enum:
+                      - sum
+                      - max
+                      - count distinct
+                      - hll merge
+                      - kll merge
+                    filters:
+                      deprecated: true
+                      description: Array of Fact Table Filter Ids. Deprecated, use rowFilters instead.
+                      type: array
+                      items:
+                        type: string
+                    inlineFilters:
+                      deprecated: true
+                      description: Inline filters to apply to the fact table. Keys are column names, values are arrays of values to filter by. Deprecated, use rowFilters instead.
+                      type: object
+                      propertyNames:
+                        type: string
+                      additionalProperties:
+                        type: array
+                        items:
+                          type: string
+                    rowFilters:
+                      description: Filters to apply to the rows of the fact table before aggregation.
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          operator:
+                            type: string
+                            enum:
+                            - '='
+                            - '!='
+                            - '>'
+                            - <
+                            - '>='
+                            - <=
+                            - in
+                            - not_in
+                            - is_null
+                            - not_null
+                            - is_true
+                            - is_false
+                            - contains
+                            - not_contains
+                            - starts_with
+                            - ends_with
+                            - sql_expr
+                            - saved_filter
+                          values:
+                            description: Not required for is_null, not_null, is_true, is_false operators.
+                            type: array
+                            items:
+                              type: string
+                          column:
+                            description: Required for all operators except sql_expr and saved_filter.
+                            type: string
+                        required:
+                        - operator
+                        additionalProperties: false
+                    aggregateFilterColumn:
+                      description: Column to use to filter users after aggregation. Either '$$count' of rows or the name of a numeric column that will be summed by user. Must specify `aggregateFilter` if using this. Only can be used with 'retention' and 'proportion' metrics.
+                      type: string
+                    aggregateFilter:
+                      description: Simple comparison operator and value to apply after aggregation (e.g. '= 10' or '>= 1'). Requires `aggregateFilterColumn`.
+                      type: string
+                  required:
+                  - factTableId
+                  additionalProperties: false
+                denominator:
+                  description: Only when metricType is 'ratio'
+                  type: object
+                  properties:
+                    factTableId:
+                      type: string
+                    column:
+                      description: 'The column name or one of the special values: ''$$distinctUsers'' or ''$$count'' (or ''$$distinctDates'' if metricType is ''mean'' or ''ratio'' or ''quantile'' and quantileSettings.type is ''unit'')'
+                      type: string
+                    aggregation:
+                      description: 'User aggregation of selected column. Either sum or max for numeric columns; count distinct for string columns; hll merge / kll merge for pre-built sketch columns (requires data-source support); ignored for special columns. Default: sum. If you specify a string column you must explicitly specify count distinct. Not used for proportion metrics; for event quantile metrics only kll merge is applicable.'
+                      type: string
+                      enum:
+                      - sum
+                      - max
+                      - count distinct
+                      - hll merge
+                      - kll merge
+                    filters:
+                      deprecated: true
+                      description: Array of Fact Table Filter Ids. Deprecated, use rowFilters instead.
+                      type: array
+                      items:
+                        type: string
+                    inlineFilters:
+                      deprecated: true
+                      description: Inline filters to apply to the fact table. Keys are column names, values are arrays of values to filter by. Deprecated, use rowFilters instead.
+                      type: object
+                      propertyNames:
+                        type: string
+                      additionalProperties:
+                        type: array
+                        items:
+                          type: string
+                    rowFilters:
+                      description: Filters to apply to the rows of the fact table before aggregation.
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          operator:
+                            type: string
+                            enum:
+                            - '='
+                            - '!='
+                            - '>'
+                            - <
+                            - '>='
+                            - <=
+                            - in
+                            - not_in
+                            - is_null
+                            - not_null
+                            - is_true
+                            - is_false
+                            - contains
+                            - not_contains
+                            - starts_with
+                            - ends_with
+                            - sql_expr
+                            - saved_filter
+                          values:
+                            description: Not required for is_null, not_null, is_true, is_false operators.
+                            type: array
+                            items:
+                              type: string
+                          column:
+                            description: Required for all operators except sql_expr and saved_filter.
+                            type: string
+                        required:
+                        - operator
+                        additionalProperties: false
+                  required:
+                  - factTableId
+                  - column
+                  additionalProperties: false
+                inverse:
+                  description: Set to true for things like Bounce Rate, where you want the metric to decrease
+                  type: boolean
+                quantileSettings:
+                  description: Controls the settings for quantile metrics (mandatory if metricType is "quantile")
+                  type: object
+                  properties:
+                    type:
+                      description: Whether the quantile is over unit aggregations or raw event values
+                      type: string
+                      enum:
+                      - event
+                      - unit
+                    ignoreZeros:
+                      description: If true, zero values will be ignored when calculating the quantile
+                      type: boolean
+                    quantile:
+                      description: The quantile value (from 0.001 to 0.999)
+                      type: number
+                      minimum: 0.001
+                      maximum: 0.999
+                      multipleOf: 0.001
+                    quantileEventCountColumn:
+                      description: Optional override for the source-column name used to recover per-row event counts when numerator.aggregation is 'kll merge'. Defaults to '<numerator.column>_n_events'. Only valid for event-quantile metrics with a 'kll merge' numerator.
+                      type: string
+                  required:
+                  - type
+                  - ignoreZeros
+                  - quantile
+                  additionalProperties: false
+                cappingSettings:
+                  description: Controls how outliers are handled
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - none
+                      - absolute
+                      - percentile
+                    value:
+                      description: When type is absolute, this is the absolute value. When type is percentile, this is the percentile value (from 0.0 to 1.0).
+                      type: number
+                    ignoreZeros:
+                      description: If true and capping is `percentile`, zeros will be ignored when calculating the percentile.
+                      type: boolean
+                  required:
+                  - type
+                  additionalProperties: false
+                windowSettings:
+                  description: Controls the conversion window for the metric
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - none
+                      - conversion
+                      - lookback
+                    delayHours:
+                      deprecated: true
+                      description: Wait this many hours after experiment exposure before counting conversions. Ignored if delayValue is set.
+                      type: number
+                    delayValue:
+                      description: Wait this long after experiment exposure before counting conversions.
+                      type: number
+                    delayUnit:
+                      description: Default `hours`.
+                      type: string
+                      enum:
+                      - minutes
+                      - hours
+                      - days
+                      - weeks
+                    windowValue:
+                      type: number
+                    windowUnit:
+                      description: Default `hours`.
+                      type: string
+                      enum:
+                      - minutes
+                      - hours
+                      - days
+                      - weeks
+                  required:
+                  - type
+                  additionalProperties: false
+                priorSettings:
+                  description: Controls the bayesian prior for the metric. If omitted, organization defaults will be used.
+                  type: object
+                  properties:
+                    override:
+                      description: If false, the organization default settings will be used instead of the other settings in this object
+                      type: boolean
+                    proper:
+                      description: If true, the `mean` and `stddev` will be used, otherwise we will use an improper flat prior.
+                      type: boolean
+                    mean:
+                      description: The mean of the prior distribution of relative effects in proportion terms (e.g. 0.01 is 1%)
+                      type: number
+                    stddev:
+                      description: Must be > 0. The standard deviation of the prior distribution of relative effects in proportion terms.
+                      type: number
+                      exclusiveMinimum: 0
+                  required:
+                  - override
+                  - proper
+                  - mean
+                  - stddev
+                  additionalProperties: false
+                regressionAdjustmentSettings:
+                  description: Controls the regression adjustment (CUPED) settings for the metric
+                  type: object
+                  properties:
+                    override:
+                      description: If false, the organization default settings will be used
+                      type: boolean
+                    enabled:
+                      description: Controls whether or not regression adjustment is applied to the metric
+                      type: boolean
+                    days:
+                      description: Number of pre-exposure days to use for the regression adjustment
+                      type: number
+                  required:
+                  - override
+                  additionalProperties: false
+                riskThresholdSuccess:
+                  deprecated: true
+                  description: No longer used. Threshold for Risk to be considered low enough, as a proportion (e.g. put 0.0025 for 0.25%). <br/> Must be a non-negative number and must not be higher than `riskThresholdDanger`.
+                  type: number
+                  minimum: 0
+                riskThresholdDanger:
+                  deprecated: true
+                  description: No longer used. Threshold for Risk to be considered too high, as a proportion (e.g. put 0.0125 for 1.25%). <br/> Must be a non-negative number.
+                  type: number
+                  minimum: 0
+                displayAsPercentage:
+                  description: If true and the metric is a ratio or dailyParticipation metric, variation means will be displayed as a percentage. Defaults to true for dailyParticipation metrics and false for ratio metrics.
+                  type: boolean
+                minPercentChange:
+                  description: Minimum percent change to consider uplift significant, as a proportion (e.g. put 0.005 for 0.5%)
+                  type: number
+                  minimum: 0
+                maxPercentChange:
+                  description: Maximum percent change to consider uplift significant, as a proportion (e.g. put 0.5 for 50%)
+                  type: number
+                  minimum: 0
+                minSampleSize:
+                  type: number
+                  minimum: 0
+                targetMDE:
+                  type: number
+                  minimum: 0
+                managedBy:
+                  description: Set this to "api" to disable editing in the GrowthBook UI
+                  type: string
+                  enum:
+                  - ''
+                  - api
+                  - admin
+                archived:
+                  type: boolean
+                metricAutoSlices:
+                  description: Array of slice column names that will be automatically included in metric analysis. This is an enterprise feature.
+                  type: array
+                  items:
+                    type: string
+              additionalProperties: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  factMetric:
+                    $ref: '#/components/schemas/FactMetric'
+                required:
+                - factMetric
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/fact-metrics/abc123' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"name\":\"Updated Metric Name\"}'"
+    delete:
+      operationId: deleteFactMetric
+      summary: Deletes a single fact metric
+      tags:
+      - fact-metrics
+      parameters:
+      - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deletedId:
+                    description: The ID of the deleted fact metric
+                    example: fact__123abc
+                    type: string
+                required:
+                - deletedId
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X DELETE 'https://api.growthbook.io/api/v1/fact-metrics/abc123' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/fact-metrics/{id}/analysis:
+    post:
+      operationId: postFactMetricAnalysis
+      summary: Create a fact metric analysis
+      tags:
+      - fact-metrics
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: The fact metric id to analyze
+        schema:
+          description: The fact metric id to analyze
+          type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userIdType:
+                  description: The identifier type to use for the analysis. If not provided, defaults to the first available identifier type in the fact table.
+                  type: string
+                lookbackDays:
+                  description: Number of days to look back for the analysis. Defaults to 30.
+                  type: number
+                  minimum: 1
+                  maximum: 999999
+                populationType:
+                  description: The type of population to analyze. Defaults to 'factTable', meaning the analysis will return the metric value for all units found in the fact table.
+                  type: string
+                  enum:
+                  - factTable
+                  - segment
+                populationId:
+                  description: The ID of the population (e.g., segment ID) when populationType is not 'factTable'. Defaults to null.
+                  anyOf:
+                  - type: string
+                  - type: 'null'
+                additionalNumeratorFilters:
+                  description: We support passing in adhoc filters for an analysis that don't live on the metric itself. These are in addition to the metric's filters. To use this, you can pass in an array of Fact Table Filter Ids.
+                  type: array
+                  items:
+                    type: string
+                additionalDenominatorFilters:
+                  description: We support passing in adhoc filters for an analysis that don't live on the metric itself. These are in addition to the metric's filters. To use this, you can pass in an array of Fact Table Filter Ids.
+                  type: array
+                  items:
+                    type: string
+                useCache:
+                  description: Whether to use a cached query if one exists. Defaults to true.
+                  type: boolean
+              additionalProperties: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  metricAnalysis:
+                    $ref: '#/components/schemas/MetricAnalysis'
+                required:
+                - metricAnalysis
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/fact-metrics/{id}/analysis' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"lookbackDays\":90}'"
+components:
+  parameters:
+    offset:
+      name: offset
+      in: query
+      description: How many items to skip (use in conjunction with limit for pagination)
+      schema:
+        default: 0
+        description: How many items to skip (use in conjunction with limit for pagination)
+        type: integer
+        minimum: 0
+    id:
+      name: id
+      in: path
+      required: true
+      description: The id of the requested resource
+      schema:
+        description: The id of the requested resource
+        type: string
+    projectId:
+      name: projectId
+      in: query
+      description: Filter by project id
+      schema:
+        description: Filter by project id
+        type: string
+    limit:
+      name: limit
+      in: query
+      description: The number of items to return
+      schema:
+        default: 10
+        description: The number of items to return
+        type: integer
+        minimum: 1
+        maximum: 100
+    datasourceId:
+      name: datasourceId
+      in: query
+      description: Filter by Data Source
+      schema:
+        description: Filter by Data Source
+        type: string
+  schemas:
+    MetricAnalysis:
+      type: object
+      properties:
+        id:
+          description: The ID of the created metric analysis
+          type: string
+        status:
+          description: The status of the analysis (e.g., "running", "completed", "error")
+          type: string
+        settings:
+          type: object
+          propertyNames:
+            type: string
+          additionalProperties: {}
+      required:
+      - id
+      - status
+      additionalProperties: false
+    FactMetric:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        owner:
+          description: The userId of the owner (or raw owner name/email for legacy records)
+          type: string
+        ownerEmail:
+          description: The email address of the owner, when the owner can be resolved to a known user.
+          type: string
+        projects:
+          type: array
+          items:
+            type: string
+        tags:
+          type: array
+          items:
+            type: string
+        datasource:
+          type: string
+        metricType:
+          type: string
+          enum:
+          - proportion
+          - retention
+          - mean
+          - quantile
+          - ratio
+          - dailyParticipation
+        numerator:
+          type: object
+          properties:
+            factTableId:
+              type: string
+            column:
+              type: string
+            aggregation:
+              type: string
+              enum:
+              - sum
+              - max
+              - count distinct
+              - hll merge
+              - kll merge
+            filters:
+              deprecated: true
+              description: Array of Fact Table Filter Ids. Deprecated, use rowFilters instead.
+              type: array
+              items:
+                type: string
+            inlineFilters:
+              deprecated: true
+              description: Inline filters to apply to the fact table. Keys are column names, values are arrays of values to filter by. Deprecated, use rowFilters instead.
+              type: object
+              propertyNames:
+                type: string
+              additionalProperties:
+                type: array
+                items:
+                  type: string
+            rowFilters:
+              description: Filters to apply to the rows of the fact table before aggregation.
+              type: array
+              items:
+                type: object
+                properties:
+                  operator:
+                    type: string
+                    enum:
+                    - '='
+                    - '!='
+                    - '>'
+                    - <
+                    - '>='
+                    - <=
+                    - in
+                    - not_in
+                    - is_null
+                    - not_null
+                    - is_true
+                    - is_false
+                    - contains
+                    - not_contains
+                    - starts_with
+                    - ends_with
+                    - sql_expr
+                    - saved_filter
+                  values:
+                    description: Not required for is_null, not_null, is_true, is_false operators.
+                    type: array
+                    items:
+                      type: string
+                  column:
+                    description: Required for all operators except sql_expr and saved_filter.
+                    type: string
+                required:
+                - operator
+                additionalProperties: false
+            aggregateFilterColumn:
+              description: Column to use to filter users after aggregation. Either '$$count' of rows or the name of a numeric column that will be summed by user. Must specify `aggregateFilter` if using this. Only can be used with 'retention' and 'proportion' metrics.
+              type: string
+            aggregateFilter:
+              description: Simple comparison operator and value to apply after aggregation (e.g. '= 10' or '>= 1'). Requires `aggregateFilterColumn`.
+              type: string
+          required:
+          - factTableId
+          - column
+          additionalProperties: false
+        denominator:
+          type: object
+          properties:
+            factTableId:
+              type: string
+            column:
+              type: string
+            filters:
+              deprecated: true
+              description: Array of Fact Table Filter Ids. Deprecated, use rowFilters instead.
+              type: array
+              items:
+                type: string
+            inlineFilters:
+              deprecated: true
+              description: Inline filters to apply to the fact table. Keys are column names, values are arrays of values to filter by. Deprecated, use rowFilters instead.
+              type: object
+              propertyNames:
+                type: string
+              additionalProperties:
+                type: array
+                items:
+                  type: string
+            rowFilters:
+              description: Filters to apply to the rows of the fact table before aggregation.
+              type: array
+              items:
+                type: object
+                properties:
+                  operator:
+                    type: string
+                    enum:
+                    - '='
+                    - '!='
+                    - '>'
+                    - <
+                    - '>='
+                    - <=
+                    - in
+                    - not_in
+                    - is_null
+                    - not_null
+                    - is_true
+                    - is_false
+                    - contains
+                    - not_contains
+                    - starts_with
+                    - ends_with
+                    - sql_expr
+                    - saved_filter
+                  values:
+                    description: Not required for is_null, not_null, is_true, is_false operators.
+                    type: array
+                    items:
+                      type: string
+                  column:
+                    description: Required for all operators except sql_expr and saved_filter.
+                    type: string
+                required:
+                - operator
+                additionalProperties: false
+          required:
+          - factTableId
+          - column
+          additionalProperties: false
+        inverse:
+          description: Set to true for things like Bounce Rate, where you want the metric to decrease
+          type: boolean
+        quantileSettings:
+          description: Controls the settings for quantile metrics (mandatory if metricType is "quantile")
+          type: object
+          properties:
+            type:
+              description: Whether the quantile is over unit aggregations or raw event values
+              type: string
+              enum:
+              - event
+              - unit
+            ignoreZeros:
+              description: If true, zero values will be ignored when calculating the quantile
+              type: boolean
+            quantile:
+              description: The quantile value (from 0.001 to 0.999)
+              type: number
+              minimum: 0.001
+              maximum: 0.999
+              multipleOf: 0.001
+            quantileEventCountColumn:
+              description: Optional override for the source-column name used to recover per-row event counts when numerator.aggregation is 'kll merge'. Defaults to '<numerator.column>_n_events'. Only valid for event-quantile metrics with a 'kll merge' numerator.
+              type: string
+          required:
+          - type
+          - ignoreZeros
+          - quantile
+          additionalProperties: false
+        cappingSettings:
+          description: Controls how outliers are handled
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - none
+              - absolute
+              - percentile
+            value:
+              description: When type is absolute, this is the absolute value. When type is percentile, this is the percentile value (from 0.0 to 1.0).
+              type: number
+            ignoreZeros:
+              description: If true and capping is `percentile`, zeros will be ignored when calculating the percentile.
+              type: boolean
+          required:
+          - type
+          additionalProperties: false
+        windowSettings:
+          description: Controls the conversion window for the metric
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - none
+              - conversion
+              - lookback
+            delayValue:
+              description: Wait this long after experiment exposure before counting conversions.
+              type: number
+            delayUnit:
+              type: string
+              enum:
+              - minutes
+              - hours
+              - days
+              - weeks
+            windowValue:
+              type: number
+            windowUnit:
+              type: string
+              enum:
+              - minutes
+              - hours
+              - days
+              - weeks
+          required:
+          - type
+          additionalProperties: false
+        priorSettings:
+          description: Controls the bayesian prior for the metric
+          type: object
+          properties:
+            override:
+              description: If false, the organization default settings will be used instead of the other settings in this object
+              type: boolean
+            proper:
+              description: If true, the `mean` and `stddev` will be used, otherwise we will use an improper flat prior.
+              type: boolean
+            mean:
+              description: The mean of the prior distribution of relative effects in proportion terms (e.g. 0.01 is 1%)
+              type: number
+            stddev:
+              description: Must be > 0. The standard deviation of the prior distribution of relative effects in proportion terms.
+              type: number
+          required:
+          - override
+          - proper
+          - mean
+          - stddev
+          additionalProperties: false
+        regressionAdjustmentSettings:
+          description: Controls the regression adjustment (CUPED) settings for the metric
+          type: object
+          properties:
+            override:
+              description: If false, the organization default settings will be used
+              type: boolean
+            enabled:
+              description: Controls whether or not regresion adjustment is applied to the metric
+              type: boolean
+            days:
+              description: Number of pre-exposure days to use for the regression adjustment
+              type: number
+          required:
+          - override
+          additionalProperties: false
+        riskThresholdSuccess:
+          type: number
+        riskThresholdDanger:
+          type: number
+        displayAsPercentage:
+          description: If true and the metric is a ratio metric, variation means will be displayed as a percentage
+          type: boolean
+        minPercentChange:
+          type: number
+        maxPercentChange:
+          type: number
+        minSampleSize:
+          type: number
+        targetMDE:
+          type: number
+        managedBy:
+          description: Where this fact metric must be managed from. If not set (empty string), it can be managed from anywhere.
+          type: string
+          enum:
+          - ''
+          - api
+          - admin
+        dateCreated:
+          format: date-time
+          type: string
+        dateUpdated:
+          format: date-time
+          type: string
+        archived:
+          type: boolean
+        metricAutoSlices:
+          description: Array of slice column names that will be automatically included in metric analysis. This is an enterprise feature.
+          type: array
+          items:
+            type: string
+      required:
+      - id
+      - name
+      - description
+      - owner
+      - projects
+      - tags
+      - datasource
+      - metricType
+      - numerator
+      - inverse
+      - cappingSettings
+      - windowSettings
+      - priorSettings
+      - regressionAdjustmentSettings
+      - riskThresholdSuccess
+      - riskThresholdDanger
+      - minPercentChange
+      - maxPercentChange
+      - minSampleSize
+      - targetMDE
+      - managedBy
+      - dateCreated
+      - dateUpdated
+      additionalProperties: false
+    PaginationFields:
+      type: object
+      properties:
+        limit:
+          type: integer
+        offset:
+          type: integer
+        count:
+          type: integer
+        total:
+          type: integer
+        hasMore:
+          type: boolean
+        nextOffset:
+          anyOf:
+          - type: integer
+          - type: 'null'
+      required:
+      - limit
+      - offset
+      - count
+      - total
+      - hasMore
+      - nextOffset
+      additionalProperties: false
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: 'If using Bearer auth, pass the Secret Key as the token:
+
+        ```bash
+
+        curl https://api.growthbook.io/api/v1/features   -H "Authorization: Bearer secret_abc123DEF456"
+
+        ```
+
+        '
+    basicAuth:
+      type: http
+      scheme: basic
+      description: 'If using HTTP Basic auth, pass the Secret Key as the username and leave the password blank:
+
+        ```bash
+
+        curl https://api.growthbook.io/api/v1/features   -u secret_abc123DEF456:
+
+        # The ":" at the end stops curl from asking for a password
+
+        ```
+
+        '
+x-tagGroups:
+- name: Endpoints
+  tags:
+  - projects
+  - environments
+  - features-v2
+  - feature-revisions-v2
+  - features
+  - feature-revisions
+  - ramp-schedules
+  - data-sources
+  - fact-tables
+  - fact-metrics
+  - metrics
+  - experiments
+  - namespaces
+  - snapshots
+  - dimensions
+  - segments
+  - sdk-connections
+  - visual-changesets
+  - saved-groups
+  - organizations
+  - members
+  - code-references
+  - archetypes
+  - queries
+  - settings
+  - attributes
+  - usage
+  - Dashboards
+  - CustomFields
+  - MetricGroups
+  - Teams
+  - ExperimentTemplates
+  - AnalyticsExplorations
+  - RampScheduleTemplates
+- name: Models
+  tags:
+  - AnalyticsExploration_model
+  - Archetype_model
+  - Attribute_model
+  - CodeRef_model
+  - CustomField_model
+  - Dashboard_model
+  - DataSource_model
+  - Dimension_model
+  - Environment_model
+  - Experiment_model
+  - ExperimentAnalysisSettings_model
+  - ExperimentDecisionFrameworkSettings_model
+  - ExperimentMetric_model
+  - ExperimentMetricOverrideEntry_model
+  - ExperimentResults_model
+  - ExperimentSnapshot_model
+  - ExperimentTemplate_model
+  - ExperimentWithEnhancedStatus_model
+  - FactMetric_model
+  - FactTable_model
+  - FactTableColumn_model
+  - FactTableFilter_model
+  - Feature_model
+  - FeatureBaseRule_model
+  - FeatureDefinition_model
+  - FeatureEnvironment_model
+  - FeatureEnvironmentV2_model
+  - FeatureExperimentRefRule_model
+  - FeatureExperimentRule_model
+  - FeatureForceRule_model
+  - FeatureRevision_model
+  - FeatureRevisionV2_model
+  - FeatureRolloutRule_model
+  - FeatureRule_model
+  - FeatureRuleV2_model
+  - FeatureSafeRolloutRule_model
+  - FeatureV2_model
+  - FeatureWithRevisions_model
+  - FeatureWithRevisionsV2_model
+  - InformationSchema_model
+  - InformationSchemaTable_model
+  - LookbackOverride_model
+  - Member_model
+  - Metric_model
+  - MetricAnalysis_model
+  - MetricGroup_model
+  - MetricUsage_model
+  - Namespace_model
+  - NamespaceExperimentMember_model
+  - Organization_model
+  - PaginationFields_model
+  - Project_model
+  - Query_model
+  - RampSchedule_model
+  - RampScheduleTemplate_model
+  - SavedGroup_model
+  - ScheduleRule_model
+  - SdkConnection_model
+  - Segment_model
+  - Settings_model
+  - Team_model
+  - VisualChange_model
+  - VisualChangeset_model

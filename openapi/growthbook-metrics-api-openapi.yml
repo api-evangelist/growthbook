@@ -1,0 +1,1168 @@
+openapi: 3.1.0
+info:
+  version: 1.0.0
+  title: GrowthBook REST AnalyticsExplorations metrics API
+  description: "GrowthBook offers a full REST API for interacting with the application.\n\nRequest data can use either JSON or Form data encoding (with proper `Content-Type` headers). All response bodies are JSON-encoded.\n\nThe API base URL for GrowthBook Cloud is `https://api.growthbook.io/api`. For self-hosted deployments, it is the same as your API_HOST environment variable (defaults to `http://localhost:3100/api`). The rest of these docs will assume you are using GrowthBook Cloud.\n\n## Versioning\n\nEndpoints are versioned by path prefix:\n\n- `/v1/...` — stable, widely-supported endpoints\n- `/v2/...` — updated endpoints with improved shapes (e.g. unified per-rule environment scope for feature flags)\n\nNew integrations should prefer v2 where available.\n\n## Authentication\n\nWe support both the HTTP Basic and Bearer authentication schemes for convenience.\n\nYou first need to generate a new API Key in GrowthBook. Different keys have different permissions:\n\n- **Personal Access Tokens**: These are sensitive and provide the same level of access as the user has to an organization. These can be created by going to `Personal Access Tokens` under the your user menu.\n- **Secret Keys**: These are sensitive and provide the level of access for the role, which currently is either `admin` or `readonly`. Only Admins with the `manageApiKeys` permission can manage Secret Keys on behalf of an organization. These can be created by going to `Settings -> API Keys`\n\nIf using HTTP Basic auth, pass the Secret Key as the username and leave the password blank (when using curl, add `:` at the end of the secret to indicate an empty password)\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n  -u secret_abc123DEF456:\n```\n\nIf using Bearer auth, pass the Secret Key as the token:\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n-H \"Authorization: Bearer secret_abc123DEF456\"\n```\n\n## Errors\n\nThe API may return the following error status codes:\n\n- **400** - Bad Request - Often due to a missing required parameter\n- **401** - Unauthorized - No valid API key provided\n- **402** - Request Failed - The parameters are valid, but the request failed\n- **403** - Forbidden - Provided API key does not have the required access\n- **404** - Not Found - Unknown API route or requested resource\n- **429** - Too Many Requests - You exceeded the rate limit of 60 requests per minute. Try again later.\n- **5XX** - Server Error - Something went wrong on GrowthBook's end (these are rare)\n\nThe response body will be a JSON object with the following properties:\n\n- **message** - Information about the error\n"
+servers:
+- url: https://api.growthbook.io/api
+  description: GrowthBook Cloud
+- url: https://{domain}/api
+  description: Self-hosted GrowthBook
+security:
+- bearerAuth: []
+- basicAuth: []
+tags:
+- name: metrics
+  x-displayName: Metrics (legacy)
+  description: Metrics used as goals and guardrails for experiments
+paths:
+  /v1/metrics:
+    get:
+      operationId: listMetrics
+      summary: Get all metrics
+      tags:
+      - metrics
+      parameters:
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/projectId'
+      - $ref: '#/components/parameters/datasourceId'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                allOf:
+                - type: object
+                  properties:
+                    metrics:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/Metric'
+                  required:
+                  - metrics
+                  additionalProperties: false
+                - $ref: '#/components/schemas/PaginationFields'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/metrics' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+    post:
+      operationId: postMetric
+      summary: Create a single metric
+      tags:
+      - metrics
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                datasourceId:
+                  description: ID for the [DataSource](#tag/DataSource_model)
+                  type: string
+                managedBy:
+                  description: Where this metric must be managed from. If not set (empty string), it can be managed from anywhere. If set to "api", it can be managed via the API only.
+                  type: string
+                  enum:
+                  - ''
+                  - api
+                owner:
+                  description: The userId or email address of the owner. If an email address is provided, it will be used to look up the userId of the matching organization member. If an ID is provided, it will be validated as existing in the organization.
+                  type: string
+                name:
+                  description: Name of the metric
+                  type: string
+                description:
+                  description: Description of the metric
+                  type: string
+                type:
+                  description: Type of metric. See [Metrics documentation](/app/metrics/legacy)
+                  type: string
+                  enum:
+                  - binomial
+                  - count
+                  - duration
+                  - revenue
+                tags:
+                  description: List of tags
+                  type: array
+                  items:
+                    type: string
+                projects:
+                  description: List of project IDs for projects that can access this metric
+                  type: array
+                  items:
+                    type: string
+                archived:
+                  type: boolean
+                behavior:
+                  type: object
+                  properties:
+                    goal:
+                      type: string
+                      enum:
+                      - increase
+                      - decrease
+                    cappingSettings:
+                      description: Controls how outliers are handled
+                      type: object
+                      properties:
+                        type:
+                          anyOf:
+                          - type: string
+                            enum:
+                            - none
+                            - absolute
+                            - percentile
+                          - type: 'null'
+                        value:
+                          description: When type is absolute, this is the absolute value. When type is percentile, this is the percentile value (from 0.0 to 1.0).
+                          type: number
+                        ignoreZeros:
+                          description: If true and capping is `percentile`, zeros will be ignored when calculating the percentile.
+                          type: boolean
+                      required:
+                      - type
+                      additionalProperties: false
+                    cap:
+                      deprecated: true
+                      description: (deprecated, use cappingSettings instead) This should be non-negative
+                      type: number
+                      minimum: 0
+                    capping:
+                      deprecated: true
+                      description: (deprecated, use cappingSettings instead) Used in conjunction with `capValue` to set the capping (winsorization). Do not specify or set to null for no capping. "absolute" will cap user values at the `capValue` if it is greater than 0. "percentile" will cap user values at the percentile of user values in an experiment using the `capValue` for the percentile, if greater than 0. <br/>  If `behavior.capping` is non-null, you must specify `behavior.capValue`.
+                      anyOf:
+                      - type: string
+                        enum:
+                        - absolute
+                        - percentile
+                      - type: 'null'
+                    capValue:
+                      deprecated: true
+                      description: (deprecated, use cappingSettings instead) This should be non-negative. <br/> Must specify `behavior.capping` when setting `behavior.capValue`.
+                      type: number
+                      minimum: 0
+                    windowSettings:
+                      description: Controls the conversion window for the metric
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - none
+                          - conversion
+                          - lookback
+                        delayHours:
+                          deprecated: true
+                          description: Wait this many hours after experiment exposure before counting conversions. Ignored if delayValue is set.
+                          type: number
+                        delayValue:
+                          description: Wait this long after experiment exposure before counting conversions.
+                          type: number
+                        delayUnit:
+                          description: Default `hours`.
+                          type: string
+                          enum:
+                          - minutes
+                          - hours
+                          - days
+                          - weeks
+                        windowValue:
+                          type: number
+                        windowUnit:
+                          type: string
+                          enum:
+                          - minutes
+                          - hours
+                          - days
+                          - weeks
+                      required:
+                      - type
+                      additionalProperties: false
+                    conversionWindowStart:
+                      deprecated: true
+                      description: The start of a Conversion Window relative to the exposure date, in hours. This is equivalent to the [Conversion Delay](/app/metrics/legacy/#conversion-delay). <br/> Must specify both `behavior.conversionWindowStart` and `behavior.conversionWindowEnd` or neither.
+                      type: number
+                    conversionWindowEnd:
+                      deprecated: true
+                      description: The end of a [Conversion Window](/app/metrics/legacy/#conversion-window) relative to the exposure date, in hours. This is equivalent to the [Conversion Delay](/app/metrics/legacy/#conversion-delay) + Conversion Window Hours settings in the UI. In other words, if you want a 48 hour window starting after 24 hours, you would set conversionWindowStart to 24 and conversionWindowEnd to 72 (24+48). <br/> Must specify both `behavior.conversionWindowStart` and `behavior.conversionWindowEnd` or neither.
+                      type: number
+                    priorSettings:
+                      description: Controls the bayesian prior for the metric. If omitted, organization defaults will be used.
+                      type: object
+                      properties:
+                        override:
+                          description: If false, the organization default settings will be used instead of the other settings in this object
+                          type: boolean
+                        proper:
+                          description: If true, the `mean` and `stddev` will be used, otherwise we will use an improper flat prior.
+                          type: boolean
+                        mean:
+                          description: The mean of the prior distribution of relative effects in proportion terms (e.g. 0.01 is 1%)
+                          type: number
+                        stddev:
+                          description: Must be > 0. The standard deviation of the prior distribution of relative effects in proportion terms.
+                          type: number
+                          exclusiveMinimum: 0
+                      required:
+                      - override
+                      - proper
+                      - mean
+                      - stddev
+                      additionalProperties: false
+                    riskThresholdSuccess:
+                      deprecated: true
+                      description: No longer used. Threshold for Risk to be considered low enough, as a proportion (e.g. put 0.0025 for 0.25%). <br/> Must be a non-negative number and must not be higher than `riskThresholdDanger`.
+                      type: number
+                      minimum: 0
+                    riskThresholdDanger:
+                      deprecated: true
+                      description: No longer used. Threshold for Risk to be considered too high, as a proportion (e.g. put 0.0125 for 1.25%). <br/> Must be a non-negative number.
+                      type: number
+                      minimum: 0
+                    minPercentChange:
+                      description: Minimum percent change to consider uplift significant, as a proportion (e.g. put 0.005 for 0.5%)
+                      type: number
+                      minimum: 0
+                    maxPercentChange:
+                      description: Maximum percent change to consider uplift significant, as a proportion (e.g. put 0.5 for 50%)
+                      type: number
+                      minimum: 0
+                    minSampleSize:
+                      type: number
+                      minimum: 0
+                    targetMDE:
+                      description: The percentage change that you want to reliably detect before ending an experiment, as a proportion (e.g. put 0.1 for 10%). This is used to estimate the "Days Left" for running experiments.
+                      type: number
+                      minimum: 0
+                  additionalProperties: false
+                sql:
+                  description: Preferred way to define SQL. Only one of `sql`, `sqlBuilder` or `mixpanel` allowed, and at least one must be specified.
+                  type: object
+                  properties:
+                    identifierTypes:
+                      type: array
+                      items:
+                        type: string
+                    conversionSQL:
+                      type: string
+                    userAggregationSQL:
+                      description: 'Custom user level aggregation for your metric (default: `SUM(value)`)'
+                      type: string
+                    denominatorMetricId:
+                      description: The metric ID for a [denominator metric for funnel and ratio metrics](/app/metrics/legacy/#denominator-ratio--funnel-metrics)
+                      type: string
+                  required:
+                  - identifierTypes
+                  - conversionSQL
+                  additionalProperties: false
+                sqlBuilder:
+                  description: An alternative way to specify a SQL metric, rather than a full query. Using `sql` is preferred to `sqlBuilder`. Only one of `sql`, `sqlBuilder` or `mixpanel` allowed, and at least one must be specified.
+                  type: object
+                  properties:
+                    identifierTypeColumns:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          identifierType:
+                            type: string
+                          columnName:
+                            type: string
+                        required:
+                        - identifierType
+                        - columnName
+                        additionalProperties: false
+                    tableName:
+                      type: string
+                    valueColumnName:
+                      type: string
+                    timestampColumnName:
+                      type: string
+                    conditions:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          column:
+                            type: string
+                          operator:
+                            type: string
+                          value:
+                            type: string
+                        required:
+                        - column
+                        - operator
+                        - value
+                        additionalProperties: false
+                  required:
+                  - identifierTypeColumns
+                  - tableName
+                  - timestampColumnName
+                  additionalProperties: false
+                mixpanel:
+                  description: Only use for MixPanel (non-SQL) Data Sources. Only one of `sql`, `sqlBuilder` or `mixpanel` allowed, and at least one must be specified.
+                  type: object
+                  properties:
+                    eventName:
+                      type: string
+                    eventValue:
+                      type: string
+                    userAggregation:
+                      type: string
+                    conditions:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          property:
+                            type: string
+                          operator:
+                            type: string
+                          value:
+                            type: string
+                        required:
+                        - property
+                        - operator
+                        - value
+                        additionalProperties: false
+                  required:
+                  - eventName
+                  - userAggregation
+                  additionalProperties: false
+              required:
+              - datasourceId
+              - name
+              - type
+              additionalProperties: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  metric:
+                    $ref: '#/components/schemas/Metric'
+                required:
+                - metric
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/metrics' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/metrics/{id}:
+    get:
+      operationId: getMetric
+      summary: Get a single metric
+      tags:
+      - metrics
+      parameters:
+      - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  metric:
+                    $ref: '#/components/schemas/Metric'
+                required:
+                - metric
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/metrics/abc123' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+    put:
+      operationId: putMetric
+      summary: Update a metric
+      tags:
+      - metrics
+      parameters:
+      - $ref: '#/components/parameters/id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                managedBy:
+                  description: Where this metric must be managed from. If not set (empty string), it can be managed from anywhere. If set to "api", it can be managed via the API only. Please note that we have deprecated support for setting the managedBy property to "admin". Your existing Legacy Metrics with this value will continue to work, but we suggest migrating to Fact Metrics instead.
+                  type: string
+                  enum:
+                  - ''
+                  - api
+                  - admin
+                owner:
+                  description: The userId or email address of the owner. If an email address is provided, it will be used to look up the userId of the matching organization member. If an ID is provided, it will be validated as existing in the organization.
+                  type: string
+                name:
+                  description: Name of the metric
+                  type: string
+                description:
+                  description: Description of the metric
+                  type: string
+                type:
+                  description: Type of metric. See [Metrics documentation](/app/metrics/legacy)
+                  type: string
+                  enum:
+                  - binomial
+                  - count
+                  - duration
+                  - revenue
+                tags:
+                  description: List of tags
+                  type: array
+                  items:
+                    type: string
+                projects:
+                  description: List of project IDs for projects that can access this metric
+                  type: array
+                  items:
+                    type: string
+                archived:
+                  type: boolean
+                behavior:
+                  type: object
+                  properties:
+                    goal:
+                      type: string
+                      enum:
+                      - increase
+                      - decrease
+                    cappingSettings:
+                      description: Controls how outliers are handled
+                      type: object
+                      properties:
+                        type:
+                          anyOf:
+                          - type: string
+                            enum:
+                            - none
+                            - absolute
+                            - percentile
+                          - type: 'null'
+                        value:
+                          description: When type is absolute, this is the absolute value. When type is percentile, this is the percentile value (from 0.0 to 1.0).
+                          type: number
+                        ignoreZeros:
+                          description: If true and capping is `percentile`, zeros will be ignored when calculating the percentile.
+                          type: boolean
+                      required:
+                      - type
+                      additionalProperties: false
+                    cap:
+                      deprecated: true
+                      description: (deprecated, use cappingSettings instead) This should be non-negative
+                      type: number
+                      minimum: 0
+                    capping:
+                      deprecated: true
+                      description: (deprecated, use cappingSettings instead) Used in conjunction with `capValue` to set the capping (winsorization). Do not specify or set to null for no capping. "absolute" will cap user values at the `capValue` if it is greater than 0. "percentile" will cap user values at the percentile of user values in an experiment using the `capValue` for the percentile, if greater than 0. <br/>  If `behavior.capping` is non-null, you must specify `behavior.capValue`.
+                      anyOf:
+                      - type: string
+                        enum:
+                        - absolute
+                        - percentile
+                      - type: 'null'
+                    capValue:
+                      deprecated: true
+                      description: (deprecated, use cappingSettings instead) This should be non-negative. <br/> Must specify `behavior.capping` when setting `behavior.capValue`.
+                      type: number
+                      minimum: 0
+                    windowSettings:
+                      description: Controls the conversion window for the metric
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                          - none
+                          - conversion
+                          - lookback
+                        delayHours:
+                          deprecated: true
+                          description: Wait this many hours after experiment exposure before counting conversions. Ignored if delayValue is set.
+                          type: number
+                        delayValue:
+                          description: Wait this long after experiment exposure before counting conversions.
+                          type: number
+                        delayUnit:
+                          description: Default `hours`.
+                          type: string
+                          enum:
+                          - minutes
+                          - hours
+                          - days
+                          - weeks
+                        windowValue:
+                          type: number
+                        windowUnit:
+                          type: string
+                          enum:
+                          - minutes
+                          - hours
+                          - days
+                          - weeks
+                      required:
+                      - type
+                      additionalProperties: false
+                    conversionWindowStart:
+                      deprecated: true
+                      description: The start of a Conversion Window relative to the exposure date, in hours. This is equivalent to the [Conversion Delay](/app/metrics/legacy/#conversion-delay). <br/> Must specify both `behavior.conversionWindowStart` and `behavior.conversionWindowEnd` or neither.
+                      type: number
+                    conversionWindowEnd:
+                      deprecated: true
+                      description: The end of a [Conversion Window](/app/metrics/legacy/#conversion-window) relative to the exposure date, in hours. This is equivalent to the [Conversion Delay](/app/metrics/legacy/#conversion-delay) + Conversion Window Hours settings in the UI. In other words, if you want a 48 hour window starting after 24 hours, you would set conversionWindowStart to 24 and conversionWindowEnd to 72 (24+48). <br/> Must specify both `behavior.conversionWindowStart` and `behavior.conversionWindowEnd` or neither.
+                      type: number
+                    priorSettings:
+                      description: Controls the bayesian prior for the metric. If omitted, organization defaults will be used.
+                      type: object
+                      properties:
+                        override:
+                          description: If false, the organization default settings will be used instead of the other settings in this object
+                          type: boolean
+                        proper:
+                          description: If true, the `mean` and `stddev` will be used, otherwise we will use an improper flat prior.
+                          type: boolean
+                        mean:
+                          description: The mean of the prior distribution of relative effects in proportion terms (e.g. 0.01 is 1%)
+                          type: number
+                        stddev:
+                          description: Must be > 0. The standard deviation of the prior distribution of relative effects in proportion terms.
+                          type: number
+                          exclusiveMinimum: 0
+                      required:
+                      - override
+                      - proper
+                      - mean
+                      - stddev
+                      additionalProperties: false
+                    riskThresholdSuccess:
+                      deprecated: true
+                      description: No longer used. Threshold for Risk to be considered low enough, as a proportion (e.g. put 0.0025 for 0.25%). <br/> Must be a non-negative number and must not be higher than `riskThresholdDanger`.
+                      type: number
+                      minimum: 0
+                    riskThresholdDanger:
+                      deprecated: true
+                      description: No longer used. Threshold for Risk to be considered too high, as a proportion (e.g. put 0.0125 for 1.25%). <br/> Must be a non-negative number.
+                      type: number
+                      minimum: 0
+                    minPercentChange:
+                      description: Minimum percent change to consider uplift significant, as a proportion (e.g. put 0.005 for 0.5%)
+                      type: number
+                      minimum: 0
+                    maxPercentChange:
+                      description: Maximum percent change to consider uplift significant, as a proportion (e.g. put 0.5 for 50%)
+                      type: number
+                      minimum: 0
+                    minSampleSize:
+                      type: number
+                      minimum: 0
+                    targetMDE:
+                      description: The percentage change that you want to reliably detect before ending an experiment, as a proportion (e.g. put 0.1 for 10%). This is used to estimate the "Days Left" for running experiments.
+                      type: number
+                      minimum: 0
+                  additionalProperties: false
+                sql:
+                  description: Preferred way to define SQL. Only one of `sql`, `sqlBuilder` or `mixpanel` allowed.
+                  type: object
+                  properties:
+                    identifierTypes:
+                      type: array
+                      items:
+                        type: string
+                    conversionSQL:
+                      type: string
+                    userAggregationSQL:
+                      description: 'Custom user level aggregation for your metric (default: `SUM(value)`)'
+                      type: string
+                    denominatorMetricId:
+                      description: The metric ID for a [denominator metric for funnel and ratio metrics](/app/metrics/legacy/#denominator-ratio--funnel-metrics)
+                      type: string
+                  additionalProperties: false
+                sqlBuilder:
+                  description: An alternative way to specify a SQL metric, rather than a full query. Using `sql` is preferred to `sqlBuilder`. Only one of `sql`, `sqlBuilder` or `mixpanel` allowed
+                  type: object
+                  properties:
+                    identifierTypeColumns:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          identifierType:
+                            type: string
+                          columnName:
+                            type: string
+                        required:
+                        - identifierType
+                        - columnName
+                        additionalProperties: false
+                    tableName:
+                      type: string
+                    valueColumnName:
+                      type: string
+                    timestampColumnName:
+                      type: string
+                    conditions:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          column:
+                            type: string
+                          operator:
+                            type: string
+                          value:
+                            type: string
+                        required:
+                        - column
+                        - operator
+                        - value
+                        additionalProperties: false
+                  additionalProperties: false
+                mixpanel:
+                  description: Only use for MixPanel (non-SQL) Data Sources. Only one of `sql`, `sqlBuilder` or `mixpanel` allowed.
+                  type: object
+                  properties:
+                    eventName:
+                      type: string
+                    eventValue:
+                      type: string
+                    userAggregation:
+                      type: string
+                    conditions:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          property:
+                            type: string
+                          operator:
+                            type: string
+                          value:
+                            type: string
+                        required:
+                        - property
+                        - operator
+                        - value
+                        additionalProperties: false
+                  additionalProperties: false
+              additionalProperties: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  updatedId:
+                    type: string
+                required:
+                - updatedId
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X PUT 'https://api.growthbook.io/api/v1/metrics/abc123' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"name\":\"net revenue\",\"description\":\"revenue minus lacroix spend\"}'"
+    delete:
+      operationId: deleteMetric
+      summary: Deletes a metric
+      tags:
+      - metrics
+      parameters:
+      - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deletedId:
+                    type: string
+                required:
+                - deletedId
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X DELETE 'https://api.growthbook.io/api/v1/metrics/abc123' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+components:
+  parameters:
+    offset:
+      name: offset
+      in: query
+      description: How many items to skip (use in conjunction with limit for pagination)
+      schema:
+        default: 0
+        description: How many items to skip (use in conjunction with limit for pagination)
+        type: integer
+        minimum: 0
+    id:
+      name: id
+      in: path
+      required: true
+      description: The id of the requested resource
+      schema:
+        description: The id of the requested resource
+        type: string
+    projectId:
+      name: projectId
+      in: query
+      description: Filter by project id
+      schema:
+        description: Filter by project id
+        type: string
+    limit:
+      name: limit
+      in: query
+      description: The number of items to return
+      schema:
+        default: 10
+        description: The number of items to return
+        type: integer
+        minimum: 1
+        maximum: 100
+    datasourceId:
+      name: datasourceId
+      in: query
+      description: Filter by Data Source
+      schema:
+        description: Filter by Data Source
+        type: string
+  schemas:
+    Metric:
+      type: object
+      properties:
+        id:
+          type: string
+        managedBy:
+          description: Where this metric must be managed from. If not set (empty string), it can be managed from anywhere.
+          type: string
+          enum:
+          - ''
+          - api
+          - config
+          - admin
+        dateCreated:
+          type: string
+        dateUpdated:
+          type: string
+        owner:
+          description: The userId of the owner (or raw owner name/email for legacy records)
+          type: string
+        ownerEmail:
+          description: The email address of the owner, when the owner can be resolved to a known user.
+          type: string
+        datasourceId:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+          enum:
+          - binomial
+          - count
+          - duration
+          - revenue
+        tags:
+          type: array
+          items:
+            type: string
+        projects:
+          type: array
+          items:
+            type: string
+        archived:
+          type: boolean
+        behavior:
+          type: object
+          properties:
+            goal:
+              type: string
+              enum:
+              - increase
+              - decrease
+            cappingSettings:
+              description: Controls how outliers are handled
+              type: object
+              properties:
+                type:
+                  type: string
+                  enum:
+                  - none
+                  - absolute
+                  - percentile
+                value:
+                  description: When type is absolute, this is the absolute value. When type is percentile, this is the percentile value (from 0.0 to 1.0).
+                  type: number
+                ignoreZeros:
+                  description: If true and capping is `percentile`, zeros will be ignored when calculating the percentile.
+                  type: boolean
+              required:
+              - type
+              additionalProperties: false
+            cap:
+              deprecated: true
+              type: number
+            capping:
+              deprecated: true
+              anyOf:
+              - type: string
+                enum:
+                - absolute
+                - percentile
+              - type: 'null'
+            capValue:
+              deprecated: true
+              type: number
+            windowSettings:
+              description: Controls the conversion window for the metric
+              type: object
+              properties:
+                type:
+                  type: string
+                  enum:
+                  - none
+                  - conversion
+                  - lookback
+                delayValue:
+                  description: Wait this long after experiment exposure before counting conversions
+                  type: number
+                delayUnit:
+                  type: string
+                  enum:
+                  - minutes
+                  - hours
+                  - days
+                  - weeks
+                windowValue:
+                  type: number
+                windowUnit:
+                  type: string
+                  enum:
+                  - minutes
+                  - hours
+                  - days
+                  - weeks
+              required:
+              - type
+              additionalProperties: false
+            priorSettings:
+              description: Controls the bayesian prior for the metric.
+              type: object
+              properties:
+                override:
+                  description: If false, the organization default settings will be used instead of the other settings in this object
+                  type: boolean
+                proper:
+                  description: If true, the `mean` and `stddev` will be used, otherwise we will use an improper flat prior.
+                  type: boolean
+                mean:
+                  description: The mean of the prior distribution of relative effects in proportion terms (e.g. 0.01 is 1%)
+                  type: number
+                stddev:
+                  description: Must be > 0. The standard deviation of the prior distribution of relative effects in proportion terms.
+                  type: number
+              required:
+              - override
+              - proper
+              - mean
+              - stddev
+              additionalProperties: false
+            conversionWindowStart:
+              deprecated: true
+              type: number
+            conversionWindowEnd:
+              deprecated: true
+              type: number
+            riskThresholdSuccess:
+              type: number
+            riskThresholdDanger:
+              type: number
+            minPercentChange:
+              type: number
+            maxPercentChange:
+              type: number
+            minSampleSize:
+              type: number
+            targetMDE:
+              type: number
+          required:
+          - goal
+          - windowSettings
+          - riskThresholdSuccess
+          - riskThresholdDanger
+          - minPercentChange
+          - maxPercentChange
+          - minSampleSize
+          - targetMDE
+          additionalProperties: false
+        sql:
+          type: object
+          properties:
+            identifierTypes:
+              type: array
+              items:
+                type: string
+            conversionSQL:
+              type: string
+            userAggregationSQL:
+              type: string
+            denominatorMetricId:
+              type: string
+          required:
+          - identifierTypes
+          - conversionSQL
+          - userAggregationSQL
+          - denominatorMetricId
+          additionalProperties: false
+        sqlBuilder:
+          type: object
+          properties:
+            identifierTypeColumns:
+              type: array
+              items:
+                type: object
+                properties:
+                  identifierType:
+                    type: string
+                  columnName:
+                    type: string
+                required:
+                - identifierType
+                - columnName
+                additionalProperties: false
+            tableName:
+              type: string
+            valueColumnName:
+              type: string
+            timestampColumnName:
+              type: string
+            conditions:
+              type: array
+              items:
+                type: object
+                properties:
+                  column:
+                    type: string
+                  operator:
+                    type: string
+                  value:
+                    type: string
+                required:
+                - column
+                - operator
+                - value
+                additionalProperties: false
+          required:
+          - identifierTypeColumns
+          - tableName
+          - valueColumnName
+          - timestampColumnName
+          - conditions
+          additionalProperties: false
+        mixpanel:
+          type: object
+          properties:
+            eventName:
+              type: string
+            eventValue:
+              type: string
+            userAggregation:
+              type: string
+            conditions:
+              type: array
+              items:
+                type: object
+                properties:
+                  property:
+                    type: string
+                  operator:
+                    type: string
+                  value:
+                    type: string
+                required:
+                - property
+                - operator
+                - value
+                additionalProperties: false
+          required:
+          - eventName
+          - eventValue
+          - userAggregation
+          - conditions
+          additionalProperties: false
+      required:
+      - id
+      - managedBy
+      - dateCreated
+      - dateUpdated
+      - owner
+      - datasourceId
+      - name
+      - description
+      - type
+      - tags
+      - projects
+      - archived
+      - behavior
+      additionalProperties: false
+    PaginationFields:
+      type: object
+      properties:
+        limit:
+          type: integer
+        offset:
+          type: integer
+        count:
+          type: integer
+        total:
+          type: integer
+        hasMore:
+          type: boolean
+        nextOffset:
+          anyOf:
+          - type: integer
+          - type: 'null'
+      required:
+      - limit
+      - offset
+      - count
+      - total
+      - hasMore
+      - nextOffset
+      additionalProperties: false
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: 'If using Bearer auth, pass the Secret Key as the token:
+
+        ```bash
+
+        curl https://api.growthbook.io/api/v1/features   -H "Authorization: Bearer secret_abc123DEF456"
+
+        ```
+
+        '
+    basicAuth:
+      type: http
+      scheme: basic
+      description: 'If using HTTP Basic auth, pass the Secret Key as the username and leave the password blank:
+
+        ```bash
+
+        curl https://api.growthbook.io/api/v1/features   -u secret_abc123DEF456:
+
+        # The ":" at the end stops curl from asking for a password
+
+        ```
+
+        '
+x-tagGroups:
+- name: Endpoints
+  tags:
+  - projects
+  - environments
+  - features-v2
+  - feature-revisions-v2
+  - features
+  - feature-revisions
+  - ramp-schedules
+  - data-sources
+  - fact-tables
+  - fact-metrics
+  - metrics
+  - experiments
+  - namespaces
+  - snapshots
+  - dimensions
+  - segments
+  - sdk-connections
+  - visual-changesets
+  - saved-groups
+  - organizations
+  - members
+  - code-references
+  - archetypes
+  - queries
+  - settings
+  - attributes
+  - usage
+  - Dashboards
+  - CustomFields
+  - MetricGroups
+  - Teams
+  - ExperimentTemplates
+  - AnalyticsExplorations
+  - RampScheduleTemplates
+- name: Models
+  tags:
+  - AnalyticsExploration_model
+  - Archetype_model
+  - Attribute_model
+  - CodeRef_model
+  - CustomField_model
+  - Dashboard_model
+  - DataSource_model
+  - Dimension_model
+  - Environment_model
+  - Experiment_model
+  - ExperimentAnalysisSettings_model
+  - ExperimentDecisionFrameworkSettings_model
+  - ExperimentMetric_model
+  - ExperimentMetricOverrideEntry_model
+  - ExperimentResults_model
+  - ExperimentSnapshot_model
+  - ExperimentTemplate_model
+  - ExperimentWithEnhancedStatus_model
+  - FactMetric_model
+  - FactTable_model
+  - FactTableColumn_model
+  - FactTableFilter_model
+  - Feature_model
+  - FeatureBaseRule_model
+  - FeatureDefinition_model
+  - FeatureEnvironment_model
+  - FeatureEnvironmentV2_model
+  - FeatureExperimentRefRule_model
+  - FeatureExperimentRule_model
+  - FeatureForceRule_model
+  - FeatureRevision_model
+  - FeatureRevisionV2_model
+  - FeatureRolloutRule_model
+  - FeatureRule_model
+  - FeatureRuleV2_model
+  - FeatureSafeRolloutRule_model
+  - FeatureV2_model
+  - FeatureWithRevisions_model
+  - FeatureWithRevisionsV2_model
+  - InformationSchema_model
+  - InformationSchemaTable_model
+  - LookbackOverride_model
+  - Member_model
+  - Metric_model
+  - MetricAnalysis_model
+  - MetricGroup_model
+  - MetricUsage_model
+  - Namespace_model
+  - NamespaceExperimentMember_model
+  - Organization_model
+  - PaginationFields_model
+  - Project_model
+  - Query_model
+  - RampSchedule_model
+  - RampScheduleTemplate_model
+  - SavedGroup_model
+  - ScheduleRule_model
+  - SdkConnection_model
+  - Segment_model
+  - Settings_model
+  - Team_model
+  - VisualChange_model
+  - VisualChangeset_model

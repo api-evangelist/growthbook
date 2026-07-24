@@ -1,0 +1,2851 @@
+openapi: 3.1.0
+info:
+  version: 1.0.0
+  title: GrowthBook REST AnalyticsExplorations features API
+  description: "GrowthBook offers a full REST API for interacting with the application.\n\nRequest data can use either JSON or Form data encoding (with proper `Content-Type` headers). All response bodies are JSON-encoded.\n\nThe API base URL for GrowthBook Cloud is `https://api.growthbook.io/api`. For self-hosted deployments, it is the same as your API_HOST environment variable (defaults to `http://localhost:3100/api`). The rest of these docs will assume you are using GrowthBook Cloud.\n\n## Versioning\n\nEndpoints are versioned by path prefix:\n\n- `/v1/...` — stable, widely-supported endpoints\n- `/v2/...` — updated endpoints with improved shapes (e.g. unified per-rule environment scope for feature flags)\n\nNew integrations should prefer v2 where available.\n\n## Authentication\n\nWe support both the HTTP Basic and Bearer authentication schemes for convenience.\n\nYou first need to generate a new API Key in GrowthBook. Different keys have different permissions:\n\n- **Personal Access Tokens**: These are sensitive and provide the same level of access as the user has to an organization. These can be created by going to `Personal Access Tokens` under the your user menu.\n- **Secret Keys**: These are sensitive and provide the level of access for the role, which currently is either `admin` or `readonly`. Only Admins with the `manageApiKeys` permission can manage Secret Keys on behalf of an organization. These can be created by going to `Settings -> API Keys`\n\nIf using HTTP Basic auth, pass the Secret Key as the username and leave the password blank (when using curl, add `:` at the end of the secret to indicate an empty password)\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n  -u secret_abc123DEF456:\n```\n\nIf using Bearer auth, pass the Secret Key as the token:\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n-H \"Authorization: Bearer secret_abc123DEF456\"\n```\n\n## Errors\n\nThe API may return the following error status codes:\n\n- **400** - Bad Request - Often due to a missing required parameter\n- **401** - Unauthorized - No valid API key provided\n- **402** - Request Failed - The parameters are valid, but the request failed\n- **403** - Forbidden - Provided API key does not have the required access\n- **404** - Not Found - Unknown API route or requested resource\n- **429** - Too Many Requests - You exceeded the rate limit of 60 requests per minute. Try again later.\n- **5XX** - Server Error - Something went wrong on GrowthBook's end (these are rare)\n\nThe response body will be a JSON object with the following properties:\n\n- **message** - Information about the error\n"
+servers:
+- url: https://api.growthbook.io/api
+  description: GrowthBook Cloud
+- url: https://{domain}/api
+  description: Self-hosted GrowthBook
+security:
+- bearerAuth: []
+- basicAuth: []
+tags:
+- name: features
+  x-displayName: Feature Flags (legacy)
+  description: 'Control your feature flags programatically.
+
+
+    **These are v1 endpoints.** New integrations should use the v2 Feature Flags endpoints, which expose a unified per-rule environment scope instead of per-environment rule arrays.'
+paths:
+  /v1/features:
+    get:
+      operationId: listFeatures
+      summary: Get all features
+      description: '**Deprecated.** Use [GET /v2/features](#operation/listFeaturesV2) instead.
+
+
+        Returns features with pagination. The skipPagination query parameter is
+
+        honored only when API_ALLOW_SKIP_PAGINATION is set (self-hosted deployments).
+
+        '
+      deprecated: true
+      tags:
+      - features
+      parameters:
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/projectId'
+      - $ref: '#/components/parameters/clientKey'
+      - $ref: '#/components/parameters/skipPagination'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                allOf:
+                - type: object
+                  properties:
+                    features:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/Feature'
+                  required:
+                  - features
+                  additionalProperties: false
+                - $ref: '#/components/schemas/PaginationFields'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/features' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+    post:
+      operationId: postFeature
+      summary: Create a single feature
+      description: '**Deprecated.** Use [POST /v2/features](#operation/postFeatureV2) instead.'
+      deprecated: true
+      tags:
+      - features
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  description: A unique key name for the feature. Feature keys can only include letters, numbers, hyphens, and underscores.
+                  type: string
+                  minLength: 1
+                archived:
+                  type: boolean
+                description:
+                  description: Description of the feature
+                  type: string
+                owner:
+                  description: The userId or email address of the owner. If an email address is provided, it will be used to look up the userId of the matching organization member. If an ID is provided, it will be validated as existing in the organization.
+                  type: string
+                project:
+                  description: An associated project ID
+                  type: string
+                valueType:
+                  description: The data type of the feature payload. Boolean by default.
+                  type: string
+                  enum:
+                  - boolean
+                  - string
+                  - number
+                  - json
+                defaultValue:
+                  description: Default value when feature is enabled. Type must match `valueType`.
+                  type: string
+                tags:
+                  description: List of associated tags
+                  type: array
+                  items:
+                    type: string
+                environments:
+                  description: A dictionary of environments that are enabled for this feature. Keys supply the names of environments. Environments belong to organization and are not specified will be disabled by default.
+                  type: object
+                  propertyNames:
+                    type: string
+                  additionalProperties:
+                    type: object
+                    properties:
+                      enabled:
+                        type: boolean
+                      rules:
+                        type: array
+                        items:
+                          anyOf:
+                          - type: object
+                            properties:
+                              description:
+                                type: string
+                              condition:
+                                description: Applied to everyone by default.
+                                type: string
+                              savedGroupTargeting:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    matchType:
+                                      type: string
+                                      enum:
+                                      - all
+                                      - any
+                                      - none
+                                    savedGroups:
+                                      type: array
+                                      items:
+                                        type: string
+                                  required:
+                                  - matchType
+                                  - savedGroups
+                                  additionalProperties: false
+                              prerequisites:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    id:
+                                      description: Feature ID
+                                      type: string
+                                    condition:
+                                      type: string
+                                  required:
+                                  - id
+                                  - condition
+                                  additionalProperties: false
+                              scheduleRules:
+                                type: array
+                                items:
+                                  $ref: '#/components/schemas/ScheduleRule'
+                              id:
+                                type: string
+                              enabled:
+                                description: Enabled by default
+                                type: boolean
+                              type:
+                                type: string
+                                const: force
+                              value:
+                                type: string
+                            required:
+                            - type
+                            - value
+                            additionalProperties: false
+                          - type: object
+                            properties:
+                              description:
+                                type: string
+                              condition:
+                                description: Applied to everyone by default.
+                                type: string
+                              savedGroupTargeting:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    matchType:
+                                      type: string
+                                      enum:
+                                      - all
+                                      - any
+                                      - none
+                                    savedGroups:
+                                      type: array
+                                      items:
+                                        type: string
+                                  required:
+                                  - matchType
+                                  - savedGroups
+                                  additionalProperties: false
+                              prerequisites:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    id:
+                                      description: Feature ID
+                                      type: string
+                                    condition:
+                                      type: string
+                                  required:
+                                  - id
+                                  - condition
+                                  additionalProperties: false
+                              scheduleRules:
+                                type: array
+                                items:
+                                  $ref: '#/components/schemas/ScheduleRule'
+                              id:
+                                type: string
+                              enabled:
+                                description: Enabled by default
+                                type: boolean
+                              type:
+                                type: string
+                                const: rollout
+                              value:
+                                type: string
+                              coverage:
+                                description: Percent of traffic included in this experiment. Users not included in the experiment will skip this rule.
+                                type: number
+                              hashAttribute:
+                                type: string
+                            required:
+                            - type
+                            - value
+                            - coverage
+                            - hashAttribute
+                            additionalProperties: false
+                          - type: object
+                            properties:
+                              description:
+                                type: string
+                              id:
+                                type: string
+                              enabled:
+                                description: Enabled by default
+                                type: boolean
+                              type:
+                                type: string
+                                const: experiment-ref
+                              condition:
+                                type: string
+                              savedGroupTargeting:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    matchType:
+                                      type: string
+                                      enum:
+                                      - all
+                                      - any
+                                      - none
+                                    savedGroups:
+                                      type: array
+                                      items:
+                                        type: string
+                                  required:
+                                  - matchType
+                                  - savedGroups
+                                  additionalProperties: false
+                              prerequisites:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    id:
+                                      description: Feature ID
+                                      type: string
+                                    condition:
+                                      type: string
+                                  required:
+                                  - id
+                                  - condition
+                                  additionalProperties: false
+                              scheduleRules:
+                                type: array
+                                items:
+                                  $ref: '#/components/schemas/ScheduleRule'
+                              variations:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    value:
+                                      type: string
+                                    variationId:
+                                      type: string
+                                  required:
+                                  - value
+                                  - variationId
+                                  additionalProperties: false
+                              experimentId:
+                                type: string
+                            required:
+                            - type
+                            - variations
+                            - experimentId
+                            additionalProperties: false
+                          - type: object
+                            properties:
+                              description:
+                                type: string
+                              condition:
+                                type: string
+                              id:
+                                type: string
+                              enabled:
+                                description: Enabled by default
+                                type: boolean
+                              type:
+                                type: string
+                                const: experiment
+                              trackingKey:
+                                type: string
+                              hashAttribute:
+                                type: string
+                              fallbackAttribute:
+                                type: string
+                              disableStickyBucketing:
+                                type: boolean
+                              bucketVersion:
+                                type: number
+                              minBucketVersion:
+                                type: number
+                              namespace:
+                                type: object
+                                properties:
+                                  enabled:
+                                    type: boolean
+                                  name:
+                                    type: string
+                                  range:
+                                    minItems: 2
+                                    maxItems: 2
+                                    type: array
+                                    items:
+                                      type: number
+                                required:
+                                - enabled
+                                - name
+                                - range
+                                additionalProperties: false
+                              coverage:
+                                type: number
+                              prerequisites:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    id:
+                                      description: Feature ID
+                                      type: string
+                                    condition:
+                                      type: string
+                                  required:
+                                  - id
+                                  - condition
+                                  additionalProperties: false
+                              scheduleRules:
+                                type: array
+                                items:
+                                  $ref: '#/components/schemas/ScheduleRule'
+                              values:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    value:
+                                      type: string
+                                    weight:
+                                      type: number
+                                    name:
+                                      type: string
+                                  required:
+                                  - value
+                                  - weight
+                                  additionalProperties: false
+                              value:
+                                deprecated: true
+                                description: Support passing values under the value key as that was the original spec for FeatureExperimentRules
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    value:
+                                      type: string
+                                    weight:
+                                      type: number
+                                    name:
+                                      type: string
+                                  required:
+                                  - value
+                                  - weight
+                                  additionalProperties: false
+                            required:
+                            - condition
+                            - type
+                            additionalProperties: false
+                      definition:
+                        description: A JSON stringified [FeatureDefinition](#tag/FeatureDefinition_model)
+                        type: string
+                      draft:
+                        description: Use to write draft changes without publishing them.
+                        type: object
+                        properties:
+                          enabled:
+                            type: boolean
+                          rules:
+                            type: array
+                            items:
+                              anyOf:
+                              - type: object
+                                properties:
+                                  description:
+                                    type: string
+                                  condition:
+                                    description: Applied to everyone by default.
+                                    type: string
+                                  savedGroupTargeting:
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        matchType:
+                                          type: string
+                                          enum:
+                                          - all
+                                          - any
+                                          - none
+                                        savedGroups:
+                                          type: array
+                                          items:
+                                            type: string
+                                      required:
+                                      - matchType
+                                      - savedGroups
+                                      additionalProperties: false
+                                  prerequisites:
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        id:
+                                          description: Feature ID
+                                          type: string
+                                        condition:
+                                          type: string
+                                      required:
+                                      - id
+                                      - condition
+                                      additionalProperties: false
+                                  scheduleRules:
+                                    type: array
+                                    items:
+                                      $ref: '#/components/schemas/ScheduleRule'
+                                  id:
+                                    type: string
+                                  enabled:
+                                    description: Enabled by default
+                                    type: boolean
+                                  type:
+                                    type: string
+                                    const: force
+                                  value:
+                                    type: string
+                                required:
+                                - type
+                                - value
+                                additionalProperties: false
+                              - type: object
+                                properties:
+                                  description:
+                                    type: string
+                                  condition:
+                                    description: Applied to everyone by default.
+                                    type: string
+                                  savedGroupTargeting:
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        matchType:
+                                          type: string
+                                          enum:
+                                          - all
+                                          - any
+                                          - none
+                                        savedGroups:
+                                          type: array
+                                          items:
+                                            type: string
+                                      required:
+                                      - matchType
+                                      - savedGroups
+                                      additionalProperties: false
+                                  prerequisites:
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        id:
+                                          description: Feature ID
+                                          type: string
+                                        condition:
+                                          type: string
+                                      required:
+                                      - id
+                                      - condition
+                                      additionalProperties: false
+                                  scheduleRules:
+                                    type: array
+                                    items:
+                                      $ref: '#/components/schemas/ScheduleRule'
+                                  id:
+                                    type: string
+                                  enabled:
+                                    description: Enabled by default
+                                    type: boolean
+                                  type:
+                                    type: string
+                                    const: rollout
+                                  value:
+                                    type: string
+                                  coverage:
+                                    description: Percent of traffic included in this experiment. Users not included in the experiment will skip this rule.
+                                    type: number
+                                  hashAttribute:
+                                    type: string
+                                required:
+                                - type
+                                - value
+                                - coverage
+                                - hashAttribute
+                                additionalProperties: false
+                              - type: object
+                                properties:
+                                  description:
+                                    type: string
+                                  id:
+                                    type: string
+                                  enabled:
+                                    description: Enabled by default
+                                    type: boolean
+                                  type:
+                                    type: string
+                                    const: experiment-ref
+                                  condition:
+                                    type: string
+                                  savedGroupTargeting:
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        matchType:
+                                          type: string
+                                          enum:
+                                          - all
+                                          - any
+                                          - none
+                                        savedGroups:
+                                          type: array
+                                          items:
+                                            type: string
+                                      required:
+                                      - matchType
+                                      - savedGroups
+                                      additionalProperties: false
+                                  prerequisites:
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        id:
+                                          description: Feature ID
+                                          type: string
+                                        condition:
+                                          type: string
+                                      required:
+                                      - id
+                                      - condition
+                                      additionalProperties: false
+                                  scheduleRules:
+                                    type: array
+                                    items:
+                                      $ref: '#/components/schemas/ScheduleRule'
+                                  variations:
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        value:
+                                          type: string
+                                        variationId:
+                                          type: string
+                                      required:
+                                      - value
+                                      - variationId
+                                      additionalProperties: false
+                                  experimentId:
+                                    type: string
+                                required:
+                                - type
+                                - variations
+                                - experimentId
+                                additionalProperties: false
+                              - type: object
+                                properties:
+                                  description:
+                                    type: string
+                                  condition:
+                                    type: string
+                                  id:
+                                    type: string
+                                  enabled:
+                                    description: Enabled by default
+                                    type: boolean
+                                  type:
+                                    type: string
+                                    const: experiment
+                                  trackingKey:
+                                    type: string
+                                  hashAttribute:
+                                    type: string
+                                  fallbackAttribute:
+                                    type: string
+                                  disableStickyBucketing:
+                                    type: boolean
+                                  bucketVersion:
+                                    type: number
+                                  minBucketVersion:
+                                    type: number
+                                  namespace:
+                                    type: object
+                                    properties:
+                                      enabled:
+                                        type: boolean
+                                      name:
+                                        type: string
+                                      range:
+                                        minItems: 2
+                                        maxItems: 2
+                                        type: array
+                                        items:
+                                          type: number
+                                    required:
+                                    - enabled
+                                    - name
+                                    - range
+                                    additionalProperties: false
+                                  coverage:
+                                    type: number
+                                  prerequisites:
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        id:
+                                          description: Feature ID
+                                          type: string
+                                        condition:
+                                          type: string
+                                      required:
+                                      - id
+                                      - condition
+                                      additionalProperties: false
+                                  scheduleRules:
+                                    type: array
+                                    items:
+                                      $ref: '#/components/schemas/ScheduleRule'
+                                  values:
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        value:
+                                          type: string
+                                        weight:
+                                          type: number
+                                        name:
+                                          type: string
+                                      required:
+                                      - value
+                                      - weight
+                                      additionalProperties: false
+                                  value:
+                                    deprecated: true
+                                    description: Support passing values under the value key as that was the original spec for FeatureExperimentRules
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        value:
+                                          type: string
+                                        weight:
+                                          type: number
+                                        name:
+                                          type: string
+                                      required:
+                                      - value
+                                      - weight
+                                      additionalProperties: false
+                                required:
+                                - condition
+                                - type
+                                additionalProperties: false
+                          definition:
+                            description: A JSON stringified [FeatureDefinition](#tag/FeatureDefinition_model)
+                            type: string
+                        required:
+                        - rules
+                        additionalProperties: false
+                    required:
+                    - enabled
+                    - rules
+                    additionalProperties: false
+                prerequisites:
+                  description: Feature IDs. Each feature must evaluate to `true`
+                  type: array
+                  items:
+                    type: string
+                jsonSchema:
+                  description: Use JSON schema to validate the payload of a JSON-type feature value (enterprise only).
+                  type: string
+                customFields:
+                  type: object
+                  propertyNames:
+                    type: string
+                  additionalProperties:
+                    type: string
+              required:
+              - id
+              - owner
+              - valueType
+              - defaultValue
+              additionalProperties: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  feature:
+                    $ref: '#/components/schemas/Feature'
+                required:
+                - feature
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/features' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/features/{id}:
+    get:
+      operationId: getFeature
+      summary: Get a single feature
+      description: '**Deprecated.** Use [GET /v2/features/:id](#operation/getFeatureV2) instead.'
+      deprecated: true
+      tags:
+      - features
+      parameters:
+      - $ref: '#/components/parameters/id'
+      - $ref: '#/components/parameters/withRevisions'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  feature:
+                    $ref: '#/components/schemas/FeatureWithRevisions'
+                required:
+                - feature
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/features/abc123' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+    post:
+      operationId: updateFeature
+      summary: Partially update a feature
+      description: '**Deprecated.** Use [POST /v2/features/:id](#operation/updateFeatureV2) instead.
+
+
+        Updates any combination of a feature''s metadata (description, owner, tags, project), default value, environment settings (rules, kill switches, enabled state), prerequisites, holdout assignment, or JSON schema validation. All provided fields are merged into the existing feature and the result is immediately published as a new revision.
+
+
+        Returns 403 if the API key lacks permission or if approval rules are enabled for an affected environment and the org setting "REST API always bypasses approval requirements" is off.
+
+        '
+      deprecated: true
+      tags:
+      - features
+      parameters:
+      - $ref: '#/components/parameters/id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                description:
+                  description: Description of the feature
+                  type: string
+                archived:
+                  type: boolean
+                project:
+                  description: An associated project ID
+                  type: string
+                owner:
+                  description: The userId or email address of the owner. If an email address is provided, it will be used to look up the userId of the matching organization member. If an ID is provided, it will be validated as existing in the organization.
+                  type: string
+                defaultValue:
+                  type: string
+                tags:
+                  description: List of associated tags. Will override tags completely with submitted list
+                  type: array
+                  items:
+                    type: string
+                environments:
+                  type: object
+                  propertyNames:
+                    type: string
+                  additionalProperties:
+                    type: object
+                    properties:
+                      enabled:
+                        type: boolean
+                      rules:
+                        type: array
+                        items:
+                          anyOf:
+                          - type: object
+                            properties:
+                              description:
+                                type: string
+                              condition:
+                                description: Applied to everyone by default.
+                                type: string
+                              savedGroupTargeting:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    matchType:
+                                      type: string
+                                      enum:
+                                      - all
+                                      - any
+                                      - none
+                                    savedGroups:
+                                      type: array
+                                      items:
+                                        type: string
+                                  required:
+                                  - matchType
+                                  - savedGroups
+                                  additionalProperties: false
+                              prerequisites:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    id:
+                                      description: Feature ID
+                                      type: string
+                                    condition:
+                                      type: string
+                                  required:
+                                  - id
+                                  - condition
+                                  additionalProperties: false
+                              scheduleRules:
+                                type: array
+                                items:
+                                  $ref: '#/components/schemas/ScheduleRule'
+                              id:
+                                type: string
+                              enabled:
+                                description: Enabled by default
+                                type: boolean
+                              type:
+                                type: string
+                                const: force
+                              value:
+                                type: string
+                            required:
+                            - type
+                            - value
+                            additionalProperties: false
+                          - type: object
+                            properties:
+                              description:
+                                type: string
+                              condition:
+                                description: Applied to everyone by default.
+                                type: string
+                              savedGroupTargeting:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    matchType:
+                                      type: string
+                                      enum:
+                                      - all
+                                      - any
+                                      - none
+                                    savedGroups:
+                                      type: array
+                                      items:
+                                        type: string
+                                  required:
+                                  - matchType
+                                  - savedGroups
+                                  additionalProperties: false
+                              prerequisites:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    id:
+                                      description: Feature ID
+                                      type: string
+                                    condition:
+                                      type: string
+                                  required:
+                                  - id
+                                  - condition
+                                  additionalProperties: false
+                              scheduleRules:
+                                type: array
+                                items:
+                                  $ref: '#/components/schemas/ScheduleRule'
+                              id:
+                                type: string
+                              enabled:
+                                description: Enabled by default
+                                type: boolean
+                              type:
+                                type: string
+                                const: rollout
+                              value:
+                                type: string
+                              coverage:
+                                description: Percent of traffic included in this experiment. Users not included in the experiment will skip this rule.
+                                type: number
+                              hashAttribute:
+                                type: string
+                            required:
+                            - type
+                            - value
+                            - coverage
+                            - hashAttribute
+                            additionalProperties: false
+                          - type: object
+                            properties:
+                              description:
+                                type: string
+                              id:
+                                type: string
+                              enabled:
+                                description: Enabled by default
+                                type: boolean
+                              type:
+                                type: string
+                                const: experiment-ref
+                              condition:
+                                type: string
+                              savedGroupTargeting:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    matchType:
+                                      type: string
+                                      enum:
+                                      - all
+                                      - any
+                                      - none
+                                    savedGroups:
+                                      type: array
+                                      items:
+                                        type: string
+                                  required:
+                                  - matchType
+                                  - savedGroups
+                                  additionalProperties: false
+                              prerequisites:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    id:
+                                      description: Feature ID
+                                      type: string
+                                    condition:
+                                      type: string
+                                  required:
+                                  - id
+                                  - condition
+                                  additionalProperties: false
+                              scheduleRules:
+                                type: array
+                                items:
+                                  $ref: '#/components/schemas/ScheduleRule'
+                              variations:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    value:
+                                      type: string
+                                    variationId:
+                                      type: string
+                                  required:
+                                  - value
+                                  - variationId
+                                  additionalProperties: false
+                              experimentId:
+                                type: string
+                            required:
+                            - type
+                            - variations
+                            - experimentId
+                            additionalProperties: false
+                          - type: object
+                            properties:
+                              description:
+                                type: string
+                              condition:
+                                type: string
+                              id:
+                                type: string
+                              enabled:
+                                description: Enabled by default
+                                type: boolean
+                              type:
+                                type: string
+                                const: experiment
+                              trackingKey:
+                                type: string
+                              hashAttribute:
+                                type: string
+                              fallbackAttribute:
+                                type: string
+                              disableStickyBucketing:
+                                type: boolean
+                              bucketVersion:
+                                type: number
+                              minBucketVersion:
+                                type: number
+                              namespace:
+                                type: object
+                                properties:
+                                  enabled:
+                                    type: boolean
+                                  name:
+                                    type: string
+                                  range:
+                                    minItems: 2
+                                    maxItems: 2
+                                    type: array
+                                    items:
+                                      type: number
+                                required:
+                                - enabled
+                                - name
+                                - range
+                                additionalProperties: false
+                              coverage:
+                                type: number
+                              prerequisites:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    id:
+                                      description: Feature ID
+                                      type: string
+                                    condition:
+                                      type: string
+                                  required:
+                                  - id
+                                  - condition
+                                  additionalProperties: false
+                              scheduleRules:
+                                type: array
+                                items:
+                                  $ref: '#/components/schemas/ScheduleRule'
+                              values:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    value:
+                                      type: string
+                                    weight:
+                                      type: number
+                                    name:
+                                      type: string
+                                  required:
+                                  - value
+                                  - weight
+                                  additionalProperties: false
+                              value:
+                                deprecated: true
+                                description: Support passing values under the value key as that was the original spec for FeatureExperimentRules
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    value:
+                                      type: string
+                                    weight:
+                                      type: number
+                                    name:
+                                      type: string
+                                  required:
+                                  - value
+                                  - weight
+                                  additionalProperties: false
+                            required:
+                            - condition
+                            - type
+                            additionalProperties: false
+                      definition:
+                        description: A JSON stringified [FeatureDefinition](#tag/FeatureDefinition_model)
+                        type: string
+                      draft:
+                        description: Use to write draft changes without publishing them.
+                        type: object
+                        properties:
+                          enabled:
+                            type: boolean
+                          rules:
+                            type: array
+                            items:
+                              anyOf:
+                              - type: object
+                                properties:
+                                  description:
+                                    type: string
+                                  condition:
+                                    description: Applied to everyone by default.
+                                    type: string
+                                  savedGroupTargeting:
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        matchType:
+                                          type: string
+                                          enum:
+                                          - all
+                                          - any
+                                          - none
+                                        savedGroups:
+                                          type: array
+                                          items:
+                                            type: string
+                                      required:
+                                      - matchType
+                                      - savedGroups
+                                      additionalProperties: false
+                                  prerequisites:
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        id:
+                                          description: Feature ID
+                                          type: string
+                                        condition:
+                                          type: string
+                                      required:
+                                      - id
+                                      - condition
+                                      additionalProperties: false
+                                  scheduleRules:
+                                    type: array
+                                    items:
+                                      $ref: '#/components/schemas/ScheduleRule'
+                                  id:
+                                    type: string
+                                  enabled:
+                                    description: Enabled by default
+                                    type: boolean
+                                  type:
+                                    type: string
+                                    const: force
+                                  value:
+                                    type: string
+                                required:
+                                - type
+                                - value
+                                additionalProperties: false
+                              - type: object
+                                properties:
+                                  description:
+                                    type: string
+                                  condition:
+                                    description: Applied to everyone by default.
+                                    type: string
+                                  savedGroupTargeting:
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        matchType:
+                                          type: string
+                                          enum:
+                                          - all
+                                          - any
+                                          - none
+                                        savedGroups:
+                                          type: array
+                                          items:
+                                            type: string
+                                      required:
+                                      - matchType
+                                      - savedGroups
+                                      additionalProperties: false
+                                  prerequisites:
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        id:
+                                          description: Feature ID
+                                          type: string
+                                        condition:
+                                          type: string
+                                      required:
+                                      - id
+                                      - condition
+                                      additionalProperties: false
+                                  scheduleRules:
+                                    type: array
+                                    items:
+                                      $ref: '#/components/schemas/ScheduleRule'
+                                  id:
+                                    type: string
+                                  enabled:
+                                    description: Enabled by default
+                                    type: boolean
+                                  type:
+                                    type: string
+                                    const: rollout
+                                  value:
+                                    type: string
+                                  coverage:
+                                    description: Percent of traffic included in this experiment. Users not included in the experiment will skip this rule.
+                                    type: number
+                                  hashAttribute:
+                                    type: string
+                                required:
+                                - type
+                                - value
+                                - coverage
+                                - hashAttribute
+                                additionalProperties: false
+                              - type: object
+                                properties:
+                                  description:
+                                    type: string
+                                  id:
+                                    type: string
+                                  enabled:
+                                    description: Enabled by default
+                                    type: boolean
+                                  type:
+                                    type: string
+                                    const: experiment-ref
+                                  condition:
+                                    type: string
+                                  savedGroupTargeting:
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        matchType:
+                                          type: string
+                                          enum:
+                                          - all
+                                          - any
+                                          - none
+                                        savedGroups:
+                                          type: array
+                                          items:
+                                            type: string
+                                      required:
+                                      - matchType
+                                      - savedGroups
+                                      additionalProperties: false
+                                  prerequisites:
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        id:
+                                          description: Feature ID
+                                          type: string
+                                        condition:
+                                          type: string
+                                      required:
+                                      - id
+                                      - condition
+                                      additionalProperties: false
+                                  scheduleRules:
+                                    type: array
+                                    items:
+                                      $ref: '#/components/schemas/ScheduleRule'
+                                  variations:
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        value:
+                                          type: string
+                                        variationId:
+                                          type: string
+                                      required:
+                                      - value
+                                      - variationId
+                                      additionalProperties: false
+                                  experimentId:
+                                    type: string
+                                required:
+                                - type
+                                - variations
+                                - experimentId
+                                additionalProperties: false
+                              - type: object
+                                properties:
+                                  description:
+                                    type: string
+                                  condition:
+                                    type: string
+                                  id:
+                                    type: string
+                                  enabled:
+                                    description: Enabled by default
+                                    type: boolean
+                                  type:
+                                    type: string
+                                    const: experiment
+                                  trackingKey:
+                                    type: string
+                                  hashAttribute:
+                                    type: string
+                                  fallbackAttribute:
+                                    type: string
+                                  disableStickyBucketing:
+                                    type: boolean
+                                  bucketVersion:
+                                    type: number
+                                  minBucketVersion:
+                                    type: number
+                                  namespace:
+                                    type: object
+                                    properties:
+                                      enabled:
+                                        type: boolean
+                                      name:
+                                        type: string
+                                      range:
+                                        minItems: 2
+                                        maxItems: 2
+                                        type: array
+                                        items:
+                                          type: number
+                                    required:
+                                    - enabled
+                                    - name
+                                    - range
+                                    additionalProperties: false
+                                  coverage:
+                                    type: number
+                                  prerequisites:
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        id:
+                                          description: Feature ID
+                                          type: string
+                                        condition:
+                                          type: string
+                                      required:
+                                      - id
+                                      - condition
+                                      additionalProperties: false
+                                  scheduleRules:
+                                    type: array
+                                    items:
+                                      $ref: '#/components/schemas/ScheduleRule'
+                                  values:
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        value:
+                                          type: string
+                                        weight:
+                                          type: number
+                                        name:
+                                          type: string
+                                      required:
+                                      - value
+                                      - weight
+                                      additionalProperties: false
+                                  value:
+                                    deprecated: true
+                                    description: Support passing values under the value key as that was the original spec for FeatureExperimentRules
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        value:
+                                          type: string
+                                        weight:
+                                          type: number
+                                        name:
+                                          type: string
+                                      required:
+                                      - value
+                                      - weight
+                                      additionalProperties: false
+                                required:
+                                - condition
+                                - type
+                                additionalProperties: false
+                          definition:
+                            description: A JSON stringified [FeatureDefinition](#tag/FeatureDefinition_model)
+                            type: string
+                        required:
+                        - rules
+                        additionalProperties: false
+                    required:
+                    - enabled
+                    - rules
+                    additionalProperties: false
+                prerequisites:
+                  description: Feature IDs. Each feature must evaluate to `true`
+                  type: array
+                  items:
+                    type: string
+                jsonSchema:
+                  description: Use JSON schema to validate the payload of a JSON-type feature value (enterprise only).
+                  type: string
+                customFields:
+                  type: object
+                  propertyNames:
+                    type: string
+                  additionalProperties:
+                    type: string
+                holdout:
+                  description: 'Holdout to assign this feature to. Pass `null` to remove the feature from its current holdout. Omit the field entirely to leave the holdout unchanged.
+
+                    '
+                  anyOf:
+                  - type: object
+                    properties:
+                      id:
+                        description: Holdout ID
+                        type: string
+                      value:
+                        description: The feature value assigned to users in the holdout treatment group
+                        type: string
+                    required:
+                    - id
+                    - value
+                    additionalProperties: false
+                  - type: 'null'
+              additionalProperties: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  feature:
+                    $ref: '#/components/schemas/Feature'
+                required:
+                - feature
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/features/{id}' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+    delete:
+      operationId: deleteFeature
+      summary: Deletes a single feature
+      description: '**Deprecated.** Use [DELETE /v2/features/:id](#operation/deleteFeatureV2) instead.
+
+
+        Permanently deletes a feature and all of its revisions.
+
+
+        Archived features can be deleted freely. Deleting a live (non-archived) feature returns 403 unless the org setting "REST API always bypasses approval requirements" is enabled, or the API key lacks delete permission.
+
+        '
+      deprecated: true
+      tags:
+      - features
+      parameters:
+      - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deletedId:
+                    description: The ID of the deleted feature
+                    example: feature-123
+                    type: string
+                required:
+                - deletedId
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X DELETE 'https://api.growthbook.io/api/v1/features/abc123' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/features/{id}/toggle:
+    post:
+      operationId: toggleFeature
+      summary: Toggle a feature in one or more environments
+      description: '**Deprecated.** Use [POST /v2/features/:id/toggle](#operation/toggleFeatureV2) instead.
+
+
+        Enables or disables a feature in one or more environments simultaneously. Accepts a map of environment name → boolean and immediately publishes the change.
+
+
+        Returns 403 if the API key lacks permission or if approval rules are enabled for an affected environment and the org setting "REST API always bypasses approval requirements" is off.
+
+        '
+      deprecated: true
+      tags:
+      - features
+      parameters:
+      - $ref: '#/components/parameters/id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+                environments:
+                  type: object
+                  propertyNames:
+                    type: string
+                  additionalProperties:
+                    anyOf:
+                    - type: boolean
+                      const: true
+                    - type: boolean
+                      const: false
+                    - type: string
+                      const: 'true'
+                    - type: string
+                      const: 'false'
+                    - type: string
+                      const: '1'
+                    - type: string
+                      const: '0'
+                    - type: number
+                      const: 1
+                    - type: number
+                      const: 0
+                    - type: string
+                      const: ''
+              required:
+              - environments
+              additionalProperties: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  feature:
+                    $ref: '#/components/schemas/Feature'
+                required:
+                - feature
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/features/{id}/toggle' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"reason\":\"Kill switch activated\",\"environments\":{\"production\":false}}'"
+  /v1/features/{id}/revert:
+    post:
+      operationId: revertFeature
+      summary: Revert a feature to a specific revision
+      description: '**Deprecated.** Use [POST /v2/features/:id/revert](#operation/revertFeatureV2) instead.
+
+
+        Creates a new revision whose rules and values match a previously-published revision, then immediately publishes it. This leaves a clear audit trail of the revert action in the revision history.
+
+
+        Returns 403 if the API key lacks permission or if approval rules are enabled for an affected environment and the org setting "REST API always bypasses approval requirements" is off.
+
+        '
+      deprecated: true
+      tags:
+      - features
+      parameters:
+      - $ref: '#/components/parameters/id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                revision:
+                  type: number
+                comment:
+                  type: string
+              required:
+              - revision
+              additionalProperties: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  feature:
+                    $ref: '#/components/schemas/Feature'
+                required:
+                - feature
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/features/{id}/revert' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"revision\":3,\"comment\":\"Bug found\"}'"
+  /v1/feature-keys:
+    get:
+      operationId: getFeatureKeys
+      summary: Get list of feature keys
+      description: '**Deprecated.** Use [GET /v2/feature-keys](#operation/getFeatureKeysV2) instead.'
+      deprecated: true
+      tags:
+      - features
+      parameters:
+      - $ref: '#/components/parameters/projectId'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/feature-keys' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/stale-features:
+    get:
+      operationId: getFeatureStale
+      summary: Get stale status for one or more features
+      description: '**Deprecated.** Use [GET /v2/stale-features](#operation/getFeatureStaleV2) instead.'
+      deprecated: true
+      tags:
+      - features
+      parameters:
+      - $ref: '#/components/parameters/ids'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  features:
+                    $ref: '#/components/schemas/features'
+                required:
+                - features
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/stale-features' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+components:
+  schemas:
+    FeatureWithRevisions:
+      allOf:
+      - $ref: '#/components/schemas/Feature'
+      - type: object
+        properties:
+          revisions:
+            type: array
+            items:
+              $ref: '#/components/schemas/FeatureRevision'
+        additionalProperties: false
+    Feature:
+      type: object
+      properties:
+        id:
+          type: string
+        dateCreated:
+          format: date-time
+          type: string
+        dateUpdated:
+          format: date-time
+          type: string
+        archived:
+          type: boolean
+        description:
+          type: string
+        owner:
+          description: The userId of the owner (or raw owner name/email for legacy records)
+          type: string
+        ownerEmail:
+          description: The email address of the owner, when the owner can be resolved to a known user.
+          type: string
+        project:
+          type: string
+        valueType:
+          type: string
+          enum:
+          - boolean
+          - string
+          - number
+          - json
+        defaultValue:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        environments:
+          type: object
+          propertyNames:
+            type: string
+          additionalProperties:
+            $ref: '#/components/schemas/FeatureEnvironment'
+        prerequisites:
+          description: Feature IDs. Each feature must evaluate to `true`
+          type: array
+          items:
+            type: string
+        revision:
+          type: object
+          properties:
+            version:
+              type: integer
+            comment:
+              type: string
+            date:
+              format: date-time
+              type: string
+            createdBy:
+              type: string
+            publishedBy:
+              type: string
+          required:
+          - version
+          - comment
+          - date
+          - createdBy
+          - publishedBy
+          additionalProperties: false
+        customFields:
+          type: object
+          propertyNames:
+            type: string
+          additionalProperties: {}
+        holdout:
+          anyOf:
+          - type: object
+            properties:
+              id:
+                description: Holdout ID
+                type: string
+              value:
+                description: The feature value assigned to users in the holdout treatment group
+                type: string
+            required:
+            - id
+            - value
+            additionalProperties: false
+          - type: 'null'
+      required:
+      - id
+      - dateCreated
+      - dateUpdated
+      - archived
+      - description
+      - owner
+      - project
+      - valueType
+      - defaultValue
+      - tags
+      - environments
+      - revision
+      additionalProperties: false
+    FeatureExperimentRule:
+      allOf:
+      - description: 'Common fields shared by all feature rule types. Specific rule types extend
+
+          this base with their own required properties (value, coverage, etc.).
+
+          '
+        type: object
+        properties:
+          description:
+            type: string
+          condition:
+            type: string
+          id:
+            type: string
+          enabled:
+            type: boolean
+          scheduleRules:
+            description: Simple time-based on/off schedule for this rule
+            type: array
+            items:
+              $ref: '#/components/schemas/ScheduleRule'
+          scheduleType:
+            description: 'UI hint for which scheduling mode is active:
+
+              - `none` – no schedule
+
+              - `schedule` – simple time-based enable/disable via `scheduleRules`
+
+              - `ramp` – multi-step ramp-up controlled by an associated RampSchedule document
+
+              '
+            type: string
+            enum:
+            - none
+            - schedule
+            - ramp
+          savedGroupTargeting:
+            type: array
+            items:
+              type: object
+              properties:
+                matchType:
+                  type: string
+                  enum:
+                  - all
+                  - any
+                  - none
+                savedGroups:
+                  type: array
+                  items:
+                    type: string
+              required:
+              - matchType
+              - savedGroups
+              additionalProperties: false
+          prerequisites:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  description: Feature ID of the prerequisite
+                  type: string
+                condition:
+                  type: string
+              required:
+              - id
+              - condition
+              additionalProperties: false
+        required:
+        - description
+        - id
+        - enabled
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            const: experiment
+          trackingKey:
+            type: string
+          hashAttribute:
+            type: string
+          fallbackAttribute:
+            type: string
+          disableStickyBucketing:
+            type: boolean
+          bucketVersion:
+            type: number
+          minBucketVersion:
+            type: number
+          namespace:
+            type: object
+            properties:
+              enabled:
+                type: boolean
+              name:
+                type: string
+              range:
+                minItems: 2
+                maxItems: 2
+                type: array
+                items:
+                  type: number
+            required:
+            - enabled
+            - name
+            - range
+            additionalProperties: false
+          coverage:
+            type: number
+            minimum: 0
+            maximum: 1
+          value:
+            description: Variation values with weights
+            type: array
+            items:
+              type: object
+              properties:
+                value:
+                  type: string
+                weight:
+                  type: number
+                name:
+                  type: string
+              required:
+              - value
+              - weight
+              additionalProperties: false
+        required:
+        - type
+        additionalProperties: false
+    FeatureRolloutRule:
+      allOf:
+      - description: 'Common fields shared by all feature rule types. Specific rule types extend
+
+          this base with their own required properties (value, coverage, etc.).
+
+          '
+        type: object
+        properties:
+          description:
+            type: string
+          condition:
+            type: string
+          id:
+            type: string
+          enabled:
+            type: boolean
+          scheduleRules:
+            description: Simple time-based on/off schedule for this rule
+            type: array
+            items:
+              $ref: '#/components/schemas/ScheduleRule'
+          scheduleType:
+            description: 'UI hint for which scheduling mode is active:
+
+              - `none` – no schedule
+
+              - `schedule` – simple time-based enable/disable via `scheduleRules`
+
+              - `ramp` – multi-step ramp-up controlled by an associated RampSchedule document
+
+              '
+            type: string
+            enum:
+            - none
+            - schedule
+            - ramp
+          savedGroupTargeting:
+            type: array
+            items:
+              type: object
+              properties:
+                matchType:
+                  type: string
+                  enum:
+                  - all
+                  - any
+                  - none
+                savedGroups:
+                  type: array
+                  items:
+                    type: string
+              required:
+              - matchType
+              - savedGroups
+              additionalProperties: false
+          prerequisites:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  description: Feature ID of the prerequisite
+                  type: string
+                condition:
+                  type: string
+              required:
+              - id
+              - condition
+              additionalProperties: false
+        required:
+        - description
+        - id
+        - enabled
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            const: rollout
+          value:
+            type: string
+          coverage:
+            type: number
+            minimum: 0
+            maximum: 1
+          hashAttribute:
+            type: string
+          seed:
+            description: Optional seed for the hash function; defaults to the rule id
+            type: string
+        required:
+        - type
+        - value
+        - coverage
+        - hashAttribute
+        additionalProperties: false
+    features:
+      description: Map of feature ID to stale status. Only requested features that were found and readable are included.
+      type: object
+      propertyNames:
+        type: string
+      additionalProperties:
+        type: object
+        properties:
+          featureId:
+            description: The feature key
+            type: string
+          isStale:
+            description: Whether the feature is considered stale overall (all enabled environments are stale). Always false when neverStale is true.
+            type: boolean
+          staleReason:
+            description: 'Reason for the feature''s stale or non-stale status. `never-stale` when stale detection is disabled. Non-stale reasons: `recently-updated`, `active-draft`, `has-dependents`. Stale reasons: `no-rules`, `rules-one-sided`, `abandoned-draft`, `toggled-off`. Null when non-stale with no single cause (see staleByEnv).
+
+              '
+            anyOf:
+            - type: string
+              enum:
+              - never-stale
+              - recently-updated
+              - active-draft
+              - has-dependents
+              - no-rules
+              - rules-one-sided
+              - abandoned-draft
+              - toggled-off
+              - active-experiment
+              - has-rules
+            - type: 'null'
+          neverStale:
+            description: When true the feature is permanently excluded from stale detection.
+            type: boolean
+          staleByEnv:
+            description: Per-environment staleness breakdown, keyed by environment ID. Present when environments exist and neverStale is false.
+            type: object
+            propertyNames:
+              type: string
+            additionalProperties:
+              type: object
+              properties:
+                isStale:
+                  description: Whether this environment is stale
+                  type: boolean
+                reason:
+                  description: Reason for the stale status in this environment
+                  anyOf:
+                  - type: string
+                    enum:
+                    - no-rules
+                    - rules-one-sided
+                    - abandoned-draft
+                    - toggled-off
+                    - active-experiment
+                    - has-rules
+                    - recently-updated
+                    - active-draft
+                    - has-dependents
+                  - type: 'null'
+                evaluatesTo:
+                  description: 'The deterministic value this feature evaluates to in this environment. Uses the same raw string encoding as `feature.defaultValue`. Only present when the value is deterministic or the environment is toggled off.
+
+                    '
+                  type: string
+              required:
+              - isStale
+              - reason
+              additionalProperties: false
+        required:
+        - featureId
+        - isStale
+        - staleReason
+        - neverStale
+        additionalProperties: false
+    PaginationFields:
+      type: object
+      properties:
+        limit:
+          type: integer
+        offset:
+          type: integer
+        count:
+          type: integer
+        total:
+          type: integer
+        hasMore:
+          type: boolean
+        nextOffset:
+          anyOf:
+          - type: integer
+          - type: 'null'
+      required:
+      - limit
+      - offset
+      - count
+      - total
+      - hasMore
+      - nextOffset
+      additionalProperties: false
+    FeatureEnvironment:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        defaultValue:
+          type: string
+        rules:
+          type: array
+          items:
+            $ref: '#/components/schemas/FeatureRule'
+        definition:
+          description: A JSON stringified [FeatureDefinition](#tag/FeatureDefinition_model)
+          type: string
+        draft:
+          type: object
+          properties:
+            enabled:
+              type: boolean
+            defaultValue:
+              type: string
+            rules:
+              type: array
+              items:
+                $ref: '#/components/schemas/FeatureRule'
+            definition:
+              description: A JSON stringified [FeatureDefinition](#tag/FeatureDefinition_model)
+              type: string
+          required:
+          - enabled
+          - defaultValue
+          - rules
+          additionalProperties: false
+      required:
+      - enabled
+      - defaultValue
+      - rules
+      additionalProperties: false
+    FeatureRule:
+      anyOf:
+      - $ref: '#/components/schemas/FeatureForceRule'
+      - $ref: '#/components/schemas/FeatureRolloutRule'
+      - $ref: '#/components/schemas/FeatureExperimentRule'
+      - $ref: '#/components/schemas/FeatureExperimentRefRule'
+      - $ref: '#/components/schemas/FeatureSafeRolloutRule'
+    FeatureSafeRolloutRule:
+      allOf:
+      - description: 'Common fields shared by all feature rule types. Specific rule types extend
+
+          this base with their own required properties (value, coverage, etc.).
+
+          '
+        type: object
+        properties:
+          description:
+            type: string
+          condition:
+            type: string
+          id:
+            type: string
+          enabled:
+            type: boolean
+          scheduleRules:
+            description: Simple time-based on/off schedule for this rule
+            type: array
+            items:
+              $ref: '#/components/schemas/ScheduleRule'
+          scheduleType:
+            description: 'UI hint for which scheduling mode is active:
+
+              - `none` – no schedule
+
+              - `schedule` – simple time-based enable/disable via `scheduleRules`
+
+              - `ramp` – multi-step ramp-up controlled by an associated RampSchedule document
+
+              '
+            type: string
+            enum:
+            - none
+            - schedule
+            - ramp
+          savedGroupTargeting:
+            type: array
+            items:
+              type: object
+              properties:
+                matchType:
+                  type: string
+                  enum:
+                  - all
+                  - any
+                  - none
+                savedGroups:
+                  type: array
+                  items:
+                    type: string
+              required:
+              - matchType
+              - savedGroups
+              additionalProperties: false
+          prerequisites:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  description: Feature ID of the prerequisite
+                  type: string
+                condition:
+                  type: string
+              required:
+              - id
+              - condition
+              additionalProperties: false
+        required:
+        - description
+        - id
+        - enabled
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            const: safe-rollout
+          controlValue:
+            type: string
+          variationValue:
+            type: string
+          seed:
+            type: string
+          hashAttribute:
+            type: string
+          trackingKey:
+            type: string
+          safeRolloutId:
+            type: string
+          status:
+            type: string
+            enum:
+            - running
+            - released
+            - rolled-back
+            - stopped
+        required:
+        - type
+        - controlValue
+        - variationValue
+        additionalProperties: false
+    FeatureExperimentRefRule:
+      allOf:
+      - description: 'Common fields shared by all feature rule types. Specific rule types extend
+
+          this base with their own required properties (value, coverage, etc.).
+
+          '
+        type: object
+        properties:
+          description:
+            type: string
+          condition:
+            type: string
+          id:
+            type: string
+          enabled:
+            type: boolean
+          scheduleRules:
+            description: Simple time-based on/off schedule for this rule
+            type: array
+            items:
+              $ref: '#/components/schemas/ScheduleRule'
+          scheduleType:
+            description: 'UI hint for which scheduling mode is active:
+
+              - `none` – no schedule
+
+              - `schedule` – simple time-based enable/disable via `scheduleRules`
+
+              - `ramp` – multi-step ramp-up controlled by an associated RampSchedule document
+
+              '
+            type: string
+            enum:
+            - none
+            - schedule
+            - ramp
+          savedGroupTargeting:
+            type: array
+            items:
+              type: object
+              properties:
+                matchType:
+                  type: string
+                  enum:
+                  - all
+                  - any
+                  - none
+                savedGroups:
+                  type: array
+                  items:
+                    type: string
+              required:
+              - matchType
+              - savedGroups
+              additionalProperties: false
+          prerequisites:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  description: Feature ID of the prerequisite
+                  type: string
+                condition:
+                  type: string
+              required:
+              - id
+              - condition
+              additionalProperties: false
+        required:
+        - description
+        - id
+        - enabled
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            const: experiment-ref
+          variations:
+            type: array
+            items:
+              type: object
+              properties:
+                value:
+                  type: string
+                variationId:
+                  type: string
+              required:
+              - value
+              - variationId
+              additionalProperties: false
+          experimentId:
+            type: string
+        required:
+        - type
+        - variations
+        - experimentId
+        additionalProperties: false
+    FeatureRevision:
+      type: object
+      properties:
+        featureId:
+          description: The feature this revision belongs to
+          type: string
+        baseVersion:
+          type: integer
+        version:
+          type: integer
+        comment:
+          type: string
+        date:
+          format: date-time
+          type: string
+        status:
+          type: string
+        createdBy:
+          type: string
+        publishedBy:
+          type: string
+        defaultValue:
+          description: The default value at the time this revision was created
+          type: string
+        rules:
+          type: object
+          propertyNames:
+            type: string
+          additionalProperties:
+            type: array
+            items:
+              $ref: '#/components/schemas/FeatureRule'
+        definitions:
+          type: object
+          propertyNames:
+            type: string
+          additionalProperties:
+            description: A JSON stringified [FeatureDefinition](#tag/FeatureDefinition_model)
+            type: string
+        environmentsEnabled:
+          description: Per-environment enabled state captured in this revision (only present when kill-switch gating is enabled)
+          type: object
+          propertyNames:
+            type: string
+          additionalProperties:
+            type: boolean
+        envPrerequisites:
+          description: Per-environment prerequisites captured in this revision (only present when prerequisite gating is enabled)
+          type: object
+          propertyNames:
+            type: string
+          additionalProperties:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  description: Feature ID
+                  type: string
+                condition:
+                  type: string
+              required:
+              - id
+              - condition
+              additionalProperties: false
+        prerequisites:
+          description: Feature-level prerequisites captured in this revision (only present when prerequisite gating is enabled)
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                description: Feature ID
+                type: string
+              condition:
+                type: string
+            required:
+            - id
+            - condition
+            additionalProperties: false
+        metadata:
+          description: Metadata fields captured in this revision (only present when metadata gating is enabled)
+          type: object
+          properties:
+            description:
+              type: string
+            owner:
+              description: The userId of the owner (or raw owner name/email for legacy records)
+              type: string
+            project:
+              type: string
+            tags:
+              type: array
+              items:
+                type: string
+            neverStale:
+              type: boolean
+            valueType:
+              type: string
+            jsonSchema:
+              type: object
+              properties:
+                schemaType:
+                  type: string
+                  enum:
+                  - schema
+                  - simple
+                schema:
+                  type: string
+                simple:
+                  type: object
+                  propertyNames:
+                    type: string
+                  additionalProperties: {}
+                date:
+                  format: date-time
+                  type: string
+                enabled:
+                  type: boolean
+              additionalProperties: false
+            customFields:
+              type: object
+              propertyNames:
+                type: string
+              additionalProperties: {}
+          additionalProperties: false
+      required:
+      - featureId
+      - baseVersion
+      - version
+      - comment
+      - date
+      - status
+      - rules
+      additionalProperties: false
+    ScheduleRule:
+      type: object
+      properties:
+        enabled:
+          description: Whether the rule should be enabled or disabled at the specified timestamp.
+          type: boolean
+        timestamp:
+          description: ISO timestamp when the rule should activate.
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+      required:
+      - enabled
+      - timestamp
+      additionalProperties: false
+    FeatureForceRule:
+      allOf:
+      - description: 'Common fields shared by all feature rule types. Specific rule types extend
+
+          this base with their own required properties (value, coverage, etc.).
+
+          '
+        type: object
+        properties:
+          description:
+            type: string
+          condition:
+            type: string
+          id:
+            type: string
+          enabled:
+            type: boolean
+          scheduleRules:
+            description: Simple time-based on/off schedule for this rule
+            type: array
+            items:
+              $ref: '#/components/schemas/ScheduleRule'
+          scheduleType:
+            description: 'UI hint for which scheduling mode is active:
+
+              - `none` – no schedule
+
+              - `schedule` – simple time-based enable/disable via `scheduleRules`
+
+              - `ramp` – multi-step ramp-up controlled by an associated RampSchedule document
+
+              '
+            type: string
+            enum:
+            - none
+            - schedule
+            - ramp
+          savedGroupTargeting:
+            type: array
+            items:
+              type: object
+              properties:
+                matchType:
+                  type: string
+                  enum:
+                  - all
+                  - any
+                  - none
+                savedGroups:
+                  type: array
+                  items:
+                    type: string
+              required:
+              - matchType
+              - savedGroups
+              additionalProperties: false
+          prerequisites:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  description: Feature ID of the prerequisite
+                  type: string
+                condition:
+                  type: string
+              required:
+              - id
+              - condition
+              additionalProperties: false
+        required:
+        - description
+        - id
+        - enabled
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            const: force
+          value:
+            type: string
+        required:
+        - type
+        - value
+        additionalProperties: false
+  parameters:
+    projectId:
+      name: projectId
+      in: query
+      description: Filter by project id
+      schema:
+        description: Filter by project id
+        type: string
+    limit:
+      name: limit
+      in: query
+      description: The number of items to return
+      schema:
+        default: 10
+        description: The number of items to return
+        type: integer
+        minimum: 1
+        maximum: 100
+    withRevisions:
+      name: withRevisions
+      in: query
+      description: Also return feature revisions (all, draft, or published statuses)
+      schema:
+        description: Also return feature revisions (all, draft, or published statuses)
+        type: string
+        enum:
+        - all
+        - drafts
+        - published
+        - none
+    offset:
+      name: offset
+      in: query
+      description: How many items to skip (use in conjunction with limit for pagination)
+      schema:
+        default: 0
+        description: How many items to skip (use in conjunction with limit for pagination)
+        type: integer
+        minimum: 0
+    ids:
+      name: ids
+      in: query
+      required: true
+      description: 'Comma-separated list of feature IDs (URL-encoded if needed). Example: `my_feature,another_feature`
+
+        '
+      schema:
+        description: 'Comma-separated list of feature IDs (URL-encoded if needed). Example: `my_feature,another_feature`
+
+          '
+        type: string
+    id:
+      name: id
+      in: path
+      required: true
+      description: The id of the requested resource
+      schema:
+        description: The id of the requested resource
+        type: string
+    clientKey:
+      name: clientKey
+      in: query
+      description: Filter by a SDK connection's client key
+      schema:
+        description: Filter by a SDK connection's client key
+        type: string
+    skipPagination:
+      name: skipPagination
+      in: query
+      description: 'If true, return all matching items and ignore limit/offset.
+
+        Self-hosted only. Has no effect unless API_ALLOW_SKIP_PAGINATION is set to true or 1.'
+      schema:
+        description: 'If true, return all matching items and ignore limit/offset.
+
+          Self-hosted only. Has no effect unless API_ALLOW_SKIP_PAGINATION is set to true or 1.'
+        default: false
+        anyOf:
+        - type: string
+          const: 'true'
+        - type: string
+          const: 'false'
+        - type: string
+          const: '0'
+        - type: string
+          const: '1'
+        - type: boolean
+      x-selfHostedOnly: true
+      x-requiresEnv: API_ALLOW_SKIP_PAGINATION
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: 'If using Bearer auth, pass the Secret Key as the token:
+
+        ```bash
+
+        curl https://api.growthbook.io/api/v1/features   -H "Authorization: Bearer secret_abc123DEF456"
+
+        ```
+
+        '
+    basicAuth:
+      type: http
+      scheme: basic
+      description: 'If using HTTP Basic auth, pass the Secret Key as the username and leave the password blank:
+
+        ```bash
+
+        curl https://api.growthbook.io/api/v1/features   -u secret_abc123DEF456:
+
+        # The ":" at the end stops curl from asking for a password
+
+        ```
+
+        '
+x-tagGroups:
+- name: Endpoints
+  tags:
+  - projects
+  - environments
+  - features-v2
+  - feature-revisions-v2
+  - features
+  - feature-revisions
+  - ramp-schedules
+  - data-sources
+  - fact-tables
+  - fact-metrics
+  - metrics
+  - experiments
+  - namespaces
+  - snapshots
+  - dimensions
+  - segments
+  - sdk-connections
+  - visual-changesets
+  - saved-groups
+  - organizations
+  - members
+  - code-references
+  - archetypes
+  - queries
+  - settings
+  - attributes
+  - usage
+  - Dashboards
+  - CustomFields
+  - MetricGroups
+  - Teams
+  - ExperimentTemplates
+  - AnalyticsExplorations
+  - RampScheduleTemplates
+- name: Models
+  tags:
+  - AnalyticsExploration_model
+  - Archetype_model
+  - Attribute_model
+  - CodeRef_model
+  - CustomField_model
+  - Dashboard_model
+  - DataSource_model
+  - Dimension_model
+  - Environment_model
+  - Experiment_model
+  - ExperimentAnalysisSettings_model
+  - ExperimentDecisionFrameworkSettings_model
+  - ExperimentMetric_model
+  - ExperimentMetricOverrideEntry_model
+  - ExperimentResults_model
+  - ExperimentSnapshot_model
+  - ExperimentTemplate_model
+  - ExperimentWithEnhancedStatus_model
+  - FactMetric_model
+  - FactTable_model
+  - FactTableColumn_model
+  - FactTableFilter_model
+  - Feature_model
+  - FeatureBaseRule_model
+  - FeatureDefinition_model
+  - FeatureEnvironment_model
+  - FeatureEnvironmentV2_model
+  - FeatureExperimentRefRule_model
+  - FeatureExperimentRule_model
+  - FeatureForceRule_model
+  - FeatureRevision_model
+  - FeatureRevisionV2_model
+  - FeatureRolloutRule_model
+  - FeatureRule_model
+  - FeatureRuleV2_model
+  - FeatureSafeRolloutRule_model
+  - FeatureV2_model
+  - FeatureWithRevisions_model
+  - FeatureWithRevisionsV2_model
+  - InformationSchema_model
+  - InformationSchemaTable_model
+  - LookbackOverride_model
+  - Member_model
+  - Metric_model
+  - MetricAnalysis_model
+  - MetricGroup_model
+  - MetricUsage_model
+  - Namespace_model
+  - NamespaceExperimentMember_model
+  - Organization_model
+  - PaginationFields_model
+  - Project_model
+  - Query_model
+  - RampSchedule_model
+  - RampScheduleTemplate_model
+  - SavedGroup_model
+  - ScheduleRule_model
+  - SdkConnection_model
+  - Segment_model
+  - Settings_model
+  - Team_model
+  - VisualChange_model
+  - VisualChangeset_model
