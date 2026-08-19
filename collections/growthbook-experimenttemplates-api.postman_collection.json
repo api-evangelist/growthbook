@@ -1,0 +1,627 @@
+{
+  "item": [
+    {
+      "id": "fea5817d-4803-4e87-a41d-35668fba8f32",
+      "name": "ExperimentTemplates",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "d8d20329-94b8-46da-bcbb-5501cffd946f",
+          "name": "Get a single experimentTemplate",
+          "request": {
+            "name": "Get a single experimentTemplate",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "experiment-templates",
+                ":id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "cdd6c16b-0cba-463a-87b3-afe323ce0525",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "experiment-templates",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"experimentTemplate\": {\n    \"id\": \"string\",\n    \"dateCreated\": \"3058-02-20T16:26:30Z\",\n    \"dateUpdated\": \"4213-02-26T00:23:06Z\",\n    \"owner\": \"string\",\n    \"templateMetadata\": {\n      \"name\": \"string\",\n      \"description\": \"string\"\n    },\n    \"type\": \"standard\",\n    \"datasource\": \"string\",\n    \"exposureQueryId\": \"string\",\n    \"statsEngine\": \"frequentist\",\n    \"targeting\": {\n      \"coverage\": 9852.267171907688,\n      \"condition\": \"string\",\n      \"savedGroups\": [\n        {\n          \"match\": \"any\",\n          \"ids\": [\n            \"string\",\n            \"string\"\n          ]\n        },\n        {\n          \"match\": \"all\",\n          \"ids\": [\n            \"string\",\n            \"string\"\n          ]\n        }\n      ],\n      \"prerequisites\": [\n        {\n          \"id\": \"string\",\n          \"condition\": \"string\"\n        },\n        {\n          \"id\": \"string\",\n          \"condition\": \"string\"\n        }\n      ]\n    },\n    \"project\": \"string\",\n    \"ownerEmail\": \"string\",\n    \"hypothesis\": \"string\",\n    \"description\": \"string\",\n    \"tags\": [\n      \"string\",\n      \"string\"\n    ],\n    \"customFields\": {\n      \"key_0\": \"string\",\n      \"key_1\": \"string\"\n    },\n    \"hashAttribute\": \"string\",\n    \"fallbackAttribute\": \"string\",\n    \"disableStickyBucketing\": false,\n    \"goalMetrics\": [\n      \"string\",\n      \"string\"\n    ],\n    \"secondaryMetrics\": [\n      \"string\",\n      \"string\"\n    ],\n    \"guardrailMetrics\": [\n      \"string\",\n      \"string\"\n    ],\n    \"activationMetric\": \"string\",\n    \"segment\": \"string\",\n    \"skipPartialData\": true,\n    \"customMetricSlices\": [\n      {\n        \"slices\": [\n          {\n            \"column\": \"string\",\n            \"levels\": [\n              \"string\",\n              \"string\"\n            ]\n          },\n          {\n            \"column\": \"string\",\n            \"levels\": [\n              \"string\",\n              \"string\"\n            ]\n          }\n        ]\n      },\n      {\n        \"slices\": [\n          {\n            \"column\": \"string\",\n            \"levels\": [\n              \"string\",\n              \"string\"\n            ]\n          },\n          {\n            \"column\": \"string\",\n            \"levels\": [\n              \"string\",\n              \"string\"\n            ]\n          }\n        ]\n      }\n    ]\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "57cbb110-55a2-46a4-b734-59c5f4cad3df",
+          "name": "Delete a single experimentTemplate",
+          "request": {
+            "name": "Delete a single experimentTemplate",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "experiment-templates",
+                ":id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "DELETE",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "501a9c71-b832-4a81-b219-823caeef34c9",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "experiment-templates",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "DELETE",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"deletedId\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "6c3bd7d9-e18b-42ce-ac54-87b19a9bb700",
+          "name": "Update a single experimentTemplate",
+          "request": {
+            "name": "Update a single experimentTemplate",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "experiment-templates",
+                ":id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "PUT",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"project\": \"<string>\",\n  \"templateMetadata\": {\n    \"name\": \"<string>\",\n    \"description\": \"<string>\"\n  },\n  \"type\": \"<string>\",\n  \"hypothesis\": \"<string>\",\n  \"description\": \"<string>\",\n  \"tags\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"customFields\": {\n    \"key_0\": \"<string>\",\n    \"key_1\": \"<string>\"\n  },\n  \"datasource\": \"<string>\",\n  \"exposureQueryId\": \"<string>\",\n  \"hashAttribute\": \"<string>\",\n  \"fallbackAttribute\": \"<string>\",\n  \"disableStickyBucketing\": \"<boolean>\",\n  \"goalMetrics\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"secondaryMetrics\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"guardrailMetrics\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"activationMetric\": \"<string>\",\n  \"statsEngine\": \"<string>\",\n  \"segment\": \"<string>\",\n  \"skipPartialData\": \"<boolean>\",\n  \"targeting\": {\n    \"coverage\": \"<number>\",\n    \"condition\": \"<string>\",\n    \"savedGroups\": [\n      {\n        \"match\": \"<string>\",\n        \"ids\": [\n          \"<string>\",\n          \"<string>\"\n        ]\n      },\n      {\n        \"match\": \"<string>\",\n        \"ids\": [\n          \"<string>\",\n          \"<string>\"\n        ]\n      }\n    ],\n    \"prerequisites\": [\n      {\n        \"id\": \"<string>\",\n        \"condition\": \"<string>\"\n      },\n      {\n        \"id\": \"<string>\",\n        \"condition\": \"<string>\"\n      }\n    ]\n  },\n  \"customMetricSlices\": [\n    {\n      \"slices\": [\n        {\n          \"column\": \"<string>\",\n          \"levels\": [\n            \"<string>\",\n            \"<string>\"\n          ]\n        },\n        {\n          \"column\": \"<string>\",\n          \"levels\": [\n            \"<string>\",\n            \"<string>\"\n          ]\n        }\n      ]\n    },\n    {\n      \"slices\": [\n        {\n          \"column\": \"<string>\",\n          \"levels\": [\n            \"<string>\",\n            \"<string>\"\n          ]\n        },\n        {\n          \"column\": \"<string>\",\n          \"levels\": [\n            \"<string>\",\n            \"<string>\"\n          ]\n        }\n      ]\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "b3779324-492a-4fdf-a39c-bf40f27e1ffe",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "experiment-templates",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PUT",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"project\": \"<string>\",\n  \"templateMetadata\": {\n    \"name\": \"<string>\",\n    \"description\": \"<string>\"\n  },\n  \"type\": \"<string>\",\n  \"hypothesis\": \"<string>\",\n  \"description\": \"<string>\",\n  \"tags\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"customFields\": {\n    \"key_0\": \"<string>\"\n  },\n  \"datasource\": \"<string>\",\n  \"exposureQueryId\": \"<string>\",\n  \"hashAttribute\": \"<string>\",\n  \"fallbackAttribute\": \"<string>\",\n  \"disableStickyBucketing\": \"<boolean>\",\n  \"goalMetrics\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"secondaryMetrics\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"guardrailMetrics\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"activationMetric\": \"<string>\",\n  \"statsEngine\": \"<string>\",\n  \"segment\": \"<string>\",\n  \"skipPartialData\": \"<boolean>\",\n  \"targeting\": {\n    \"coverage\": \"<number>\",\n    \"condition\": \"<string>\",\n    \"savedGroups\": [\n      {\n        \"match\": \"<string>\",\n        \"ids\": [\n          \"<string>\",\n          \"<string>\"\n        ]\n      },\n      {\n        \"match\": \"<string>\",\n        \"ids\": [\n          \"<string>\",\n          \"<string>\"\n        ]\n      }\n    ],\n    \"prerequisites\": [\n      {\n        \"id\": \"<string>\",\n        \"condition\": \"<string>\"\n      },\n      {\n        \"id\": \"<string>\",\n        \"condition\": \"<string>\"\n      }\n    ]\n  },\n  \"customMetricSlices\": [\n    {\n      \"slices\": [\n        {\n          \"column\": \"<string>\",\n          \"levels\": [\n            \"<string>\",\n            \"<string>\"\n          ]\n        },\n        {\n          \"column\": \"<string>\",\n          \"levels\": [\n            \"<string>\",\n            \"<string>\"\n          ]\n        }\n      ]\n    },\n    {\n      \"slices\": [\n        {\n          \"column\": \"<string>\",\n          \"levels\": [\n            \"<string>\",\n            \"<string>\"\n          ]\n        },\n        {\n          \"column\": \"<string>\",\n          \"levels\": [\n            \"<string>\",\n            \"<string>\"\n          ]\n        }\n      ]\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"experimentTemplate\": {\n    \"id\": \"string\",\n    \"dateCreated\": \"3058-02-20T16:26:30Z\",\n    \"dateUpdated\": \"4213-02-26T00:23:06Z\",\n    \"owner\": \"string\",\n    \"templateMetadata\": {\n      \"name\": \"string\",\n      \"description\": \"string\"\n    },\n    \"type\": \"standard\",\n    \"datasource\": \"string\",\n    \"exposureQueryId\": \"string\",\n    \"statsEngine\": \"frequentist\",\n    \"targeting\": {\n      \"coverage\": 9852.267171907688,\n      \"condition\": \"string\",\n      \"savedGroups\": [\n        {\n          \"match\": \"any\",\n          \"ids\": [\n            \"string\",\n            \"string\"\n          ]\n        },\n        {\n          \"match\": \"all\",\n          \"ids\": [\n            \"string\",\n            \"string\"\n          ]\n        }\n      ],\n      \"prerequisites\": [\n        {\n          \"id\": \"string\",\n          \"condition\": \"string\"\n        },\n        {\n          \"id\": \"string\",\n          \"condition\": \"string\"\n        }\n      ]\n    },\n    \"project\": \"string\",\n    \"ownerEmail\": \"string\",\n    \"hypothesis\": \"string\",\n    \"description\": \"string\",\n    \"tags\": [\n      \"string\",\n      \"string\"\n    ],\n    \"customFields\": {\n      \"key_0\": \"string\",\n      \"key_1\": \"string\"\n    },\n    \"hashAttribute\": \"string\",\n    \"fallbackAttribute\": \"string\",\n    \"disableStickyBucketing\": false,\n    \"goalMetrics\": [\n      \"string\",\n      \"string\"\n    ],\n    \"secondaryMetrics\": [\n      \"string\",\n      \"string\"\n    ],\n    \"guardrailMetrics\": [\n      \"string\",\n      \"string\"\n    ],\n    \"activationMetric\": \"string\",\n    \"segment\": \"string\",\n    \"skipPartialData\": true,\n    \"customMetricSlices\": [\n      {\n        \"slices\": [\n          {\n            \"column\": \"string\",\n            \"levels\": [\n              \"string\",\n              \"string\"\n            ]\n          },\n          {\n            \"column\": \"string\",\n            \"levels\": [\n              \"string\",\n              \"string\"\n            ]\n          }\n        ]\n      },\n      {\n        \"slices\": [\n          {\n            \"column\": \"string\",\n            \"levels\": [\n              \"string\",\n              \"string\"\n            ]\n          },\n          {\n            \"column\": \"string\",\n            \"levels\": [\n              \"string\",\n              \"string\"\n            ]\n          }\n        ]\n      }\n    ]\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "6981d153-8889-43c2-9edf-46fe104d86ed",
+          "name": "Create a single experimentTemplate",
+          "request": {
+            "name": "Create a single experimentTemplate",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "experiment-templates"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"templateMetadata\": {\n    \"name\": \"<string>\",\n    \"description\": \"<string>\"\n  },\n  \"type\": \"<string>\",\n  \"datasource\": \"<string>\",\n  \"exposureQueryId\": \"<string>\",\n  \"statsEngine\": \"<string>\",\n  \"targeting\": {\n    \"coverage\": \"<number>\",\n    \"condition\": \"<string>\",\n    \"savedGroups\": [\n      {\n        \"match\": \"<string>\",\n        \"ids\": [\n          \"<string>\",\n          \"<string>\"\n        ]\n      },\n      {\n        \"match\": \"<string>\",\n        \"ids\": [\n          \"<string>\",\n          \"<string>\"\n        ]\n      }\n    ],\n    \"prerequisites\": [\n      {\n        \"id\": \"<string>\",\n        \"condition\": \"<string>\"\n      },\n      {\n        \"id\": \"<string>\",\n        \"condition\": \"<string>\"\n      }\n    ]\n  },\n  \"project\": \"<string>\",\n  \"hypothesis\": \"<string>\",\n  \"description\": \"<string>\",\n  \"tags\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"customFields\": {\n    \"key_0\": \"<string>\",\n    \"key_1\": \"<string>\"\n  },\n  \"hashAttribute\": \"<string>\",\n  \"fallbackAttribute\": \"<string>\",\n  \"disableStickyBucketing\": \"<boolean>\",\n  \"goalMetrics\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"secondaryMetrics\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"guardrailMetrics\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"activationMetric\": \"<string>\",\n  \"segment\": \"<string>\",\n  \"skipPartialData\": \"<boolean>\",\n  \"customMetricSlices\": [\n    {\n      \"slices\": [\n        {\n          \"column\": \"<string>\",\n          \"levels\": [\n            \"<string>\",\n            \"<string>\"\n          ]\n        },\n        {\n          \"column\": \"<string>\",\n          \"levels\": [\n            \"<string>\",\n            \"<string>\"\n          ]\n        }\n      ]\n    },\n    {\n      \"slices\": [\n        {\n          \"column\": \"<string>\",\n          \"levels\": [\n            \"<string>\",\n            \"<string>\"\n          ]\n        },\n        {\n          \"column\": \"<string>\",\n          \"levels\": [\n            \"<string>\",\n            \"<string>\"\n          ]\n        }\n      ]\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "c954ad37-9af5-47fa-ada5-a4d138587270",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "experiment-templates"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"templateMetadata\": {\n    \"name\": \"<string>\",\n    \"description\": \"<string>\"\n  },\n  \"type\": \"<string>\",\n  \"datasource\": \"<string>\",\n  \"exposureQueryId\": \"<string>\",\n  \"statsEngine\": \"<string>\",\n  \"targeting\": {\n    \"coverage\": \"<number>\",\n    \"condition\": \"<string>\",\n    \"savedGroups\": [\n      {\n        \"match\": \"<string>\",\n        \"ids\": [\n          \"<string>\",\n          \"<string>\"\n        ]\n      },\n      {\n        \"match\": \"<string>\",\n        \"ids\": [\n          \"<string>\",\n          \"<string>\"\n        ]\n      }\n    ],\n    \"prerequisites\": [\n      {\n        \"id\": \"<string>\",\n        \"condition\": \"<string>\"\n      },\n      {\n        \"id\": \"<string>\",\n        \"condition\": \"<string>\"\n      }\n    ]\n  },\n  \"project\": \"<string>\",\n  \"hypothesis\": \"<string>\",\n  \"description\": \"<string>\",\n  \"tags\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"customFields\": {\n    \"key_0\": \"<string>\",\n    \"key_1\": \"<string>\"\n  },\n  \"hashAttribute\": \"<string>\",\n  \"fallbackAttribute\": \"<string>\",\n  \"disableStickyBucketing\": \"<boolean>\",\n  \"goalMetrics\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"secondaryMetrics\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"guardrailMetrics\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"activationMetric\": \"<string>\",\n  \"segment\": \"<string>\",\n  \"skipPartialData\": \"<boolean>\",\n  \"customMetricSlices\": [\n    {\n      \"slices\": [\n        {\n          \"column\": \"<string>\",\n          \"levels\": [\n            \"<string>\",\n            \"<string>\"\n          ]\n        },\n        {\n          \"column\": \"<string>\",\n          \"levels\": [\n            \"<string>\",\n            \"<string>\"\n          ]\n        }\n      ]\n    },\n    {\n      \"slices\": [\n        {\n          \"column\": \"<string>\",\n          \"levels\": [\n            \"<string>\",\n            \"<string>\"\n          ]\n        },\n        {\n          \"column\": \"<string>\",\n          \"levels\": [\n            \"<string>\",\n            \"<string>\"\n          ]\n        }\n      ]\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"experimentTemplate\": {\n    \"id\": \"string\",\n    \"dateCreated\": \"3058-02-20T16:26:30Z\",\n    \"dateUpdated\": \"4213-02-26T00:23:06Z\",\n    \"owner\": \"string\",\n    \"templateMetadata\": {\n      \"name\": \"string\",\n      \"description\": \"string\"\n    },\n    \"type\": \"standard\",\n    \"datasource\": \"string\",\n    \"exposureQueryId\": \"string\",\n    \"statsEngine\": \"frequentist\",\n    \"targeting\": {\n      \"coverage\": 9852.267171907688,\n      \"condition\": \"string\",\n      \"savedGroups\": [\n        {\n          \"match\": \"any\",\n          \"ids\": [\n            \"string\",\n            \"string\"\n          ]\n        },\n        {\n          \"match\": \"all\",\n          \"ids\": [\n            \"string\",\n            \"string\"\n          ]\n        }\n      ],\n      \"prerequisites\": [\n        {\n          \"id\": \"string\",\n          \"condition\": \"string\"\n        },\n        {\n          \"id\": \"string\",\n          \"condition\": \"string\"\n        }\n      ]\n    },\n    \"project\": \"string\",\n    \"ownerEmail\": \"string\",\n    \"hypothesis\": \"string\",\n    \"description\": \"string\",\n    \"tags\": [\n      \"string\",\n      \"string\"\n    ],\n    \"customFields\": {\n      \"key_0\": \"string\",\n      \"key_1\": \"string\"\n    },\n    \"hashAttribute\": \"string\",\n    \"fallbackAttribute\": \"string\",\n    \"disableStickyBucketing\": false,\n    \"goalMetrics\": [\n      \"string\",\n      \"string\"\n    ],\n    \"secondaryMetrics\": [\n      \"string\",\n      \"string\"\n    ],\n    \"guardrailMetrics\": [\n      \"string\",\n      \"string\"\n    ],\n    \"activationMetric\": \"string\",\n    \"segment\": \"string\",\n    \"skipPartialData\": true,\n    \"customMetricSlices\": [\n      {\n        \"slices\": [\n          {\n            \"column\": \"string\",\n            \"levels\": [\n              \"string\",\n              \"string\"\n            ]\n          },\n          {\n            \"column\": \"string\",\n            \"levels\": [\n              \"string\",\n              \"string\"\n            ]\n          }\n        ]\n      },\n      {\n        \"slices\": [\n          {\n            \"column\": \"string\",\n            \"levels\": [\n              \"string\",\n              \"string\"\n            ]\n          },\n          {\n            \"column\": \"string\",\n            \"levels\": [\n              \"string\",\n              \"string\"\n            ]\n          }\n        ]\n      }\n    ]\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "34e17bee-b034-4f12-8645-eff9ecfba31a",
+          "name": "Get all experimentTemplates",
+          "request": {
+            "name": "Get all experimentTemplates",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "experiment-templates"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "projectId",
+                  "value": "<string>"
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "13fa46d6-7295-44cc-abeb-ea4201ff9440",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "experiment-templates"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "projectId",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"experimentTemplates\": [\n    {\n      \"id\": \"string\",\n      \"dateCreated\": \"9276-02-29T22:11Z\",\n      \"dateUpdated\": \"4396-02-29T03:30:43Z\",\n      \"owner\": \"string\",\n      \"templateMetadata\": {\n        \"name\": \"string\",\n        \"description\": \"string\"\n      },\n      \"type\": \"standard\",\n      \"datasource\": \"string\",\n      \"exposureQueryId\": \"string\",\n      \"statsEngine\": \"bayesian\",\n      \"targeting\": {\n        \"coverage\": 2824.8781470502004,\n        \"condition\": \"string\",\n        \"savedGroups\": [\n          {\n            \"match\": \"all\",\n            \"ids\": [\n              \"string\",\n              \"string\"\n            ]\n          },\n          {\n            \"match\": \"all\",\n            \"ids\": [\n              \"string\",\n              \"string\"\n            ]\n          }\n        ],\n        \"prerequisites\": [\n          {\n            \"id\": \"string\",\n            \"condition\": \"string\"\n          },\n          {\n            \"id\": \"string\",\n            \"condition\": \"string\"\n          }\n        ]\n      },\n      \"project\": \"string\",\n      \"ownerEmail\": \"string\",\n      \"hypothesis\": \"string\",\n      \"description\": \"string\",\n      \"tags\": [\n        \"string\",\n        \"string\"\n      ],\n      \"customFields\": {\n        \"key_0\": \"string\",\n        \"key_1\": \"string\"\n      },\n      \"hashAttribute\": \"string\",\n      \"fallbackAttribute\": \"string\",\n      \"disableStickyBucketing\": false,\n      \"goalMetrics\": [\n        \"string\",\n        \"string\"\n      ],\n      \"secondaryMetrics\": [\n        \"string\",\n        \"string\"\n      ],\n      \"guardrailMetrics\": [\n        \"string\",\n        \"string\"\n      ],\n      \"activationMetric\": \"string\",\n      \"segment\": \"string\",\n      \"skipPartialData\": false,\n      \"customMetricSlices\": [\n        {\n          \"slices\": [\n            {\n              \"column\": \"string\",\n              \"levels\": [\n                \"string\",\n                \"string\"\n              ]\n            },\n            {\n              \"column\": \"string\",\n              \"levels\": [\n                \"string\",\n                \"string\"\n              ]\n            }\n          ]\n        },\n        {\n          \"slices\": [\n            {\n              \"column\": \"string\",\n              \"levels\": [\n                \"string\",\n                \"string\"\n              ]\n            },\n            {\n              \"column\": \"string\",\n              \"levels\": [\n                \"string\",\n                \"string\"\n              ]\n            }\n          ]\n        }\n      ]\n    },\n    {\n      \"id\": \"string\",\n      \"dateCreated\": \"2772-02-29T21:00Z\",\n      \"dateUpdated\": \"4311-02-15T20:50Z\",\n      \"owner\": \"string\",\n      \"templateMetadata\": {\n        \"name\": \"string\",\n        \"description\": \"string\"\n      },\n      \"type\": \"standard\",\n      \"datasource\": \"string\",\n      \"exposureQueryId\": \"string\",\n      \"statsEngine\": \"bayesian\",\n      \"targeting\": {\n        \"coverage\": 5663.0883003172785,\n        \"condition\": \"string\",\n        \"savedGroups\": [\n          {\n            \"match\": \"any\",\n            \"ids\": [\n              \"string\",\n              \"string\"\n            ]\n          },\n          {\n            \"match\": \"any\",\n            \"ids\": [\n              \"string\",\n              \"string\"\n            ]\n          }\n        ],\n        \"prerequisites\": [\n          {\n            \"id\": \"string\",\n            \"condition\": \"string\"\n          },\n          {\n            \"id\": \"string\",\n            \"condition\": \"string\"\n          }\n        ]\n      },\n      \"project\": \"string\",\n      \"ownerEmail\": \"string\",\n      \"hypothesis\": \"string\",\n      \"description\": \"string\",\n      \"tags\": [\n        \"string\",\n        \"string\"\n      ],\n      \"customFields\": {\n        \"key_0\": \"string\"\n      },\n      \"hashAttribute\": \"string\",\n      \"fallbackAttribute\": \"string\",\n      \"disableStickyBucketing\": true,\n      \"goalMetrics\": [\n        \"string\",\n        \"string\"\n      ],\n      \"secondaryMetrics\": [\n        \"string\",\n        \"string\"\n      ],\n      \"guardrailMetrics\": [\n        \"string\",\n        \"string\"\n      ],\n      \"activationMetric\": \"string\",\n      \"segment\": \"string\",\n      \"skipPartialData\": false,\n      \"customMetricSlices\": [\n        {\n          \"slices\": [\n            {\n              \"column\": \"string\",\n              \"levels\": [\n                \"string\",\n                \"string\"\n              ]\n            },\n            {\n              \"column\": \"string\",\n              \"levels\": [\n                \"string\",\n                \"string\"\n              ]\n            }\n          ]\n        },\n        {\n          \"slices\": [\n            {\n              \"column\": \"string\",\n              \"levels\": [\n                \"string\",\n                \"string\"\n              ]\n            },\n            {\n              \"column\": \"string\",\n              \"levels\": [\n                \"string\",\n                \"string\"\n              ]\n            }\n          ]\n        }\n      ]\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "3372eb82-904a-4a70-b51a-efd15b76c5fb",
+          "name": "Bulk create or update experiment templates",
+          "request": {
+            "name": "Bulk create or update experiment templates",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "experiment-templates",
+                "bulk-import"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"templates\": [\n    {\n      \"id\": \"<string>\",\n      \"data\": {\n        \"templateMetadata\": {\n          \"name\": \"<string>\",\n          \"description\": \"<string>\"\n        },\n        \"type\": \"<string>\",\n        \"datasource\": \"<string>\",\n        \"exposureQueryId\": \"<string>\",\n        \"statsEngine\": \"<string>\",\n        \"targeting\": {\n          \"coverage\": \"<number>\",\n          \"condition\": \"<string>\",\n          \"savedGroups\": [\n            {\n              \"match\": \"<string>\",\n              \"ids\": [\n                \"<string>\",\n                \"<string>\"\n              ]\n            },\n            {\n              \"match\": \"<string>\",\n              \"ids\": [\n                \"<string>\",\n                \"<string>\"\n              ]\n            }\n          ],\n          \"prerequisites\": [\n            {\n              \"id\": \"<string>\",\n              \"condition\": \"<string>\"\n            },\n            {\n              \"id\": \"<string>\",\n              \"condition\": \"<string>\"\n            }\n          ]\n        },\n        \"project\": \"<string>\",\n        \"hypothesis\": \"<string>\",\n        \"description\": \"<string>\",\n        \"tags\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"customFields\": {\n          \"key_0\": \"<string>\",\n          \"key_1\": \"<string>\"\n        },\n        \"hashAttribute\": \"<string>\",\n        \"fallbackAttribute\": \"<string>\",\n        \"disableStickyBucketing\": \"<boolean>\",\n        \"goalMetrics\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"secondaryMetrics\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"guardrailMetrics\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"activationMetric\": \"<string>\",\n        \"segment\": \"<string>\",\n        \"skipPartialData\": \"<boolean>\",\n        \"customMetricSlices\": [\n          {\n            \"slices\": [\n              {\n                \"column\": \"<string>\",\n                \"levels\": [\n                  \"<string>\",\n                  \"<string>\"\n                ]\n              },\n              {\n                \"column\": \"<string>\",\n                \"levels\": [\n                  \"<string>\",\n                  \"<string>\"\n                ]\n              }\n            ]\n          },\n          {\n            \"slices\": [\n              {\n                \"column\": \"<string>\",\n                \"levels\": [\n                  \"<string>\",\n                  \"<string>\"\n                ]\n              },\n              {\n                \"column\": \"<string>\",\n                \"levels\": [\n                  \"<string>\",\n                  \"<string>\"\n                ]\n              }\n            ]\n          }\n        ]\n      }\n    },\n    {\n      \"id\": \"<string>\",\n      \"data\": {\n        \"templateMetadata\": {\n          \"name\": \"<string>\",\n          \"description\": \"<string>\"\n        },\n        \"type\": \"<string>\",\n        \"datasource\": \"<string>\",\n        \"exposureQueryId\": \"<string>\",\n        \"statsEngine\": \"<string>\",\n        \"targeting\": {\n          \"coverage\": \"<number>\",\n          \"condition\": \"<string>\",\n          \"savedGroups\": [\n            {\n              \"match\": \"<string>\",\n              \"ids\": [\n                \"<string>\",\n                \"<string>\"\n              ]\n            },\n            {\n              \"match\": \"<string>\",\n              \"ids\": [\n                \"<string>\",\n                \"<string>\"\n              ]\n            }\n          ],\n          \"prerequisites\": [\n            {\n              \"id\": \"<string>\",\n              \"condition\": \"<string>\"\n            },\n            {\n              \"id\": \"<string>\",\n              \"condition\": \"<string>\"\n            }\n          ]\n        },\n        \"project\": \"<string>\",\n        \"hypothesis\": \"<string>\",\n        \"description\": \"<string>\",\n        \"tags\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"customFields\": {\n          \"key_0\": \"<string>\"\n        },\n        \"hashAttribute\": \"<string>\",\n        \"fallbackAttribute\": \"<string>\",\n        \"disableStickyBucketing\": \"<boolean>\",\n        \"goalMetrics\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"secondaryMetrics\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"guardrailMetrics\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"activationMetric\": \"<string>\",\n        \"segment\": \"<string>\",\n        \"skipPartialData\": \"<boolean>\",\n        \"customMetricSlices\": [\n          {\n            \"slices\": [\n              {\n                \"column\": \"<string>\",\n                \"levels\": [\n                  \"<string>\",\n                  \"<string>\"\n                ]\n              },\n              {\n                \"column\": \"<string>\",\n                \"levels\": [\n                  \"<string>\",\n                  \"<string>\"\n                ]\n              }\n            ]\n          },\n          {\n            \"slices\": [\n              {\n                \"column\": \"<string>\",\n                \"levels\": [\n                  \"<string>\",\n                  \"<string>\"\n                ]\n              },\n              {\n                \"column\": \"<string>\",\n                \"levels\": [\n                  \"<string>\",\n                  \"<string>\"\n                ]\n              }\n            ]\n          }\n        ]\n      }\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "92381337-80cb-47da-a150-3b2545b7f59c",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "experiment-templates",
+                    "bulk-import"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"templates\": [\n    {\n      \"id\": \"<string>\",\n      \"data\": {\n        \"templateMetadata\": {\n          \"name\": \"<string>\",\n          \"description\": \"<string>\"\n        },\n        \"type\": \"<string>\",\n        \"datasource\": \"<string>\",\n        \"exposureQueryId\": \"<string>\",\n        \"statsEngine\": \"<string>\",\n        \"targeting\": {\n          \"coverage\": \"<number>\",\n          \"condition\": \"<string>\",\n          \"savedGroups\": [\n            {\n              \"match\": \"<string>\",\n              \"ids\": [\n                \"<string>\",\n                \"<string>\"\n              ]\n            },\n            {\n              \"match\": \"<string>\",\n              \"ids\": [\n                \"<string>\",\n                \"<string>\"\n              ]\n            }\n          ],\n          \"prerequisites\": [\n            {\n              \"id\": \"<string>\",\n              \"condition\": \"<string>\"\n            },\n            {\n              \"id\": \"<string>\",\n              \"condition\": \"<string>\"\n            }\n          ]\n        },\n        \"project\": \"<string>\",\n        \"hypothesis\": \"<string>\",\n        \"description\": \"<string>\",\n        \"tags\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"customFields\": {\n          \"key_0\": \"<string>\",\n          \"key_1\": \"<string>\"\n        },\n        \"hashAttribute\": \"<string>\",\n        \"fallbackAttribute\": \"<string>\",\n        \"disableStickyBucketing\": \"<boolean>\",\n        \"goalMetrics\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"secondaryMetrics\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"guardrailMetrics\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"activationMetric\": \"<string>\",\n        \"segment\": \"<string>\",\n        \"skipPartialData\": \"<boolean>\",\n        \"customMetricSlices\": [\n          {\n            \"slices\": [\n              {\n                \"column\": \"<string>\",\n                \"levels\": [\n                  \"<string>\",\n                  \"<string>\"\n                ]\n              },\n              {\n                \"column\": \"<string>\",\n                \"levels\": [\n                  \"<string>\",\n                  \"<string>\"\n                ]\n              }\n            ]\n          },\n          {\n            \"slices\": [\n              {\n                \"column\": \"<string>\",\n                \"levels\": [\n                  \"<string>\",\n                  \"<string>\"\n                ]\n              },\n              {\n                \"column\": \"<string>\",\n                \"levels\": [\n                  \"<string>\",\n                  \"<string>\"\n                ]\n              }\n            ]\n          }\n        ]\n      }\n    },\n    {\n      \"id\": \"<string>\",\n      \"data\": {\n        \"templateMetadata\": {\n          \"name\": \"<string>\",\n          \"description\": \"<string>\"\n        },\n        \"type\": \"<string>\",\n        \"datasource\": \"<string>\",\n        \"exposureQueryId\": \"<string>\",\n        \"statsEngine\": \"<string>\",\n        \"targeting\": {\n          \"coverage\": \"<number>\",\n          \"condition\": \"<string>\",\n          \"savedGroups\": [\n            {\n              \"match\": \"<string>\",\n              \"ids\": [\n                \"<string>\",\n                \"<string>\"\n              ]\n            },\n            {\n              \"match\": \"<string>\",\n              \"ids\": [\n                \"<string>\",\n                \"<string>\"\n              ]\n            }\n          ],\n          \"prerequisites\": [\n            {\n              \"id\": \"<string>\",\n              \"condition\": \"<string>\"\n            },\n            {\n              \"id\": \"<string>\",\n              \"condition\": \"<string>\"\n            }\n          ]\n        },\n        \"project\": \"<string>\",\n        \"hypothesis\": \"<string>\",\n        \"description\": \"<string>\",\n        \"tags\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"customFields\": {\n          \"key_0\": \"<string>\"\n        },\n        \"hashAttribute\": \"<string>\",\n        \"fallbackAttribute\": \"<string>\",\n        \"disableStickyBucketing\": \"<boolean>\",\n        \"goalMetrics\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"secondaryMetrics\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"guardrailMetrics\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"activationMetric\": \"<string>\",\n        \"segment\": \"<string>\",\n        \"skipPartialData\": \"<boolean>\",\n        \"customMetricSlices\": [\n          {\n            \"slices\": [\n              {\n                \"column\": \"<string>\",\n                \"levels\": [\n                  \"<string>\",\n                  \"<string>\"\n                ]\n              },\n              {\n                \"column\": \"<string>\",\n                \"levels\": [\n                  \"<string>\",\n                  \"<string>\"\n                ]\n              }\n            ]\n          },\n          {\n            \"slices\": [\n              {\n                \"column\": \"<string>\",\n                \"levels\": [\n                  \"<string>\",\n                  \"<string>\"\n                ]\n              },\n              {\n                \"column\": \"<string>\",\n                \"levels\": [\n                  \"<string>\",\n                  \"<string>\"\n                ]\n              }\n            ]\n          }\n        ]\n      }\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"added\": 2340,\n  \"updated\": 5538\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.growthbook.io/api",
+      "key": "baseUrl"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}"
+      }
+    ]
+  },
+  "info": {
+    "_postman_id": "32544493-5f32-4799-b07d-a7ed9f71414a",
+    "name": "GrowthBook REST AnalyticsExplorations ExperimentTemplates API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "GrowthBook offers a full REST API for interacting with the application.\n\nRequest data can use either JSON or Form data encoding (with proper `Content-Type` headers). All response bodies are JSON-encoded.\n\nThe API base URL for GrowthBook Cloud is `https://api.growthbook.io/api`. For self-hosted deployments, it is the same as your API_HOST environment variable (defaults to `http://localhost:3100/api`). The rest of these docs will assume you are using GrowthBook Cloud.\n\n## Versioning\n\nEndpoints are versioned by path prefix:\n\n- `/v1/...` — stable, widely-supported endpoints\n- `/v2/...` — updated endpoints with improved shapes (e.g. unified per-rule environment scope for feature flags)\n\nNew integrations should prefer v2 where available.\n\n## Authentication\n\nWe support both the HTTP Basic and Bearer authentication schemes for convenience.\n\nYou first need to generate a new API Key in GrowthBook. Different keys have different permissions:\n\n- **Personal Access Tokens**: These are sensitive and provide the same level of access as the user has to an organization. These can be created by going to `Personal Access Tokens` under the your user menu.\n- **Secret Keys**: These are sensitive and provide the level of access for the role, which currently is either `admin` or `readonly`. Only Admins with the `manageApiKeys` permission can manage Secret Keys on behalf of an organization. These can be created by going to `Settings -> API Keys`\n\nIf using HTTP Basic auth, pass the Secret Key as the username and leave the password blank (when using curl, add `:` at the end of the secret to indicate an empty password)\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n  -u secret_abc123DEF456:\n```\n\nIf using Bearer auth, pass the Secret Key as the token:\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n-H \"Authorization: Bearer secret_abc123DEF456\"\n```\n\n## Errors\n\nThe API may return the following error status codes:\n\n- **400** - Bad Request - Often due to a missing required parameter\n- **401** - Unauthorized - No valid API key provided\n- **402** - Request Failed - The parameters are valid, but the request failed\n- **403** - Forbidden - Provided API key does not have the required access\n- **404** - Not Found - Unknown API route or requested resource\n- **429** - Too Many Requests - You exceeded the rate limit of 60 requests per minute. Try again later.\n- **5XX** - Server Error - Something went wrong on GrowthBook's end (these are rare)\n\nThe response body will be a JSON object with the following properties:\n\n- **message** - Information about the error\n",
+      "type": "text/plain"
+    }
+  }
+}

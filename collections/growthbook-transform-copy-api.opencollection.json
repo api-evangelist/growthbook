@@ -1,0 +1,38 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "GrowthBook REST AnalyticsExplorations Transform Copy API",
+    "version": "1.0.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Transform Copy",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "postCopyTransform",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.growthbook.io/api/v1/transform-copy",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

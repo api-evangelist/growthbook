@@ -1,0 +1,131 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "GrowthBook REST AnalyticsExplorations segments API",
+    "version": "1.0.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "segments",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get all segments",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.growthbook.io/api/v1/segments",
+            "params": [
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "The number of items to return"
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query",
+                "description": "How many items to skip (use in conjunction with limit for pagination)"
+              },
+              {
+                "name": "datasourceId",
+                "value": "",
+                "type": "query",
+                "description": "Filter by Data Source"
+              }
+            ]
+          },
+          "docs": "Get all segments"
+        },
+        {
+          "info": {
+            "name": "Create a single segment",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.growthbook.io/api/v1/segments",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a single segment"
+        },
+        {
+          "info": {
+            "name": "Get a single segment",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.growthbook.io/api/v1/segments/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the requested resource"
+              }
+            ]
+          },
+          "docs": "Get a single segment"
+        },
+        {
+          "info": {
+            "name": "Update a single segment",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.growthbook.io/api/v1/segments/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the requested resource"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update a single segment"
+        },
+        {
+          "info": {
+            "name": "Deletes a single segment",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.growthbook.io/api/v1/segments/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the requested resource"
+              }
+            ]
+          },
+          "docs": "Deletes a single segment"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

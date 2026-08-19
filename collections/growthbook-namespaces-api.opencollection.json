@@ -1,0 +1,179 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "GrowthBook REST AnalyticsExplorations namespaces API",
+    "version": "1.0.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "namespaces",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get all namespaces",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.growthbook.io/api/v1/namespaces",
+            "params": [
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "The number of items to return"
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query",
+                "description": "How many items to skip (use in conjunction with limit for pagination)"
+              }
+            ]
+          },
+          "docs": "Get all namespaces"
+        },
+        {
+          "info": {
+            "name": "Create a namespace",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.growthbook.io/api/v1/namespaces",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a namespace"
+        },
+        {
+          "info": {
+            "name": "Get a single namespace",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.growthbook.io/api/v1/namespaces/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The unique id of the namespace"
+              }
+            ]
+          },
+          "docs": "Get a single namespace"
+        },
+        {
+          "info": {
+            "name": "Update a namespace",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.growthbook.io/api/v1/namespaces/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The unique id of the namespace"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update a namespace"
+        },
+        {
+          "info": {
+            "name": "Delete a namespace",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.growthbook.io/api/v1/namespaces/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The unique id of the namespace"
+              }
+            ]
+          },
+          "docs": "Permanently removes a namespace from the organization. Returns a 409 error if any active experiments currently reference this namespace — disable or remove those references first."
+        },
+        {
+          "info": {
+            "name": "Get namespace membership",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.growthbook.io/api/v1/namespaces/:id/memberships",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The unique id of the namespace"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "The number of items to return"
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query",
+                "description": "How many items to skip (use in conjunction with limit for pagination)"
+              }
+            ]
+          },
+          "docs": "Get namespace membership"
+        },
+        {
+          "info": {
+            "name": "Rotate namespace seed",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.growthbook.io/api/v1/namespaces/:id/rotateSeed",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The unique id of the namespace"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "⚠️ Dangerous: sets a new seed for a multiRange namespace. Every user's bucket position within the namespace is re-computed immediately, which re-randomizes traffic eligibility for **all** experiments currently using this namespace. Only do this if you intentionally want to reshuffle all allocations across experiments. This could be useful when re-using a namespace for a new set of experiments."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

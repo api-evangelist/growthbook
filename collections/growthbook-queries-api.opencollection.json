@@ -1,0 +1,43 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "GrowthBook REST AnalyticsExplorations queries API",
+    "version": "1.0.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "queries",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get a single query",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.growthbook.io/api/v1/queries/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the requested resource"
+              }
+            ]
+          },
+          "docs": "Get a single query"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

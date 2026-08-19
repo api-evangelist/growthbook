@@ -1,0 +1,43 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "GrowthBook REST AnalyticsExplorations usage API",
+    "version": "1.0.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "usage",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get metric usage across experiments",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.growthbook.io/api/v1/usage/metrics",
+            "params": [
+              {
+                "name": "ids",
+                "value": "",
+                "type": "query",
+                "description": "List of comma-separated metric IDs (both fact and legacy) to get usage for, e.g. ids=met_123,fact_456"
+              }
+            ]
+          },
+          "docs": "Returns usage information for one or more legacy or fact metrics, showing which experiments use each metric\nand some usage statistics. If a metric is part of a metric group, then usage of that metric group counts as\nusage of all metrics in the group. Warning: only includes experiments that you have access to! If you do not have admin\naccess or read access to experiments across all projects, this endpoint may not return the latest usage data across\nall experiments. \n"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

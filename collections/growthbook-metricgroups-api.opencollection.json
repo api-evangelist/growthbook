@@ -1,0 +1,108 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "GrowthBook REST AnalyticsExplorations MetricGroups API",
+    "version": "1.0.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "MetricGroups",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get a single metricGroup",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.growthbook.io/api/v1/metric-groups/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get a single metricGroup"
+        },
+        {
+          "info": {
+            "name": "Update a single metricGroup",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.growthbook.io/api/v1/metric-groups/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update a single metricGroup"
+        },
+        {
+          "info": {
+            "name": "Delete a single metricGroup",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.growthbook.io/api/v1/metric-groups/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Delete a single metricGroup"
+        },
+        {
+          "info": {
+            "name": "Get all metricGroups",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.growthbook.io/api/v1/metric-groups"
+          },
+          "docs": "Get all metricGroups"
+        },
+        {
+          "info": {
+            "name": "Create a single metricGroup",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.growthbook.io/api/v1/metric-groups",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a single metricGroup"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

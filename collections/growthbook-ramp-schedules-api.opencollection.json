@@ -1,0 +1,307 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "GrowthBook REST AnalyticsExplorations ramp-schedules API",
+    "version": "1.0.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "ramp-schedules",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get all rampSchedules",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.growthbook.io/api/v1/ramp-schedules",
+            "params": [
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "The number of items to return"
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query",
+                "description": "How many items to skip (use in conjunction with limit for pagination)"
+              },
+              {
+                "name": "featureId",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "status",
+                "value": "",
+                "type": "query",
+                "description": "Filter by schedule status"
+              }
+            ]
+          },
+          "docs": "Returns all ramp schedules for the organization, with optional filters.\n"
+        },
+        {
+          "info": {
+            "name": "Create a single rampSchedule",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.growthbook.io/api/v1/ramp-schedules",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Creates a new ramp schedule, optionally attaching it to a published feature rule.\n\n### Target attachment (optional)\n\nProvide `featureId` and `ruleId` together to attach the schedule to a specific\nrule on creation. The rule must already be live (published). Each rule can only\nbe controlled by one schedule at a time.\n\nWhen both are supplied, **`targetId` and `patch.ruleId` are auto-injected**\ninto every step action and endAction — callers only need to supply the patch\nvalues (`coverage`, `conditio"
+        },
+        {
+          "info": {
+            "name": "Start a ramp schedule",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.growthbook.io/api/v1/ramp-schedules/:id/actions/start",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Transitions the schedule from `ready` to `running` and processes the first\nstep immediately if eligible.\n"
+        },
+        {
+          "info": {
+            "name": "Pause a ramp schedule",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.growthbook.io/api/v1/ramp-schedules/:id/actions/pause",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Pauses a `running` or `pending-approval` schedule. The schedule can be\nresumed from the same position with the `/actions/resume` endpoint.\n"
+        },
+        {
+          "info": {
+            "name": "Resume a paused ramp schedule",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.growthbook.io/api/v1/ramp-schedules/:id/actions/resume",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Resumes a `paused` schedule. Adjusts timing anchors to account for the\npause duration so step intervals continue from where they left off.\n"
+        },
+        {
+          "info": {
+            "name": "Roll back a ramp schedule",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.growthbook.io/api/v1/ramp-schedules/:id/actions/rollback",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Rolls back to the starting position and lands in `paused` status so the\nschedule can be restarted with `/actions/start` or `/actions/resume`.\n"
+        },
+        {
+          "info": {
+            "name": "Jump to a specific step",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.growthbook.io/api/v1/ramp-schedules/:id/actions/jump",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Moves the schedule directly to `targetStepIndex` (forward or backward) and\npauses. Use `-1` to jump to the pre-start position without rolling back rule\npatches.\n"
+        },
+        {
+          "info": {
+            "name": "Complete a ramp schedule immediately",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.growthbook.io/api/v1/ramp-schedules/:id/actions/complete",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Applies end actions and marks the schedule as `completed`, regardless of\nhow many steps remain.\n"
+        },
+        {
+          "info": {
+            "name": "Approve the current pending-approval step",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.growthbook.io/api/v1/ramp-schedules/:id/actions/approve-step",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Approves the current step on a schedule in `pending-approval` status and\nadvances to the next step. Requires the caller to have feature review\npermissions for the associated feature.\n"
+        },
+        {
+          "info": {
+            "name": "Add a target rule to a ramp schedule",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.growthbook.io/api/v1/ramp-schedules/:id/actions/add-target",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Attaches an additional feature rule to this ramp schedule. The `ruleId`\nmust identify a rule that is already published and must not already be\ncontrolled by another schedule. `environment` is accepted for backward\ncompatibility with pre-v2 ramps but is deprecated and no longer required.\n"
+        },
+        {
+          "info": {
+            "name": "Remove a target rule from a ramp schedule",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.growthbook.io/api/v1/ramp-schedules/:id/actions/eject-target",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Detaches a target rule from this ramp schedule. Identify the target either\nby its `targetId` or by the `[ruleId, environment]` pair.\n\nIf this is the last target on the schedule, the schedule is deleted entirely\nand the response contains `deleted: true` instead of `rampSchedule`.\n"
+        },
+        {
+          "info": {
+            "name": "Get a single rampSchedule",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.growthbook.io/api/v1/ramp-schedules/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get a single rampSchedule"
+        },
+        {
+          "info": {
+            "name": "Update a single rampSchedule",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.growthbook.io/api/v1/ramp-schedules/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Updates the name, steps, endActions, startDate, or endCondition of a ramp schedule.\n\nOnly allowed when the schedule is in `pending`, `ready`, or `paused` status.\n\n**targetId shorthand**: When providing `steps` or `endActions`, you may omit `targetId`\n(or pass `\"t1\"`) in each action. If the schedule has exactly one active target, the server\nwill resolve it automatically. For schedules with multiple targets, provide the explicit\ntarget UUID from `targets[].id`.\n"
+        },
+        {
+          "info": {
+            "name": "Delete a single rampSchedule",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.growthbook.io/api/v1/ramp-schedules/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Permanently deletes a ramp schedule. This does not undo any rule patches that\nwere already applied by completed steps.\n"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

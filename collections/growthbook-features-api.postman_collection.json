@@ -1,0 +1,1018 @@
+{
+  "item": [
+    {
+      "id": "961ecc83-cbc4-4403-8bbe-ea5d5f50d6e0",
+      "name": "features",
+      "description": {
+        "content": "Control your feature flags programatically.\n\n**These are v1 endpoints.** New integrations should use the v2 Feature Flags endpoints, which expose a unified per-rule environment scope instead of per-environment rule arrays.",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "f7e7fb2f-1b24-4223-938b-e9def6c37286",
+          "name": "Get all features",
+          "request": {
+            "name": "Get all features",
+            "description": {
+              "content": "**Deprecated.** Use [GET /v2/features](#operation/listFeaturesV2) instead.\n\nReturns features with pagination. The skipPagination query parameter is\nhonored only when API_ALLOW_SKIP_PAGINATION is set (self-hosted deployments).\n",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "features"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "10",
+                  "description": "The number of items to return"
+                },
+                {
+                  "disabled": false,
+                  "key": "offset",
+                  "value": "0",
+                  "description": "How many items to skip (use in conjunction with limit for pagination)"
+                },
+                {
+                  "disabled": false,
+                  "key": "projectId",
+                  "value": "<string>",
+                  "description": "Filter by project id"
+                },
+                {
+                  "disabled": false,
+                  "key": "clientKey",
+                  "value": "<string>",
+                  "description": "Filter by a SDK connection's client key"
+                },
+                {
+                  "disabled": false,
+                  "key": "skipPagination",
+                  "value": "<string>",
+                  "description": "If true, return all matching items and ignore limit/offset.\nSelf-hosted only. Has no effect unless API_ALLOW_SKIP_PAGINATION is set to true or 1."
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "21a97c80-79fa-4869-9f92-667e4c3830fb",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "features"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "10"
+                    },
+                    {
+                      "key": "offset",
+                      "value": "0"
+                    },
+                    {
+                      "key": "projectId",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "clientKey",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "skipPagination",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"count\": 3735,\n  \"features\": [\n    {\n      \"id\": \"string\",\n      \"dateCreated\": \"1949-07-03T05:54:00.267Z\",\n      \"dateUpdated\": \"1950-08-18T17:45:53.108Z\",\n      \"archived\": true,\n      \"description\": \"string\",\n      \"owner\": \"string\",\n      \"project\": \"string\",\n      \"valueType\": \"json\",\n      \"defaultValue\": \"string\",\n      \"tags\": [\n        \"string\",\n        \"string\"\n      ],\n      \"environments\": {\n        \"key_0\": {\n          \"enabled\": false,\n          \"defaultValue\": \"string\",\n          \"rules\": [\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            },\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            }\n          ],\n          \"definition\": \"string\",\n          \"draft\": {\n            \"enabled\": false,\n            \"defaultValue\": \"string\",\n            \"rules\": [\n              {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              },\n              {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            ],\n            \"definition\": \"string\"\n          }\n        },\n        \"key_1\": {\n          \"enabled\": true,\n          \"defaultValue\": \"string\",\n          \"rules\": [\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            },\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            }\n          ],\n          \"definition\": \"string\",\n          \"draft\": {\n            \"enabled\": true,\n            \"defaultValue\": \"string\",\n            \"rules\": [\n              {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              },\n              {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            ],\n            \"definition\": \"string\"\n          }\n        },\n        \"key_2\": {\n          \"enabled\": false,\n          \"defaultValue\": \"string\",\n          \"rules\": [\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            },\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            }\n          ],\n          \"definition\": \"string\",\n          \"draft\": {\n            \"enabled\": false,\n            \"defaultValue\": \"string\",\n            \"rules\": [\n              {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              },\n              {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            ],\n            \"definition\": \"string\"\n          }\n        }\n      },\n      \"revision\": {\n        \"version\": 4141,\n        \"comment\": \"string\",\n        \"date\": \"2016-08-01T13:05:11.052Z\",\n        \"createdBy\": \"string\",\n        \"publishedBy\": \"string\"\n      },\n      \"ownerEmail\": \"string\",\n      \"prerequisites\": [\n        \"string\",\n        \"string\"\n      ],\n      \"customFields\": {\n        \"key_0\": {},\n        \"key_1\": {}\n      },\n      \"holdout\": {\n        \"id\": \"string\",\n        \"value\": \"string\"\n      }\n    },\n    {\n      \"id\": \"string\",\n      \"dateCreated\": \"1968-10-10T18:05:03.209Z\",\n      \"dateUpdated\": \"1953-02-28T04:48:55.941Z\",\n      \"archived\": true,\n      \"description\": \"string\",\n      \"owner\": \"string\",\n      \"project\": \"string\",\n      \"valueType\": \"json\",\n      \"defaultValue\": \"string\",\n      \"tags\": [\n        \"string\",\n        \"string\"\n      ],\n      \"environments\": {\n        \"key_0\": {\n          \"enabled\": false,\n          \"defaultValue\": \"string\",\n          \"rules\": [\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            },\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            }\n          ],\n          \"definition\": \"string\",\n          \"draft\": {\n            \"enabled\": true,\n            \"defaultValue\": \"string\",\n            \"rules\": [\n              {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              },\n              {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            ],\n            \"definition\": \"string\"\n          }\n        },\n        \"key_1\": {\n          \"enabled\": true,\n          \"defaultValue\": \"string\",\n          \"rules\": [\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            },\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            }\n          ],\n          \"definition\": \"string\",\n          \"draft\": {\n            \"enabled\": false,\n            \"defaultValue\": \"string\",\n            \"rules\": [\n              {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              },\n              {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            ],\n            \"definition\": \"string\"\n          }\n        },\n        \"key_2\": {\n          \"enabled\": false,\n          \"defaultValue\": \"string\",\n          \"rules\": [\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            },\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            }\n          ],\n          \"definition\": \"string\",\n          \"draft\": {\n            \"enabled\": false,\n            \"defaultValue\": \"string\",\n            \"rules\": [\n              {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              },\n              {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            ],\n            \"definition\": \"string\"\n          }\n        }\n      },\n      \"revision\": {\n        \"version\": 9541,\n        \"comment\": \"string\",\n        \"date\": \"1974-05-26T13:36:00.341Z\",\n        \"createdBy\": \"string\",\n        \"publishedBy\": \"string\"\n      },\n      \"ownerEmail\": \"string\",\n      \"prerequisites\": [\n        \"string\",\n        \"string\"\n      ],\n      \"customFields\": {\n        \"key_0\": {}\n      },\n      \"holdout\": {\n        \"id\": \"string\",\n        \"value\": \"string\"\n      }\n    }\n  ],\n  \"hasMore\": false,\n  \"limit\": 5541,\n  \"nextOffset\": 6060,\n  \"offset\": 3980,\n  \"total\": 4472\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "44cad82c-5211-49b9-9a9f-f47caa3e1ffa",
+          "name": "Create a single feature",
+          "request": {
+            "name": "Create a single feature",
+            "description": {
+              "content": "**Deprecated.** Use [POST /v2/features](#operation/postFeatureV2) instead.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "features"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"<string>\",\n  \"owner\": \"<string>\",\n  \"valueType\": \"<string>\",\n  \"defaultValue\": \"<string>\",\n  \"archived\": \"<boolean>\",\n  \"description\": \"<string>\",\n  \"project\": \"<string>\",\n  \"tags\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"environments\": {\n    \"key_0\": {\n      \"enabled\": \"<boolean>\",\n      \"rules\": [\n        {\n          \"type\": \"<string>\",\n          \"value\": \"<string>\",\n          \"description\": \"<string>\",\n          \"condition\": \"<string>\",\n          \"savedGroupTargeting\": [\n            {\n              \"matchType\": \"<string>\",\n              \"savedGroups\": [\n                \"<string>\",\n                \"<string>\"\n              ]\n            },\n            {\n              \"matchType\": \"<string>\",\n              \"savedGroups\": [\n                \"<string>\",\n                \"<string>\"\n              ]\n            }\n          ],\n          \"prerequisites\": [\n            {\n              \"id\": \"<string>\",\n              \"condition\": \"<string>\"\n            },\n            {\n              \"id\": \"<string>\",\n              \"condition\": \"<string>\"\n            }\n          ],\n          \"scheduleRules\": [\n            {\n              \"enabled\": \"<boolean>\",\n              \"timestamp\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            },\n            {\n              \"enabled\": \"<boolean>\",\n              \"timestamp\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            }\n          ],\n          \"id\": \"<string>\",\n          \"enabled\": \"<boolean>\"\n        },\n        {\n          \"type\": \"<string>\",\n          \"value\": \"<string>\",\n          \"description\": \"<string>\",\n          \"condition\": \"<string>\",\n          \"savedGroupTargeting\": [\n            {\n              \"matchType\": \"<string>\",\n              \"savedGroups\": [\n                \"<string>\",\n                \"<string>\"\n              ]\n            },\n            {\n              \"matchType\": \"<string>\",\n              \"savedGroups\": [\n                \"<string>\",\n                \"<string>\"\n              ]\n            }\n          ],\n          \"prerequisites\": [\n            {\n              \"id\": \"<string>\",\n              \"condition\": \"<string>\"\n            },\n            {\n              \"id\": \"<string>\",\n              \"condition\": \"<string>\"\n            }\n          ],\n          \"scheduleRules\": [\n            {\n              \"enabled\": \"<boolean>\",\n              \"timestamp\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            },\n            {\n              \"enabled\": \"<boolean>\",\n              \"timestamp\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            }\n          ],\n          \"id\": \"<string>\",\n          \"enabled\": \"<boolean>\"\n        }\n      ],\n      \"definition\": \"<string>\",\n      \"draft\": {\n        \"rules\": [\n          {\n            \"type\": \"<string>\",\n            \"value\": \"<string>\",\n            \"description\": \"<string>\",\n            \"condition\": \"<string>\",\n            \"savedGroupTargeting\": [\n              {\n                \"matchType\": \"<string>\",\n                \"savedGroups\": [\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  },\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  }\n                ]\n              },\n              {\n                \"matchType\": \"<string>\",\n                \"savedGroups\": [\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  },\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  }\n                ]\n              }\n            ],\n            \"prerequisites\": [\n              {\n                \"id\": \"<string>\",\n                \"condition\": \"<string>\"\n              },\n              {\n                \"id\": \"<string>\",\n                \"condition\": \"<string>\"\n              }\n            ],\n            \"scheduleRules\": [\n              {\n                \"enabled\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                },\n                \"timestamp\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                }\n              },\n              {\n                \"enabled\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                },\n                \"timestamp\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                }\n              }\n            ],\n            \"id\": \"<string>\",\n            \"enabled\": \"<boolean>\"\n          },\n          {\n            \"type\": \"<string>\",\n            \"value\": \"<string>\",\n            \"description\": \"<string>\",\n            \"condition\": \"<string>\",\n            \"savedGroupTargeting\": [\n              {\n                \"matchType\": \"<string>\",\n                \"savedGroups\": [\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  },\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  }\n                ]\n              },\n              {\n                \"matchType\": \"<string>\",\n                \"savedGroups\": [\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  },\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  }\n                ]\n              }\n            ],\n            \"prerequisites\": [\n              {\n                \"id\": \"<string>\",\n                \"condition\": \"<string>\"\n              },\n              {\n                \"id\": \"<string>\",\n                \"condition\": \"<string>\"\n              }\n            ],\n            \"scheduleRules\": [\n              {\n                \"enabled\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                },\n                \"timestamp\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                }\n              },\n              {\n                \"enabled\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                },\n                \"timestamp\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                }\n              }\n            ],\n            \"id\": \"<string>\",\n            \"enabled\": \"<boolean>\"\n          }\n        ],\n        \"enabled\": \"<boolean>\",\n        \"definition\": \"<string>\"\n      }\n    }\n  },\n  \"prerequisites\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"jsonSchema\": \"<string>\",\n  \"customFields\": {\n    \"key_0\": \"<string>\",\n    \"key_1\": \"<string>\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "dc8f9b95-34f1-447d-b1b9-61de88610f95",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "features"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"id\": \"<string>\",\n  \"owner\": \"<string>\",\n  \"valueType\": \"<string>\",\n  \"defaultValue\": \"<string>\",\n  \"archived\": \"<boolean>\",\n  \"description\": \"<string>\",\n  \"project\": \"<string>\",\n  \"tags\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"environments\": {\n    \"key_0\": {\n      \"enabled\": \"<boolean>\",\n      \"rules\": [\n        {\n          \"type\": \"<string>\",\n          \"value\": \"<string>\",\n          \"description\": \"<string>\",\n          \"condition\": \"<string>\",\n          \"savedGroupTargeting\": [\n            {\n              \"matchType\": \"<string>\",\n              \"savedGroups\": [\n                \"<string>\",\n                \"<string>\"\n              ]\n            },\n            {\n              \"matchType\": \"<string>\",\n              \"savedGroups\": [\n                \"<string>\",\n                \"<string>\"\n              ]\n            }\n          ],\n          \"prerequisites\": [\n            {\n              \"id\": \"<string>\",\n              \"condition\": \"<string>\"\n            },\n            {\n              \"id\": \"<string>\",\n              \"condition\": \"<string>\"\n            }\n          ],\n          \"scheduleRules\": [\n            {\n              \"enabled\": false,\n              \"timestamp\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            },\n            {\n              \"enabled\": true,\n              \"timestamp\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            }\n          ],\n          \"id\": \"<string>\",\n          \"enabled\": \"<boolean>\"\n        },\n        {\n          \"type\": \"<string>\",\n          \"value\": \"<string>\",\n          \"description\": \"<string>\",\n          \"condition\": \"<string>\",\n          \"savedGroupTargeting\": [\n            {\n              \"matchType\": \"<string>\",\n              \"savedGroups\": [\n                \"<string>\",\n                \"<string>\"\n              ]\n            },\n            {\n              \"matchType\": \"<string>\",\n              \"savedGroups\": [\n                \"<string>\",\n                \"<string>\"\n              ]\n            }\n          ],\n          \"prerequisites\": [\n            {\n              \"id\": \"<string>\",\n              \"condition\": \"<string>\"\n            },\n            {\n              \"id\": \"<string>\",\n              \"condition\": \"<string>\"\n            }\n          ],\n          \"scheduleRules\": [\n            {\n              \"enabled\": true,\n              \"timestamp\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            },\n            {\n              \"enabled\": false,\n              \"timestamp\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            }\n          ],\n          \"id\": \"<string>\",\n          \"enabled\": \"<boolean>\"\n        }\n      ],\n      \"definition\": \"<string>\",\n      \"draft\": {\n        \"rules\": [\n          {\n            \"type\": \"<string>\",\n            \"value\": \"<string>\",\n            \"description\": \"<string>\",\n            \"condition\": \"<string>\",\n            \"savedGroupTargeting\": [\n              {\n                \"matchType\": \"<string>\",\n                \"savedGroups\": [\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  },\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  }\n                ]\n              },\n              {\n                \"matchType\": \"<string>\",\n                \"savedGroups\": [\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  },\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  }\n                ]\n              }\n            ],\n            \"prerequisites\": [\n              {\n                \"id\": \"<string>\",\n                \"condition\": \"<string>\"\n              },\n              {\n                \"id\": \"<string>\",\n                \"condition\": \"<string>\"\n              }\n            ],\n            \"scheduleRules\": [\n              {\n                \"enabled\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                },\n                \"timestamp\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                }\n              },\n              {\n                \"enabled\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                },\n                \"timestamp\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                }\n              }\n            ],\n            \"id\": \"<string>\",\n            \"enabled\": \"<boolean>\"\n          },\n          {\n            \"type\": \"<string>\",\n            \"value\": \"<string>\",\n            \"description\": \"<string>\",\n            \"condition\": \"<string>\",\n            \"savedGroupTargeting\": [\n              {\n                \"matchType\": \"<string>\",\n                \"savedGroups\": [\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  },\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  }\n                ]\n              },\n              {\n                \"matchType\": \"<string>\",\n                \"savedGroups\": [\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  },\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  }\n                ]\n              }\n            ],\n            \"prerequisites\": [\n              {\n                \"id\": \"<string>\",\n                \"condition\": \"<string>\"\n              },\n              {\n                \"id\": \"<string>\",\n                \"condition\": \"<string>\"\n              }\n            ],\n            \"scheduleRules\": [\n              {\n                \"enabled\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                },\n                \"timestamp\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                }\n              },\n              {\n                \"enabled\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                },\n                \"timestamp\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                }\n              }\n            ],\n            \"id\": \"<string>\",\n            \"enabled\": \"<boolean>\"\n          }\n        ],\n        \"enabled\": \"<boolean>\",\n        \"definition\": \"<string>\"\n      }\n    }\n  },\n  \"prerequisites\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"jsonSchema\": \"<string>\",\n  \"customFields\": {\n    \"key_0\": \"<string>\",\n    \"key_1\": \"<string>\",\n    \"key_2\": \"<string>\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"feature\": {\n    \"id\": \"string\",\n    \"dateCreated\": \"2003-03-26T08:36:06.337Z\",\n    \"dateUpdated\": \"1972-01-29T18:20:45.776Z\",\n    \"archived\": false,\n    \"description\": \"string\",\n    \"owner\": \"string\",\n    \"project\": \"string\",\n    \"valueType\": \"number\",\n    \"defaultValue\": \"string\",\n    \"tags\": [\n      \"string\",\n      \"string\"\n    ],\n    \"environments\": {\n      \"key_0\": {\n        \"enabled\": false,\n        \"defaultValue\": \"string\",\n        \"rules\": [\n          {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          }\n        ],\n        \"definition\": \"string\",\n        \"draft\": {\n          \"enabled\": false,\n          \"defaultValue\": \"string\",\n          \"rules\": [\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            },\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            }\n          ],\n          \"definition\": \"string\"\n        }\n      }\n    },\n    \"revision\": {\n      \"version\": 7875,\n      \"comment\": \"string\",\n      \"date\": \"2020-05-15T22:53:08.137Z\",\n      \"createdBy\": \"string\",\n      \"publishedBy\": \"string\"\n    },\n    \"ownerEmail\": \"string\",\n    \"prerequisites\": [\n      \"string\",\n      \"string\"\n    ],\n    \"customFields\": {\n      \"key_0\": {}\n    },\n    \"holdout\": {\n      \"id\": \"string\",\n      \"value\": \"string\"\n    }\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "973b3f29-aad1-475c-bdb0-6f18b966973b",
+          "name": "Get a single feature",
+          "request": {
+            "name": "Get a single feature",
+            "description": {
+              "content": "**Deprecated.** Use [GET /v2/features/:id](#operation/getFeatureV2) instead.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "features",
+                ":id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "withRevisions",
+                  "value": "<string>",
+                  "description": "Also return feature revisions (all, draft, or published statuses)"
+                }
+              ],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "id",
+                  "description": "(Required) The id of the requested resource"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "1da169aa-79ba-4980-ad18-cabd33e60180",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "features",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "withRevisions",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) The id of the requested resource"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"feature\": {\n    \"id\": \"string\",\n    \"dateCreated\": \"1982-07-26T05:43:54.497Z\",\n    \"dateUpdated\": \"2021-10-22T03:38:34.461Z\",\n    \"archived\": false,\n    \"description\": \"string\",\n    \"owner\": \"string\",\n    \"project\": \"string\",\n    \"valueType\": \"json\",\n    \"defaultValue\": \"string\",\n    \"tags\": [\n      \"string\",\n      \"string\"\n    ],\n    \"environments\": {\n      \"key_0\": {\n        \"enabled\": true,\n        \"defaultValue\": \"string\",\n        \"rules\": [\n          {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          }\n        ],\n        \"definition\": \"string\",\n        \"draft\": {\n          \"enabled\": false,\n          \"defaultValue\": \"string\",\n          \"rules\": [\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            },\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            }\n          ],\n          \"definition\": \"string\"\n        }\n      }\n    },\n    \"revision\": {\n      \"version\": 611,\n      \"comment\": \"string\",\n      \"date\": \"1955-02-28T13:25:03.888Z\",\n      \"createdBy\": \"string\",\n      \"publishedBy\": \"string\"\n    },\n    \"ownerEmail\": \"string\",\n    \"prerequisites\": [\n      \"string\",\n      \"string\"\n    ],\n    \"customFields\": {\n      \"key_0\": {},\n      \"key_1\": {},\n      \"key_2\": {},\n      \"key_3\": {}\n    },\n    \"holdout\": {\n      \"id\": \"string\",\n      \"value\": \"string\"\n    },\n    \"revisions\": [\n      {\n        \"featureId\": \"string\",\n        \"baseVersion\": 533,\n        \"version\": 8985,\n        \"comment\": \"string\",\n        \"date\": \"1951-03-02T09:54:57.042Z\",\n        \"status\": \"string\",\n        \"rules\": {\n          \"key_0\": [\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            },\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            }\n          ],\n          \"key_1\": [\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            },\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            }\n          ],\n          \"key_2\": [\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            },\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            }\n          ],\n          \"key_3\": [\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            },\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            }\n          ]\n        },\n        \"createdBy\": \"string\",\n        \"publishedBy\": \"string\",\n        \"defaultValue\": \"string\",\n        \"definitions\": {\n          \"type\": \"object\",\n          \"propertyNames\": {\n            \"type\": \"string\"\n          },\n          \"additionalProperties\": {\n            \"description\": \"A JSON stringified [FeatureDefinition](#tag/FeatureDefinition_model)\",\n            \"type\": \"string\"\n          }\n        },\n        \"environmentsEnabled\": {\n          \"key_0\": false,\n          \"key_1\": true\n        },\n        \"envPrerequisites\": {\n          \"key_0\": [\n            {\n              \"id\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              },\n              \"condition\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            },\n            {\n              \"id\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              },\n              \"condition\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            }\n          ],\n          \"key_1\": [\n            {\n              \"id\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              },\n              \"condition\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            },\n            {\n              \"id\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              },\n              \"condition\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            }\n          ]\n        },\n        \"prerequisites\": [\n          {\n            \"id\": \"string\",\n            \"condition\": \"string\"\n          },\n          {\n            \"id\": \"string\",\n            \"condition\": \"string\"\n          }\n        ],\n        \"metadata\": {\n          \"description\": \"string\",\n          \"owner\": \"string\",\n          \"project\": \"string\",\n          \"tags\": [\n            \"string\",\n            \"string\"\n          ],\n          \"neverStale\": true,\n          \"valueType\": \"string\",\n          \"jsonSchema\": {\n            \"schemaType\": \"simple\",\n            \"schema\": \"string\",\n            \"simple\": {\n              \"key_0\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              },\n              \"key_1\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            },\n            \"date\": \"2023-08-23T02:43:00.683Z\",\n            \"enabled\": true\n          },\n          \"customFields\": {\n            \"key_0\": {},\n            \"key_1\": {},\n            \"key_2\": {},\n            \"key_3\": {}\n          }\n        }\n      },\n      {\n        \"featureId\": \"string\",\n        \"baseVersion\": 6141,\n        \"version\": 2910,\n        \"comment\": \"string\",\n        \"date\": \"2014-05-12T08:58:54.038Z\",\n        \"status\": \"string\",\n        \"rules\": {\n          \"key_0\": [\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            },\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            }\n          ],\n          \"key_1\": [\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            },\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            }\n          ],\n          \"key_2\": [\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            },\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            }\n          ]\n        },\n        \"createdBy\": \"string\",\n        \"publishedBy\": \"string\",\n        \"defaultValue\": \"string\",\n        \"definitions\": {\n          \"type\": \"object\",\n          \"propertyNames\": {\n            \"type\": \"string\"\n          },\n          \"additionalProperties\": {\n            \"description\": \"A JSON stringified [FeatureDefinition](#tag/FeatureDefinition_model)\",\n            \"type\": \"string\"\n          }\n        },\n        \"environmentsEnabled\": {\n          \"key_0\": true\n        },\n        \"envPrerequisites\": {\n          \"key_0\": [\n            {\n              \"id\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              },\n              \"condition\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            },\n            {\n              \"id\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              },\n              \"condition\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            }\n          ]\n        },\n        \"prerequisites\": [\n          {\n            \"id\": \"string\",\n            \"condition\": \"string\"\n          },\n          {\n            \"id\": \"string\",\n            \"condition\": \"string\"\n          }\n        ],\n        \"metadata\": {\n          \"description\": \"string\",\n          \"owner\": \"string\",\n          \"project\": \"string\",\n          \"tags\": [\n            \"string\",\n            \"string\"\n          ],\n          \"neverStale\": true,\n          \"valueType\": \"string\",\n          \"jsonSchema\": {\n            \"schemaType\": \"simple\",\n            \"schema\": \"string\",\n            \"simple\": {\n              \"key_0\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              },\n              \"key_1\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            },\n            \"date\": \"1957-08-26T05:05:38.959Z\",\n            \"enabled\": true\n          },\n          \"customFields\": {\n            \"key_0\": {},\n            \"key_1\": {}\n          }\n        }\n      }\n    ]\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "591256fb-b7b3-4fd3-a497-a8e66c7443e4",
+          "name": "Partially update a feature",
+          "request": {
+            "name": "Partially update a feature",
+            "description": {
+              "content": "**Deprecated.** Use [POST /v2/features/:id](#operation/updateFeatureV2) instead.\n\nUpdates any combination of a feature's metadata (description, owner, tags, project), default value, environment settings (rules, kill switches, enabled state), prerequisites, holdout assignment, or JSON schema validation. All provided fields are merged into the existing feature and the result is immediately published as a new revision.\n\nReturns 403 if the API key lacks permission or if approval rules are enabled for an affected environment and the org setting \"REST API always bypasses approval requirements\" is off.\n",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "features",
+                ":id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "id",
+                  "description": "(Required) The id of the requested resource"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"<string>\",\n  \"archived\": \"<boolean>\",\n  \"project\": \"<string>\",\n  \"owner\": \"<string>\",\n  \"defaultValue\": \"<string>\",\n  \"tags\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"environments\": {\n    \"key_0\": {\n      \"enabled\": \"<boolean>\",\n      \"rules\": [\n        {\n          \"type\": \"<string>\",\n          \"value\": \"<string>\",\n          \"description\": \"<string>\",\n          \"condition\": \"<string>\",\n          \"savedGroupTargeting\": [\n            {\n              \"matchType\": \"<string>\",\n              \"savedGroups\": [\n                \"<string>\",\n                \"<string>\"\n              ]\n            },\n            {\n              \"matchType\": \"<string>\",\n              \"savedGroups\": [\n                \"<string>\",\n                \"<string>\"\n              ]\n            }\n          ],\n          \"prerequisites\": [\n            {\n              \"id\": \"<string>\",\n              \"condition\": \"<string>\"\n            },\n            {\n              \"id\": \"<string>\",\n              \"condition\": \"<string>\"\n            }\n          ],\n          \"scheduleRules\": [\n            {\n              \"enabled\": \"<boolean>\",\n              \"timestamp\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            },\n            {\n              \"enabled\": \"<boolean>\",\n              \"timestamp\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            }\n          ],\n          \"id\": \"<string>\",\n          \"enabled\": \"<boolean>\"\n        },\n        {\n          \"type\": \"<string>\",\n          \"value\": \"<string>\",\n          \"description\": \"<string>\",\n          \"condition\": \"<string>\",\n          \"savedGroupTargeting\": [\n            {\n              \"matchType\": \"<string>\",\n              \"savedGroups\": [\n                \"<string>\",\n                \"<string>\"\n              ]\n            },\n            {\n              \"matchType\": \"<string>\",\n              \"savedGroups\": [\n                \"<string>\",\n                \"<string>\"\n              ]\n            }\n          ],\n          \"prerequisites\": [\n            {\n              \"id\": \"<string>\",\n              \"condition\": \"<string>\"\n            },\n            {\n              \"id\": \"<string>\",\n              \"condition\": \"<string>\"\n            }\n          ],\n          \"scheduleRules\": [\n            {\n              \"enabled\": \"<boolean>\",\n              \"timestamp\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            },\n            {\n              \"enabled\": \"<boolean>\",\n              \"timestamp\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            }\n          ],\n          \"id\": \"<string>\",\n          \"enabled\": \"<boolean>\"\n        }\n      ],\n      \"definition\": \"<string>\",\n      \"draft\": {\n        \"rules\": [\n          {\n            \"type\": \"<string>\",\n            \"value\": \"<string>\",\n            \"description\": \"<string>\",\n            \"condition\": \"<string>\",\n            \"savedGroupTargeting\": [\n              {\n                \"matchType\": \"<string>\",\n                \"savedGroups\": [\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  },\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  }\n                ]\n              },\n              {\n                \"matchType\": \"<string>\",\n                \"savedGroups\": [\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  },\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  }\n                ]\n              }\n            ],\n            \"prerequisites\": [\n              {\n                \"id\": \"<string>\",\n                \"condition\": \"<string>\"\n              },\n              {\n                \"id\": \"<string>\",\n                \"condition\": \"<string>\"\n              }\n            ],\n            \"scheduleRules\": [\n              {\n                \"enabled\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                },\n                \"timestamp\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                }\n              },\n              {\n                \"enabled\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                },\n                \"timestamp\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                }\n              }\n            ],\n            \"id\": \"<string>\",\n            \"enabled\": \"<boolean>\"\n          },\n          {\n            \"type\": \"<string>\",\n            \"value\": \"<string>\",\n            \"description\": \"<string>\",\n            \"condition\": \"<string>\",\n            \"savedGroupTargeting\": [\n              {\n                \"matchType\": \"<string>\",\n                \"savedGroups\": [\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  },\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  }\n                ]\n              },\n              {\n                \"matchType\": \"<string>\",\n                \"savedGroups\": [\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  },\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  }\n                ]\n              }\n            ],\n            \"prerequisites\": [\n              {\n                \"id\": \"<string>\",\n                \"condition\": \"<string>\"\n              },\n              {\n                \"id\": \"<string>\",\n                \"condition\": \"<string>\"\n              }\n            ],\n            \"scheduleRules\": [\n              {\n                \"enabled\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                },\n                \"timestamp\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                }\n              },\n              {\n                \"enabled\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                },\n                \"timestamp\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                }\n              }\n            ],\n            \"id\": \"<string>\",\n            \"enabled\": \"<boolean>\"\n          }\n        ],\n        \"enabled\": \"<boolean>\",\n        \"definition\": \"<string>\"\n      }\n    },\n    \"key_1\": {\n      \"enabled\": \"<boolean>\",\n      \"rules\": [\n        {\n          \"type\": \"<string>\",\n          \"value\": \"<string>\",\n          \"description\": \"<string>\",\n          \"condition\": \"<string>\",\n          \"savedGroupTargeting\": [\n            {\n              \"matchType\": \"<string>\",\n              \"savedGroups\": [\n                \"<string>\",\n                \"<string>\"\n              ]\n            },\n            {\n              \"matchType\": \"<string>\",\n              \"savedGroups\": [\n                \"<string>\",\n                \"<string>\"\n              ]\n            }\n          ],\n          \"prerequisites\": [\n            {\n              \"id\": \"<string>\",\n              \"condition\": \"<string>\"\n            },\n            {\n              \"id\": \"<string>\",\n              \"condition\": \"<string>\"\n            }\n          ],\n          \"scheduleRules\": [\n            {\n              \"enabled\": \"<boolean>\",\n              \"timestamp\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            },\n            {\n              \"enabled\": \"<boolean>\",\n              \"timestamp\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            }\n          ],\n          \"id\": \"<string>\",\n          \"enabled\": \"<boolean>\"\n        },\n        {\n          \"type\": \"<string>\",\n          \"value\": \"<string>\",\n          \"description\": \"<string>\",\n          \"condition\": \"<string>\",\n          \"savedGroupTargeting\": [\n            {\n              \"matchType\": \"<string>\",\n              \"savedGroups\": [\n                \"<string>\",\n                \"<string>\"\n              ]\n            },\n            {\n              \"matchType\": \"<string>\",\n              \"savedGroups\": [\n                \"<string>\",\n                \"<string>\"\n              ]\n            }\n          ],\n          \"prerequisites\": [\n            {\n              \"id\": \"<string>\",\n              \"condition\": \"<string>\"\n            },\n            {\n              \"id\": \"<string>\",\n              \"condition\": \"<string>\"\n            }\n          ],\n          \"scheduleRules\": [\n            {\n              \"enabled\": \"<boolean>\",\n              \"timestamp\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            },\n            {\n              \"enabled\": \"<boolean>\",\n              \"timestamp\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            }\n          ],\n          \"id\": \"<string>\",\n          \"enabled\": \"<boolean>\"\n        }\n      ],\n      \"definition\": \"<string>\",\n      \"draft\": {\n        \"rules\": [\n          {\n            \"type\": \"<string>\",\n            \"value\": \"<string>\",\n            \"description\": \"<string>\",\n            \"condition\": \"<string>\",\n            \"savedGroupTargeting\": [\n              {\n                \"matchType\": \"<string>\",\n                \"savedGroups\": [\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  },\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  }\n                ]\n              },\n              {\n                \"matchType\": \"<string>\",\n                \"savedGroups\": [\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  },\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  }\n                ]\n              }\n            ],\n            \"prerequisites\": [\n              {\n                \"id\": \"<string>\",\n                \"condition\": \"<string>\"\n              },\n              {\n                \"id\": \"<string>\",\n                \"condition\": \"<string>\"\n              }\n            ],\n            \"scheduleRules\": [\n              {\n                \"enabled\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                },\n                \"timestamp\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                }\n              },\n              {\n                \"enabled\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                },\n                \"timestamp\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                }\n              }\n            ],\n            \"id\": \"<string>\",\n            \"enabled\": \"<boolean>\"\n          },\n          {\n            \"type\": \"<string>\",\n            \"value\": \"<string>\",\n            \"description\": \"<string>\",\n            \"condition\": \"<string>\",\n            \"savedGroupTargeting\": [\n              {\n                \"matchType\": \"<string>\",\n                \"savedGroups\": [\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  },\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  }\n                ]\n              },\n              {\n                \"matchType\": \"<string>\",\n                \"savedGroups\": [\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  },\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  }\n                ]\n              }\n            ],\n            \"prerequisites\": [\n              {\n                \"id\": \"<string>\",\n                \"condition\": \"<string>\"\n              },\n              {\n                \"id\": \"<string>\",\n                \"condition\": \"<string>\"\n              }\n            ],\n            \"scheduleRules\": [\n              {\n                \"enabled\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                },\n                \"timestamp\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                }\n              },\n              {\n                \"enabled\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                },\n                \"timestamp\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                }\n              }\n            ],\n            \"id\": \"<string>\",\n            \"enabled\": \"<boolean>\"\n          }\n        ],\n        \"enabled\": \"<boolean>\",\n        \"definition\": \"<string>\"\n      }\n    },\n    \"key_2\": {\n      \"enabled\": \"<boolean>\",\n      \"rules\": [\n        {\n          \"type\": \"<string>\",\n          \"value\": \"<string>\",\n          \"description\": \"<string>\",\n          \"condition\": \"<string>\",\n          \"savedGroupTargeting\": [\n            {\n              \"matchType\": \"<string>\",\n              \"savedGroups\": [\n                \"<string>\",\n                \"<string>\"\n              ]\n            },\n            {\n              \"matchType\": \"<string>\",\n              \"savedGroups\": [\n                \"<string>\",\n                \"<string>\"\n              ]\n            }\n          ],\n          \"prerequisites\": [\n            {\n              \"id\": \"<string>\",\n              \"condition\": \"<string>\"\n            },\n            {\n              \"id\": \"<string>\",\n              \"condition\": \"<string>\"\n            }\n          ],\n          \"scheduleRules\": [\n            {\n              \"enabled\": \"<boolean>\",\n              \"timestamp\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            },\n            {\n              \"enabled\": \"<boolean>\",\n              \"timestamp\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            }\n          ],\n          \"id\": \"<string>\",\n          \"enabled\": \"<boolean>\"\n        },\n        {\n          \"type\": \"<string>\",\n          \"value\": \"<string>\",\n          \"description\": \"<string>\",\n          \"condition\": \"<string>\",\n          \"savedGroupTargeting\": [\n            {\n              \"matchType\": \"<string>\",\n              \"savedGroups\": [\n                \"<string>\",\n                \"<string>\"\n              ]\n            },\n            {\n              \"matchType\": \"<string>\",\n              \"savedGroups\": [\n                \"<string>\",\n                \"<string>\"\n              ]\n            }\n          ],\n          \"prerequisites\": [\n            {\n              \"id\": \"<string>\",\n              \"condition\": \"<string>\"\n            },\n            {\n              \"id\": \"<string>\",\n              \"condition\": \"<string>\"\n            }\n          ],\n          \"scheduleRules\": [\n            {\n              \"enabled\": \"<boolean>\",\n              \"timestamp\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            },\n            {\n              \"enabled\": \"<boolean>\",\n              \"timestamp\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            }\n          ],\n          \"id\": \"<string>\",\n          \"enabled\": \"<boolean>\"\n        }\n      ],\n      \"definition\": \"<string>\",\n      \"draft\": {\n        \"rules\": [\n          {\n            \"type\": \"<string>\",\n            \"value\": \"<string>\",\n            \"description\": \"<string>\",\n            \"condition\": \"<string>\",\n            \"savedGroupTargeting\": [\n              {\n                \"matchType\": \"<string>\",\n                \"savedGroups\": [\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  },\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  }\n                ]\n              },\n              {\n                \"matchType\": \"<string>\",\n                \"savedGroups\": [\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  },\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  }\n                ]\n              }\n            ],\n            \"prerequisites\": [\n              {\n                \"id\": \"<string>\",\n                \"condition\": \"<string>\"\n              },\n              {\n                \"id\": \"<string>\",\n                \"condition\": \"<string>\"\n              }\n            ],\n            \"scheduleRules\": [\n              {\n                \"enabled\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                },\n                \"timestamp\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                }\n              },\n              {\n                \"enabled\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                },\n                \"timestamp\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                }\n              }\n            ],\n            \"id\": \"<string>\",\n            \"enabled\": \"<boolean>\"\n          },\n          {\n            \"type\": \"<string>\",\n            \"value\": \"<string>\",\n            \"description\": \"<string>\",\n            \"condition\": \"<string>\",\n            \"savedGroupTargeting\": [\n              {\n                \"matchType\": \"<string>\",\n                \"savedGroups\": [\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  },\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  }\n                ]\n              },\n              {\n                \"matchType\": \"<string>\",\n                \"savedGroups\": [\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  },\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  }\n                ]\n              }\n            ],\n            \"prerequisites\": [\n              {\n                \"id\": \"<string>\",\n                \"condition\": \"<string>\"\n              },\n              {\n                \"id\": \"<string>\",\n                \"condition\": \"<string>\"\n              }\n            ],\n            \"scheduleRules\": [\n              {\n                \"enabled\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                },\n                \"timestamp\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                }\n              },\n              {\n                \"enabled\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                },\n                \"timestamp\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                }\n              }\n            ],\n            \"id\": \"<string>\",\n            \"enabled\": \"<boolean>\"\n          }\n        ],\n        \"enabled\": \"<boolean>\",\n        \"definition\": \"<string>\"\n      }\n    },\n    \"key_3\": {\n      \"enabled\": \"<boolean>\",\n      \"rules\": [\n        {\n          \"type\": \"<string>\",\n          \"value\": \"<string>\",\n          \"description\": \"<string>\",\n          \"condition\": \"<string>\",\n          \"savedGroupTargeting\": [\n            {\n              \"matchType\": \"<string>\",\n              \"savedGroups\": [\n                \"<string>\",\n                \"<string>\"\n              ]\n            },\n            {\n              \"matchType\": \"<string>\",\n              \"savedGroups\": [\n                \"<string>\",\n                \"<string>\"\n              ]\n            }\n          ],\n          \"prerequisites\": [\n            {\n              \"id\": \"<string>\",\n              \"condition\": \"<string>\"\n            },\n            {\n              \"id\": \"<string>\",\n              \"condition\": \"<string>\"\n            }\n          ],\n          \"scheduleRules\": [\n            {\n              \"enabled\": \"<boolean>\",\n              \"timestamp\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            },\n            {\n              \"enabled\": \"<boolean>\",\n              \"timestamp\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            }\n          ],\n          \"id\": \"<string>\",\n          \"enabled\": \"<boolean>\"\n        },\n        {\n          \"type\": \"<string>\",\n          \"value\": \"<string>\",\n          \"description\": \"<string>\",\n          \"condition\": \"<string>\",\n          \"savedGroupTargeting\": [\n            {\n              \"matchType\": \"<string>\",\n              \"savedGroups\": [\n                \"<string>\",\n                \"<string>\"\n              ]\n            },\n            {\n              \"matchType\": \"<string>\",\n              \"savedGroups\": [\n                \"<string>\",\n                \"<string>\"\n              ]\n            }\n          ],\n          \"prerequisites\": [\n            {\n              \"id\": \"<string>\",\n              \"condition\": \"<string>\"\n            },\n            {\n              \"id\": \"<string>\",\n              \"condition\": \"<string>\"\n            }\n          ],\n          \"scheduleRules\": [\n            {\n              \"enabled\": \"<boolean>\",\n              \"timestamp\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            },\n            {\n              \"enabled\": \"<boolean>\",\n              \"timestamp\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            }\n          ],\n          \"id\": \"<string>\",\n          \"enabled\": \"<boolean>\"\n        }\n      ],\n      \"definition\": \"<string>\",\n      \"draft\": {\n        \"rules\": [\n          {\n            \"type\": \"<string>\",\n            \"value\": \"<string>\",\n            \"description\": \"<string>\",\n            \"condition\": \"<string>\",\n            \"savedGroupTargeting\": [\n              {\n                \"matchType\": \"<string>\",\n                \"savedGroups\": [\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  },\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  }\n                ]\n              },\n              {\n                \"matchType\": \"<string>\",\n                \"savedGroups\": [\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  },\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  }\n                ]\n              }\n            ],\n            \"prerequisites\": [\n              {\n                \"id\": \"<string>\",\n                \"condition\": \"<string>\"\n              },\n              {\n                \"id\": \"<string>\",\n                \"condition\": \"<string>\"\n              }\n            ],\n            \"scheduleRules\": [\n              {\n                \"enabled\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                },\n                \"timestamp\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                }\n              },\n              {\n                \"enabled\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                },\n                \"timestamp\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                }\n              }\n            ],\n            \"id\": \"<string>\",\n            \"enabled\": \"<boolean>\"\n          },\n          {\n            \"type\": \"<string>\",\n            \"value\": \"<string>\",\n            \"description\": \"<string>\",\n            \"condition\": \"<string>\",\n            \"savedGroupTargeting\": [\n              {\n                \"matchType\": \"<string>\",\n                \"savedGroups\": [\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  },\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  }\n                ]\n              },\n              {\n                \"matchType\": \"<string>\",\n                \"savedGroups\": [\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  },\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  }\n                ]\n              }\n            ],\n            \"prerequisites\": [\n              {\n                \"id\": \"<string>\",\n                \"condition\": \"<string>\"\n              },\n              {\n                \"id\": \"<string>\",\n                \"condition\": \"<string>\"\n              }\n            ],\n            \"scheduleRules\": [\n              {\n                \"enabled\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                },\n                \"timestamp\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                }\n              },\n              {\n                \"enabled\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                },\n                \"timestamp\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                }\n              }\n            ],\n            \"id\": \"<string>\",\n            \"enabled\": \"<boolean>\"\n          }\n        ],\n        \"enabled\": \"<boolean>\",\n        \"definition\": \"<string>\"\n      }\n    }\n  },\n  \"prerequisites\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"jsonSchema\": \"<string>\",\n  \"customFields\": {\n    \"key_0\": \"<string>\",\n    \"key_1\": \"<string>\",\n    \"key_2\": \"<string>\"\n  },\n  \"holdout\": {\n    \"id\": \"<string>\",\n    \"value\": \"<string>\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "ec052af0-46ea-4b7f-9ec4-9fe04cbb9f5e",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "features",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) The id of the requested resource"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"description\": \"<string>\",\n  \"archived\": \"<boolean>\",\n  \"project\": \"<string>\",\n  \"owner\": \"<string>\",\n  \"defaultValue\": \"<string>\",\n  \"tags\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"environments\": {\n    \"key_0\": {\n      \"enabled\": \"<boolean>\",\n      \"rules\": [\n        {\n          \"type\": \"<string>\",\n          \"value\": \"<string>\",\n          \"description\": \"<string>\",\n          \"condition\": \"<string>\",\n          \"savedGroupTargeting\": [\n            {\n              \"matchType\": \"<string>\",\n              \"savedGroups\": [\n                \"<string>\",\n                \"<string>\"\n              ]\n            },\n            {\n              \"matchType\": \"<string>\",\n              \"savedGroups\": [\n                \"<string>\",\n                \"<string>\"\n              ]\n            }\n          ],\n          \"prerequisites\": [\n            {\n              \"id\": \"<string>\",\n              \"condition\": \"<string>\"\n            },\n            {\n              \"id\": \"<string>\",\n              \"condition\": \"<string>\"\n            }\n          ],\n          \"scheduleRules\": [\n            {\n              \"enabled\": true,\n              \"timestamp\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            },\n            {\n              \"enabled\": true,\n              \"timestamp\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            }\n          ],\n          \"id\": \"<string>\",\n          \"enabled\": \"<boolean>\"\n        },\n        {\n          \"type\": \"<string>\",\n          \"value\": \"<string>\",\n          \"description\": \"<string>\",\n          \"condition\": \"<string>\",\n          \"savedGroupTargeting\": [\n            {\n              \"matchType\": \"<string>\",\n              \"savedGroups\": [\n                \"<string>\",\n                \"<string>\"\n              ]\n            },\n            {\n              \"matchType\": \"<string>\",\n              \"savedGroups\": [\n                \"<string>\",\n                \"<string>\"\n              ]\n            }\n          ],\n          \"prerequisites\": [\n            {\n              \"id\": \"<string>\",\n              \"condition\": \"<string>\"\n            },\n            {\n              \"id\": \"<string>\",\n              \"condition\": \"<string>\"\n            }\n          ],\n          \"scheduleRules\": [\n            {\n              \"enabled\": true,\n              \"timestamp\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            },\n            {\n              \"enabled\": false,\n              \"timestamp\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            }\n          ],\n          \"id\": \"<string>\",\n          \"enabled\": \"<boolean>\"\n        }\n      ],\n      \"definition\": \"<string>\",\n      \"draft\": {\n        \"rules\": [\n          {\n            \"type\": \"<string>\",\n            \"value\": \"<string>\",\n            \"description\": \"<string>\",\n            \"condition\": \"<string>\",\n            \"savedGroupTargeting\": [\n              {\n                \"matchType\": \"<string>\",\n                \"savedGroups\": [\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  },\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  }\n                ]\n              },\n              {\n                \"matchType\": \"<string>\",\n                \"savedGroups\": [\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  },\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  }\n                ]\n              }\n            ],\n            \"prerequisites\": [\n              {\n                \"id\": \"<string>\",\n                \"condition\": \"<string>\"\n              },\n              {\n                \"id\": \"<string>\",\n                \"condition\": \"<string>\"\n              }\n            ],\n            \"scheduleRules\": [\n              {\n                \"enabled\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                },\n                \"timestamp\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                }\n              },\n              {\n                \"enabled\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                },\n                \"timestamp\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                }\n              }\n            ],\n            \"id\": \"<string>\",\n            \"enabled\": \"<boolean>\"\n          },\n          {\n            \"type\": \"<string>\",\n            \"value\": \"<string>\",\n            \"description\": \"<string>\",\n            \"condition\": \"<string>\",\n            \"savedGroupTargeting\": [\n              {\n                \"matchType\": \"<string>\",\n                \"savedGroups\": [\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  },\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  }\n                ]\n              },\n              {\n                \"matchType\": \"<string>\",\n                \"savedGroups\": [\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  },\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  }\n                ]\n              }\n            ],\n            \"prerequisites\": [\n              {\n                \"id\": \"<string>\",\n                \"condition\": \"<string>\"\n              },\n              {\n                \"id\": \"<string>\",\n                \"condition\": \"<string>\"\n              }\n            ],\n            \"scheduleRules\": [\n              {\n                \"enabled\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                },\n                \"timestamp\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                }\n              },\n              {\n                \"enabled\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                },\n                \"timestamp\": {\n                  \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                }\n              }\n            ],\n            \"id\": \"<string>\",\n            \"enabled\": \"<boolean>\"\n          }\n        ],\n        \"enabled\": \"<boolean>\",\n        \"definition\": \"<string>\"\n      }\n    }\n  },\n  \"prerequisites\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"jsonSchema\": \"<string>\",\n  \"customFields\": {\n    \"key_0\": \"<string>\",\n    \"key_1\": \"<string>\",\n    \"key_2\": \"<string>\"\n  },\n  \"holdout\": {\n    \"id\": \"<string>\",\n    \"value\": \"<string>\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"feature\": {\n    \"id\": \"string\",\n    \"dateCreated\": \"2003-03-26T08:36:06.337Z\",\n    \"dateUpdated\": \"1972-01-29T18:20:45.776Z\",\n    \"archived\": false,\n    \"description\": \"string\",\n    \"owner\": \"string\",\n    \"project\": \"string\",\n    \"valueType\": \"number\",\n    \"defaultValue\": \"string\",\n    \"tags\": [\n      \"string\",\n      \"string\"\n    ],\n    \"environments\": {\n      \"key_0\": {\n        \"enabled\": false,\n        \"defaultValue\": \"string\",\n        \"rules\": [\n          {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          }\n        ],\n        \"definition\": \"string\",\n        \"draft\": {\n          \"enabled\": false,\n          \"defaultValue\": \"string\",\n          \"rules\": [\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            },\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            }\n          ],\n          \"definition\": \"string\"\n        }\n      }\n    },\n    \"revision\": {\n      \"version\": 7875,\n      \"comment\": \"string\",\n      \"date\": \"2020-05-15T22:53:08.137Z\",\n      \"createdBy\": \"string\",\n      \"publishedBy\": \"string\"\n    },\n    \"ownerEmail\": \"string\",\n    \"prerequisites\": [\n      \"string\",\n      \"string\"\n    ],\n    \"customFields\": {\n      \"key_0\": {}\n    },\n    \"holdout\": {\n      \"id\": \"string\",\n      \"value\": \"string\"\n    }\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "9b0292cd-48e6-49da-afe1-50a0f6918608",
+          "name": "Deletes a single feature",
+          "request": {
+            "name": "Deletes a single feature",
+            "description": {
+              "content": "**Deprecated.** Use [DELETE /v2/features/:id](#operation/deleteFeatureV2) instead.\n\nPermanently deletes a feature and all of its revisions.\n\nArchived features can be deleted freely. Deleting a live (non-archived) feature returns 403 unless the org setting \"REST API always bypasses approval requirements\" is enabled, or the API key lacks delete permission.\n",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "features",
+                ":id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "id",
+                  "description": "(Required) The id of the requested resource"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "DELETE",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "64f95970-c146-4323-8df1-0ffec0108a70",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "features",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) The id of the requested resource"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "DELETE",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"deletedId\": \"feature-123\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "96f6e475-fe32-4965-9e56-87d0ec7ce8e8",
+          "name": "Toggle a feature in one or more environments",
+          "request": {
+            "name": "Toggle a feature in one or more environments",
+            "description": {
+              "content": "**Deprecated.** Use [POST /v2/features/:id/toggle](#operation/toggleFeatureV2) instead.\n\nEnables or disables a feature in one or more environments simultaneously. Accepts a map of environment name → boolean and immediately publishes the change.\n\nReturns 403 if the API key lacks permission or if approval rules are enabled for an affected environment and the org setting \"REST API always bypasses approval requirements\" is off.\n",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "features",
+                ":id",
+                "toggle"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "id",
+                  "description": "(Required) The id of the requested resource"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"environments\": {\n    \"key_0\": \"<boolean>\",\n    \"key_1\": \"<boolean>\"\n  },\n  \"reason\": \"<string>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "7c81a05d-9e7a-4e0c-b800-46f1d4d2088b",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "features",
+                    ":id",
+                    "toggle"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) The id of the requested resource"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"environments\": {\n    \"key_0\": \"<boolean>\"\n  },\n  \"reason\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"feature\": {\n    \"id\": \"string\",\n    \"dateCreated\": \"2003-03-26T08:36:06.337Z\",\n    \"dateUpdated\": \"1972-01-29T18:20:45.776Z\",\n    \"archived\": false,\n    \"description\": \"string\",\n    \"owner\": \"string\",\n    \"project\": \"string\",\n    \"valueType\": \"number\",\n    \"defaultValue\": \"string\",\n    \"tags\": [\n      \"string\",\n      \"string\"\n    ],\n    \"environments\": {\n      \"key_0\": {\n        \"enabled\": false,\n        \"defaultValue\": \"string\",\n        \"rules\": [\n          {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          }\n        ],\n        \"definition\": \"string\",\n        \"draft\": {\n          \"enabled\": false,\n          \"defaultValue\": \"string\",\n          \"rules\": [\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            },\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            }\n          ],\n          \"definition\": \"string\"\n        }\n      }\n    },\n    \"revision\": {\n      \"version\": 7875,\n      \"comment\": \"string\",\n      \"date\": \"2020-05-15T22:53:08.137Z\",\n      \"createdBy\": \"string\",\n      \"publishedBy\": \"string\"\n    },\n    \"ownerEmail\": \"string\",\n    \"prerequisites\": [\n      \"string\",\n      \"string\"\n    ],\n    \"customFields\": {\n      \"key_0\": {}\n    },\n    \"holdout\": {\n      \"id\": \"string\",\n      \"value\": \"string\"\n    }\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "eed312bb-7ae8-4b75-8198-963d1baca55b",
+          "name": "Revert a feature to a specific revision",
+          "request": {
+            "name": "Revert a feature to a specific revision",
+            "description": {
+              "content": "**Deprecated.** Use [POST /v2/features/:id/revert](#operation/revertFeatureV2) instead.\n\nCreates a new revision whose rules and values match a previously-published revision, then immediately publishes it. This leaves a clear audit trail of the revert action in the revision history.\n\nReturns 403 if the API key lacks permission or if approval rules are enabled for an affected environment and the org setting \"REST API always bypasses approval requirements\" is off.\n",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "features",
+                ":id",
+                "revert"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "id",
+                  "description": "(Required) The id of the requested resource"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"revision\": \"<number>\",\n  \"comment\": \"<string>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "557b9d72-3f58-4deb-a6b8-bcb5b44698d7",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "features",
+                    ":id",
+                    "revert"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) The id of the requested resource"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"revision\": \"<number>\",\n  \"comment\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"feature\": {\n    \"id\": \"string\",\n    \"dateCreated\": \"2003-03-26T08:36:06.337Z\",\n    \"dateUpdated\": \"1972-01-29T18:20:45.776Z\",\n    \"archived\": false,\n    \"description\": \"string\",\n    \"owner\": \"string\",\n    \"project\": \"string\",\n    \"valueType\": \"number\",\n    \"defaultValue\": \"string\",\n    \"tags\": [\n      \"string\",\n      \"string\"\n    ],\n    \"environments\": {\n      \"key_0\": {\n        \"enabled\": false,\n        \"defaultValue\": \"string\",\n        \"rules\": [\n          {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          }\n        ],\n        \"definition\": \"string\",\n        \"draft\": {\n          \"enabled\": false,\n          \"defaultValue\": \"string\",\n          \"rules\": [\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            },\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            }\n          ],\n          \"definition\": \"string\"\n        }\n      }\n    },\n    \"revision\": {\n      \"version\": 7875,\n      \"comment\": \"string\",\n      \"date\": \"2020-05-15T22:53:08.137Z\",\n      \"createdBy\": \"string\",\n      \"publishedBy\": \"string\"\n    },\n    \"ownerEmail\": \"string\",\n    \"prerequisites\": [\n      \"string\",\n      \"string\"\n    ],\n    \"customFields\": {\n      \"key_0\": {}\n    },\n    \"holdout\": {\n      \"id\": \"string\",\n      \"value\": \"string\"\n    }\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "db2cb98b-9308-4518-9018-16d597ce1716",
+          "name": "Get list of feature keys",
+          "request": {
+            "name": "Get list of feature keys",
+            "description": {
+              "content": "**Deprecated.** Use [GET /v2/feature-keys](#operation/getFeatureKeysV2) instead.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "feature-keys"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "projectId",
+                  "value": "<string>",
+                  "description": "Filter by project id"
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "d8e0555f-6b1c-42c6-819c-9d689483bbc6",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "feature-keys"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "projectId",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "[\n  \"string\",\n  \"string\"\n]",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "5a4e5092-8285-4f74-a22a-eb7d71a6e311",
+          "name": "Get stale status for one or more features",
+          "request": {
+            "name": "Get stale status for one or more features",
+            "description": {
+              "content": "**Deprecated.** Use [GET /v2/stale-features](#operation/getFeatureStaleV2) instead.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "stale-features"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "ids",
+                  "value": "<string>",
+                  "description": "(Required) Comma-separated list of feature IDs (URL-encoded if needed). Example: `my_feature,another_feature`\n"
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "13b71f8f-ee45-43bc-8932-2f78134b7c1a",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "stale-features"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "ids",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"features\": {\n    \"key_0\": {\n      \"featureId\": \"string\",\n      \"isStale\": false,\n      \"staleReason\": \"active-experiment\",\n      \"neverStale\": false,\n      \"staleByEnv\": {\n        \"key_0\": {\n          \"isStale\": false,\n          \"reason\": \"rules-one-sided\",\n          \"evaluatesTo\": \"string\"\n        },\n        \"key_1\": {\n          \"isStale\": true,\n          \"reason\": \"no-rules\",\n          \"evaluatesTo\": \"string\"\n        }\n      }\n    },\n    \"key_1\": {\n      \"featureId\": \"string\",\n      \"isStale\": false,\n      \"staleReason\": \"no-rules\",\n      \"neverStale\": false,\n      \"staleByEnv\": {\n        \"key_0\": {\n          \"isStale\": false,\n          \"reason\": \"abandoned-draft\",\n          \"evaluatesTo\": \"string\"\n        },\n        \"key_1\": {\n          \"isStale\": false,\n          \"reason\": \"abandoned-draft\",\n          \"evaluatesTo\": \"string\"\n        }\n      }\n    }\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.growthbook.io/api",
+      "key": "baseUrl"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}"
+      }
+    ]
+  },
+  "info": {
+    "_postman_id": "e487edfc-a755-494d-80e8-0f44d89c4cd2",
+    "name": "GrowthBook REST AnalyticsExplorations features API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "GrowthBook offers a full REST API for interacting with the application.\n\nRequest data can use either JSON or Form data encoding (with proper `Content-Type` headers). All response bodies are JSON-encoded.\n\nThe API base URL for GrowthBook Cloud is `https://api.growthbook.io/api`. For self-hosted deployments, it is the same as your API_HOST environment variable (defaults to `http://localhost:3100/api`). The rest of these docs will assume you are using GrowthBook Cloud.\n\n## Versioning\n\nEndpoints are versioned by path prefix:\n\n- `/v1/...` — stable, widely-supported endpoints\n- `/v2/...` — updated endpoints with improved shapes (e.g. unified per-rule environment scope for feature flags)\n\nNew integrations should prefer v2 where available.\n\n## Authentication\n\nWe support both the HTTP Basic and Bearer authentication schemes for convenience.\n\nYou first need to generate a new API Key in GrowthBook. Different keys have different permissions:\n\n- **Personal Access Tokens**: These are sensitive and provide the same level of access as the user has to an organization. These can be created by going to `Personal Access Tokens` under the your user menu.\n- **Secret Keys**: These are sensitive and provide the level of access for the role, which currently is either `admin` or `readonly`. Only Admins with the `manageApiKeys` permission can manage Secret Keys on behalf of an organization. These can be created by going to `Settings -> API Keys`\n\nIf using HTTP Basic auth, pass the Secret Key as the username and leave the password blank (when using curl, add `:` at the end of the secret to indicate an empty password)\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n  -u secret_abc123DEF456:\n```\n\nIf using Bearer auth, pass the Secret Key as the token:\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n-H \"Authorization: Bearer secret_abc123DEF456\"\n```\n\n## Errors\n\nThe API may return the following error status codes:\n\n- **400** - Bad Request - Often due to a missing required parameter\n- **401** - Unauthorized - No valid API key provided\n- **402** - Request Failed - The parameters are valid, but the request failed\n- **403** - Forbidden - Provided API key does not have the required access\n- **404** - Not Found - Unknown API route or requested resource\n- **429** - Too Many Requests - You exceeded the rate limit of 60 requests per minute. Try again later.\n- **5XX** - Server Error - Something went wrong on GrowthBook's end (these are rare)\n\nThe response body will be a JSON object with the following properties:\n\n- **message** - Information about the error\n",
+      "type": "text/plain"
+    }
+  }
+}

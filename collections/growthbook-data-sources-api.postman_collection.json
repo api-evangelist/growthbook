@@ -1,0 +1,439 @@
+{
+  "item": [
+    {
+      "id": "941c01ce-f8f9-44ec-b38d-64674cb3e18f",
+      "name": "data-sources",
+      "description": {
+        "content": "How GrowthBook connects and queries your data, including cached database schema metadata (information schemas) for tables and columns.",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "1da2e62f-f391-4812-b459-708bd5686299",
+          "name": "Get all data sources",
+          "request": {
+            "name": "Get all data sources",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "data-sources"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "10",
+                  "description": "The number of items to return"
+                },
+                {
+                  "disabled": false,
+                  "key": "offset",
+                  "value": "0",
+                  "description": "How many items to skip (use in conjunction with limit for pagination)"
+                },
+                {
+                  "disabled": false,
+                  "key": "projectId",
+                  "value": "<string>",
+                  "description": "Filter by project id"
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "20978569-e222-420b-b794-631dac0b36f5",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "data-sources"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "10"
+                    },
+                    {
+                      "key": "offset",
+                      "value": "0"
+                    },
+                    {
+                      "key": "projectId",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"count\": 469,\n  \"dataSources\": [\n    {\n      \"id\": \"string\",\n      \"dateCreated\": \"2024-06-07T04:07:36.617Z\",\n      \"dateUpdated\": \"1967-02-16T17:31:35.900Z\",\n      \"type\": \"string\",\n      \"name\": \"string\",\n      \"description\": \"string\",\n      \"projectIds\": [\n        \"string\",\n        \"string\"\n      ],\n      \"eventTracker\": \"string\",\n      \"identifierTypes\": [\n        {\n          \"id\": \"string\",\n          \"description\": \"string\"\n        },\n        {\n          \"id\": \"string\",\n          \"description\": \"string\"\n        }\n      ],\n      \"assignmentQueries\": [\n        {\n          \"id\": \"string\",\n          \"name\": \"string\",\n          \"description\": \"string\",\n          \"identifierType\": \"string\",\n          \"sql\": \"string\",\n          \"includesNameColumns\": false,\n          \"dimensionColumns\": [\n            \"string\",\n            \"string\"\n          ]\n        },\n        {\n          \"id\": \"string\",\n          \"name\": \"string\",\n          \"description\": \"string\",\n          \"identifierType\": \"string\",\n          \"sql\": \"string\",\n          \"includesNameColumns\": false,\n          \"dimensionColumns\": [\n            \"string\",\n            \"string\"\n          ]\n        }\n      ],\n      \"identifierJoinQueries\": [\n        {\n          \"identifierTypes\": [\n            \"string\",\n            \"string\"\n          ],\n          \"sql\": \"string\"\n        },\n        {\n          \"identifierTypes\": [\n            \"string\",\n            \"string\"\n          ],\n          \"sql\": \"string\"\n        }\n      ],\n      \"mixpanelSettings\": {\n        \"viewedExperimentEventName\": \"string\",\n        \"experimentIdProperty\": \"string\",\n        \"variationIdProperty\": \"string\",\n        \"extraUserIdProperty\": \"string\"\n      }\n    },\n    {\n      \"id\": \"string\",\n      \"dateCreated\": \"2021-11-01T19:06:13.251Z\",\n      \"dateUpdated\": \"1978-04-01T22:20:45.248Z\",\n      \"type\": \"string\",\n      \"name\": \"string\",\n      \"description\": \"string\",\n      \"projectIds\": [\n        \"string\",\n        \"string\"\n      ],\n      \"eventTracker\": \"string\",\n      \"identifierTypes\": [\n        {\n          \"id\": \"string\",\n          \"description\": \"string\"\n        },\n        {\n          \"id\": \"string\",\n          \"description\": \"string\"\n        }\n      ],\n      \"assignmentQueries\": [\n        {\n          \"id\": \"string\",\n          \"name\": \"string\",\n          \"description\": \"string\",\n          \"identifierType\": \"string\",\n          \"sql\": \"string\",\n          \"includesNameColumns\": true,\n          \"dimensionColumns\": [\n            \"string\",\n            \"string\"\n          ]\n        },\n        {\n          \"id\": \"string\",\n          \"name\": \"string\",\n          \"description\": \"string\",\n          \"identifierType\": \"string\",\n          \"sql\": \"string\",\n          \"includesNameColumns\": false,\n          \"dimensionColumns\": [\n            \"string\",\n            \"string\"\n          ]\n        }\n      ],\n      \"identifierJoinQueries\": [\n        {\n          \"identifierTypes\": [\n            \"string\",\n            \"string\"\n          ],\n          \"sql\": \"string\"\n        },\n        {\n          \"identifierTypes\": [\n            \"string\",\n            \"string\"\n          ],\n          \"sql\": \"string\"\n        }\n      ],\n      \"mixpanelSettings\": {\n        \"viewedExperimentEventName\": \"string\",\n        \"experimentIdProperty\": \"string\",\n        \"variationIdProperty\": \"string\",\n        \"extraUserIdProperty\": \"string\"\n      }\n    }\n  ],\n  \"hasMore\": true,\n  \"limit\": 6697,\n  \"nextOffset\": 4899,\n  \"offset\": 7901,\n  \"total\": 9939\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "c66745a1-e091-4dec-ae00-743ed62f5b2d",
+          "name": "Get a single data source",
+          "request": {
+            "name": "Get a single data source",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "data-sources",
+                ":id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "id",
+                  "description": "(Required) The id of the requested resource"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "39900930-d676-4225-a3ac-56304e705726",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "data-sources",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) The id of the requested resource"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"dataSource\": {\n    \"id\": \"string\",\n    \"dateCreated\": \"1971-12-24T18:42:54.208Z\",\n    \"dateUpdated\": \"2010-04-10T00:05:16.371Z\",\n    \"type\": \"string\",\n    \"name\": \"string\",\n    \"description\": \"string\",\n    \"projectIds\": [\n      \"string\",\n      \"string\"\n    ],\n    \"eventTracker\": \"string\",\n    \"identifierTypes\": [\n      {\n        \"id\": \"string\",\n        \"description\": \"string\"\n      },\n      {\n        \"id\": \"string\",\n        \"description\": \"string\"\n      }\n    ],\n    \"assignmentQueries\": [\n      {\n        \"id\": \"string\",\n        \"name\": \"string\",\n        \"description\": \"string\",\n        \"identifierType\": \"string\",\n        \"sql\": \"string\",\n        \"includesNameColumns\": false,\n        \"dimensionColumns\": [\n          \"string\",\n          \"string\"\n        ]\n      },\n      {\n        \"id\": \"string\",\n        \"name\": \"string\",\n        \"description\": \"string\",\n        \"identifierType\": \"string\",\n        \"sql\": \"string\",\n        \"includesNameColumns\": true,\n        \"dimensionColumns\": [\n          \"string\",\n          \"string\"\n        ]\n      }\n    ],\n    \"identifierJoinQueries\": [\n      {\n        \"identifierTypes\": [\n          \"string\",\n          \"string\"\n        ],\n        \"sql\": \"string\"\n      },\n      {\n        \"identifierTypes\": [\n          \"string\",\n          \"string\"\n        ],\n        \"sql\": \"string\"\n      }\n    ],\n    \"mixpanelSettings\": {\n      \"viewedExperimentEventName\": \"string\",\n      \"experimentIdProperty\": \"string\",\n      \"variationIdProperty\": \"string\",\n      \"extraUserIdProperty\": \"string\"\n    }\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "c728d3b0-1f96-4b1c-a0c6-cf85f225fb63",
+          "name": "Get a Data Source's Information Schema",
+          "request": {
+            "name": "Get a Data Source's Information Schema",
+            "description": {
+              "content": "Returns cached database schema metadata for a data source, including databases, schemas, and tables. The information schema is automatically created when a SQL-based data source is added. Not all data source types support information schemas.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "data-sources",
+                ":dataSourceId",
+                "information-schema"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "dataSourceId",
+                  "description": "(Required) The id of the data source"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "64325ea9-4329-4b9a-b79d-e4d0fbc39837",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "data-sources",
+                    ":dataSourceId",
+                    "information-schema"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "dataSourceId",
+                      "description": "(Required) The id of the data source"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"informationSchema\": {\n    \"id\": \"string\",\n    \"datasourceId\": \"string\",\n    \"status\": \"PENDING\",\n    \"databases\": [\n      {\n        \"databaseName\": \"string\",\n        \"dateCreated\": \"1980-05-07T09:22:51.858Z\",\n        \"dateUpdated\": \"1982-12-18T20:13:16.807Z\",\n        \"schemas\": [\n          {\n            \"schemaName\": \"string\",\n            \"dateCreated\": \"1982-12-01T00:16:13.696Z\",\n            \"dateUpdated\": \"2021-09-20T21:31:44.860Z\",\n            \"tables\": [\n              {\n                \"tableName\": \"string\",\n                \"id\": \"string\",\n                \"numOfColumns\": 5266.314270895177,\n                \"dateCreated\": \"1950-10-29T12:37:36.613Z\",\n                \"dateUpdated\": \"1991-03-12T22:06:26.806Z\",\n                \"path\": \"string\"\n              },\n              {\n                \"tableName\": \"string\",\n                \"id\": \"string\",\n                \"numOfColumns\": 8924.791245474487,\n                \"dateCreated\": \"2018-09-17T22:35:16.881Z\",\n                \"dateUpdated\": \"1948-03-19T23:35:37.352Z\",\n                \"path\": \"string\"\n              }\n            ],\n            \"path\": \"string\"\n          },\n          {\n            \"schemaName\": \"string\",\n            \"dateCreated\": \"1998-11-30T19:50:20.347Z\",\n            \"dateUpdated\": \"1967-02-24T22:00:52.874Z\",\n            \"tables\": [\n              {\n                \"tableName\": \"string\",\n                \"id\": \"string\",\n                \"numOfColumns\": 3125.488022559736,\n                \"dateCreated\": \"1984-08-04T09:34:34.314Z\",\n                \"dateUpdated\": \"1961-04-30T19:59:28.822Z\",\n                \"path\": \"string\"\n              },\n              {\n                \"tableName\": \"string\",\n                \"id\": \"string\",\n                \"numOfColumns\": 6442.228248250851,\n                \"dateCreated\": \"1984-07-10T11:43:57.241Z\",\n                \"dateUpdated\": \"2018-04-17T20:14:27.369Z\",\n                \"path\": \"string\"\n              }\n            ],\n            \"path\": \"string\"\n          }\n        ],\n        \"path\": \"string\"\n      },\n      {\n        \"databaseName\": \"string\",\n        \"dateCreated\": \"1972-12-07T05:07:42.593Z\",\n        \"dateUpdated\": \"1954-01-03T14:09:08.554Z\",\n        \"schemas\": [\n          {\n            \"schemaName\": \"string\",\n            \"dateCreated\": \"1972-01-28T16:03:06.030Z\",\n            \"dateUpdated\": \"2012-06-05T20:36:42.264Z\",\n            \"tables\": [\n              {\n                \"tableName\": \"string\",\n                \"id\": \"string\",\n                \"numOfColumns\": 5745.1090749061195,\n                \"dateCreated\": \"1995-03-27T12:27:33.465Z\",\n                \"dateUpdated\": \"2004-03-10T14:00:51.398Z\",\n                \"path\": \"string\"\n              },\n              {\n                \"tableName\": \"string\",\n                \"id\": \"string\",\n                \"numOfColumns\": 5835.194602001764,\n                \"dateCreated\": \"1995-11-30T18:44:12.916Z\",\n                \"dateUpdated\": \"2022-06-15T07:39:43.152Z\",\n                \"path\": \"string\"\n              }\n            ],\n            \"path\": \"string\"\n          },\n          {\n            \"schemaName\": \"string\",\n            \"dateCreated\": \"2020-04-13T13:50:32.449Z\",\n            \"dateUpdated\": \"2010-12-14T15:07:06.056Z\",\n            \"tables\": [\n              {\n                \"tableName\": \"string\",\n                \"id\": \"string\",\n                \"numOfColumns\": 6263.855495794758,\n                \"dateCreated\": \"1978-10-03T14:49:23.213Z\",\n                \"dateUpdated\": \"2001-03-10T13:44:30.080Z\",\n                \"path\": \"string\"\n              },\n              {\n                \"tableName\": \"string\",\n                \"id\": \"string\",\n                \"numOfColumns\": 8578.1967888997,\n                \"dateCreated\": \"1962-12-18T00:39:27.940Z\",\n                \"dateUpdated\": \"1959-04-26T22:38:56.136Z\",\n                \"path\": \"string\"\n              }\n            ],\n            \"path\": \"string\"\n          }\n        ],\n        \"path\": \"string\"\n      }\n    ],\n    \"dateCreated\": \"1972-09-28T21:52:30.393Z\",\n    \"dateUpdated\": \"1976-10-23T02:49:00.525Z\",\n    \"error\": {\n      \"errorType\": \"not_supported\",\n      \"message\": \"string\"\n    }\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "2d18d904-7438-42f1-af70-481ad4d9f7a5",
+          "name": "Get a single Information Schema Table by id",
+          "request": {
+            "name": "Get a single Information Schema Table by id",
+            "description": {
+              "content": "Returns cached metadata for a specific table in the Data Source, including columns and their data types. Not all data source types support information schemas.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "information-schema-tables",
+                ":tableId"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "tableId",
+                  "description": "(Required) The id of the information schema table"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "893ddd8f-c4bb-4049-a79d-8dcc53ba0fb8",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "information-schema-tables",
+                    ":tableId"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "tableId",
+                      "description": "(Required) The id of the information schema table"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"informationSchemaTable\": {\n    \"id\": \"string\",\n    \"datasourceId\": \"string\",\n    \"informationSchemaId\": \"string\",\n    \"tableName\": \"string\",\n    \"tableSchema\": \"string\",\n    \"databaseName\": \"string\",\n    \"columns\": [\n      {\n        \"columnName\": \"string\",\n        \"dataType\": \"string\"\n      },\n      {\n        \"columnName\": \"string\",\n        \"dataType\": \"string\"\n      }\n    ],\n    \"refreshMS\": 6362.228928030275,\n    \"dateCreated\": \"1982-07-25T09:18:22.799Z\",\n    \"dateUpdated\": \"1999-08-05T00:29:57.111Z\"\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.growthbook.io/api",
+      "key": "baseUrl"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}"
+      }
+    ]
+  },
+  "info": {
+    "_postman_id": "92db5b46-714a-4a2c-952f-9c91336ae121",
+    "name": "GrowthBook REST AnalyticsExplorations data-sources API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "GrowthBook offers a full REST API for interacting with the application.\n\nRequest data can use either JSON or Form data encoding (with proper `Content-Type` headers). All response bodies are JSON-encoded.\n\nThe API base URL for GrowthBook Cloud is `https://api.growthbook.io/api`. For self-hosted deployments, it is the same as your API_HOST environment variable (defaults to `http://localhost:3100/api`). The rest of these docs will assume you are using GrowthBook Cloud.\n\n## Versioning\n\nEndpoints are versioned by path prefix:\n\n- `/v1/...` — stable, widely-supported endpoints\n- `/v2/...` — updated endpoints with improved shapes (e.g. unified per-rule environment scope for feature flags)\n\nNew integrations should prefer v2 where available.\n\n## Authentication\n\nWe support both the HTTP Basic and Bearer authentication schemes for convenience.\n\nYou first need to generate a new API Key in GrowthBook. Different keys have different permissions:\n\n- **Personal Access Tokens**: These are sensitive and provide the same level of access as the user has to an organization. These can be created by going to `Personal Access Tokens` under the your user menu.\n- **Secret Keys**: These are sensitive and provide the level of access for the role, which currently is either `admin` or `readonly`. Only Admins with the `manageApiKeys` permission can manage Secret Keys on behalf of an organization. These can be created by going to `Settings -> API Keys`\n\nIf using HTTP Basic auth, pass the Secret Key as the username and leave the password blank (when using curl, add `:` at the end of the secret to indicate an empty password)\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n  -u secret_abc123DEF456:\n```\n\nIf using Bearer auth, pass the Secret Key as the token:\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n-H \"Authorization: Bearer secret_abc123DEF456\"\n```\n\n## Errors\n\nThe API may return the following error status codes:\n\n- **400** - Bad Request - Often due to a missing required parameter\n- **401** - Unauthorized - No valid API key provided\n- **402** - Request Failed - The parameters are valid, but the request failed\n- **403** - Forbidden - Provided API key does not have the required access\n- **404** - Not Found - Unknown API route or requested resource\n- **429** - Too Many Requests - You exceeded the rate limit of 60 requests per minute. Try again later.\n- **5XX** - Server Error - Something went wrong on GrowthBook's end (these are rare)\n\nThe response body will be a JSON object with the following properties:\n\n- **message** - Information about the error\n",
+      "type": "text/plain"
+    }
+  }
+}

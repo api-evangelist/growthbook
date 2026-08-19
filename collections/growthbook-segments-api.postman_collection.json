@@ -1,0 +1,549 @@
+{
+  "item": [
+    {
+      "id": "471e8313-d3c0-46df-8dee-65fd3037a223",
+      "name": "segments",
+      "description": {
+        "content": "Segments used during experiment analysis",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "7ba3bb80-c5af-4213-ab90-f5a757b9663b",
+          "name": "Get all segments",
+          "request": {
+            "name": "Get all segments",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "segments"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "10",
+                  "description": "The number of items to return"
+                },
+                {
+                  "disabled": false,
+                  "key": "offset",
+                  "value": "0",
+                  "description": "How many items to skip (use in conjunction with limit for pagination)"
+                },
+                {
+                  "disabled": false,
+                  "key": "datasourceId",
+                  "value": "<string>",
+                  "description": "Filter by Data Source"
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "0f49b4ad-f677-4ec3-bd68-6d510076ff27",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "segments"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "10"
+                    },
+                    {
+                      "key": "offset",
+                      "value": "0"
+                    },
+                    {
+                      "key": "datasourceId",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"count\": 6707,\n  \"hasMore\": false,\n  \"limit\": 3056,\n  \"nextOffset\": 7802,\n  \"offset\": 2062,\n  \"segments\": [\n    {\n      \"id\": \"string\",\n      \"owner\": \"string\",\n      \"datasourceId\": \"string\",\n      \"identifierType\": \"string\",\n      \"name\": \"string\",\n      \"dateCreated\": \"string\",\n      \"dateUpdated\": \"string\",\n      \"ownerEmail\": \"string\",\n      \"description\": \"string\",\n      \"query\": \"string\",\n      \"managedBy\": \"\",\n      \"type\": \"SQL\",\n      \"factTableId\": \"string\",\n      \"filters\": [\n        \"string\",\n        \"string\"\n      ],\n      \"projects\": [\n        \"string\",\n        \"string\"\n      ]\n    },\n    {\n      \"id\": \"string\",\n      \"owner\": \"string\",\n      \"datasourceId\": \"string\",\n      \"identifierType\": \"string\",\n      \"name\": \"string\",\n      \"dateCreated\": \"string\",\n      \"dateUpdated\": \"string\",\n      \"ownerEmail\": \"string\",\n      \"description\": \"string\",\n      \"query\": \"string\",\n      \"managedBy\": \"\",\n      \"type\": \"FACT\",\n      \"factTableId\": \"string\",\n      \"filters\": [\n        \"string\",\n        \"string\"\n      ],\n      \"projects\": [\n        \"string\",\n        \"string\"\n      ]\n    }\n  ],\n  \"total\": 3520\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "8d0c82df-25f2-44e9-8a27-50ba37ece9e4",
+          "name": "Create a single segment",
+          "request": {
+            "name": "Create a single segment",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "segments"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"<string>\",\n  \"datasourceId\": \"<string>\",\n  \"identifierType\": \"<string>\",\n  \"type\": \"<string>\",\n  \"owner\": \"<string>\",\n  \"description\": \"<string>\",\n  \"projects\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"managedBy\": \"<string>\",\n  \"query\": \"<string>\",\n  \"factTableId\": \"<string>\",\n  \"filters\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "053adda8-efee-4a8d-88dd-ed7454805de2",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "segments"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"<string>\",\n  \"datasourceId\": \"<string>\",\n  \"identifierType\": \"<string>\",\n  \"type\": \"<string>\",\n  \"owner\": \"<string>\",\n  \"description\": \"<string>\",\n  \"projects\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"managedBy\": \"<string>\",\n  \"query\": \"<string>\",\n  \"factTableId\": \"<string>\",\n  \"filters\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"segment\": {\n    \"id\": \"string\",\n    \"owner\": \"string\",\n    \"datasourceId\": \"string\",\n    \"identifierType\": \"string\",\n    \"name\": \"string\",\n    \"dateCreated\": \"string\",\n    \"dateUpdated\": \"string\",\n    \"ownerEmail\": \"string\",\n    \"description\": \"string\",\n    \"query\": \"string\",\n    \"managedBy\": \"\",\n    \"type\": \"SQL\",\n    \"factTableId\": \"string\",\n    \"filters\": [\n      \"string\",\n      \"string\"\n    ],\n    \"projects\": [\n      \"string\",\n      \"string\"\n    ]\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "14e2235d-0dbe-41e8-80eb-52d8cfedfff8",
+          "name": "Get a single segment",
+          "request": {
+            "name": "Get a single segment",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "segments",
+                ":id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "id",
+                  "description": "(Required) The id of the requested resource"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "1d9f3e19-778e-4c07-8c12-5fef8470158f",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "segments",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) The id of the requested resource"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"segment\": {\n    \"id\": \"string\",\n    \"owner\": \"string\",\n    \"datasourceId\": \"string\",\n    \"identifierType\": \"string\",\n    \"name\": \"string\",\n    \"dateCreated\": \"string\",\n    \"dateUpdated\": \"string\",\n    \"ownerEmail\": \"string\",\n    \"description\": \"string\",\n    \"query\": \"string\",\n    \"managedBy\": \"\",\n    \"type\": \"SQL\",\n    \"factTableId\": \"string\",\n    \"filters\": [\n      \"string\",\n      \"string\"\n    ],\n    \"projects\": [\n      \"string\",\n      \"string\"\n    ]\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "01ea4fad-f037-473a-9deb-dcf0956820a3",
+          "name": "Update a single segment",
+          "request": {
+            "name": "Update a single segment",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "segments",
+                ":id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "id",
+                  "description": "(Required) The id of the requested resource"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"<string>\",\n  \"owner\": \"<string>\",\n  \"description\": \"<string>\",\n  \"datasourceId\": \"<string>\",\n  \"identifierType\": \"<string>\",\n  \"projects\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"managedBy\": \"<string>\",\n  \"type\": \"<string>\",\n  \"query\": \"<string>\",\n  \"factTableId\": \"<string>\",\n  \"filters\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "91c99acd-56d9-4c39-958e-23f6b4d36e13",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "segments",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) The id of the requested resource"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"<string>\",\n  \"owner\": \"<string>\",\n  \"description\": \"<string>\",\n  \"datasourceId\": \"<string>\",\n  \"identifierType\": \"<string>\",\n  \"projects\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"managedBy\": \"<string>\",\n  \"type\": \"<string>\",\n  \"query\": \"<string>\",\n  \"factTableId\": \"<string>\",\n  \"filters\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"segment\": {\n    \"id\": \"string\",\n    \"owner\": \"string\",\n    \"datasourceId\": \"string\",\n    \"identifierType\": \"string\",\n    \"name\": \"string\",\n    \"dateCreated\": \"string\",\n    \"dateUpdated\": \"string\",\n    \"ownerEmail\": \"string\",\n    \"description\": \"string\",\n    \"query\": \"string\",\n    \"managedBy\": \"\",\n    \"type\": \"SQL\",\n    \"factTableId\": \"string\",\n    \"filters\": [\n      \"string\",\n      \"string\"\n    ],\n    \"projects\": [\n      \"string\",\n      \"string\"\n    ]\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "b4168061-e6a7-4096-b0bd-aa9b2349ef1a",
+          "name": "Deletes a single segment",
+          "request": {
+            "name": "Deletes a single segment",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "segments",
+                ":id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "id",
+                  "description": "(Required) The id of the requested resource"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "DELETE",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "3130d0de-3cd7-4386-b247-b7d301fd5013",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "segments",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) The id of the requested resource"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "DELETE",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"deletedId\": \"seg_123abc\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.growthbook.io/api",
+      "key": "baseUrl"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}"
+      }
+    ]
+  },
+  "info": {
+    "_postman_id": "ecdcdc5f-de6d-455f-97b0-84b4675ae96e",
+    "name": "GrowthBook REST AnalyticsExplorations segments API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "GrowthBook offers a full REST API for interacting with the application.\n\nRequest data can use either JSON or Form data encoding (with proper `Content-Type` headers). All response bodies are JSON-encoded.\n\nThe API base URL for GrowthBook Cloud is `https://api.growthbook.io/api`. For self-hosted deployments, it is the same as your API_HOST environment variable (defaults to `http://localhost:3100/api`). The rest of these docs will assume you are using GrowthBook Cloud.\n\n## Versioning\n\nEndpoints are versioned by path prefix:\n\n- `/v1/...` — stable, widely-supported endpoints\n- `/v2/...` — updated endpoints with improved shapes (e.g. unified per-rule environment scope for feature flags)\n\nNew integrations should prefer v2 where available.\n\n## Authentication\n\nWe support both the HTTP Basic and Bearer authentication schemes for convenience.\n\nYou first need to generate a new API Key in GrowthBook. Different keys have different permissions:\n\n- **Personal Access Tokens**: These are sensitive and provide the same level of access as the user has to an organization. These can be created by going to `Personal Access Tokens` under the your user menu.\n- **Secret Keys**: These are sensitive and provide the level of access for the role, which currently is either `admin` or `readonly`. Only Admins with the `manageApiKeys` permission can manage Secret Keys on behalf of an organization. These can be created by going to `Settings -> API Keys`\n\nIf using HTTP Basic auth, pass the Secret Key as the username and leave the password blank (when using curl, add `:` at the end of the secret to indicate an empty password)\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n  -u secret_abc123DEF456:\n```\n\nIf using Bearer auth, pass the Secret Key as the token:\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n-H \"Authorization: Bearer secret_abc123DEF456\"\n```\n\n## Errors\n\nThe API may return the following error status codes:\n\n- **400** - Bad Request - Often due to a missing required parameter\n- **401** - Unauthorized - No valid API key provided\n- **402** - Request Failed - The parameters are valid, but the request failed\n- **403** - Forbidden - Provided API key does not have the required access\n- **404** - Not Found - Unknown API route or requested resource\n- **429** - Too Many Requests - You exceeded the rate limit of 60 requests per minute. Try again later.\n- **5XX** - Server Error - Something went wrong on GrowthBook's end (these are rare)\n\nThe response body will be a JSON object with the following properties:\n\n- **message** - Information about the error\n",
+      "type": "text/plain"
+    }
+  }
+}

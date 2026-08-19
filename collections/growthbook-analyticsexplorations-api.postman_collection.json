@@ -1,0 +1,374 @@
+{
+  "item": [
+    {
+      "id": "01bd8177-6fb1-4d7d-b6aa-add353f28ffc",
+      "name": "AnalyticsExplorations",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "e0067ab2-53c3-4feb-a0a7-e7326d6cb33a",
+          "name": "Create a Metric based visualization",
+          "request": {
+            "name": "Create a Metric based visualization",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "product-analytics",
+                "metric-exploration"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "cache",
+                  "value": "<string>",
+                  "description": "Controls cache behavior for this exploration: `preferred` (default) returns a cached result if one exists, otherwise runs a new query; `never` always runs a new query, ignoring any cached results; `required` only returns a cached result, if none exists returns exploration: null with a message"
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"datasource\": \"<string>\",\n  \"dimensions\": [\n    {\n      \"dimensionType\": \"<string>\",\n      \"column\": \"<string>\",\n      \"dateGranularity\": \"<string>\"\n    },\n    {\n      \"dimensionType\": \"<string>\",\n      \"column\": \"<string>\",\n      \"dateGranularity\": \"<string>\"\n    }\n  ],\n  \"chartType\": \"<string>\",\n  \"dateRange\": {\n    \"predefined\": \"<string>\",\n    \"lookbackValue\": \"<number>\",\n    \"lookbackUnit\": \"<string>\",\n    \"startDate\": \"<string>\",\n    \"endDate\": \"<string>\"\n  },\n  \"type\": \"<string>\",\n  \"dataset\": {\n    \"type\": \"<string>\",\n    \"values\": [\n      {\n        \"name\": \"<string>\",\n        \"rowFilters\": [\n          {\n            \"operator\": \"<string>\",\n            \"column\": \"<string>\",\n            \"values\": [\n              \"<string>\",\n              \"<string>\"\n            ]\n          },\n          {\n            \"operator\": \"<string>\",\n            \"column\": \"<string>\",\n            \"values\": [\n              \"<string>\",\n              \"<string>\"\n            ]\n          }\n        ],\n        \"type\": \"<string>\",\n        \"metricId\": \"<string>\",\n        \"unit\": \"<string>\",\n        \"denominatorUnit\": \"<string>\"\n      },\n      {\n        \"name\": \"<string>\",\n        \"rowFilters\": [\n          {\n            \"operator\": \"<string>\",\n            \"column\": \"<string>\",\n            \"values\": [\n              \"<string>\",\n              \"<string>\"\n            ]\n          },\n          {\n            \"operator\": \"<string>\",\n            \"column\": \"<string>\",\n            \"values\": [\n              \"<string>\",\n              \"<string>\"\n            ]\n          }\n        ],\n        \"type\": \"<string>\",\n        \"metricId\": \"<string>\",\n        \"unit\": \"<string>\",\n        \"denominatorUnit\": \"<string>\"\n      }\n    ]\n  },\n  \"showAs\": \"<string>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "6a9149a3-11ba-41ea-af56-cccb9c9342b9",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "product-analytics",
+                    "metric-exploration"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "cache",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"datasource\": \"<string>\",\n  \"dimensions\": [\n    {\n      \"dimensionType\": \"<string>\",\n      \"column\": \"<string>\",\n      \"dateGranularity\": \"<string>\"\n    },\n    {\n      \"dimensionType\": \"<string>\",\n      \"column\": \"<string>\",\n      \"dateGranularity\": \"<string>\"\n    }\n  ],\n  \"chartType\": \"<string>\",\n  \"dateRange\": {\n    \"predefined\": \"<string>\",\n    \"lookbackValue\": \"<number>\",\n    \"lookbackUnit\": \"<string>\",\n    \"startDate\": \"<string>\",\n    \"endDate\": \"<string>\"\n  },\n  \"type\": \"<string>\",\n  \"dataset\": {\n    \"type\": \"<string>\",\n    \"values\": [\n      {\n        \"name\": \"<string>\",\n        \"rowFilters\": [\n          {\n            \"operator\": \"<string>\",\n            \"column\": \"<string>\",\n            \"values\": [\n              \"<string>\",\n              \"<string>\"\n            ]\n          },\n          {\n            \"operator\": \"<string>\",\n            \"column\": \"<string>\",\n            \"values\": [\n              \"<string>\",\n              \"<string>\"\n            ]\n          }\n        ],\n        \"type\": \"<string>\",\n        \"metricId\": \"<string>\",\n        \"unit\": \"<string>\",\n        \"denominatorUnit\": \"<string>\"\n      },\n      {\n        \"name\": \"<string>\",\n        \"rowFilters\": [\n          {\n            \"operator\": \"<string>\",\n            \"column\": \"<string>\",\n            \"values\": [\n              \"<string>\",\n              \"<string>\"\n            ]\n          },\n          {\n            \"operator\": \"<string>\",\n            \"column\": \"<string>\",\n            \"values\": [\n              \"<string>\",\n              \"<string>\"\n            ]\n          }\n        ],\n        \"type\": \"<string>\",\n        \"metricId\": \"<string>\",\n        \"unit\": \"<string>\",\n        \"denominatorUnit\": \"<string>\"\n      }\n    ]\n  },\n  \"showAs\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"exploration\": {\n    \"id\": \"string\",\n    \"dateCreated\": \"6000-02-29T02:28:57Z\",\n    \"dateUpdated\": \"7562-02-02T21:48Z\",\n    \"datasource\": \"string\",\n    \"status\": \"running\",\n    \"dateStart\": \"string\",\n    \"dateEnd\": \"string\",\n    \"result\": {\n      \"rows\": [\n        {\n          \"dimensions\": [\n            \"string\",\n            \"string\"\n          ],\n          \"values\": [\n            {\n              \"metricId\": \"string\",\n              \"numerator\": 9783.28486000924,\n              \"denominator\": 5464.217161244579\n            },\n            {\n              \"metricId\": \"string\",\n              \"numerator\": 4454.0594729547975,\n              \"denominator\": 478.56075766006035\n            }\n          ]\n        },\n        {\n          \"dimensions\": [\n            \"string\",\n            \"string\"\n          ],\n          \"values\": [\n            {\n              \"metricId\": \"string\",\n              \"numerator\": 1148.4930772646762,\n              \"denominator\": 3930.210460448047\n            },\n            {\n              \"metricId\": \"string\",\n              \"numerator\": 8487.435408539652,\n              \"denominator\": 2635.2274058999915\n            }\n          ]\n        }\n      ]\n    },\n    \"config\": {\n      \"datasource\": \"string\",\n      \"dimensions\": [\n        {\n          \"dimensionType\": \"string\",\n          \"column\": \"string\",\n          \"dateGranularity\": \"hour\"\n        },\n        {\n          \"dimensionType\": \"string\",\n          \"column\": \"string\",\n          \"dateGranularity\": \"month\"\n        }\n      ],\n      \"chartType\": \"bar\",\n      \"dateRange\": {\n        \"predefined\": \"customLookback\",\n        \"lookbackValue\": 1526.7680737487276,\n        \"lookbackUnit\": \"hour\",\n        \"startDate\": \"string\",\n        \"endDate\": \"string\"\n      },\n      \"type\": \"string\",\n      \"dataset\": {\n        \"type\": \"string\",\n        \"values\": [\n          {\n            \"name\": \"string\",\n            \"rowFilters\": [\n              {\n                \"operator\": \"not_null\",\n                \"column\": \"string\",\n                \"values\": [\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  },\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  }\n                ]\n              },\n              {\n                \"operator\": \">\",\n                \"column\": \"string\",\n                \"values\": [\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  },\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  }\n                ]\n              }\n            ],\n            \"type\": \"string\",\n            \"metricId\": \"string\",\n            \"unit\": \"string\",\n            \"denominatorUnit\": \"string\"\n          },\n          {\n            \"name\": \"string\",\n            \"rowFilters\": [\n              {\n                \"operator\": \"<=\",\n                \"column\": \"string\",\n                \"values\": [\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  },\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  }\n                ]\n              },\n              {\n                \"operator\": \"saved_filter\",\n                \"column\": \"string\",\n                \"values\": [\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  },\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  }\n                ]\n              }\n            ],\n            \"type\": \"string\",\n            \"metricId\": \"string\",\n            \"unit\": \"string\",\n            \"denominatorUnit\": \"string\"\n          }\n        ]\n      },\n      \"showAs\": \"total\"\n    },\n    \"error\": \"string\"\n  },\n  \"query\": {\n    \"id\": \"string\",\n    \"organization\": \"string\",\n    \"datasource\": \"string\",\n    \"language\": \"string\",\n    \"query\": \"string\",\n    \"queryType\": \"string\",\n    \"createdAt\": \"string\",\n    \"startedAt\": \"string\",\n    \"status\": \"succeeded\",\n    \"externalId\": \"string\",\n    \"dependencies\": [\n      \"string\",\n      \"string\"\n    ],\n    \"runAtEnd\": true\n  },\n  \"explorationUrl\": \"string\",\n  \"message\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "7cafb87f-4b67-4007-a772-fbd9ae1908d5",
+          "name": "Run a Fact Table based visualization",
+          "request": {
+            "name": "Run a Fact Table based visualization",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "product-analytics",
+                "fact-table-exploration"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "cache",
+                  "value": "<string>",
+                  "description": "Controls cache behavior for this exploration: `preferred` (default) returns a cached result if one exists, otherwise runs a new query; `never` always runs a new query, ignoring any cached results; `required` only returns a cached result, if none exists returns exploration: null with a message"
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"datasource\": \"<string>\",\n  \"dimensions\": [\n    {\n      \"dimensionType\": \"<string>\",\n      \"column\": \"<string>\",\n      \"dateGranularity\": \"<string>\"\n    },\n    {\n      \"dimensionType\": \"<string>\",\n      \"column\": \"<string>\",\n      \"dateGranularity\": \"<string>\"\n    }\n  ],\n  \"chartType\": \"<string>\",\n  \"dateRange\": {\n    \"predefined\": \"<string>\",\n    \"lookbackValue\": \"<number>\",\n    \"lookbackUnit\": \"<string>\",\n    \"startDate\": \"<string>\",\n    \"endDate\": \"<string>\"\n  },\n  \"type\": \"<string>\",\n  \"dataset\": {\n    \"type\": \"<string>\",\n    \"factTableId\": \"<string>\",\n    \"values\": [\n      {\n        \"name\": \"<string>\",\n        \"rowFilters\": [\n          {\n            \"operator\": \"<string>\",\n            \"column\": \"<string>\",\n            \"values\": [\n              \"<string>\",\n              \"<string>\"\n            ]\n          },\n          {\n            \"operator\": \"<string>\",\n            \"column\": \"<string>\",\n            \"values\": [\n              \"<string>\",\n              \"<string>\"\n            ]\n          }\n        ],\n        \"type\": \"<string>\",\n        \"valueType\": \"<string>\",\n        \"valueColumn\": \"<string>\",\n        \"unit\": \"<string>\"\n      },\n      {\n        \"name\": \"<string>\",\n        \"rowFilters\": [\n          {\n            \"operator\": \"<string>\",\n            \"column\": \"<string>\",\n            \"values\": [\n              \"<string>\",\n              \"<string>\"\n            ]\n          },\n          {\n            \"operator\": \"<string>\",\n            \"column\": \"<string>\",\n            \"values\": [\n              \"<string>\",\n              \"<string>\"\n            ]\n          }\n        ],\n        \"type\": \"<string>\",\n        \"valueType\": \"<string>\",\n        \"valueColumn\": \"<string>\",\n        \"unit\": \"<string>\"\n      }\n    ]\n  },\n  \"showAs\": \"<string>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "28c2e466-1e67-48c0-be47-659b6608d0ce",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "product-analytics",
+                    "fact-table-exploration"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "cache",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"datasource\": \"<string>\",\n  \"dimensions\": [\n    {\n      \"dimensionType\": \"<string>\",\n      \"column\": \"<string>\",\n      \"dateGranularity\": \"<string>\"\n    },\n    {\n      \"dimensionType\": \"<string>\",\n      \"column\": \"<string>\",\n      \"dateGranularity\": \"<string>\"\n    }\n  ],\n  \"chartType\": \"<string>\",\n  \"dateRange\": {\n    \"predefined\": \"<string>\",\n    \"lookbackValue\": \"<number>\",\n    \"lookbackUnit\": \"<string>\",\n    \"startDate\": \"<string>\",\n    \"endDate\": \"<string>\"\n  },\n  \"type\": \"<string>\",\n  \"dataset\": {\n    \"type\": \"<string>\",\n    \"factTableId\": \"<string>\",\n    \"values\": [\n      {\n        \"name\": \"<string>\",\n        \"rowFilters\": [\n          {\n            \"operator\": \"<string>\",\n            \"column\": \"<string>\",\n            \"values\": [\n              \"<string>\",\n              \"<string>\"\n            ]\n          },\n          {\n            \"operator\": \"<string>\",\n            \"column\": \"<string>\",\n            \"values\": [\n              \"<string>\",\n              \"<string>\"\n            ]\n          }\n        ],\n        \"type\": \"<string>\",\n        \"valueType\": \"<string>\",\n        \"valueColumn\": \"<string>\",\n        \"unit\": \"<string>\"\n      },\n      {\n        \"name\": \"<string>\",\n        \"rowFilters\": [\n          {\n            \"operator\": \"<string>\",\n            \"column\": \"<string>\",\n            \"values\": [\n              \"<string>\",\n              \"<string>\"\n            ]\n          },\n          {\n            \"operator\": \"<string>\",\n            \"column\": \"<string>\",\n            \"values\": [\n              \"<string>\",\n              \"<string>\"\n            ]\n          }\n        ],\n        \"type\": \"<string>\",\n        \"valueType\": \"<string>\",\n        \"valueColumn\": \"<string>\",\n        \"unit\": \"<string>\"\n      }\n    ]\n  },\n  \"showAs\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"exploration\": {\n    \"id\": \"string\",\n    \"dateCreated\": \"7808-02-29T22:04Z\",\n    \"dateUpdated\": \"5065-02-04T19:02Z\",\n    \"datasource\": \"string\",\n    \"status\": \"success\",\n    \"dateStart\": \"string\",\n    \"dateEnd\": \"string\",\n    \"result\": {\n      \"rows\": [\n        {\n          \"dimensions\": [\n            \"string\",\n            \"string\"\n          ],\n          \"values\": [\n            {\n              \"metricId\": \"string\",\n              \"numerator\": 6077.647859046734,\n              \"denominator\": 2307.2481170442406\n            },\n            {\n              \"metricId\": \"string\",\n              \"numerator\": 7877.164041809239,\n              \"denominator\": 7560.562138104022\n            }\n          ]\n        },\n        {\n          \"dimensions\": [\n            \"string\",\n            \"string\"\n          ],\n          \"values\": [\n            {\n              \"metricId\": \"string\",\n              \"numerator\": 4341.756269711811,\n              \"denominator\": 1312.106974936278\n            },\n            {\n              \"metricId\": \"string\",\n              \"numerator\": 4232.360273313855,\n              \"denominator\": 2837.145760861637\n            }\n          ]\n        }\n      ]\n    },\n    \"config\": {\n      \"datasource\": \"string\",\n      \"dimensions\": [\n        {\n          \"dimensionType\": \"string\",\n          \"column\": \"string\",\n          \"dateGranularity\": \"month\"\n        },\n        {\n          \"dimensionType\": \"string\",\n          \"column\": \"string\",\n          \"dateGranularity\": \"month\"\n        }\n      ],\n      \"chartType\": \"table\",\n      \"dateRange\": {\n        \"predefined\": \"last30Days\",\n        \"lookbackValue\": 4151.211544808438,\n        \"lookbackUnit\": \"week\",\n        \"startDate\": \"string\",\n        \"endDate\": \"string\"\n      },\n      \"type\": \"string\",\n      \"dataset\": {\n        \"type\": \"string\",\n        \"factTableId\": \"string\",\n        \"values\": [\n          {\n            \"name\": \"string\",\n            \"rowFilters\": [\n              {\n                \"operator\": \"is_null\",\n                \"column\": \"string\",\n                \"values\": [\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  },\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  }\n                ]\n              },\n              {\n                \"operator\": \"contains\",\n                \"column\": \"string\",\n                \"values\": [\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  },\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  }\n                ]\n              }\n            ],\n            \"type\": \"string\",\n            \"valueType\": \"unit_count\",\n            \"valueColumn\": \"string\",\n            \"unit\": \"string\"\n          },\n          {\n            \"name\": \"string\",\n            \"rowFilters\": [\n              {\n                \"operator\": \">=\",\n                \"column\": \"string\",\n                \"values\": [\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  },\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  }\n                ]\n              },\n              {\n                \"operator\": \"=\",\n                \"column\": \"string\",\n                \"values\": [\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  },\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  }\n                ]\n              }\n            ],\n            \"type\": \"string\",\n            \"valueType\": \"unit_count\",\n            \"valueColumn\": \"string\",\n            \"unit\": \"string\"\n          }\n        ]\n      },\n      \"showAs\": \"total\"\n    },\n    \"error\": \"string\"\n  },\n  \"query\": {\n    \"id\": \"string\",\n    \"organization\": \"string\",\n    \"datasource\": \"string\",\n    \"language\": \"string\",\n    \"query\": \"string\",\n    \"queryType\": \"string\",\n    \"createdAt\": \"string\",\n    \"startedAt\": \"string\",\n    \"status\": \"queued\",\n    \"externalId\": \"string\",\n    \"dependencies\": [\n      \"string\",\n      \"string\"\n    ],\n    \"runAtEnd\": true\n  },\n  \"explorationUrl\": \"string\",\n  \"message\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "b0a77b3a-7ee9-4f26-9897-77d0d762f2a8",
+          "name": "Create a Data Source based visualization",
+          "request": {
+            "name": "Create a Data Source based visualization",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "product-analytics",
+                "data-source-exploration"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "cache",
+                  "value": "<string>",
+                  "description": "Controls cache behavior for this exploration: `preferred` (default) returns a cached result if one exists, otherwise runs a new query; `never` always runs a new query, ignoring any cached results; `required` only returns a cached result, if none exists returns exploration: null with a message"
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"datasource\": \"<string>\",\n  \"dimensions\": [\n    {\n      \"dimensionType\": \"<string>\",\n      \"column\": \"<string>\",\n      \"dateGranularity\": \"<string>\"\n    },\n    {\n      \"dimensionType\": \"<string>\",\n      \"column\": \"<string>\",\n      \"dateGranularity\": \"<string>\"\n    }\n  ],\n  \"chartType\": \"<string>\",\n  \"dateRange\": {\n    \"predefined\": \"<string>\",\n    \"lookbackValue\": \"<number>\",\n    \"lookbackUnit\": \"<string>\",\n    \"startDate\": \"<string>\",\n    \"endDate\": \"<string>\"\n  },\n  \"type\": \"<string>\",\n  \"dataset\": {\n    \"type\": \"<string>\",\n    \"table\": \"<string>\",\n    \"path\": \"<string>\",\n    \"timestampColumn\": \"<string>\",\n    \"columnTypes\": {\n      \"key_0\": \"<string>\",\n      \"key_1\": \"<string>\"\n    },\n    \"values\": [\n      {\n        \"name\": \"<string>\",\n        \"rowFilters\": [\n          {\n            \"operator\": \"<string>\",\n            \"column\": \"<string>\",\n            \"values\": [\n              \"<string>\",\n              \"<string>\"\n            ]\n          },\n          {\n            \"operator\": \"<string>\",\n            \"column\": \"<string>\",\n            \"values\": [\n              \"<string>\",\n              \"<string>\"\n            ]\n          }\n        ],\n        \"type\": \"<string>\",\n        \"valueType\": \"<string>\",\n        \"valueColumn\": \"<string>\",\n        \"unit\": \"<string>\"\n      },\n      {\n        \"name\": \"<string>\",\n        \"rowFilters\": [\n          {\n            \"operator\": \"<string>\",\n            \"column\": \"<string>\",\n            \"values\": [\n              \"<string>\",\n              \"<string>\"\n            ]\n          },\n          {\n            \"operator\": \"<string>\",\n            \"column\": \"<string>\",\n            \"values\": [\n              \"<string>\",\n              \"<string>\"\n            ]\n          }\n        ],\n        \"type\": \"<string>\",\n        \"valueType\": \"<string>\",\n        \"valueColumn\": \"<string>\",\n        \"unit\": \"<string>\"\n      }\n    ]\n  },\n  \"showAs\": \"<string>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "ca8dc3b5-7ecb-41d1-92be-af5efc7f2264",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "product-analytics",
+                    "data-source-exploration"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "cache",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"datasource\": \"<string>\",\n  \"dimensions\": [\n    {\n      \"dimensionType\": \"<string>\",\n      \"column\": \"<string>\",\n      \"dateGranularity\": \"<string>\"\n    },\n    {\n      \"dimensionType\": \"<string>\",\n      \"column\": \"<string>\",\n      \"dateGranularity\": \"<string>\"\n    }\n  ],\n  \"chartType\": \"<string>\",\n  \"dateRange\": {\n    \"predefined\": \"<string>\",\n    \"lookbackValue\": \"<number>\",\n    \"lookbackUnit\": \"<string>\",\n    \"startDate\": \"<string>\",\n    \"endDate\": \"<string>\"\n  },\n  \"type\": \"<string>\",\n  \"dataset\": {\n    \"type\": \"<string>\",\n    \"table\": \"<string>\",\n    \"path\": \"<string>\",\n    \"timestampColumn\": \"<string>\",\n    \"columnTypes\": {\n      \"key_0\": \"<string>\",\n      \"key_1\": \"<string>\"\n    },\n    \"values\": [\n      {\n        \"name\": \"<string>\",\n        \"rowFilters\": [\n          {\n            \"operator\": \"<string>\",\n            \"column\": \"<string>\",\n            \"values\": [\n              \"<string>\",\n              \"<string>\"\n            ]\n          },\n          {\n            \"operator\": \"<string>\",\n            \"column\": \"<string>\",\n            \"values\": [\n              \"<string>\",\n              \"<string>\"\n            ]\n          }\n        ],\n        \"type\": \"<string>\",\n        \"valueType\": \"<string>\",\n        \"valueColumn\": \"<string>\",\n        \"unit\": \"<string>\"\n      },\n      {\n        \"name\": \"<string>\",\n        \"rowFilters\": [\n          {\n            \"operator\": \"<string>\",\n            \"column\": \"<string>\",\n            \"values\": [\n              \"<string>\",\n              \"<string>\"\n            ]\n          },\n          {\n            \"operator\": \"<string>\",\n            \"column\": \"<string>\",\n            \"values\": [\n              \"<string>\",\n              \"<string>\"\n            ]\n          }\n        ],\n        \"type\": \"<string>\",\n        \"valueType\": \"<string>\",\n        \"valueColumn\": \"<string>\",\n        \"unit\": \"<string>\"\n      }\n    ]\n  },\n  \"showAs\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"exploration\": {\n    \"id\": \"string\",\n    \"dateCreated\": \"0728-11-30T16:44Z\",\n    \"dateUpdated\": \"0408-02-29T22:23:00Z\",\n    \"datasource\": \"string\",\n    \"status\": \"error\",\n    \"dateStart\": \"string\",\n    \"dateEnd\": \"string\",\n    \"result\": {\n      \"rows\": [\n        {\n          \"dimensions\": [\n            \"string\",\n            \"string\"\n          ],\n          \"values\": [\n            {\n              \"metricId\": \"string\",\n              \"numerator\": 5106.211961214705,\n              \"denominator\": 1249.8422541981136\n            },\n            {\n              \"metricId\": \"string\",\n              \"numerator\": 7606.638805777929,\n              \"denominator\": 8860.80262832035\n            }\n          ]\n        },\n        {\n          \"dimensions\": [\n            \"string\",\n            \"string\"\n          ],\n          \"values\": [\n            {\n              \"metricId\": \"string\",\n              \"numerator\": 6728.8662805079875,\n              \"denominator\": 2240.1083642474773\n            },\n            {\n              \"metricId\": \"string\",\n              \"numerator\": 1081.0492720985376,\n              \"denominator\": 3568.7507711232015\n            }\n          ]\n        }\n      ]\n    },\n    \"config\": {\n      \"datasource\": \"string\",\n      \"dimensions\": [\n        {\n          \"dimensionType\": \"string\",\n          \"column\": \"string\",\n          \"dateGranularity\": \"auto\"\n        },\n        {\n          \"dimensionType\": \"string\",\n          \"column\": \"string\",\n          \"dateGranularity\": \"hour\"\n        }\n      ],\n      \"chartType\": \"bigNumber\",\n      \"dateRange\": {\n        \"predefined\": \"last30Days\",\n        \"lookbackValue\": 1528.5479696833338,\n        \"lookbackUnit\": \"week\",\n        \"startDate\": \"string\",\n        \"endDate\": \"string\"\n      },\n      \"type\": \"string\",\n      \"dataset\": {\n        \"type\": \"string\",\n        \"table\": \"string\",\n        \"path\": \"string\",\n        \"timestampColumn\": \"string\",\n        \"columnTypes\": {\n          \"key_0\": \"date\"\n        },\n        \"values\": [\n          {\n            \"name\": \"string\",\n            \"rowFilters\": [\n              {\n                \"operator\": \">\",\n                \"column\": \"string\",\n                \"values\": [\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  },\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  }\n                ]\n              },\n              {\n                \"operator\": \"in\",\n                \"column\": \"string\",\n                \"values\": [\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  },\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  }\n                ]\n              }\n            ],\n            \"type\": \"string\",\n            \"valueType\": \"sum\",\n            \"valueColumn\": \"string\",\n            \"unit\": \"string\"\n          },\n          {\n            \"name\": \"string\",\n            \"rowFilters\": [\n              {\n                \"operator\": \">\",\n                \"column\": \"string\",\n                \"values\": [\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  },\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  }\n                ]\n              },\n              {\n                \"operator\": \"is_true\",\n                \"column\": \"string\",\n                \"values\": [\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  },\n                  {\n                    \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n                  }\n                ]\n              }\n            ],\n            \"type\": \"string\",\n            \"valueType\": \"unit_count\",\n            \"valueColumn\": \"string\",\n            \"unit\": \"string\"\n          }\n        ]\n      },\n      \"showAs\": \"per_unit\"\n    },\n    \"error\": \"string\"\n  },\n  \"query\": {\n    \"id\": \"string\",\n    \"organization\": \"string\",\n    \"datasource\": \"string\",\n    \"language\": \"string\",\n    \"query\": \"string\",\n    \"queryType\": \"string\",\n    \"createdAt\": \"string\",\n    \"startedAt\": \"string\",\n    \"status\": \"running\",\n    \"externalId\": \"string\",\n    \"dependencies\": [\n      \"string\",\n      \"string\"\n    ],\n    \"runAtEnd\": false\n  },\n  \"explorationUrl\": \"string\",\n  \"message\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.growthbook.io/api",
+      "key": "baseUrl"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}"
+      }
+    ]
+  },
+  "info": {
+    "_postman_id": "32b1cc16-ff3b-4934-9f8d-9fe29687188f",
+    "name": "GrowthBook REST AnalyticsExplorations API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "GrowthBook offers a full REST API for interacting with the application.\n\nRequest data can use either JSON or Form data encoding (with proper `Content-Type` headers). All response bodies are JSON-encoded.\n\nThe API base URL for GrowthBook Cloud is `https://api.growthbook.io/api`. For self-hosted deployments, it is the same as your API_HOST environment variable (defaults to `http://localhost:3100/api`). The rest of these docs will assume you are using GrowthBook Cloud.\n\n## Versioning\n\nEndpoints are versioned by path prefix:\n\n- `/v1/...` — stable, widely-supported endpoints\n- `/v2/...` — updated endpoints with improved shapes (e.g. unified per-rule environment scope for feature flags)\n\nNew integrations should prefer v2 where available.\n\n## Authentication\n\nWe support both the HTTP Basic and Bearer authentication schemes for convenience.\n\nYou first need to generate a new API Key in GrowthBook. Different keys have different permissions:\n\n- **Personal Access Tokens**: These are sensitive and provide the same level of access as the user has to an organization. These can be created by going to `Personal Access Tokens` under the your user menu.\n- **Secret Keys**: These are sensitive and provide the level of access for the role, which currently is either `admin` or `readonly`. Only Admins with the `manageApiKeys` permission can manage Secret Keys on behalf of an organization. These can be created by going to `Settings -> API Keys`\n\nIf using HTTP Basic auth, pass the Secret Key as the username and leave the password blank (when using curl, add `:` at the end of the secret to indicate an empty password)\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n  -u secret_abc123DEF456:\n```\n\nIf using Bearer auth, pass the Secret Key as the token:\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n-H \"Authorization: Bearer secret_abc123DEF456\"\n```\n\n## Errors\n\nThe API may return the following error status codes:\n\n- **400** - Bad Request - Often due to a missing required parameter\n- **401** - Unauthorized - No valid API key provided\n- **402** - Request Failed - The parameters are valid, but the request failed\n- **403** - Forbidden - Provided API key does not have the required access\n- **404** - Not Found - Unknown API route or requested resource\n- **429** - Too Many Requests - You exceeded the rate limit of 60 requests per minute. Try again later.\n- **5XX** - Server Error - Something went wrong on GrowthBook's end (these are rare)\n\nThe response body will be a JSON object with the following properties:\n\n- **message** - Information about the error\n",
+      "type": "text/plain"
+    }
+  }
+}

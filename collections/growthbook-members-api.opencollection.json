@@ -1,0 +1,109 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "GrowthBook REST AnalyticsExplorations members API",
+    "version": "1.0.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "members",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get all organization members",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.growthbook.io/api/v1/members",
+            "params": [
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "The number of items to return"
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query",
+                "description": "How many items to skip (use in conjunction with limit for pagination)"
+              },
+              {
+                "name": "userName",
+                "value": "",
+                "type": "query",
+                "description": "Name of the user."
+              },
+              {
+                "name": "userEmail",
+                "value": "",
+                "type": "query",
+                "description": "Email address of the user."
+              },
+              {
+                "name": "globalRole",
+                "value": "",
+                "type": "query",
+                "description": "Name of the global role"
+              }
+            ]
+          },
+          "docs": "Get all organization members"
+        },
+        {
+          "info": {
+            "name": "Update a member's global role (including any enviroment restrictions, if applicable). Can also update a member's project roles if your plan supports it.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.growthbook.io/api/v1/members/:id/role",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the requested resource"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update a member's global role (including any enviroment restrictions, if applicable). Can also update a member's project roles if your plan supports it."
+        },
+        {
+          "info": {
+            "name": "Removes a single user from an organization",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.growthbook.io/api/v1/members/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the requested resource"
+              }
+            ]
+          },
+          "docs": "Removes a single user from an organization"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

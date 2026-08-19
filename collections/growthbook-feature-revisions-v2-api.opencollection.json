@@ -1,0 +1,721 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "GrowthBook REST AnalyticsExplorations feature-revisions-v2 API",
+    "version": "1.0.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "feature-revisions-v2",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List feature revisions",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.growthbook.io/api/v2/revisions",
+            "params": [
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "The number of items to return"
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query",
+                "description": "How many items to skip (use in conjunction with limit for pagination)"
+              },
+              {
+                "name": "skipPagination",
+                "value": "",
+                "type": "query",
+                "description": "If true, return all matching items and ignore limit/offset.\nSelf-hosted only. Has no effect unless API_ALLOW_SKIP_PAGINATION is set to true or 1."
+              },
+              {
+                "name": "featureId",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "status",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "author",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "mine",
+                "value": "",
+                "type": "query",
+                "description": "If true, return only revisions authored by or contributed to by the calling user."
+              }
+            ]
+          },
+          "docs": "Returns a paginated list of feature revisions across all features in the organization. Revision `rules` is a flat array with per-rule scope."
+        },
+        {
+          "info": {
+            "name": "List revisions for a feature",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.growthbook.io/api/v2/features/:id/revisions",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the requested resource"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "The number of items to return"
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query",
+                "description": "How many items to skip (use in conjunction with limit for pagination)"
+              },
+              {
+                "name": "skipPagination",
+                "value": "",
+                "type": "query",
+                "description": "If true, return all matching items and ignore limit/offset.\nSelf-hosted only. Has no effect unless API_ALLOW_SKIP_PAGINATION is set to true or 1."
+              },
+              {
+                "name": "status",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "author",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Returns a paginated list of revisions for this feature, sorted newest-first. Revision `rules` is a flat array with per-rule scope."
+        },
+        {
+          "info": {
+            "name": "Create a draft revision",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.growthbook.io/api/v2/features/:id/revisions",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Creates a new draft revision branched from the current live revision."
+        },
+        {
+          "info": {
+            "name": "Get the most recent active draft revision",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.growthbook.io/api/v2/features/:id/revisions/latest",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "mine",
+                "value": "",
+                "type": "query",
+                "description": "If true, return only the most recent active draft authored by or contributed to by the calling user."
+              }
+            ]
+          },
+          "docs": "Returns the most recently updated draft revision for the feature. Returns 404 if there is no active draft."
+        },
+        {
+          "info": {
+            "name": "Get a single feature revision",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.growthbook.io/api/v2/features/:id/revisions/:version",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "version",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Returns the revision at the specified version for this feature. Revision `rules` is a flat array with per-rule environment scope."
+        },
+        {
+          "info": {
+            "name": "Update revision metadata",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.growthbook.io/api/v2/features/:id/revisions/:version/metadata",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "version",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update revision metadata"
+        },
+        {
+          "info": {
+            "name": "Set the default value in a draft revision",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.growthbook.io/api/v2/features/:id/revisions/:version/default-value",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "version",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Set the default value in a draft revision"
+        },
+        {
+          "info": {
+            "name": "Set feature-level prerequisites in a draft revision",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.growthbook.io/api/v2/features/:id/revisions/:version/prerequisites",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "version",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Set feature-level prerequisites in a draft revision"
+        },
+        {
+          "info": {
+            "name": "Set holdout in a draft revision",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.growthbook.io/api/v2/features/:id/revisions/:version/holdout",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "version",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Set holdout in a draft revision"
+        },
+        {
+          "info": {
+            "name": "Set archived state in a draft revision",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.growthbook.io/api/v2/features/:id/revisions/:version/archive",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "version",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Set archived state in a draft revision"
+        },
+        {
+          "info": {
+            "name": "Toggle an environment on/off in a draft revision",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.growthbook.io/api/v2/features/:id/revisions/:version/toggle",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "version",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Toggle an environment on/off in a draft revision"
+        },
+        {
+          "info": {
+            "name": "Add a rule to a draft revision",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.growthbook.io/api/v2/features/:id/revisions/:version/rules",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "version",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Appends a new rule to the revision's rule list. Supply `allEnvironments: true` to target all environments, or `environments: [...]` to scope to specific ones. Use `rampSchedule` for ramp configuration or `schedule` for a simple start/end window."
+        },
+        {
+          "info": {
+            "name": "Update a rule in a draft revision",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.growthbook.io/api/v2/features/:id/revisions/:version/rules/:ruleId",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "version",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "ruleId",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Patches fields on an existing rule (identified by `ruleId`). The rule `type` cannot be changed. Scope can be updated via `allEnvironments` / `environments` patch fields."
+        },
+        {
+          "info": {
+            "name": "Delete a rule from a draft revision",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.growthbook.io/api/v2/features/:id/revisions/:version/rules/:ruleId",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "version",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "ruleId",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Removes the rule from the revision. Any pending ramp actions for this rule are also cleared."
+        },
+        {
+          "info": {
+            "name": "Reorder rules in the revision",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.growthbook.io/api/v2/features/:id/revisions/:version/rules/reorder",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "version",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Replaces the flat global rule order. `ruleIds` must contain **exactly** the set of all existing rule IDs in the revision — no additions, omissions, or duplicates."
+        },
+        {
+          "info": {
+            "name": "Set ramp schedule for a rule",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.growthbook.io/api/v2/features/:id/revisions/:version/rules/:ruleId/ramp-schedule",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "version",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "ruleId",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Set ramp schedule for a rule"
+        },
+        {
+          "info": {
+            "name": "Remove ramp schedule from a rule",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.growthbook.io/api/v2/features/:id/revisions/:version/rules/:ruleId/ramp-schedule",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "version",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "ruleId",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Remove ramp schedule from a rule"
+        },
+        {
+          "info": {
+            "name": "Request review for a draft revision",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.growthbook.io/api/v2/features/:id/revisions/:version/request-review",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "version",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Request review for a draft revision"
+        },
+        {
+          "info": {
+            "name": "Submit a review on a draft revision",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.growthbook.io/api/v2/features/:id/revisions/:version/submit-review",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "version",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Submit a review on a draft revision"
+        },
+        {
+          "info": {
+            "name": "Get merge status for a draft revision",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.growthbook.io/api/v2/features/:id/revisions/:version/merge-status",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "version",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get merge status for a draft revision"
+        },
+        {
+          "info": {
+            "name": "Rebase a draft revision onto the current live version",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.growthbook.io/api/v2/features/:id/revisions/:version/rebase",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "version",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Updates the draft's base revision to match the currently-live revision, applying the draft's changes on top. Supply `conflictResolutions` to resolve any conflicting fields. Valid keys: `defaultValue`, `rules`, `prerequisites`, `archived`, `holdout`, and `environmentsEnabled.<env>`. Unresolved conflicts respond with `409`."
+        },
+        {
+          "info": {
+            "name": "Publish a draft revision",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.growthbook.io/api/v2/features/:id/revisions/:version/publish",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "version",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Immediately publishes a draft revision, making it the live version of the feature."
+        },
+        {
+          "info": {
+            "name": "Discard a draft revision",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.growthbook.io/api/v2/features/:id/revisions/:version/discard",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "version",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Discard a draft revision"
+        },
+        {
+          "info": {
+            "name": "Revert the feature to a prior revision",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.growthbook.io/api/v2/features/:id/revisions/:version/revert",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "version",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Revert the feature to a prior revision"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

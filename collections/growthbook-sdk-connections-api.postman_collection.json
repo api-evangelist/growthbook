@@ -1,0 +1,663 @@
+{
+  "item": [
+    {
+      "id": "8a42e125-6637-4698-b540-fbaf52bc2993",
+      "name": "sdk-connections",
+      "description": {
+        "content": "Client keys and settings for connecting SDKs to a GrowthBook instance",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "034cfd55-5d93-4a6b-9967-fdd0434b928f",
+          "name": "Get all sdk connections",
+          "request": {
+            "name": "Get all sdk connections",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "sdk-connections"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "10",
+                  "description": "The number of items to return"
+                },
+                {
+                  "disabled": false,
+                  "key": "offset",
+                  "value": "0",
+                  "description": "How many items to skip (use in conjunction with limit for pagination)"
+                },
+                {
+                  "disabled": false,
+                  "key": "projectId",
+                  "value": "<string>",
+                  "description": "Filter by project id"
+                },
+                {
+                  "disabled": false,
+                  "key": "withProxy",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "multiOrg",
+                  "value": "<string>"
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "a699ffe1-a907-4d7b-8921-0244a6dadba9",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "sdk-connections"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "10"
+                    },
+                    {
+                      "key": "offset",
+                      "value": "0"
+                    },
+                    {
+                      "key": "projectId",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "withProxy",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "multiOrg",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"connections\": [\n    {\n      \"id\": \"string\",\n      \"dateCreated\": \"2005-06-26T02:43:12.541Z\",\n      \"dateUpdated\": \"1968-07-27T08:34:13.315Z\",\n      \"name\": \"string\",\n      \"organization\": \"string\",\n      \"languages\": [\n        \"string\",\n        \"string\"\n      ],\n      \"environment\": \"string\",\n      \"project\": \"string\",\n      \"encryptPayload\": false,\n      \"encryptionKey\": \"string\",\n      \"key\": \"string\",\n      \"proxyEnabled\": true,\n      \"proxyHost\": \"string\",\n      \"proxySigningKey\": \"string\",\n      \"sdkVersion\": \"string\",\n      \"projects\": [\n        \"string\",\n        \"string\"\n      ],\n      \"includeVisualExperiments\": true,\n      \"includeDraftExperiments\": true,\n      \"includeExperimentNames\": false,\n      \"includeRedirectExperiments\": true,\n      \"includeRuleIds\": false,\n      \"includeProjectIdInMetadata\": true,\n      \"includeCustomFieldsInMetadata\": false,\n      \"allowedCustomFieldsInMetadata\": [\n        \"string\",\n        \"string\"\n      ],\n      \"includeTagsInMetadata\": false,\n      \"sseEnabled\": true,\n      \"hashSecureAttributes\": false,\n      \"remoteEvalEnabled\": true,\n      \"savedGroupReferencesEnabled\": true\n    },\n    {\n      \"id\": \"string\",\n      \"dateCreated\": \"1982-11-20T01:22:56.171Z\",\n      \"dateUpdated\": \"1967-05-09T15:08:26.791Z\",\n      \"name\": \"string\",\n      \"organization\": \"string\",\n      \"languages\": [\n        \"string\",\n        \"string\"\n      ],\n      \"environment\": \"string\",\n      \"project\": \"string\",\n      \"encryptPayload\": false,\n      \"encryptionKey\": \"string\",\n      \"key\": \"string\",\n      \"proxyEnabled\": false,\n      \"proxyHost\": \"string\",\n      \"proxySigningKey\": \"string\",\n      \"sdkVersion\": \"string\",\n      \"projects\": [\n        \"string\",\n        \"string\"\n      ],\n      \"includeVisualExperiments\": true,\n      \"includeDraftExperiments\": true,\n      \"includeExperimentNames\": true,\n      \"includeRedirectExperiments\": true,\n      \"includeRuleIds\": false,\n      \"includeProjectIdInMetadata\": false,\n      \"includeCustomFieldsInMetadata\": false,\n      \"allowedCustomFieldsInMetadata\": [\n        \"string\",\n        \"string\"\n      ],\n      \"includeTagsInMetadata\": false,\n      \"sseEnabled\": true,\n      \"hashSecureAttributes\": true,\n      \"remoteEvalEnabled\": false,\n      \"savedGroupReferencesEnabled\": false\n    }\n  ],\n  \"count\": 644,\n  \"hasMore\": true,\n  \"limit\": 8941,\n  \"nextOffset\": 1654,\n  \"offset\": 4484,\n  \"total\": 2777\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "2aa7b79d-01db-46d3-afa1-1b1df21b7e4b",
+          "name": "Create a single sdk connection",
+          "request": {
+            "name": "Create a single sdk connection",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "sdk-connections"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"<string>\",\n  \"language\": \"<string>\",\n  \"environment\": \"<string>\",\n  \"sdkVersion\": \"<string>\",\n  \"projects\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"encryptPayload\": \"<boolean>\",\n  \"includeVisualExperiments\": \"<boolean>\",\n  \"includeDraftExperiments\": \"<boolean>\",\n  \"includeExperimentNames\": \"<boolean>\",\n  \"includeRedirectExperiments\": \"<boolean>\",\n  \"includeRuleIds\": \"<boolean>\",\n  \"includeProjectIdInMetadata\": \"<boolean>\",\n  \"includeCustomFieldsInMetadata\": \"<boolean>\",\n  \"allowedCustomFieldsInMetadata\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"includeTagsInMetadata\": \"<boolean>\",\n  \"proxyEnabled\": \"<boolean>\",\n  \"proxyHost\": \"<string>\",\n  \"hashSecureAttributes\": \"<boolean>\",\n  \"remoteEvalEnabled\": \"<boolean>\",\n  \"savedGroupReferencesEnabled\": \"<boolean>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "3ecbafdb-5059-46ee-99c6-28a01ed1f7c2",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "sdk-connections"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"<string>\",\n  \"language\": \"<string>\",\n  \"environment\": \"<string>\",\n  \"sdkVersion\": \"<string>\",\n  \"projects\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"encryptPayload\": \"<boolean>\",\n  \"includeVisualExperiments\": \"<boolean>\",\n  \"includeDraftExperiments\": \"<boolean>\",\n  \"includeExperimentNames\": \"<boolean>\",\n  \"includeRedirectExperiments\": \"<boolean>\",\n  \"includeRuleIds\": \"<boolean>\",\n  \"includeProjectIdInMetadata\": \"<boolean>\",\n  \"includeCustomFieldsInMetadata\": \"<boolean>\",\n  \"allowedCustomFieldsInMetadata\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"includeTagsInMetadata\": \"<boolean>\",\n  \"proxyEnabled\": \"<boolean>\",\n  \"proxyHost\": \"<string>\",\n  \"hashSecureAttributes\": \"<boolean>\",\n  \"remoteEvalEnabled\": \"<boolean>\",\n  \"savedGroupReferencesEnabled\": \"<boolean>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"sdkConnection\": {\n    \"id\": \"string\",\n    \"dateCreated\": \"1971-08-22T10:20:53.754Z\",\n    \"dateUpdated\": \"1990-12-18T09:20:57.038Z\",\n    \"name\": \"string\",\n    \"organization\": \"string\",\n    \"languages\": [\n      \"string\",\n      \"string\"\n    ],\n    \"environment\": \"string\",\n    \"project\": \"string\",\n    \"encryptPayload\": false,\n    \"encryptionKey\": \"string\",\n    \"key\": \"string\",\n    \"proxyEnabled\": false,\n    \"proxyHost\": \"string\",\n    \"proxySigningKey\": \"string\",\n    \"sdkVersion\": \"string\",\n    \"projects\": [\n      \"string\",\n      \"string\"\n    ],\n    \"includeVisualExperiments\": true,\n    \"includeDraftExperiments\": true,\n    \"includeExperimentNames\": false,\n    \"includeRedirectExperiments\": false,\n    \"includeRuleIds\": false,\n    \"includeProjectIdInMetadata\": false,\n    \"includeCustomFieldsInMetadata\": false,\n    \"allowedCustomFieldsInMetadata\": [\n      \"string\",\n      \"string\"\n    ],\n    \"includeTagsInMetadata\": true,\n    \"sseEnabled\": false,\n    \"hashSecureAttributes\": false,\n    \"remoteEvalEnabled\": false,\n    \"savedGroupReferencesEnabled\": true\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "d7b70678-03e0-46f7-bfeb-bfe7b3e73c15",
+          "name": "Get a single sdk connection",
+          "request": {
+            "name": "Get a single sdk connection",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "sdk-connections",
+                ":id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "id",
+                  "description": "(Required) The id of the requested resource"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "cb283214-e885-4030-b009-7aba8ab4deb1",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "sdk-connections",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) The id of the requested resource"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"sdkConnection\": {\n    \"id\": \"string\",\n    \"dateCreated\": \"1971-08-22T10:20:53.754Z\",\n    \"dateUpdated\": \"1990-12-18T09:20:57.038Z\",\n    \"name\": \"string\",\n    \"organization\": \"string\",\n    \"languages\": [\n      \"string\",\n      \"string\"\n    ],\n    \"environment\": \"string\",\n    \"project\": \"string\",\n    \"encryptPayload\": false,\n    \"encryptionKey\": \"string\",\n    \"key\": \"string\",\n    \"proxyEnabled\": false,\n    \"proxyHost\": \"string\",\n    \"proxySigningKey\": \"string\",\n    \"sdkVersion\": \"string\",\n    \"projects\": [\n      \"string\",\n      \"string\"\n    ],\n    \"includeVisualExperiments\": true,\n    \"includeDraftExperiments\": true,\n    \"includeExperimentNames\": false,\n    \"includeRedirectExperiments\": false,\n    \"includeRuleIds\": false,\n    \"includeProjectIdInMetadata\": false,\n    \"includeCustomFieldsInMetadata\": false,\n    \"allowedCustomFieldsInMetadata\": [\n      \"string\",\n      \"string\"\n    ],\n    \"includeTagsInMetadata\": true,\n    \"sseEnabled\": false,\n    \"hashSecureAttributes\": false,\n    \"remoteEvalEnabled\": false,\n    \"savedGroupReferencesEnabled\": true\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "9fafb26c-0ba7-4ba5-b39c-82623c771ec0",
+          "name": "Update a single sdk connection",
+          "request": {
+            "name": "Update a single sdk connection",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "sdk-connections",
+                ":id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "id",
+                  "description": "(Required) The id of the requested resource"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "PUT",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"<string>\",\n  \"language\": \"<string>\",\n  \"sdkVersion\": \"<string>\",\n  \"environment\": \"<string>\",\n  \"projects\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"encryptPayload\": \"<boolean>\",\n  \"includeVisualExperiments\": \"<boolean>\",\n  \"includeDraftExperiments\": \"<boolean>\",\n  \"includeExperimentNames\": \"<boolean>\",\n  \"includeRedirectExperiments\": \"<boolean>\",\n  \"includeRuleIds\": \"<boolean>\",\n  \"includeProjectIdInMetadata\": \"<boolean>\",\n  \"includeCustomFieldsInMetadata\": \"<boolean>\",\n  \"allowedCustomFieldsInMetadata\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"includeTagsInMetadata\": \"<boolean>\",\n  \"proxyEnabled\": \"<boolean>\",\n  \"proxyHost\": \"<string>\",\n  \"hashSecureAttributes\": \"<boolean>\",\n  \"remoteEvalEnabled\": \"<boolean>\",\n  \"savedGroupReferencesEnabled\": \"<boolean>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "f629f954-2a60-41e4-869b-e3d60656561d",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "sdk-connections",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) The id of the requested resource"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PUT",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"<string>\",\n  \"language\": \"<string>\",\n  \"sdkVersion\": \"<string>\",\n  \"environment\": \"<string>\",\n  \"projects\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"encryptPayload\": \"<boolean>\",\n  \"includeVisualExperiments\": \"<boolean>\",\n  \"includeDraftExperiments\": \"<boolean>\",\n  \"includeExperimentNames\": \"<boolean>\",\n  \"includeRedirectExperiments\": \"<boolean>\",\n  \"includeRuleIds\": \"<boolean>\",\n  \"includeProjectIdInMetadata\": \"<boolean>\",\n  \"includeCustomFieldsInMetadata\": \"<boolean>\",\n  \"allowedCustomFieldsInMetadata\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"includeTagsInMetadata\": \"<boolean>\",\n  \"proxyEnabled\": \"<boolean>\",\n  \"proxyHost\": \"<string>\",\n  \"hashSecureAttributes\": \"<boolean>\",\n  \"remoteEvalEnabled\": \"<boolean>\",\n  \"savedGroupReferencesEnabled\": \"<boolean>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"sdkConnection\": {\n    \"id\": \"string\",\n    \"dateCreated\": \"1971-08-22T10:20:53.754Z\",\n    \"dateUpdated\": \"1990-12-18T09:20:57.038Z\",\n    \"name\": \"string\",\n    \"organization\": \"string\",\n    \"languages\": [\n      \"string\",\n      \"string\"\n    ],\n    \"environment\": \"string\",\n    \"project\": \"string\",\n    \"encryptPayload\": false,\n    \"encryptionKey\": \"string\",\n    \"key\": \"string\",\n    \"proxyEnabled\": false,\n    \"proxyHost\": \"string\",\n    \"proxySigningKey\": \"string\",\n    \"sdkVersion\": \"string\",\n    \"projects\": [\n      \"string\",\n      \"string\"\n    ],\n    \"includeVisualExperiments\": true,\n    \"includeDraftExperiments\": true,\n    \"includeExperimentNames\": false,\n    \"includeRedirectExperiments\": false,\n    \"includeRuleIds\": false,\n    \"includeProjectIdInMetadata\": false,\n    \"includeCustomFieldsInMetadata\": false,\n    \"allowedCustomFieldsInMetadata\": [\n      \"string\",\n      \"string\"\n    ],\n    \"includeTagsInMetadata\": true,\n    \"sseEnabled\": false,\n    \"hashSecureAttributes\": false,\n    \"remoteEvalEnabled\": false,\n    \"savedGroupReferencesEnabled\": true\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "43aa78bc-c669-4ab2-a38f-4281bfe77f56",
+          "name": "Deletes a single SDK connection",
+          "request": {
+            "name": "Deletes a single SDK connection",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "sdk-connections",
+                ":id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "id",
+                  "description": "(Required) The id of the requested resource"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "DELETE",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "bbef0e94-ff48-428a-a30b-6931291e2e80",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "sdk-connections",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) The id of the requested resource"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "DELETE",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"deletedId\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "aea81487-d693-40d8-91f2-9e123f32788f",
+          "name": "Find a single sdk connection by its key",
+          "request": {
+            "name": "Find a single sdk connection by its key",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "sdk-connections",
+                "lookup",
+                ":key"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "key",
+                  "description": "(Required) The key of the requested sdkConnection"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "263fe5c1-6dab-49aa-9dc3-5ab558f51204",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "sdk-connections",
+                    "lookup",
+                    ":key"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "key",
+                      "description": "(Required) The key of the requested sdkConnection"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"sdkConnection\": {\n    \"id\": \"string\",\n    \"dateCreated\": \"1971-08-22T10:20:53.754Z\",\n    \"dateUpdated\": \"1990-12-18T09:20:57.038Z\",\n    \"name\": \"string\",\n    \"organization\": \"string\",\n    \"languages\": [\n      \"string\",\n      \"string\"\n    ],\n    \"environment\": \"string\",\n    \"project\": \"string\",\n    \"encryptPayload\": false,\n    \"encryptionKey\": \"string\",\n    \"key\": \"string\",\n    \"proxyEnabled\": false,\n    \"proxyHost\": \"string\",\n    \"proxySigningKey\": \"string\",\n    \"sdkVersion\": \"string\",\n    \"projects\": [\n      \"string\",\n      \"string\"\n    ],\n    \"includeVisualExperiments\": true,\n    \"includeDraftExperiments\": true,\n    \"includeExperimentNames\": false,\n    \"includeRedirectExperiments\": false,\n    \"includeRuleIds\": false,\n    \"includeProjectIdInMetadata\": false,\n    \"includeCustomFieldsInMetadata\": false,\n    \"allowedCustomFieldsInMetadata\": [\n      \"string\",\n      \"string\"\n    ],\n    \"includeTagsInMetadata\": true,\n    \"sseEnabled\": false,\n    \"hashSecureAttributes\": false,\n    \"remoteEvalEnabled\": false,\n    \"savedGroupReferencesEnabled\": true\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.growthbook.io/api",
+      "key": "baseUrl"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}"
+      }
+    ]
+  },
+  "info": {
+    "_postman_id": "d091bad0-0277-4e75-85e5-525b57846aab",
+    "name": "GrowthBook REST AnalyticsExplorations sdk-connections API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "GrowthBook offers a full REST API for interacting with the application.\n\nRequest data can use either JSON or Form data encoding (with proper `Content-Type` headers). All response bodies are JSON-encoded.\n\nThe API base URL for GrowthBook Cloud is `https://api.growthbook.io/api`. For self-hosted deployments, it is the same as your API_HOST environment variable (defaults to `http://localhost:3100/api`). The rest of these docs will assume you are using GrowthBook Cloud.\n\n## Versioning\n\nEndpoints are versioned by path prefix:\n\n- `/v1/...` — stable, widely-supported endpoints\n- `/v2/...` — updated endpoints with improved shapes (e.g. unified per-rule environment scope for feature flags)\n\nNew integrations should prefer v2 where available.\n\n## Authentication\n\nWe support both the HTTP Basic and Bearer authentication schemes for convenience.\n\nYou first need to generate a new API Key in GrowthBook. Different keys have different permissions:\n\n- **Personal Access Tokens**: These are sensitive and provide the same level of access as the user has to an organization. These can be created by going to `Personal Access Tokens` under the your user menu.\n- **Secret Keys**: These are sensitive and provide the level of access for the role, which currently is either `admin` or `readonly`. Only Admins with the `manageApiKeys` permission can manage Secret Keys on behalf of an organization. These can be created by going to `Settings -> API Keys`\n\nIf using HTTP Basic auth, pass the Secret Key as the username and leave the password blank (when using curl, add `:` at the end of the secret to indicate an empty password)\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n  -u secret_abc123DEF456:\n```\n\nIf using Bearer auth, pass the Secret Key as the token:\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n-H \"Authorization: Bearer secret_abc123DEF456\"\n```\n\n## Errors\n\nThe API may return the following error status codes:\n\n- **400** - Bad Request - Often due to a missing required parameter\n- **401** - Unauthorized - No valid API key provided\n- **402** - Request Failed - The parameters are valid, but the request failed\n- **403** - Forbidden - Provided API key does not have the required access\n- **404** - Not Found - Unknown API route or requested resource\n- **429** - Too Many Requests - You exceeded the rate limit of 60 requests per minute. Try again later.\n- **5XX** - Server Error - Something went wrong on GrowthBook's end (these are rare)\n\nThe response body will be a JSON object with the following properties:\n\n- **message** - Information about the error\n",
+      "type": "text/plain"
+    }
+  }
+}

@@ -1,0 +1,154 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "GrowthBook REST AnalyticsExplorations visual-changesets API",
+    "version": "1.0.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "visual-changesets",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get all visual changesets",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.growthbook.io/api/v1/experiments/:id/visual-changesets",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The experiment id the visual changesets belong to"
+              }
+            ]
+          },
+          "docs": "Get all visual changesets"
+        },
+        {
+          "info": {
+            "name": "Create a visual changeset for an experiment",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.growthbook.io/api/v1/experiments/:id/visual-changesets",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the requested resource"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a visual changeset for an experiment"
+        },
+        {
+          "info": {
+            "name": "Get a single visual changeset",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.growthbook.io/api/v1/visual-changesets/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the requested resource"
+              },
+              {
+                "name": "includeExperiment",
+                "value": "",
+                "type": "query",
+                "description": "Include the associated experiment in payload"
+              }
+            ]
+          },
+          "docs": "Get a single visual changeset"
+        },
+        {
+          "info": {
+            "name": "Update a visual changeset",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.growthbook.io/api/v1/visual-changesets/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the requested resource"
+              }
+            ]
+          },
+          "docs": "Update a visual changeset"
+        },
+        {
+          "info": {
+            "name": "Create a visual change for a visual changeset",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.growthbook.io/api/v1/visual-changesets/:id/visual-change",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the requested resource"
+              }
+            ]
+          },
+          "docs": "Create a visual change for a visual changeset"
+        },
+        {
+          "info": {
+            "name": "Update a visual change for a visual changeset",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.growthbook.io/api/v1/visual-changesets/:id/visual-change/:visualChangeId",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the requested resource"
+              },
+              {
+                "name": "visualChangeId",
+                "value": "",
+                "type": "path",
+                "description": "Specify a specific visual change"
+              }
+            ]
+          },
+          "docs": "Update a visual change for a visual changeset"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

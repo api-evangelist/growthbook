@@ -1,0 +1,686 @@
+{
+  "item": [
+    {
+      "id": "8a39e5b6-e833-4117-a7e5-0e7c2290775d",
+      "name": "fact-metrics",
+      "description": {
+        "content": "Fact Metrics are metrics built on top of Fact Table definitions",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "80a2a1ce-d13b-4b96-9339-94359a3151df",
+          "name": "Get all fact metrics",
+          "request": {
+            "name": "Get all fact metrics",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "fact-metrics"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "10",
+                  "description": "The number of items to return"
+                },
+                {
+                  "disabled": false,
+                  "key": "offset",
+                  "value": "0",
+                  "description": "How many items to skip (use in conjunction with limit for pagination)"
+                },
+                {
+                  "disabled": false,
+                  "key": "datasourceId",
+                  "value": "<string>",
+                  "description": "Filter by Data Source"
+                },
+                {
+                  "disabled": false,
+                  "key": "projectId",
+                  "value": "<string>",
+                  "description": "Filter by project id"
+                },
+                {
+                  "disabled": false,
+                  "key": "factTableId",
+                  "value": "<string>",
+                  "description": "Filter by Fact Table Id (for ratio metrics, we only look at the numerator)"
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "5ea8c0d3-b074-42b2-bd81-f91ee53e3e56",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "fact-metrics"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "10"
+                    },
+                    {
+                      "key": "offset",
+                      "value": "0"
+                    },
+                    {
+                      "key": "datasourceId",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "projectId",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "factTableId",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"count\": 3181,\n  \"factMetrics\": [\n    {\n      \"id\": \"string\",\n      \"name\": \"string\",\n      \"description\": \"string\",\n      \"owner\": \"string\",\n      \"projects\": [\n        \"string\",\n        \"string\"\n      ],\n      \"tags\": [\n        \"string\",\n        \"string\"\n      ],\n      \"datasource\": \"string\",\n      \"metricType\": \"ratio\",\n      \"numerator\": {\n        \"factTableId\": \"string\",\n        \"column\": \"string\",\n        \"aggregation\": \"sum\",\n        \"filters\": [\n          \"string\",\n          \"string\"\n        ],\n        \"inlineFilters\": {\n          \"key_0\": [\n            \"string\",\n            \"string\"\n          ],\n          \"key_1\": [\n            \"string\",\n            \"string\"\n          ],\n          \"key_2\": [\n            \"string\",\n            \"string\"\n          ]\n        },\n        \"rowFilters\": [\n          {\n            \"operator\": \"ends_with\",\n            \"values\": [\n              \"string\",\n              \"string\"\n            ],\n            \"column\": \"string\"\n          },\n          {\n            \"operator\": \"not_in\",\n            \"values\": [\n              \"string\",\n              \"string\"\n            ],\n            \"column\": \"string\"\n          }\n        ],\n        \"aggregateFilterColumn\": \"string\",\n        \"aggregateFilter\": \"string\"\n      },\n      \"inverse\": true,\n      \"cappingSettings\": {\n        \"type\": \"percentile\",\n        \"value\": 270.9884674166385,\n        \"ignoreZeros\": true\n      },\n      \"windowSettings\": {\n        \"type\": \"conversion\",\n        \"delayValue\": 4081.3195950606582,\n        \"delayUnit\": \"minutes\",\n        \"windowValue\": 9357.06644955368,\n        \"windowUnit\": \"hours\"\n      },\n      \"priorSettings\": {\n        \"override\": false,\n        \"proper\": true,\n        \"mean\": 455.30631009047306,\n        \"stddev\": 6328.056805248467\n      },\n      \"regressionAdjustmentSettings\": {\n        \"override\": true,\n        \"enabled\": false,\n        \"days\": 2735.3726073126904\n      },\n      \"riskThresholdSuccess\": 8623.058840533373,\n      \"riskThresholdDanger\": 167.54679716849964,\n      \"minPercentChange\": 1497.5031730869725,\n      \"maxPercentChange\": 1928.0932914977645,\n      \"minSampleSize\": 5890.9727538911275,\n      \"targetMDE\": 696.9761062013946,\n      \"managedBy\": \"\",\n      \"dateCreated\": \"1974-09-04T23:38:26.683Z\",\n      \"dateUpdated\": \"1980-10-31T01:56:05.125Z\",\n      \"ownerEmail\": \"string\",\n      \"denominator\": {\n        \"factTableId\": \"string\",\n        \"column\": \"string\",\n        \"filters\": [\n          \"string\",\n          \"string\"\n        ],\n        \"inlineFilters\": {\n          \"key_0\": [\n            \"string\",\n            \"string\"\n          ]\n        },\n        \"rowFilters\": [\n          {\n            \"operator\": \"<=\",\n            \"values\": [\n              \"string\",\n              \"string\"\n            ],\n            \"column\": \"string\"\n          },\n          {\n            \"operator\": \"contains\",\n            \"values\": [\n              \"string\",\n              \"string\"\n            ],\n            \"column\": \"string\"\n          }\n        ]\n      },\n      \"quantileSettings\": {\n        \"type\": \"event\",\n        \"ignoreZeros\": true,\n        \"quantile\": 0.67,\n        \"quantileEventCountColumn\": \"string\"\n      },\n      \"displayAsPercentage\": true,\n      \"archived\": false,\n      \"metricAutoSlices\": [\n        \"string\",\n        \"string\"\n      ]\n    },\n    {\n      \"id\": \"string\",\n      \"name\": \"string\",\n      \"description\": \"string\",\n      \"owner\": \"string\",\n      \"projects\": [\n        \"string\",\n        \"string\"\n      ],\n      \"tags\": [\n        \"string\",\n        \"string\"\n      ],\n      \"datasource\": \"string\",\n      \"metricType\": \"retention\",\n      \"numerator\": {\n        \"factTableId\": \"string\",\n        \"column\": \"string\",\n        \"aggregation\": \"kll merge\",\n        \"filters\": [\n          \"string\",\n          \"string\"\n        ],\n        \"inlineFilters\": {\n          \"key_0\": [\n            \"string\",\n            \"string\"\n          ]\n        },\n        \"rowFilters\": [\n          {\n            \"operator\": \"not_null\",\n            \"values\": [\n              \"string\",\n              \"string\"\n            ],\n            \"column\": \"string\"\n          },\n          {\n            \"operator\": \"ends_with\",\n            \"values\": [\n              \"string\",\n              \"string\"\n            ],\n            \"column\": \"string\"\n          }\n        ],\n        \"aggregateFilterColumn\": \"string\",\n        \"aggregateFilter\": \"string\"\n      },\n      \"inverse\": false,\n      \"cappingSettings\": {\n        \"type\": \"absolute\",\n        \"value\": 6137.381234233625,\n        \"ignoreZeros\": true\n      },\n      \"windowSettings\": {\n        \"type\": \"none\",\n        \"delayValue\": 7685.384467832179,\n        \"delayUnit\": \"weeks\",\n        \"windowValue\": 7585.404427612032,\n        \"windowUnit\": \"minutes\"\n      },\n      \"priorSettings\": {\n        \"override\": false,\n        \"proper\": true,\n        \"mean\": 6630.902885447318,\n        \"stddev\": 3134.6560549306046\n      },\n      \"regressionAdjustmentSettings\": {\n        \"override\": true,\n        \"enabled\": false,\n        \"days\": 991.2306267774196\n      },\n      \"riskThresholdSuccess\": 1527.6677333449506,\n      \"riskThresholdDanger\": 4027.127490966006,\n      \"minPercentChange\": 1683.470937863728,\n      \"maxPercentChange\": 7345.755895787569,\n      \"minSampleSize\": 2474.8886128854174,\n      \"targetMDE\": 8163.392386317821,\n      \"managedBy\": \"\",\n      \"dateCreated\": \"1994-11-15T09:53:32.455Z\",\n      \"dateUpdated\": \"1987-08-23T06:02:09.402Z\",\n      \"ownerEmail\": \"string\",\n      \"denominator\": {\n        \"factTableId\": \"string\",\n        \"column\": \"string\",\n        \"filters\": [\n          \"string\",\n          \"string\"\n        ],\n        \"inlineFilters\": {\n          \"key_0\": [\n            \"string\",\n            \"string\"\n          ]\n        },\n        \"rowFilters\": [\n          {\n            \"operator\": \"sql_expr\",\n            \"values\": [\n              \"string\",\n              \"string\"\n            ],\n            \"column\": \"string\"\n          },\n          {\n            \"operator\": \"<=\",\n            \"values\": [\n              \"string\",\n              \"string\"\n            ],\n            \"column\": \"string\"\n          }\n        ]\n      },\n      \"quantileSettings\": {\n        \"type\": \"unit\",\n        \"ignoreZeros\": false,\n        \"quantile\": 0.607,\n        \"quantileEventCountColumn\": \"string\"\n      },\n      \"displayAsPercentage\": true,\n      \"archived\": true,\n      \"metricAutoSlices\": [\n        \"string\",\n        \"string\"\n      ]\n    }\n  ],\n  \"hasMore\": false,\n  \"limit\": 8162,\n  \"nextOffset\": 6310,\n  \"offset\": 8743,\n  \"total\": 8187\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "125a466a-e7ce-4e1b-9970-b56561d4f025",
+          "name": "Create a single fact metric",
+          "request": {
+            "name": "Create a single fact metric",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "fact-metrics"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"<string>\",\n  \"metricType\": \"<string>\",\n  \"numerator\": {\n    \"factTableId\": \"<string>\",\n    \"column\": \"<string>\",\n    \"aggregation\": \"<string>\",\n    \"filters\": [\n      \"<string>\",\n      \"<string>\"\n    ],\n    \"inlineFilters\": {\n      \"key_0\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"key_1\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"key_2\": [\n        \"<string>\",\n        \"<string>\"\n      ]\n    },\n    \"rowFilters\": [\n      {\n        \"operator\": \"<string>\",\n        \"values\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"column\": \"<string>\"\n      },\n      {\n        \"operator\": \"<string>\",\n        \"values\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"column\": \"<string>\"\n      }\n    ],\n    \"aggregateFilterColumn\": \"<string>\",\n    \"aggregateFilter\": \"<string>\"\n  },\n  \"description\": \"<string>\",\n  \"owner\": \"<string>\",\n  \"projects\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"tags\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"denominator\": {\n    \"factTableId\": \"<string>\",\n    \"column\": \"<string>\",\n    \"aggregation\": \"<string>\",\n    \"filters\": [\n      \"<string>\",\n      \"<string>\"\n    ],\n    \"inlineFilters\": {\n      \"key_0\": [\n        \"<string>\",\n        \"<string>\"\n      ]\n    },\n    \"rowFilters\": [\n      {\n        \"operator\": \"<string>\",\n        \"values\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"column\": \"<string>\"\n      },\n      {\n        \"operator\": \"<string>\",\n        \"values\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"column\": \"<string>\"\n      }\n    ]\n  },\n  \"inverse\": \"<boolean>\",\n  \"quantileSettings\": {\n    \"type\": \"<string>\",\n    \"ignoreZeros\": \"<boolean>\",\n    \"quantile\": \"<number>\",\n    \"quantileEventCountColumn\": \"<string>\"\n  },\n  \"cappingSettings\": {\n    \"type\": \"<string>\",\n    \"value\": \"<number>\",\n    \"ignoreZeros\": \"<boolean>\"\n  },\n  \"windowSettings\": {\n    \"type\": \"<string>\",\n    \"delayHours\": \"<number>\",\n    \"delayValue\": \"<number>\",\n    \"delayUnit\": \"<string>\",\n    \"windowValue\": \"<number>\",\n    \"windowUnit\": \"<string>\"\n  },\n  \"priorSettings\": {\n    \"override\": \"<boolean>\",\n    \"proper\": \"<boolean>\",\n    \"mean\": \"<number>\",\n    \"stddev\": \"<number>\"\n  },\n  \"regressionAdjustmentSettings\": {\n    \"override\": \"<boolean>\",\n    \"enabled\": \"<boolean>\",\n    \"days\": \"<number>\"\n  },\n  \"riskThresholdSuccess\": \"<number>\",\n  \"riskThresholdDanger\": \"<number>\",\n  \"displayAsPercentage\": \"<boolean>\",\n  \"minPercentChange\": \"<number>\",\n  \"maxPercentChange\": \"<number>\",\n  \"minSampleSize\": \"<number>\",\n  \"targetMDE\": \"<number>\",\n  \"managedBy\": \"<string>\",\n  \"metricAutoSlices\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "c8e4d344-ecfb-4296-bbb0-8af2f6f18141",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "fact-metrics"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"<string>\",\n  \"metricType\": \"<string>\",\n  \"numerator\": {\n    \"factTableId\": \"<string>\",\n    \"column\": \"<string>\",\n    \"aggregation\": \"<string>\",\n    \"filters\": [\n      \"<string>\",\n      \"<string>\"\n    ],\n    \"inlineFilters\": {\n      \"key_0\": [\n        \"<string>\",\n        \"<string>\"\n      ]\n    },\n    \"rowFilters\": [\n      {\n        \"operator\": \"<string>\",\n        \"values\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"column\": \"<string>\"\n      },\n      {\n        \"operator\": \"<string>\",\n        \"values\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"column\": \"<string>\"\n      }\n    ],\n    \"aggregateFilterColumn\": \"<string>\",\n    \"aggregateFilter\": \"<string>\"\n  },\n  \"description\": \"<string>\",\n  \"owner\": \"<string>\",\n  \"projects\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"tags\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"denominator\": {\n    \"factTableId\": \"<string>\",\n    \"column\": \"<string>\",\n    \"aggregation\": \"<string>\",\n    \"filters\": [\n      \"<string>\",\n      \"<string>\"\n    ],\n    \"inlineFilters\": {\n      \"key_0\": [\n        \"<string>\",\n        \"<string>\"\n      ]\n    },\n    \"rowFilters\": [\n      {\n        \"operator\": \"<string>\",\n        \"values\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"column\": \"<string>\"\n      },\n      {\n        \"operator\": \"<string>\",\n        \"values\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"column\": \"<string>\"\n      }\n    ]\n  },\n  \"inverse\": \"<boolean>\",\n  \"quantileSettings\": {\n    \"type\": \"<string>\",\n    \"ignoreZeros\": \"<boolean>\",\n    \"quantile\": \"<number>\",\n    \"quantileEventCountColumn\": \"<string>\"\n  },\n  \"cappingSettings\": {\n    \"type\": \"<string>\",\n    \"value\": \"<number>\",\n    \"ignoreZeros\": \"<boolean>\"\n  },\n  \"windowSettings\": {\n    \"type\": \"<string>\",\n    \"delayHours\": \"<number>\",\n    \"delayValue\": \"<number>\",\n    \"delayUnit\": \"<string>\",\n    \"windowValue\": \"<number>\",\n    \"windowUnit\": \"<string>\"\n  },\n  \"priorSettings\": {\n    \"override\": \"<boolean>\",\n    \"proper\": \"<boolean>\",\n    \"mean\": \"<number>\",\n    \"stddev\": \"<number>\"\n  },\n  \"regressionAdjustmentSettings\": {\n    \"override\": \"<boolean>\",\n    \"enabled\": \"<boolean>\",\n    \"days\": \"<number>\"\n  },\n  \"riskThresholdSuccess\": \"<number>\",\n  \"riskThresholdDanger\": \"<number>\",\n  \"displayAsPercentage\": \"<boolean>\",\n  \"minPercentChange\": \"<number>\",\n  \"maxPercentChange\": \"<number>\",\n  \"minSampleSize\": \"<number>\",\n  \"targetMDE\": \"<number>\",\n  \"managedBy\": \"<string>\",\n  \"metricAutoSlices\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"factMetric\": {\n    \"id\": \"string\",\n    \"name\": \"string\",\n    \"description\": \"string\",\n    \"owner\": \"string\",\n    \"projects\": [\n      \"string\",\n      \"string\"\n    ],\n    \"tags\": [\n      \"string\",\n      \"string\"\n    ],\n    \"datasource\": \"string\",\n    \"metricType\": \"ratio\",\n    \"numerator\": {\n      \"factTableId\": \"string\",\n      \"column\": \"string\",\n      \"aggregation\": \"max\",\n      \"filters\": [\n        \"string\",\n        \"string\"\n      ],\n      \"inlineFilters\": {\n        \"key_0\": [\n          \"string\",\n          \"string\"\n        ],\n        \"key_1\": [\n          \"string\",\n          \"string\"\n        ],\n        \"key_2\": [\n          \"string\",\n          \"string\"\n        ]\n      },\n      \"rowFilters\": [\n        {\n          \"operator\": \"<\",\n          \"values\": [\n            \"string\",\n            \"string\"\n          ],\n          \"column\": \"string\"\n        },\n        {\n          \"operator\": \"not_in\",\n          \"values\": [\n            \"string\",\n            \"string\"\n          ],\n          \"column\": \"string\"\n        }\n      ],\n      \"aggregateFilterColumn\": \"string\",\n      \"aggregateFilter\": \"string\"\n    },\n    \"inverse\": false,\n    \"cappingSettings\": {\n      \"type\": \"percentile\",\n      \"value\": 8336.458650443828,\n      \"ignoreZeros\": false\n    },\n    \"windowSettings\": {\n      \"type\": \"conversion\",\n      \"delayValue\": 3331.770382636653,\n      \"delayUnit\": \"days\",\n      \"windowValue\": 3799.2405167788834,\n      \"windowUnit\": \"days\"\n    },\n    \"priorSettings\": {\n      \"override\": true,\n      \"proper\": true,\n      \"mean\": 553.1642016026872,\n      \"stddev\": 9485.647280261157\n    },\n    \"regressionAdjustmentSettings\": {\n      \"override\": true,\n      \"enabled\": false,\n      \"days\": 6934.429262822912\n    },\n    \"riskThresholdSuccess\": 9088.549012328656,\n    \"riskThresholdDanger\": 3981.772078166721,\n    \"minPercentChange\": 7725.932281413858,\n    \"maxPercentChange\": 9323.466634015998,\n    \"minSampleSize\": 8145.847653733156,\n    \"targetMDE\": 4334.457938044592,\n    \"managedBy\": \"admin\",\n    \"dateCreated\": \"1973-03-25T15:27:19.702Z\",\n    \"dateUpdated\": \"1977-10-02T18:56:54.686Z\",\n    \"ownerEmail\": \"string\",\n    \"denominator\": {\n      \"factTableId\": \"string\",\n      \"column\": \"string\",\n      \"filters\": [\n        \"string\",\n        \"string\"\n      ],\n      \"inlineFilters\": {\n        \"key_0\": [\n          \"string\",\n          \"string\"\n        ],\n        \"key_1\": [\n          \"string\",\n          \"string\"\n        ]\n      },\n      \"rowFilters\": [\n        {\n          \"operator\": \"is_true\",\n          \"values\": [\n            \"string\",\n            \"string\"\n          ],\n          \"column\": \"string\"\n        },\n        {\n          \"operator\": \"!=\",\n          \"values\": [\n            \"string\",\n            \"string\"\n          ],\n          \"column\": \"string\"\n        }\n      ]\n    },\n    \"quantileSettings\": {\n      \"type\": \"event\",\n      \"ignoreZeros\": true,\n      \"quantile\": 0.562,\n      \"quantileEventCountColumn\": \"string\"\n    },\n    \"displayAsPercentage\": false,\n    \"archived\": false,\n    \"metricAutoSlices\": [\n      \"string\",\n      \"string\"\n    ]\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "186cb0e5-d915-481f-bbe5-3e7974715322",
+          "name": "Get a single fact metric",
+          "request": {
+            "name": "Get a single fact metric",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "fact-metrics",
+                ":id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "id",
+                  "description": "(Required) The id of the requested resource"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "79a2a1bc-ad33-4395-a01f-9645df837fe6",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "fact-metrics",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) The id of the requested resource"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"factMetric\": {\n    \"id\": \"string\",\n    \"name\": \"string\",\n    \"description\": \"string\",\n    \"owner\": \"string\",\n    \"projects\": [\n      \"string\",\n      \"string\"\n    ],\n    \"tags\": [\n      \"string\",\n      \"string\"\n    ],\n    \"datasource\": \"string\",\n    \"metricType\": \"ratio\",\n    \"numerator\": {\n      \"factTableId\": \"string\",\n      \"column\": \"string\",\n      \"aggregation\": \"max\",\n      \"filters\": [\n        \"string\",\n        \"string\"\n      ],\n      \"inlineFilters\": {\n        \"key_0\": [\n          \"string\",\n          \"string\"\n        ],\n        \"key_1\": [\n          \"string\",\n          \"string\"\n        ],\n        \"key_2\": [\n          \"string\",\n          \"string\"\n        ]\n      },\n      \"rowFilters\": [\n        {\n          \"operator\": \"<\",\n          \"values\": [\n            \"string\",\n            \"string\"\n          ],\n          \"column\": \"string\"\n        },\n        {\n          \"operator\": \"not_in\",\n          \"values\": [\n            \"string\",\n            \"string\"\n          ],\n          \"column\": \"string\"\n        }\n      ],\n      \"aggregateFilterColumn\": \"string\",\n      \"aggregateFilter\": \"string\"\n    },\n    \"inverse\": false,\n    \"cappingSettings\": {\n      \"type\": \"percentile\",\n      \"value\": 8336.458650443828,\n      \"ignoreZeros\": false\n    },\n    \"windowSettings\": {\n      \"type\": \"conversion\",\n      \"delayValue\": 3331.770382636653,\n      \"delayUnit\": \"days\",\n      \"windowValue\": 3799.2405167788834,\n      \"windowUnit\": \"days\"\n    },\n    \"priorSettings\": {\n      \"override\": true,\n      \"proper\": true,\n      \"mean\": 553.1642016026872,\n      \"stddev\": 9485.647280261157\n    },\n    \"regressionAdjustmentSettings\": {\n      \"override\": true,\n      \"enabled\": false,\n      \"days\": 6934.429262822912\n    },\n    \"riskThresholdSuccess\": 9088.549012328656,\n    \"riskThresholdDanger\": 3981.772078166721,\n    \"minPercentChange\": 7725.932281413858,\n    \"maxPercentChange\": 9323.466634015998,\n    \"minSampleSize\": 8145.847653733156,\n    \"targetMDE\": 4334.457938044592,\n    \"managedBy\": \"admin\",\n    \"dateCreated\": \"1973-03-25T15:27:19.702Z\",\n    \"dateUpdated\": \"1977-10-02T18:56:54.686Z\",\n    \"ownerEmail\": \"string\",\n    \"denominator\": {\n      \"factTableId\": \"string\",\n      \"column\": \"string\",\n      \"filters\": [\n        \"string\",\n        \"string\"\n      ],\n      \"inlineFilters\": {\n        \"key_0\": [\n          \"string\",\n          \"string\"\n        ],\n        \"key_1\": [\n          \"string\",\n          \"string\"\n        ]\n      },\n      \"rowFilters\": [\n        {\n          \"operator\": \"is_true\",\n          \"values\": [\n            \"string\",\n            \"string\"\n          ],\n          \"column\": \"string\"\n        },\n        {\n          \"operator\": \"!=\",\n          \"values\": [\n            \"string\",\n            \"string\"\n          ],\n          \"column\": \"string\"\n        }\n      ]\n    },\n    \"quantileSettings\": {\n      \"type\": \"event\",\n      \"ignoreZeros\": true,\n      \"quantile\": 0.562,\n      \"quantileEventCountColumn\": \"string\"\n    },\n    \"displayAsPercentage\": false,\n    \"archived\": false,\n    \"metricAutoSlices\": [\n      \"string\",\n      \"string\"\n    ]\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "06a1096d-5c97-4820-b084-484e3bc0e2c0",
+          "name": "Update a single fact metric",
+          "request": {
+            "name": "Update a single fact metric",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "fact-metrics",
+                ":id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "id",
+                  "description": "(Required) The id of the requested resource"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"<string>\",\n  \"description\": \"<string>\",\n  \"owner\": \"<string>\",\n  \"projects\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"tags\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"metricType\": \"<string>\",\n  \"numerator\": {\n    \"factTableId\": \"<string>\",\n    \"column\": \"<string>\",\n    \"aggregation\": \"<string>\",\n    \"filters\": [\n      \"<string>\",\n      \"<string>\"\n    ],\n    \"inlineFilters\": {\n      \"key_0\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"key_1\": [\n        \"<string>\",\n        \"<string>\"\n      ]\n    },\n    \"rowFilters\": [\n      {\n        \"operator\": \"<string>\",\n        \"values\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"column\": \"<string>\"\n      },\n      {\n        \"operator\": \"<string>\",\n        \"values\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"column\": \"<string>\"\n      }\n    ],\n    \"aggregateFilterColumn\": \"<string>\",\n    \"aggregateFilter\": \"<string>\"\n  },\n  \"denominator\": {\n    \"factTableId\": \"<string>\",\n    \"column\": \"<string>\",\n    \"aggregation\": \"<string>\",\n    \"filters\": [\n      \"<string>\",\n      \"<string>\"\n    ],\n    \"inlineFilters\": {\n      \"key_0\": [\n        \"<string>\",\n        \"<string>\"\n      ]\n    },\n    \"rowFilters\": [\n      {\n        \"operator\": \"<string>\",\n        \"values\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"column\": \"<string>\"\n      },\n      {\n        \"operator\": \"<string>\",\n        \"values\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"column\": \"<string>\"\n      }\n    ]\n  },\n  \"inverse\": \"<boolean>\",\n  \"quantileSettings\": {\n    \"type\": \"<string>\",\n    \"ignoreZeros\": \"<boolean>\",\n    \"quantile\": \"<number>\",\n    \"quantileEventCountColumn\": \"<string>\"\n  },\n  \"cappingSettings\": {\n    \"type\": \"<string>\",\n    \"value\": \"<number>\",\n    \"ignoreZeros\": \"<boolean>\"\n  },\n  \"windowSettings\": {\n    \"type\": \"<string>\",\n    \"delayHours\": \"<number>\",\n    \"delayValue\": \"<number>\",\n    \"delayUnit\": \"<string>\",\n    \"windowValue\": \"<number>\",\n    \"windowUnit\": \"<string>\"\n  },\n  \"priorSettings\": {\n    \"override\": \"<boolean>\",\n    \"proper\": \"<boolean>\",\n    \"mean\": \"<number>\",\n    \"stddev\": \"<number>\"\n  },\n  \"regressionAdjustmentSettings\": {\n    \"override\": \"<boolean>\",\n    \"enabled\": \"<boolean>\",\n    \"days\": \"<number>\"\n  },\n  \"riskThresholdSuccess\": \"<number>\",\n  \"riskThresholdDanger\": \"<number>\",\n  \"displayAsPercentage\": \"<boolean>\",\n  \"minPercentChange\": \"<number>\",\n  \"maxPercentChange\": \"<number>\",\n  \"minSampleSize\": \"<number>\",\n  \"targetMDE\": \"<number>\",\n  \"managedBy\": \"<string>\",\n  \"archived\": \"<boolean>\",\n  \"metricAutoSlices\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "d692cfa2-8f3f-4681-9850-78061752a0af",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "fact-metrics",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) The id of the requested resource"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"<string>\",\n  \"description\": \"<string>\",\n  \"owner\": \"<string>\",\n  \"projects\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"tags\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"metricType\": \"<string>\",\n  \"numerator\": {\n    \"factTableId\": \"<string>\",\n    \"column\": \"<string>\",\n    \"aggregation\": \"<string>\",\n    \"filters\": [\n      \"<string>\",\n      \"<string>\"\n    ],\n    \"inlineFilters\": {\n      \"key_0\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"key_1\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"key_2\": [\n        \"<string>\",\n        \"<string>\"\n      ]\n    },\n    \"rowFilters\": [\n      {\n        \"operator\": \"<string>\",\n        \"values\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"column\": \"<string>\"\n      },\n      {\n        \"operator\": \"<string>\",\n        \"values\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"column\": \"<string>\"\n      }\n    ],\n    \"aggregateFilterColumn\": \"<string>\",\n    \"aggregateFilter\": \"<string>\"\n  },\n  \"denominator\": {\n    \"factTableId\": \"<string>\",\n    \"column\": \"<string>\",\n    \"aggregation\": \"<string>\",\n    \"filters\": [\n      \"<string>\",\n      \"<string>\"\n    ],\n    \"inlineFilters\": {\n      \"key_0\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"key_1\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"key_2\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"key_3\": [\n        \"<string>\",\n        \"<string>\"\n      ]\n    },\n    \"rowFilters\": [\n      {\n        \"operator\": \"<string>\",\n        \"values\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"column\": \"<string>\"\n      },\n      {\n        \"operator\": \"<string>\",\n        \"values\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"column\": \"<string>\"\n      }\n    ]\n  },\n  \"inverse\": \"<boolean>\",\n  \"quantileSettings\": {\n    \"type\": \"<string>\",\n    \"ignoreZeros\": \"<boolean>\",\n    \"quantile\": \"<number>\",\n    \"quantileEventCountColumn\": \"<string>\"\n  },\n  \"cappingSettings\": {\n    \"type\": \"<string>\",\n    \"value\": \"<number>\",\n    \"ignoreZeros\": \"<boolean>\"\n  },\n  \"windowSettings\": {\n    \"type\": \"<string>\",\n    \"delayHours\": \"<number>\",\n    \"delayValue\": \"<number>\",\n    \"delayUnit\": \"<string>\",\n    \"windowValue\": \"<number>\",\n    \"windowUnit\": \"<string>\"\n  },\n  \"priorSettings\": {\n    \"override\": \"<boolean>\",\n    \"proper\": \"<boolean>\",\n    \"mean\": \"<number>\",\n    \"stddev\": \"<number>\"\n  },\n  \"regressionAdjustmentSettings\": {\n    \"override\": \"<boolean>\",\n    \"enabled\": \"<boolean>\",\n    \"days\": \"<number>\"\n  },\n  \"riskThresholdSuccess\": \"<number>\",\n  \"riskThresholdDanger\": \"<number>\",\n  \"displayAsPercentage\": \"<boolean>\",\n  \"minPercentChange\": \"<number>\",\n  \"maxPercentChange\": \"<number>\",\n  \"minSampleSize\": \"<number>\",\n  \"targetMDE\": \"<number>\",\n  \"managedBy\": \"<string>\",\n  \"archived\": \"<boolean>\",\n  \"metricAutoSlices\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"factMetric\": {\n    \"id\": \"string\",\n    \"name\": \"string\",\n    \"description\": \"string\",\n    \"owner\": \"string\",\n    \"projects\": [\n      \"string\",\n      \"string\"\n    ],\n    \"tags\": [\n      \"string\",\n      \"string\"\n    ],\n    \"datasource\": \"string\",\n    \"metricType\": \"ratio\",\n    \"numerator\": {\n      \"factTableId\": \"string\",\n      \"column\": \"string\",\n      \"aggregation\": \"max\",\n      \"filters\": [\n        \"string\",\n        \"string\"\n      ],\n      \"inlineFilters\": {\n        \"key_0\": [\n          \"string\",\n          \"string\"\n        ],\n        \"key_1\": [\n          \"string\",\n          \"string\"\n        ],\n        \"key_2\": [\n          \"string\",\n          \"string\"\n        ]\n      },\n      \"rowFilters\": [\n        {\n          \"operator\": \"<\",\n          \"values\": [\n            \"string\",\n            \"string\"\n          ],\n          \"column\": \"string\"\n        },\n        {\n          \"operator\": \"not_in\",\n          \"values\": [\n            \"string\",\n            \"string\"\n          ],\n          \"column\": \"string\"\n        }\n      ],\n      \"aggregateFilterColumn\": \"string\",\n      \"aggregateFilter\": \"string\"\n    },\n    \"inverse\": false,\n    \"cappingSettings\": {\n      \"type\": \"percentile\",\n      \"value\": 8336.458650443828,\n      \"ignoreZeros\": false\n    },\n    \"windowSettings\": {\n      \"type\": \"conversion\",\n      \"delayValue\": 3331.770382636653,\n      \"delayUnit\": \"days\",\n      \"windowValue\": 3799.2405167788834,\n      \"windowUnit\": \"days\"\n    },\n    \"priorSettings\": {\n      \"override\": true,\n      \"proper\": true,\n      \"mean\": 553.1642016026872,\n      \"stddev\": 9485.647280261157\n    },\n    \"regressionAdjustmentSettings\": {\n      \"override\": true,\n      \"enabled\": false,\n      \"days\": 6934.429262822912\n    },\n    \"riskThresholdSuccess\": 9088.549012328656,\n    \"riskThresholdDanger\": 3981.772078166721,\n    \"minPercentChange\": 7725.932281413858,\n    \"maxPercentChange\": 9323.466634015998,\n    \"minSampleSize\": 8145.847653733156,\n    \"targetMDE\": 4334.457938044592,\n    \"managedBy\": \"admin\",\n    \"dateCreated\": \"1973-03-25T15:27:19.702Z\",\n    \"dateUpdated\": \"1977-10-02T18:56:54.686Z\",\n    \"ownerEmail\": \"string\",\n    \"denominator\": {\n      \"factTableId\": \"string\",\n      \"column\": \"string\",\n      \"filters\": [\n        \"string\",\n        \"string\"\n      ],\n      \"inlineFilters\": {\n        \"key_0\": [\n          \"string\",\n          \"string\"\n        ],\n        \"key_1\": [\n          \"string\",\n          \"string\"\n        ]\n      },\n      \"rowFilters\": [\n        {\n          \"operator\": \"is_true\",\n          \"values\": [\n            \"string\",\n            \"string\"\n          ],\n          \"column\": \"string\"\n        },\n        {\n          \"operator\": \"!=\",\n          \"values\": [\n            \"string\",\n            \"string\"\n          ],\n          \"column\": \"string\"\n        }\n      ]\n    },\n    \"quantileSettings\": {\n      \"type\": \"event\",\n      \"ignoreZeros\": true,\n      \"quantile\": 0.562,\n      \"quantileEventCountColumn\": \"string\"\n    },\n    \"displayAsPercentage\": false,\n    \"archived\": false,\n    \"metricAutoSlices\": [\n      \"string\",\n      \"string\"\n    ]\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "0f0bb353-fcbd-440f-a9c2-51fdd390682a",
+          "name": "Deletes a single fact metric",
+          "request": {
+            "name": "Deletes a single fact metric",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "fact-metrics",
+                ":id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "id",
+                  "description": "(Required) The id of the requested resource"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "DELETE",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "a7c84328-3522-419d-a7a7-4d7a2fab4eec",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "fact-metrics",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) The id of the requested resource"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "DELETE",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"deletedId\": \"fact__123abc\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "1fbee692-db3d-40c4-ba41-6b990663e169",
+          "name": "Create a fact metric analysis",
+          "request": {
+            "name": "Create a fact metric analysis",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "fact-metrics",
+                ":id",
+                "analysis"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "id",
+                  "description": "(Required) The fact metric id to analyze"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userIdType\": \"<string>\",\n  \"lookbackDays\": \"<number>\",\n  \"populationType\": \"<string>\",\n  \"populationId\": \"<string>\",\n  \"additionalNumeratorFilters\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"additionalDenominatorFilters\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"useCache\": \"<boolean>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "940c54fd-10eb-41b8-9ebe-842e33853deb",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "fact-metrics",
+                    ":id",
+                    "analysis"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) The fact metric id to analyze"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"userIdType\": \"<string>\",\n  \"lookbackDays\": \"<number>\",\n  \"populationType\": \"<string>\",\n  \"populationId\": \"<string>\",\n  \"additionalNumeratorFilters\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"additionalDenominatorFilters\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"useCache\": \"<boolean>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"metricAnalysis\": {\n    \"id\": \"string\",\n    \"status\": \"string\",\n    \"settings\": {\n      \"key_0\": {},\n      \"key_1\": {}\n    }\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.growthbook.io/api",
+      "key": "baseUrl"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}"
+      }
+    ]
+  },
+  "info": {
+    "_postman_id": "b04595f5-6a4a-4504-b325-23d147f57b5a",
+    "name": "GrowthBook REST AnalyticsExplorations fact-metrics API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "GrowthBook offers a full REST API for interacting with the application.\n\nRequest data can use either JSON or Form data encoding (with proper `Content-Type` headers). All response bodies are JSON-encoded.\n\nThe API base URL for GrowthBook Cloud is `https://api.growthbook.io/api`. For self-hosted deployments, it is the same as your API_HOST environment variable (defaults to `http://localhost:3100/api`). The rest of these docs will assume you are using GrowthBook Cloud.\n\n## Versioning\n\nEndpoints are versioned by path prefix:\n\n- `/v1/...` — stable, widely-supported endpoints\n- `/v2/...` — updated endpoints with improved shapes (e.g. unified per-rule environment scope for feature flags)\n\nNew integrations should prefer v2 where available.\n\n## Authentication\n\nWe support both the HTTP Basic and Bearer authentication schemes for convenience.\n\nYou first need to generate a new API Key in GrowthBook. Different keys have different permissions:\n\n- **Personal Access Tokens**: These are sensitive and provide the same level of access as the user has to an organization. These can be created by going to `Personal Access Tokens` under the your user menu.\n- **Secret Keys**: These are sensitive and provide the level of access for the role, which currently is either `admin` or `readonly`. Only Admins with the `manageApiKeys` permission can manage Secret Keys on behalf of an organization. These can be created by going to `Settings -> API Keys`\n\nIf using HTTP Basic auth, pass the Secret Key as the username and leave the password blank (when using curl, add `:` at the end of the secret to indicate an empty password)\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n  -u secret_abc123DEF456:\n```\n\nIf using Bearer auth, pass the Secret Key as the token:\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n-H \"Authorization: Bearer secret_abc123DEF456\"\n```\n\n## Errors\n\nThe API may return the following error status codes:\n\n- **400** - Bad Request - Often due to a missing required parameter\n- **401** - Unauthorized - No valid API key provided\n- **402** - Request Failed - The parameters are valid, but the request failed\n- **403** - Forbidden - Provided API key does not have the required access\n- **404** - Not Found - Unknown API route or requested resource\n- **429** - Too Many Requests - You exceeded the rate limit of 60 requests per minute. Try again later.\n- **5XX** - Server Error - Something went wrong on GrowthBook's end (these are rare)\n\nThe response body will be a JSON object with the following properties:\n\n- **message** - Information about the error\n",
+      "type": "text/plain"
+    }
+  }
+}

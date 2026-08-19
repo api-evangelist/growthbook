@@ -1,0 +1,285 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "GrowthBook REST AnalyticsExplorations fact-tables API",
+    "version": "1.0.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "fact-tables",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get all fact tables",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.growthbook.io/api/v1/fact-tables",
+            "params": [
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "The number of items to return"
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query",
+                "description": "How many items to skip (use in conjunction with limit for pagination)"
+              },
+              {
+                "name": "datasourceId",
+                "value": "",
+                "type": "query",
+                "description": "Filter by Data Source"
+              },
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "query",
+                "description": "Filter by project id"
+              }
+            ]
+          },
+          "docs": "Get all fact tables"
+        },
+        {
+          "info": {
+            "name": "Create a single fact table",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.growthbook.io/api/v1/fact-tables",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a single fact table"
+        },
+        {
+          "info": {
+            "name": "Get a single fact table",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.growthbook.io/api/v1/fact-tables/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the requested resource"
+              }
+            ]
+          },
+          "docs": "Get a single fact table"
+        },
+        {
+          "info": {
+            "name": "Update a single fact table",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.growthbook.io/api/v1/fact-tables/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the requested resource"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update a single fact table"
+        },
+        {
+          "info": {
+            "name": "Deletes a single fact table",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.growthbook.io/api/v1/fact-tables/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the requested resource"
+              }
+            ]
+          },
+          "docs": "Deletes a single fact table"
+        },
+        {
+          "info": {
+            "name": "Get all filters for a fact table",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.growthbook.io/api/v1/fact-tables/:factTableId/filters",
+            "params": [
+              {
+                "name": "factTableId",
+                "value": "",
+                "type": "path",
+                "description": "Specify a specific fact table"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "The number of items to return"
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query",
+                "description": "How many items to skip (use in conjunction with limit for pagination)"
+              }
+            ]
+          },
+          "docs": "Get all filters for a fact table"
+        },
+        {
+          "info": {
+            "name": "Create a single fact table filter",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.growthbook.io/api/v1/fact-tables/:factTableId/filters",
+            "params": [
+              {
+                "name": "factTableId",
+                "value": "",
+                "type": "path",
+                "description": "Specify a specific fact table"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a single fact table filter"
+        },
+        {
+          "info": {
+            "name": "Get a single fact filter",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.growthbook.io/api/v1/fact-tables/:factTableId/filters/:id",
+            "params": [
+              {
+                "name": "factTableId",
+                "value": "",
+                "type": "path",
+                "description": "Specify a specific fact table"
+              },
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the requested resource"
+              }
+            ]
+          },
+          "docs": "Get a single fact filter"
+        },
+        {
+          "info": {
+            "name": "Update a single fact table filter",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.growthbook.io/api/v1/fact-tables/:factTableId/filters/:id",
+            "params": [
+              {
+                "name": "factTableId",
+                "value": "",
+                "type": "path",
+                "description": "Specify a specific fact table"
+              },
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the requested resource"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update a single fact table filter"
+        },
+        {
+          "info": {
+            "name": "Deletes a single fact table filter",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.growthbook.io/api/v1/fact-tables/:factTableId/filters/:id",
+            "params": [
+              {
+                "name": "factTableId",
+                "value": "",
+                "type": "path",
+                "description": "Specify a specific fact table"
+              },
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the requested resource"
+              }
+            ]
+          },
+          "docs": "Deletes a single fact table filter"
+        },
+        {
+          "info": {
+            "name": "Bulk import fact tables, filters, and metrics",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.growthbook.io/api/v1/bulk-import/facts",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Bulk import fact tables, filters, and metrics"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

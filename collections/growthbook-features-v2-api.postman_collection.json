@@ -1,0 +1,1006 @@
+{
+  "item": [
+    {
+      "id": "af1613dc-b28a-4b15-920a-27fab1ff5bf9",
+      "name": "features-v2",
+      "description": {
+        "content": "Control your feature flags programatically.\n\nRules are returned as a unified top-level array; each rule carries `allEnvironments` / `environments` scope fields instead of being bucketed by environment.",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "fae0a2e1-8d7c-4a2e-856f-6c9c93979252",
+          "name": "Get all features",
+          "request": {
+            "name": "Get all features",
+            "description": {
+              "content": "Returns features with pagination. Rules are returned as a unified top-level array with per-rule environment scope.\n",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v2",
+                "features"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "10",
+                  "description": "The number of items to return"
+                },
+                {
+                  "disabled": false,
+                  "key": "offset",
+                  "value": "0",
+                  "description": "How many items to skip (use in conjunction with limit for pagination)"
+                },
+                {
+                  "disabled": false,
+                  "key": "projectId",
+                  "value": "<string>",
+                  "description": "Filter by project id"
+                },
+                {
+                  "disabled": false,
+                  "key": "clientKey",
+                  "value": "<string>",
+                  "description": "Filter by a SDK connection's client key"
+                },
+                {
+                  "disabled": false,
+                  "key": "skipPagination",
+                  "value": "<string>",
+                  "description": "If true, return all matching items and ignore limit/offset.\nSelf-hosted only. Has no effect unless API_ALLOW_SKIP_PAGINATION is set to true or 1."
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "c7b45031-ae8f-4f07-94db-31e4193db87b",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v2",
+                    "features"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "10"
+                    },
+                    {
+                      "key": "offset",
+                      "value": "0"
+                    },
+                    {
+                      "key": "projectId",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "clientKey",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "skipPagination",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"count\": 5844,\n  \"features\": [\n    {\n      \"id\": \"string\",\n      \"dateCreated\": \"1964-12-03T13:30:51.314Z\",\n      \"dateUpdated\": \"1966-12-15T22:08:56.436Z\",\n      \"archived\": false,\n      \"description\": \"string\",\n      \"owner\": \"string\",\n      \"project\": \"string\",\n      \"valueType\": \"number\",\n      \"defaultValue\": \"string\",\n      \"tags\": [\n        \"string\",\n        \"string\"\n      ],\n      \"rules\": [\n        {\n          \"allEnvironments\": true,\n          \"environments\": [\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            },\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            }\n          ]\n        },\n        {\n          \"allEnvironments\": false,\n          \"environments\": [\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            },\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            }\n          ]\n        }\n      ],\n      \"environments\": {\n        \"key_0\": {\n          \"enabled\": true,\n          \"defaultValue\": \"string\",\n          \"definition\": \"string\"\n        }\n      },\n      \"revision\": {\n        \"version\": 8946,\n        \"comment\": \"string\",\n        \"date\": \"1955-02-10T07:48:44.652Z\",\n        \"createdBy\": \"string\",\n        \"publishedBy\": \"string\"\n      },\n      \"prerequisites\": [\n        \"string\",\n        \"string\"\n      ],\n      \"customFields\": {\n        \"key_0\": {},\n        \"key_1\": {},\n        \"key_2\": {}\n      },\n      \"holdout\": {\n        \"id\": \"string\",\n        \"value\": \"string\"\n      }\n    },\n    {\n      \"id\": \"string\",\n      \"dateCreated\": \"1972-08-31T14:48:40.968Z\",\n      \"dateUpdated\": \"1972-05-05T23:38:54.780Z\",\n      \"archived\": true,\n      \"description\": \"string\",\n      \"owner\": \"string\",\n      \"project\": \"string\",\n      \"valueType\": \"string\",\n      \"defaultValue\": \"string\",\n      \"tags\": [\n        \"string\",\n        \"string\"\n      ],\n      \"rules\": [\n        {\n          \"allEnvironments\": true,\n          \"environments\": [\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            },\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            }\n          ]\n        },\n        {\n          \"allEnvironments\": false,\n          \"environments\": [\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            },\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            }\n          ]\n        }\n      ],\n      \"environments\": {\n        \"key_0\": {\n          \"enabled\": true,\n          \"defaultValue\": \"string\",\n          \"definition\": \"string\"\n        }\n      },\n      \"revision\": {\n        \"version\": 1194,\n        \"comment\": \"string\",\n        \"date\": \"1951-11-21T13:01:15.524Z\",\n        \"createdBy\": \"string\",\n        \"publishedBy\": \"string\"\n      },\n      \"prerequisites\": [\n        \"string\",\n        \"string\"\n      ],\n      \"customFields\": {\n        \"key_0\": {}\n      },\n      \"holdout\": {\n        \"id\": \"string\",\n        \"value\": \"string\"\n      }\n    }\n  ],\n  \"hasMore\": false,\n  \"limit\": 143,\n  \"nextOffset\": 9021,\n  \"offset\": 5885,\n  \"total\": 532\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "6e543e90-be21-4d77-ae70-49beb985cae7",
+          "name": "Create a single feature",
+          "request": {
+            "name": "Create a single feature",
+            "description": {
+              "content": "Creates a new feature. Rules are supplied as a top-level `rules` array; each rule includes `allEnvironments` / `environments` scope fields.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v2",
+                "features"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"<string>\",\n  \"owner\": \"<string>\",\n  \"valueType\": \"<string>\",\n  \"defaultValue\": \"<string>\",\n  \"archived\": \"<boolean>\",\n  \"description\": \"<string>\",\n  \"project\": \"<string>\",\n  \"tags\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"rules\": [\n    {\n      \"type\": \"<string>\",\n      \"value\": \"<string>\",\n      \"description\": \"<string>\",\n      \"condition\": \"<string>\",\n      \"savedGroupTargeting\": [\n        {\n          \"matchType\": \"<string>\",\n          \"savedGroups\": [\n            \"<string>\",\n            \"<string>\"\n          ]\n        },\n        {\n          \"matchType\": \"<string>\",\n          \"savedGroups\": [\n            \"<string>\",\n            \"<string>\"\n          ]\n        }\n      ],\n      \"prerequisites\": [\n        {\n          \"id\": \"<string>\",\n          \"condition\": \"<string>\"\n        },\n        {\n          \"id\": \"<string>\",\n          \"condition\": \"<string>\"\n        }\n      ],\n      \"scheduleRules\": [\n        {\n          \"timestamp\": \"<string>\",\n          \"enabled\": \"<boolean>\"\n        },\n        {\n          \"timestamp\": \"<string>\",\n          \"enabled\": \"<boolean>\"\n        }\n      ],\n      \"id\": \"<string>\",\n      \"enabled\": \"<boolean>\",\n      \"allEnvironments\": \"<boolean>\",\n      \"environments\": [\n        \"<string>\",\n        \"<string>\"\n      ]\n    },\n    {\n      \"type\": \"<string>\",\n      \"value\": \"<string>\",\n      \"description\": \"<string>\",\n      \"condition\": \"<string>\",\n      \"savedGroupTargeting\": [\n        {\n          \"matchType\": \"<string>\",\n          \"savedGroups\": [\n            \"<string>\",\n            \"<string>\"\n          ]\n        },\n        {\n          \"matchType\": \"<string>\",\n          \"savedGroups\": [\n            \"<string>\",\n            \"<string>\"\n          ]\n        }\n      ],\n      \"prerequisites\": [\n        {\n          \"id\": \"<string>\",\n          \"condition\": \"<string>\"\n        },\n        {\n          \"id\": \"<string>\",\n          \"condition\": \"<string>\"\n        }\n      ],\n      \"scheduleRules\": [\n        {\n          \"timestamp\": \"<string>\",\n          \"enabled\": \"<boolean>\"\n        },\n        {\n          \"timestamp\": \"<string>\",\n          \"enabled\": \"<boolean>\"\n        }\n      ],\n      \"id\": \"<string>\",\n      \"enabled\": \"<boolean>\",\n      \"allEnvironments\": \"<boolean>\",\n      \"environments\": [\n        \"<string>\",\n        \"<string>\"\n      ]\n    }\n  ],\n  \"environments\": {\n    \"key_0\": {\n      \"enabled\": \"<boolean>\"\n    }\n  },\n  \"prerequisites\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"jsonSchema\": \"<string>\",\n  \"customFields\": {\n    \"key_0\": \"<string>\",\n    \"key_1\": \"<string>\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "85ca5d42-9233-464e-affb-67672a1791ad",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v2",
+                    "features"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"id\": \"<string>\",\n  \"owner\": \"<string>\",\n  \"valueType\": \"<string>\",\n  \"defaultValue\": \"<string>\",\n  \"archived\": \"<boolean>\",\n  \"description\": \"<string>\",\n  \"project\": \"<string>\",\n  \"tags\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"rules\": [\n    {\n      \"type\": \"<string>\",\n      \"value\": \"<string>\",\n      \"description\": \"<string>\",\n      \"condition\": \"<string>\",\n      \"savedGroupTargeting\": [\n        {\n          \"matchType\": \"<string>\",\n          \"savedGroups\": [\n            \"<string>\",\n            \"<string>\"\n          ]\n        },\n        {\n          \"matchType\": \"<string>\",\n          \"savedGroups\": [\n            \"<string>\",\n            \"<string>\"\n          ]\n        }\n      ],\n      \"prerequisites\": [\n        {\n          \"id\": \"<string>\",\n          \"condition\": \"<string>\"\n        },\n        {\n          \"id\": \"<string>\",\n          \"condition\": \"<string>\"\n        }\n      ],\n      \"scheduleRules\": [\n        {\n          \"timestamp\": \"<string>\",\n          \"enabled\": \"<boolean>\"\n        },\n        {\n          \"timestamp\": \"<string>\",\n          \"enabled\": \"<boolean>\"\n        }\n      ],\n      \"id\": \"<string>\",\n      \"enabled\": \"<boolean>\",\n      \"allEnvironments\": \"<boolean>\",\n      \"environments\": [\n        \"<string>\",\n        \"<string>\"\n      ]\n    },\n    {\n      \"type\": \"<string>\",\n      \"value\": \"<string>\",\n      \"description\": \"<string>\",\n      \"condition\": \"<string>\",\n      \"savedGroupTargeting\": [\n        {\n          \"matchType\": \"<string>\",\n          \"savedGroups\": [\n            \"<string>\",\n            \"<string>\"\n          ]\n        },\n        {\n          \"matchType\": \"<string>\",\n          \"savedGroups\": [\n            \"<string>\",\n            \"<string>\"\n          ]\n        }\n      ],\n      \"prerequisites\": [\n        {\n          \"id\": \"<string>\",\n          \"condition\": \"<string>\"\n        },\n        {\n          \"id\": \"<string>\",\n          \"condition\": \"<string>\"\n        }\n      ],\n      \"scheduleRules\": [\n        {\n          \"timestamp\": \"<string>\",\n          \"enabled\": \"<boolean>\"\n        },\n        {\n          \"timestamp\": \"<string>\",\n          \"enabled\": \"<boolean>\"\n        }\n      ],\n      \"id\": \"<string>\",\n      \"enabled\": \"<boolean>\",\n      \"allEnvironments\": \"<boolean>\",\n      \"environments\": [\n        \"<string>\",\n        \"<string>\"\n      ]\n    }\n  ],\n  \"environments\": {\n    \"key_0\": {\n      \"enabled\": \"<boolean>\"\n    },\n    \"key_1\": {\n      \"enabled\": \"<boolean>\"\n    },\n    \"key_2\": {\n      \"enabled\": \"<boolean>\"\n    }\n  },\n  \"prerequisites\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"jsonSchema\": \"<string>\",\n  \"customFields\": {\n    \"key_0\": \"<string>\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"feature\": {\n    \"id\": \"string\",\n    \"dateCreated\": \"2000-07-05T16:48:12.784Z\",\n    \"dateUpdated\": \"1994-09-07T05:15:24.760Z\",\n    \"archived\": false,\n    \"description\": \"string\",\n    \"owner\": \"string\",\n    \"project\": \"string\",\n    \"valueType\": \"boolean\",\n    \"defaultValue\": \"string\",\n    \"tags\": [\n      \"string\",\n      \"string\"\n    ],\n    \"rules\": [\n      {\n        \"allEnvironments\": false,\n        \"environments\": [\n          \"string\",\n          \"string\"\n        ]\n      },\n      {\n        \"allEnvironments\": true,\n        \"environments\": [\n          \"string\",\n          \"string\"\n        ]\n      }\n    ],\n    \"environments\": {\n      \"key_0\": {\n        \"enabled\": true,\n        \"defaultValue\": \"string\",\n        \"definition\": \"string\"\n      }\n    },\n    \"revision\": {\n      \"version\": 9828,\n      \"comment\": \"string\",\n      \"date\": \"2015-10-30T07:14:24.544Z\",\n      \"createdBy\": \"string\",\n      \"publishedBy\": \"string\"\n    },\n    \"prerequisites\": [\n      \"string\",\n      \"string\"\n    ],\n    \"customFields\": {\n      \"key_0\": {}\n    },\n    \"holdout\": {\n      \"id\": \"string\",\n      \"value\": \"string\"\n    }\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "998737a5-d4b2-41a0-8835-f6dfe015d492",
+          "name": "Get a single feature",
+          "request": {
+            "name": "Get a single feature",
+            "description": {},
+            "url": {
+              "path": [
+                "v2",
+                "features",
+                ":id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "withRevisions",
+                  "value": "<string>",
+                  "description": "Also return feature revisions (all, draft, or published statuses)"
+                }
+              ],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "id",
+                  "description": "(Required) The id of the requested resource"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "18dab37f-3ba3-42ff-885e-2f9c52cc44df",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v2",
+                    "features",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "withRevisions",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) The id of the requested resource"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"feature\": {\n    \"id\": \"string\",\n    \"dateCreated\": \"1986-02-13T08:16:51.068Z\",\n    \"dateUpdated\": \"2010-02-20T16:00:22.519Z\",\n    \"archived\": false,\n    \"description\": \"string\",\n    \"owner\": \"string\",\n    \"project\": \"string\",\n    \"valueType\": \"json\",\n    \"defaultValue\": \"string\",\n    \"tags\": [\n      \"string\",\n      \"string\"\n    ],\n    \"rules\": [\n      {\n        \"allEnvironments\": false,\n        \"environments\": [\n          {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          }\n        ]\n      },\n      {\n        \"allEnvironments\": true,\n        \"environments\": [\n          {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          }\n        ]\n      }\n    ],\n    \"environments\": {\n      \"key_0\": {\n        \"enabled\": true,\n        \"defaultValue\": \"string\",\n        \"definition\": \"string\"\n      },\n      \"key_1\": {\n        \"enabled\": true,\n        \"defaultValue\": \"string\",\n        \"definition\": \"string\"\n      }\n    },\n    \"revision\": {\n      \"version\": 9725,\n      \"comment\": \"string\",\n      \"date\": \"1955-09-05T13:36:33.706Z\",\n      \"createdBy\": \"string\",\n      \"publishedBy\": \"string\"\n    },\n    \"prerequisites\": [\n      \"string\",\n      \"string\"\n    ],\n    \"customFields\": {\n      \"key_0\": {},\n      \"key_1\": {}\n    },\n    \"holdout\": {\n      \"id\": \"string\",\n      \"value\": \"string\"\n    },\n    \"revisions\": [\n      {\n        \"featureId\": \"string\",\n        \"baseVersion\": 4394,\n        \"version\": 8786,\n        \"comment\": \"string\",\n        \"date\": \"1957-06-07T04:56:14.187Z\",\n        \"status\": \"string\",\n        \"rules\": [\n          {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          }\n        ],\n        \"createdBy\": \"string\",\n        \"publishedBy\": \"string\",\n        \"defaultValue\": \"string\",\n        \"definitions\": {\n          \"type\": \"object\",\n          \"propertyNames\": {\n            \"type\": \"string\"\n          },\n          \"additionalProperties\": {\n            \"description\": \"A JSON stringified [FeatureDefinition](#tag/FeatureDefinition_model)\",\n            \"type\": \"string\"\n          }\n        },\n        \"environmentsEnabled\": {\n          \"key_0\": true\n        },\n        \"envPrerequisites\": {\n          \"key_0\": [\n            {\n              \"id\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              },\n              \"condition\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            },\n            {\n              \"id\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              },\n              \"condition\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            }\n          ],\n          \"key_1\": [\n            {\n              \"id\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              },\n              \"condition\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            },\n            {\n              \"id\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              },\n              \"condition\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            }\n          ]\n        },\n        \"prerequisites\": [\n          {\n            \"id\": \"string\",\n            \"condition\": \"string\"\n          },\n          {\n            \"id\": \"string\",\n            \"condition\": \"string\"\n          }\n        ],\n        \"metadata\": {\n          \"description\": \"string\",\n          \"owner\": \"string\",\n          \"project\": \"string\",\n          \"tags\": [\n            \"string\",\n            \"string\"\n          ],\n          \"neverStale\": false,\n          \"valueType\": \"string\",\n          \"jsonSchema\": {\n            \"schemaType\": \"schema\",\n            \"schema\": \"string\",\n            \"simple\": {\n              \"key_0\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              },\n              \"key_1\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            },\n            \"date\": \"2002-10-11T11:46:16.265Z\",\n            \"enabled\": false\n          },\n          \"customFields\": {\n            \"key_0\": {}\n          }\n        }\n      },\n      {\n        \"featureId\": \"string\",\n        \"baseVersion\": 1407,\n        \"version\": 5338,\n        \"comment\": \"string\",\n        \"date\": \"2024-11-10T16:25:42.128Z\",\n        \"status\": \"string\",\n        \"rules\": [\n          {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          },\n          {\n            \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n          }\n        ],\n        \"createdBy\": \"string\",\n        \"publishedBy\": \"string\",\n        \"defaultValue\": \"string\",\n        \"definitions\": {\n          \"type\": \"object\",\n          \"propertyNames\": {\n            \"type\": \"string\"\n          },\n          \"additionalProperties\": {\n            \"description\": \"A JSON stringified [FeatureDefinition](#tag/FeatureDefinition_model)\",\n            \"type\": \"string\"\n          }\n        },\n        \"environmentsEnabled\": {\n          \"key_0\": false,\n          \"key_1\": true\n        },\n        \"envPrerequisites\": {\n          \"key_0\": [\n            {\n              \"id\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              },\n              \"condition\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            },\n            {\n              \"id\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              },\n              \"condition\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            }\n          ]\n        },\n        \"prerequisites\": [\n          {\n            \"id\": \"string\",\n            \"condition\": \"string\"\n          },\n          {\n            \"id\": \"string\",\n            \"condition\": \"string\"\n          }\n        ],\n        \"metadata\": {\n          \"description\": \"string\",\n          \"owner\": \"string\",\n          \"project\": \"string\",\n          \"tags\": [\n            \"string\",\n            \"string\"\n          ],\n          \"neverStale\": false,\n          \"valueType\": \"string\",\n          \"jsonSchema\": {\n            \"schemaType\": \"schema\",\n            \"schema\": \"string\",\n            \"simple\": {\n              \"key_0\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              },\n              \"key_1\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              },\n              \"key_2\": {\n                \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n              }\n            },\n            \"date\": \"2019-02-16T02:54:31.514Z\",\n            \"enabled\": true\n          },\n          \"customFields\": {\n            \"key_0\": {}\n          }\n        }\n      }\n    ]\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "5a8cf183-4b78-416e-9d47-65907bad73d9",
+          "name": "Partially update a feature",
+          "request": {
+            "name": "Partially update a feature",
+            "description": {
+              "content": "Updates any combination of a feature's metadata, default value, environment state, and rules. Other top-level fields are patch-merged: omit a field to leave it unchanged. The `rules` field, when supplied, replaces the entire `rules` array atomically in a single revision (v1 PUT applied per-environment patches; v2 swaps the full flat array). To preserve existing rules during a partial edit, GET the feature first, mutate the returned `rules` array, and PUT the full array back. Safe-rollout rules round-trip via their `safeRolloutId`; use `POST /v2/features/:id/revisions/:version/rules` to create new ones. Returns 403 if approval rules are enabled for an affected environment and the bypass setting is off.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v2",
+                "features",
+                ":id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "id",
+                  "description": "(Required) The id of the requested resource"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"<string>\",\n  \"archived\": \"<boolean>\",\n  \"project\": \"<string>\",\n  \"owner\": \"<string>\",\n  \"defaultValue\": \"<string>\",\n  \"tags\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"rules\": [\n    {\n      \"type\": \"<string>\",\n      \"value\": \"<string>\",\n      \"description\": \"<string>\",\n      \"condition\": \"<string>\",\n      \"savedGroupTargeting\": [\n        {\n          \"matchType\": \"<string>\",\n          \"savedGroups\": [\n            \"<string>\",\n            \"<string>\"\n          ]\n        },\n        {\n          \"matchType\": \"<string>\",\n          \"savedGroups\": [\n            \"<string>\",\n            \"<string>\"\n          ]\n        }\n      ],\n      \"prerequisites\": [\n        {\n          \"id\": \"<string>\",\n          \"condition\": \"<string>\"\n        },\n        {\n          \"id\": \"<string>\",\n          \"condition\": \"<string>\"\n        }\n      ],\n      \"scheduleRules\": [\n        {\n          \"timestamp\": \"<string>\",\n          \"enabled\": \"<boolean>\"\n        },\n        {\n          \"timestamp\": \"<string>\",\n          \"enabled\": \"<boolean>\"\n        }\n      ],\n      \"id\": \"<string>\",\n      \"enabled\": \"<boolean>\",\n      \"allEnvironments\": \"<boolean>\",\n      \"environments\": [\n        \"<string>\",\n        \"<string>\"\n      ]\n    },\n    {\n      \"type\": \"<string>\",\n      \"value\": \"<string>\",\n      \"description\": \"<string>\",\n      \"condition\": \"<string>\",\n      \"savedGroupTargeting\": [\n        {\n          \"matchType\": \"<string>\",\n          \"savedGroups\": [\n            \"<string>\",\n            \"<string>\"\n          ]\n        },\n        {\n          \"matchType\": \"<string>\",\n          \"savedGroups\": [\n            \"<string>\",\n            \"<string>\"\n          ]\n        }\n      ],\n      \"prerequisites\": [\n        {\n          \"id\": \"<string>\",\n          \"condition\": \"<string>\"\n        },\n        {\n          \"id\": \"<string>\",\n          \"condition\": \"<string>\"\n        }\n      ],\n      \"scheduleRules\": [\n        {\n          \"timestamp\": \"<string>\",\n          \"enabled\": \"<boolean>\"\n        },\n        {\n          \"timestamp\": \"<string>\",\n          \"enabled\": \"<boolean>\"\n        }\n      ],\n      \"id\": \"<string>\",\n      \"enabled\": \"<boolean>\",\n      \"allEnvironments\": \"<boolean>\",\n      \"environments\": [\n        \"<string>\",\n        \"<string>\"\n      ]\n    }\n  ],\n  \"environments\": {\n    \"key_0\": {\n      \"enabled\": \"<boolean>\"\n    }\n  },\n  \"prerequisites\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"jsonSchema\": \"<string>\",\n  \"customFields\": {\n    \"key_0\": \"<string>\",\n    \"key_1\": \"<string>\",\n    \"key_2\": \"<string>\"\n  },\n  \"holdout\": {\n    \"id\": \"<string>\",\n    \"value\": \"<string>\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "cd5c947f-f679-4731-bfb4-f424537c193b",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v2",
+                    "features",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) The id of the requested resource"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"description\": \"<string>\",\n  \"archived\": \"<boolean>\",\n  \"project\": \"<string>\",\n  \"owner\": \"<string>\",\n  \"defaultValue\": \"<string>\",\n  \"tags\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"rules\": [\n    {\n      \"type\": \"<string>\",\n      \"value\": \"<string>\",\n      \"description\": \"<string>\",\n      \"condition\": \"<string>\",\n      \"savedGroupTargeting\": [\n        {\n          \"matchType\": \"<string>\",\n          \"savedGroups\": [\n            \"<string>\",\n            \"<string>\"\n          ]\n        },\n        {\n          \"matchType\": \"<string>\",\n          \"savedGroups\": [\n            \"<string>\",\n            \"<string>\"\n          ]\n        }\n      ],\n      \"prerequisites\": [\n        {\n          \"id\": \"<string>\",\n          \"condition\": \"<string>\"\n        },\n        {\n          \"id\": \"<string>\",\n          \"condition\": \"<string>\"\n        }\n      ],\n      \"scheduleRules\": [\n        {\n          \"timestamp\": \"<string>\",\n          \"enabled\": \"<boolean>\"\n        },\n        {\n          \"timestamp\": \"<string>\",\n          \"enabled\": \"<boolean>\"\n        }\n      ],\n      \"id\": \"<string>\",\n      \"enabled\": \"<boolean>\",\n      \"allEnvironments\": \"<boolean>\",\n      \"environments\": [\n        \"<string>\",\n        \"<string>\"\n      ]\n    },\n    {\n      \"type\": \"<string>\",\n      \"value\": \"<string>\",\n      \"description\": \"<string>\",\n      \"condition\": \"<string>\",\n      \"savedGroupTargeting\": [\n        {\n          \"matchType\": \"<string>\",\n          \"savedGroups\": [\n            \"<string>\",\n            \"<string>\"\n          ]\n        },\n        {\n          \"matchType\": \"<string>\",\n          \"savedGroups\": [\n            \"<string>\",\n            \"<string>\"\n          ]\n        }\n      ],\n      \"prerequisites\": [\n        {\n          \"id\": \"<string>\",\n          \"condition\": \"<string>\"\n        },\n        {\n          \"id\": \"<string>\",\n          \"condition\": \"<string>\"\n        }\n      ],\n      \"scheduleRules\": [\n        {\n          \"timestamp\": \"<string>\",\n          \"enabled\": \"<boolean>\"\n        },\n        {\n          \"timestamp\": \"<string>\",\n          \"enabled\": \"<boolean>\"\n        }\n      ],\n      \"id\": \"<string>\",\n      \"enabled\": \"<boolean>\",\n      \"allEnvironments\": \"<boolean>\",\n      \"environments\": [\n        \"<string>\",\n        \"<string>\"\n      ]\n    }\n  ],\n  \"environments\": {\n    \"key_0\": {\n      \"enabled\": \"<boolean>\"\n    },\n    \"key_1\": {\n      \"enabled\": \"<boolean>\"\n    }\n  },\n  \"prerequisites\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"jsonSchema\": \"<string>\",\n  \"customFields\": {\n    \"key_0\": \"<string>\",\n    \"key_1\": \"<string>\"\n  },\n  \"holdout\": {\n    \"id\": \"<string>\",\n    \"value\": \"<string>\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"feature\": {\n    \"id\": \"string\",\n    \"dateCreated\": \"2000-07-05T16:48:12.784Z\",\n    \"dateUpdated\": \"1994-09-07T05:15:24.760Z\",\n    \"archived\": false,\n    \"description\": \"string\",\n    \"owner\": \"string\",\n    \"project\": \"string\",\n    \"valueType\": \"boolean\",\n    \"defaultValue\": \"string\",\n    \"tags\": [\n      \"string\",\n      \"string\"\n    ],\n    \"rules\": [\n      {\n        \"allEnvironments\": false,\n        \"environments\": [\n          \"string\",\n          \"string\"\n        ]\n      },\n      {\n        \"allEnvironments\": true,\n        \"environments\": [\n          \"string\",\n          \"string\"\n        ]\n      }\n    ],\n    \"environments\": {\n      \"key_0\": {\n        \"enabled\": true,\n        \"defaultValue\": \"string\",\n        \"definition\": \"string\"\n      }\n    },\n    \"revision\": {\n      \"version\": 9828,\n      \"comment\": \"string\",\n      \"date\": \"2015-10-30T07:14:24.544Z\",\n      \"createdBy\": \"string\",\n      \"publishedBy\": \"string\"\n    },\n    \"prerequisites\": [\n      \"string\",\n      \"string\"\n    ],\n    \"customFields\": {\n      \"key_0\": {}\n    },\n    \"holdout\": {\n      \"id\": \"string\",\n      \"value\": \"string\"\n    }\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "a86461f6-c9aa-417f-99b3-ba759b015cf4",
+          "name": "Deletes a single feature",
+          "request": {
+            "name": "Deletes a single feature",
+            "description": {
+              "content": "Permanently deletes a feature and all of its revisions.\n\nArchived features can be deleted freely. Deleting a live (non-archived) feature returns 403 unless the org setting \"REST API always bypasses approval requirements\" is enabled.\n",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v2",
+                "features",
+                ":id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "id",
+                  "description": "(Required) The id of the requested resource"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "DELETE",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "9c2e33ce-396c-43ca-8a6a-4f48d18208d7",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v2",
+                    "features",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) The id of the requested resource"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "DELETE",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"deletedId\": \"feature-123\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "146bbeee-f948-4185-8a2e-2dbc471473ea",
+          "name": "Toggle a feature in one or more environments",
+          "request": {
+            "name": "Toggle a feature in one or more environments",
+            "description": {
+              "content": "Enables or disables a feature in one or more environments simultaneously. Accepts a map of environment name → boolean.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v2",
+                "features",
+                ":id",
+                "toggle"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "id",
+                  "description": "(Required) The id of the requested resource"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"environments\": {\n    \"key_0\": \"<boolean>\"\n  },\n  \"reason\": \"<string>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "1ee5c2f9-8ce6-44f9-825c-8e4a2cab8d53",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v2",
+                    "features",
+                    ":id",
+                    "toggle"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) The id of the requested resource"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"environments\": {\n    \"key_0\": \"<boolean>\"\n  },\n  \"reason\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"feature\": {\n    \"id\": \"string\",\n    \"dateCreated\": \"2000-07-05T16:48:12.784Z\",\n    \"dateUpdated\": \"1994-09-07T05:15:24.760Z\",\n    \"archived\": false,\n    \"description\": \"string\",\n    \"owner\": \"string\",\n    \"project\": \"string\",\n    \"valueType\": \"boolean\",\n    \"defaultValue\": \"string\",\n    \"tags\": [\n      \"string\",\n      \"string\"\n    ],\n    \"rules\": [\n      {\n        \"allEnvironments\": false,\n        \"environments\": [\n          \"string\",\n          \"string\"\n        ]\n      },\n      {\n        \"allEnvironments\": true,\n        \"environments\": [\n          \"string\",\n          \"string\"\n        ]\n      }\n    ],\n    \"environments\": {\n      \"key_0\": {\n        \"enabled\": true,\n        \"defaultValue\": \"string\",\n        \"definition\": \"string\"\n      }\n    },\n    \"revision\": {\n      \"version\": 9828,\n      \"comment\": \"string\",\n      \"date\": \"2015-10-30T07:14:24.544Z\",\n      \"createdBy\": \"string\",\n      \"publishedBy\": \"string\"\n    },\n    \"prerequisites\": [\n      \"string\",\n      \"string\"\n    ],\n    \"customFields\": {\n      \"key_0\": {}\n    },\n    \"holdout\": {\n      \"id\": \"string\",\n      \"value\": \"string\"\n    }\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "73c85a07-4f21-45cd-a375-37ea9c074947",
+          "name": "Revert a feature to a specific revision",
+          "request": {
+            "name": "Revert a feature to a specific revision",
+            "description": {},
+            "url": {
+              "path": [
+                "v2",
+                "features",
+                ":id",
+                "revert"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "id",
+                  "description": "(Required) The id of the requested resource"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"revision\": \"<number>\",\n  \"comment\": \"<string>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "8869e680-eb51-4519-84dc-9b76f2cf00cc",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v2",
+                    "features",
+                    ":id",
+                    "revert"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) The id of the requested resource"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"revision\": \"<number>\",\n  \"comment\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"feature\": {\n    \"id\": \"string\",\n    \"dateCreated\": \"2000-07-05T16:48:12.784Z\",\n    \"dateUpdated\": \"1994-09-07T05:15:24.760Z\",\n    \"archived\": false,\n    \"description\": \"string\",\n    \"owner\": \"string\",\n    \"project\": \"string\",\n    \"valueType\": \"boolean\",\n    \"defaultValue\": \"string\",\n    \"tags\": [\n      \"string\",\n      \"string\"\n    ],\n    \"rules\": [\n      {\n        \"allEnvironments\": false,\n        \"environments\": [\n          \"string\",\n          \"string\"\n        ]\n      },\n      {\n        \"allEnvironments\": true,\n        \"environments\": [\n          \"string\",\n          \"string\"\n        ]\n      }\n    ],\n    \"environments\": {\n      \"key_0\": {\n        \"enabled\": true,\n        \"defaultValue\": \"string\",\n        \"definition\": \"string\"\n      }\n    },\n    \"revision\": {\n      \"version\": 9828,\n      \"comment\": \"string\",\n      \"date\": \"2015-10-30T07:14:24.544Z\",\n      \"createdBy\": \"string\",\n      \"publishedBy\": \"string\"\n    },\n    \"prerequisites\": [\n      \"string\",\n      \"string\"\n    ],\n    \"customFields\": {\n      \"key_0\": {}\n    },\n    \"holdout\": {\n      \"id\": \"string\",\n      \"value\": \"string\"\n    }\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "f491a735-94f3-458d-ab9b-5bddd5d72dde",
+          "name": "Get list of feature keys",
+          "request": {
+            "name": "Get list of feature keys",
+            "description": {},
+            "url": {
+              "path": [
+                "v2",
+                "feature-keys"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "projectId",
+                  "value": "<string>",
+                  "description": "Filter by project id"
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "bdd7d29b-0958-4041-abaa-787d92287335",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v2",
+                    "feature-keys"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "projectId",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "[\n  \"string\",\n  \"string\"\n]",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "2caa5714-c250-4af7-a1a4-3bb344e7dc1a",
+          "name": "Get stale status for one or more features",
+          "request": {
+            "name": "Get stale status for one or more features",
+            "description": {},
+            "url": {
+              "path": [
+                "v2",
+                "stale-features"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "ids",
+                  "value": "<string>",
+                  "description": "(Required) Comma-separated list of feature IDs (URL-encoded if needed). Example: `my_feature,another_feature`\n"
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "0b15bc2a-3b90-430c-a2a2-532cf27b9afc",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v2",
+                    "stale-features"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "ids",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"features\": {\n    \"key_0\": {\n      \"featureId\": \"string\",\n      \"isStale\": false,\n      \"staleReason\": \"recently-updated\",\n      \"neverStale\": true,\n      \"staleByEnv\": {\n        \"key_0\": {\n          \"isStale\": true,\n          \"reason\": \"has-rules\",\n          \"evaluatesTo\": \"string\"\n        }\n      }\n    },\n    \"key_1\": {\n      \"featureId\": \"string\",\n      \"isStale\": true,\n      \"staleReason\": \"no-rules\",\n      \"neverStale\": true,\n      \"staleByEnv\": {\n        \"key_0\": {\n          \"isStale\": false,\n          \"reason\": \"toggled-off\",\n          \"evaluatesTo\": \"string\"\n        },\n        \"key_1\": {\n          \"isStale\": true,\n          \"reason\": \"active-experiment\",\n          \"evaluatesTo\": \"string\"\n        }\n      }\n    }\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.growthbook.io/api",
+      "key": "baseUrl"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}"
+      }
+    ]
+  },
+  "info": {
+    "_postman_id": "768bb39d-c545-45b5-88f6-d7352bc3ab65",
+    "name": "GrowthBook REST AnalyticsExplorations features-v2 API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "GrowthBook offers a full REST API for interacting with the application.\n\nRequest data can use either JSON or Form data encoding (with proper `Content-Type` headers). All response bodies are JSON-encoded.\n\nThe API base URL for GrowthBook Cloud is `https://api.growthbook.io/api`. For self-hosted deployments, it is the same as your API_HOST environment variable (defaults to `http://localhost:3100/api`). The rest of these docs will assume you are using GrowthBook Cloud.\n\n## Versioning\n\nEndpoints are versioned by path prefix:\n\n- `/v1/...` — stable, widely-supported endpoints\n- `/v2/...` — updated endpoints with improved shapes (e.g. unified per-rule environment scope for feature flags)\n\nNew integrations should prefer v2 where available.\n\n## Authentication\n\nWe support both the HTTP Basic and Bearer authentication schemes for convenience.\n\nYou first need to generate a new API Key in GrowthBook. Different keys have different permissions:\n\n- **Personal Access Tokens**: These are sensitive and provide the same level of access as the user has to an organization. These can be created by going to `Personal Access Tokens` under the your user menu.\n- **Secret Keys**: These are sensitive and provide the level of access for the role, which currently is either `admin` or `readonly`. Only Admins with the `manageApiKeys` permission can manage Secret Keys on behalf of an organization. These can be created by going to `Settings -> API Keys`\n\nIf using HTTP Basic auth, pass the Secret Key as the username and leave the password blank (when using curl, add `:` at the end of the secret to indicate an empty password)\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n  -u secret_abc123DEF456:\n```\n\nIf using Bearer auth, pass the Secret Key as the token:\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n-H \"Authorization: Bearer secret_abc123DEF456\"\n```\n\n## Errors\n\nThe API may return the following error status codes:\n\n- **400** - Bad Request - Often due to a missing required parameter\n- **401** - Unauthorized - No valid API key provided\n- **402** - Request Failed - The parameters are valid, but the request failed\n- **403** - Forbidden - Provided API key does not have the required access\n- **404** - Not Found - Unknown API route or requested resource\n- **429** - Too Many Requests - You exceeded the rate limit of 60 requests per minute. Try again later.\n- **5XX** - Server Error - Something went wrong on GrowthBook's end (these are rare)\n\nThe response body will be a JSON object with the following properties:\n\n- **message** - Information about the error\n",
+      "type": "text/plain"
+    }
+  }
+}

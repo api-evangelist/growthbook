@@ -1,0 +1,763 @@
+{
+  "item": [
+    {
+      "id": "18e656ae-d3b5-475d-9b9a-c55082c75713",
+      "name": "Teams",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "4a261e5c-3c3a-4329-9217-dfa0101b656f",
+          "name": "Get a single team",
+          "request": {
+            "name": "Get a single team",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "teams",
+                ":id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "d45e5fa9-cfe5-47f8-9211-06879f15ccf4",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "teams",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"team\": {\n    \"id\": \"string\",\n    \"dateCreated\": \"9624-12-09T21:49:25Z\",\n    \"dateUpdated\": \"2872-02-29T09:15Z\",\n    \"name\": \"string\",\n    \"createdBy\": \"string\",\n    \"description\": \"string\",\n    \"role\": \"string\",\n    \"limitAccessByEnvironment\": false,\n    \"environments\": [\n      \"string\",\n      \"string\"\n    ],\n    \"members\": [\n      \"string\",\n      \"string\"\n    ],\n    \"managedByIdp\": true,\n    \"projectRoles\": [\n      {\n        \"role\": \"string\",\n        \"limitAccessByEnvironment\": true,\n        \"environments\": [\n          \"string\",\n          \"string\"\n        ],\n        \"project\": \"string\",\n        \"teams\": [\n          \"string\",\n          \"string\"\n        ]\n      },\n      {\n        \"role\": \"string\",\n        \"limitAccessByEnvironment\": true,\n        \"environments\": [\n          \"string\",\n          \"string\"\n        ],\n        \"project\": \"string\",\n        \"teams\": [\n          \"string\",\n          \"string\"\n        ]\n      }\n    ],\n    \"managedBy\": {\n      \"type\": \"string\",\n      \"resourceId\": \"string\"\n    },\n    \"defaultProject\": \"string\"\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "667ef7be-2f23-4de2-8b3f-2f7d0c18d84a",
+          "name": "Update a single team",
+          "request": {
+            "name": "Update a single team",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "teams",
+                ":id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "PUT",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"<string>\",\n  \"createdBy\": \"<string>\",\n  \"description\": \"<string>\",\n  \"role\": \"<string>\",\n  \"limitAccessByEnvironment\": \"<boolean>\",\n  \"environments\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"projectRoles\": [\n    {\n      \"role\": \"<string>\",\n      \"limitAccessByEnvironment\": \"<boolean>\",\n      \"environments\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"project\": \"<string>\",\n      \"teams\": [\n        \"<string>\",\n        \"<string>\"\n      ]\n    },\n    {\n      \"role\": \"<string>\",\n      \"limitAccessByEnvironment\": \"<boolean>\",\n      \"environments\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"project\": \"<string>\",\n      \"teams\": [\n        \"<string>\",\n        \"<string>\"\n      ]\n    }\n  ],\n  \"managedBy\": {\n    \"type\": \"<string>\",\n    \"resourceId\": \"<string>\"\n  },\n  \"defaultProject\": \"<string>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "22d54511-30d6-4718-8720-d68aeef754c5",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "teams",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PUT",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"<string>\",\n  \"createdBy\": \"<string>\",\n  \"description\": \"<string>\",\n  \"role\": \"<string>\",\n  \"limitAccessByEnvironment\": \"<boolean>\",\n  \"environments\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"projectRoles\": [\n    {\n      \"role\": \"<string>\",\n      \"limitAccessByEnvironment\": \"<boolean>\",\n      \"environments\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"project\": \"<string>\",\n      \"teams\": [\n        \"<string>\",\n        \"<string>\"\n      ]\n    },\n    {\n      \"role\": \"<string>\",\n      \"limitAccessByEnvironment\": \"<boolean>\",\n      \"environments\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"project\": \"<string>\",\n      \"teams\": [\n        \"<string>\",\n        \"<string>\"\n      ]\n    }\n  ],\n  \"managedBy\": {\n    \"type\": \"<string>\",\n    \"resourceId\": \"<string>\"\n  },\n  \"defaultProject\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"team\": {\n    \"id\": \"string\",\n    \"dateCreated\": \"9624-12-09T21:49:25Z\",\n    \"dateUpdated\": \"2872-02-29T09:15Z\",\n    \"name\": \"string\",\n    \"createdBy\": \"string\",\n    \"description\": \"string\",\n    \"role\": \"string\",\n    \"limitAccessByEnvironment\": false,\n    \"environments\": [\n      \"string\",\n      \"string\"\n    ],\n    \"members\": [\n      \"string\",\n      \"string\"\n    ],\n    \"managedByIdp\": true,\n    \"projectRoles\": [\n      {\n        \"role\": \"string\",\n        \"limitAccessByEnvironment\": true,\n        \"environments\": [\n          \"string\",\n          \"string\"\n        ],\n        \"project\": \"string\",\n        \"teams\": [\n          \"string\",\n          \"string\"\n        ]\n      },\n      {\n        \"role\": \"string\",\n        \"limitAccessByEnvironment\": true,\n        \"environments\": [\n          \"string\",\n          \"string\"\n        ],\n        \"project\": \"string\",\n        \"teams\": [\n          \"string\",\n          \"string\"\n        ]\n      }\n    ],\n    \"managedBy\": {\n      \"type\": \"string\",\n      \"resourceId\": \"string\"\n    },\n    \"defaultProject\": \"string\"\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "e033f972-5af2-4b5a-8915-eb30c1e8e3da",
+          "name": "Delete a single team",
+          "request": {
+            "name": "Delete a single team",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "teams",
+                ":id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "deleteMembers",
+                  "value": "<string>",
+                  "description": "When 'true', enables deleting a team that contains members"
+                }
+              ],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "DELETE",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "6dc19673-a9da-4637-9266-a0d72a868326",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "teams",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "deleteMembers",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "DELETE",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"deletedId\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "6142a32d-8656-4593-bb83-5032e6b03eb9",
+          "name": "Create a single team",
+          "request": {
+            "name": "Create a single team",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "teams"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"<string>\",\n  \"description\": \"<string>\",\n  \"role\": \"<string>\",\n  \"createdBy\": \"<string>\",\n  \"limitAccessByEnvironment\": \"<boolean>\",\n  \"environments\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"projectRoles\": [\n    {\n      \"role\": \"<string>\",\n      \"limitAccessByEnvironment\": \"<boolean>\",\n      \"environments\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"project\": \"<string>\",\n      \"teams\": [\n        \"<string>\",\n        \"<string>\"\n      ]\n    },\n    {\n      \"role\": \"<string>\",\n      \"limitAccessByEnvironment\": \"<boolean>\",\n      \"environments\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"project\": \"<string>\",\n      \"teams\": [\n        \"<string>\",\n        \"<string>\"\n      ]\n    }\n  ],\n  \"managedBy\": {\n    \"type\": \"<string>\",\n    \"resourceId\": \"<string>\"\n  },\n  \"defaultProject\": \"<string>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "7fb6c075-9af7-4236-9de1-9660f5e3f609",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "teams"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"<string>\",\n  \"description\": \"<string>\",\n  \"role\": \"<string>\",\n  \"createdBy\": \"<string>\",\n  \"limitAccessByEnvironment\": \"<boolean>\",\n  \"environments\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"projectRoles\": [\n    {\n      \"role\": \"<string>\",\n      \"limitAccessByEnvironment\": \"<boolean>\",\n      \"environments\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"project\": \"<string>\",\n      \"teams\": [\n        \"<string>\",\n        \"<string>\"\n      ]\n    },\n    {\n      \"role\": \"<string>\",\n      \"limitAccessByEnvironment\": \"<boolean>\",\n      \"environments\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"project\": \"<string>\",\n      \"teams\": [\n        \"<string>\",\n        \"<string>\"\n      ]\n    }\n  ],\n  \"managedBy\": {\n    \"type\": \"<string>\",\n    \"resourceId\": \"<string>\"\n  },\n  \"defaultProject\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"team\": {\n    \"id\": \"string\",\n    \"dateCreated\": \"9624-12-09T21:49:25Z\",\n    \"dateUpdated\": \"2872-02-29T09:15Z\",\n    \"name\": \"string\",\n    \"createdBy\": \"string\",\n    \"description\": \"string\",\n    \"role\": \"string\",\n    \"limitAccessByEnvironment\": false,\n    \"environments\": [\n      \"string\",\n      \"string\"\n    ],\n    \"members\": [\n      \"string\",\n      \"string\"\n    ],\n    \"managedByIdp\": true,\n    \"projectRoles\": [\n      {\n        \"role\": \"string\",\n        \"limitAccessByEnvironment\": true,\n        \"environments\": [\n          \"string\",\n          \"string\"\n        ],\n        \"project\": \"string\",\n        \"teams\": [\n          \"string\",\n          \"string\"\n        ]\n      },\n      {\n        \"role\": \"string\",\n        \"limitAccessByEnvironment\": true,\n        \"environments\": [\n          \"string\",\n          \"string\"\n        ],\n        \"project\": \"string\",\n        \"teams\": [\n          \"string\",\n          \"string\"\n        ]\n      }\n    ],\n    \"managedBy\": {\n      \"type\": \"string\",\n      \"resourceId\": \"string\"\n    },\n    \"defaultProject\": \"string\"\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "69696112-e2a5-415f-bd56-2c3e9dc8086f",
+          "name": "Get all teams",
+          "request": {
+            "name": "Get all teams",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "teams"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "64ac1710-0dfe-479f-adbe-c7600a5e764d",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "teams"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"teams\": [\n    {\n      \"id\": \"string\",\n      \"dateCreated\": \"0523-04-03T23:17Z\",\n      \"dateUpdated\": \"8616-02-29T17:53:06.175213758Z\",\n      \"name\": \"string\",\n      \"createdBy\": \"string\",\n      \"description\": \"string\",\n      \"role\": \"string\",\n      \"limitAccessByEnvironment\": false,\n      \"environments\": [\n        \"string\",\n        \"string\"\n      ],\n      \"members\": [\n        \"string\",\n        \"string\"\n      ],\n      \"managedByIdp\": false,\n      \"projectRoles\": [\n        {\n          \"role\": \"string\",\n          \"limitAccessByEnvironment\": false,\n          \"environments\": [\n            \"string\",\n            \"string\"\n          ],\n          \"project\": \"string\",\n          \"teams\": [\n            \"string\",\n            \"string\"\n          ]\n        },\n        {\n          \"role\": \"string\",\n          \"limitAccessByEnvironment\": true,\n          \"environments\": [\n            \"string\",\n            \"string\"\n          ],\n          \"project\": \"string\",\n          \"teams\": [\n            \"string\",\n            \"string\"\n          ]\n        }\n      ],\n      \"managedBy\": {\n        \"type\": \"string\",\n        \"resourceId\": \"string\"\n      },\n      \"defaultProject\": \"string\"\n    },\n    {\n      \"id\": \"string\",\n      \"dateCreated\": \"6000-02-29T01:43:48.44416Z\",\n      \"dateUpdated\": \"4085-02-23T21:12Z\",\n      \"name\": \"string\",\n      \"createdBy\": \"string\",\n      \"description\": \"string\",\n      \"role\": \"string\",\n      \"limitAccessByEnvironment\": true,\n      \"environments\": [\n        \"string\",\n        \"string\"\n      ],\n      \"members\": [\n        \"string\",\n        \"string\"\n      ],\n      \"managedByIdp\": false,\n      \"projectRoles\": [\n        {\n          \"role\": \"string\",\n          \"limitAccessByEnvironment\": false,\n          \"environments\": [\n            \"string\",\n            \"string\"\n          ],\n          \"project\": \"string\",\n          \"teams\": [\n            \"string\",\n            \"string\"\n          ]\n        },\n        {\n          \"role\": \"string\",\n          \"limitAccessByEnvironment\": true,\n          \"environments\": [\n            \"string\",\n            \"string\"\n          ],\n          \"project\": \"string\",\n          \"teams\": [\n            \"string\",\n            \"string\"\n          ]\n        }\n      ],\n      \"managedBy\": {\n        \"type\": \"string\",\n        \"resourceId\": \"string\"\n      },\n      \"defaultProject\": \"string\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "7616f27c-bfeb-47d5-93e1-844da77c5b5a",
+          "name": "Add members to team",
+          "request": {
+            "name": "Add members to team",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "teams",
+                ":id",
+                "members"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"members\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "5fe7e48a-7705-445d-9e97-e332fe2a0f6e",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "teams",
+                    ":id",
+                    "members"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"members\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"status\": 8698.931821244652\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "93ccdc0b-777d-4ba9-b9b2-ee0dad86b3e8",
+          "name": "Remove members from team",
+          "request": {
+            "name": "Remove members from team",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "teams",
+                ":id",
+                "members"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "DELETE",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"members\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "ad41b12f-4e91-40bf-969e-ce712f86458b",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "teams",
+                    ":id",
+                    "members"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "DELETE",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"members\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"status\": 8698.931821244652\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.growthbook.io/api",
+      "key": "baseUrl"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}"
+      }
+    ]
+  },
+  "info": {
+    "_postman_id": "18ac1369-f5aa-4ede-8e8f-3372d176e12a",
+    "name": "GrowthBook REST AnalyticsExplorations Teams API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "GrowthBook offers a full REST API for interacting with the application.\n\nRequest data can use either JSON or Form data encoding (with proper `Content-Type` headers). All response bodies are JSON-encoded.\n\nThe API base URL for GrowthBook Cloud is `https://api.growthbook.io/api`. For self-hosted deployments, it is the same as your API_HOST environment variable (defaults to `http://localhost:3100/api`). The rest of these docs will assume you are using GrowthBook Cloud.\n\n## Versioning\n\nEndpoints are versioned by path prefix:\n\n- `/v1/...` — stable, widely-supported endpoints\n- `/v2/...` — updated endpoints with improved shapes (e.g. unified per-rule environment scope for feature flags)\n\nNew integrations should prefer v2 where available.\n\n## Authentication\n\nWe support both the HTTP Basic and Bearer authentication schemes for convenience.\n\nYou first need to generate a new API Key in GrowthBook. Different keys have different permissions:\n\n- **Personal Access Tokens**: These are sensitive and provide the same level of access as the user has to an organization. These can be created by going to `Personal Access Tokens` under the your user menu.\n- **Secret Keys**: These are sensitive and provide the level of access for the role, which currently is either `admin` or `readonly`. Only Admins with the `manageApiKeys` permission can manage Secret Keys on behalf of an organization. These can be created by going to `Settings -> API Keys`\n\nIf using HTTP Basic auth, pass the Secret Key as the username and leave the password blank (when using curl, add `:` at the end of the secret to indicate an empty password)\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n  -u secret_abc123DEF456:\n```\n\nIf using Bearer auth, pass the Secret Key as the token:\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n-H \"Authorization: Bearer secret_abc123DEF456\"\n```\n\n## Errors\n\nThe API may return the following error status codes:\n\n- **400** - Bad Request - Often due to a missing required parameter\n- **401** - Unauthorized - No valid API key provided\n- **402** - Request Failed - The parameters are valid, but the request failed\n- **403** - Forbidden - Provided API key does not have the required access\n- **404** - Not Found - Unknown API route or requested resource\n- **429** - Too Many Requests - You exceeded the rate limit of 60 requests per minute. Try again later.\n- **5XX** - Server Error - Something went wrong on GrowthBook's end (these are rare)\n\nThe response body will be a JSON object with the following properties:\n\n- **message** - Information about the error\n",
+      "type": "text/plain"
+    }
+  }
+}

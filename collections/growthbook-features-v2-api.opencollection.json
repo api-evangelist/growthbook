@@ -1,0 +1,233 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "GrowthBook REST AnalyticsExplorations features-v2 API",
+    "version": "1.0.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "features-v2",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get all features",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.growthbook.io/api/v2/features",
+            "params": [
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "The number of items to return"
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query",
+                "description": "How many items to skip (use in conjunction with limit for pagination)"
+              },
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "query",
+                "description": "Filter by project id"
+              },
+              {
+                "name": "clientKey",
+                "value": "",
+                "type": "query",
+                "description": "Filter by a SDK connection's client key"
+              },
+              {
+                "name": "skipPagination",
+                "value": "",
+                "type": "query",
+                "description": "If true, return all matching items and ignore limit/offset.\nSelf-hosted only. Has no effect unless API_ALLOW_SKIP_PAGINATION is set to true or 1."
+              }
+            ]
+          },
+          "docs": "Returns features with pagination. Rules are returned as a unified top-level array with per-rule environment scope.\n"
+        },
+        {
+          "info": {
+            "name": "Create a single feature",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.growthbook.io/api/v2/features",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Creates a new feature. Rules are supplied as a top-level `rules` array; each rule includes `allEnvironments` / `environments` scope fields."
+        },
+        {
+          "info": {
+            "name": "Get a single feature",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.growthbook.io/api/v2/features/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the requested resource"
+              },
+              {
+                "name": "withRevisions",
+                "value": "",
+                "type": "query",
+                "description": "Also return feature revisions (all, draft, or published statuses)"
+              }
+            ]
+          },
+          "docs": "Get a single feature"
+        },
+        {
+          "info": {
+            "name": "Partially update a feature",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.growthbook.io/api/v2/features/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the requested resource"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Updates any combination of a feature's metadata, default value, environment state, and rules. Other top-level fields are patch-merged: omit a field to leave it unchanged. The `rules` field, when supplied, replaces the entire `rules` array atomically in a single revision (v1 PUT applied per-environment patches; v2 swaps the full flat array). To preserve existing rules during a partial edit, GET the feature first, mutate the returned `rules` array, and PUT the full array back. Safe-rollout rules r"
+        },
+        {
+          "info": {
+            "name": "Deletes a single feature",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.growthbook.io/api/v2/features/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the requested resource"
+              }
+            ]
+          },
+          "docs": "Permanently deletes a feature and all of its revisions.\n\nArchived features can be deleted freely. Deleting a live (non-archived) feature returns 403 unless the org setting \"REST API always bypasses approval requirements\" is enabled.\n"
+        },
+        {
+          "info": {
+            "name": "Toggle a feature in one or more environments",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.growthbook.io/api/v2/features/:id/toggle",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the requested resource"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Enables or disables a feature in one or more environments simultaneously. Accepts a map of environment name → boolean."
+        },
+        {
+          "info": {
+            "name": "Revert a feature to a specific revision",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.growthbook.io/api/v2/features/:id/revert",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The id of the requested resource"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Revert a feature to a specific revision"
+        },
+        {
+          "info": {
+            "name": "Get list of feature keys",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.growthbook.io/api/v2/feature-keys",
+            "params": [
+              {
+                "name": "projectId",
+                "value": "",
+                "type": "query",
+                "description": "Filter by project id"
+              }
+            ]
+          },
+          "docs": "Get list of feature keys"
+        },
+        {
+          "info": {
+            "name": "Get stale status for one or more features",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.growthbook.io/api/v2/stale-features",
+            "params": [
+              {
+                "name": "ids",
+                "value": "",
+                "type": "query",
+                "description": "Comma-separated list of feature IDs (URL-encoded if needed). Example: `my_feature,another_feature`\n"
+              }
+            ]
+          },
+          "docs": "Get stale status for one or more features"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

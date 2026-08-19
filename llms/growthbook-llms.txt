@@ -1,0 +1,224 @@
+# GrowthBook Docs
+
+> Open source feature flagging and A/B testing platform.
+
+This file contains links to documentation sections following the llmstxt.org standard.
+
+## Table of Contents
+
+- [Audit logs](https://docs.growthbook.io/account/audit-logs): GrowthBook's Audit Logs
+- [User & Team Permissions](https://docs.growthbook.io/account/user-permissions): GrowthBook's User & Team Permissions
+- [API](https://docs.growthbook.io/api-overview): API
+- [Setting up a Bandit](https://docs.growthbook.io/bandits/config): import MaxWidthImage from "@site/src/components/MaxWidthImage";
+- [Bandits](https://docs.growthbook.io/bandits/overview): import Pill from '@site/src/components/Pill';
+- [Understanding Bandit Results](https://docs.growthbook.io/bandits/results): import MaxWidthImage from "@site/src/components/MaxWidthImage";
+- [Command Palette](https://docs.growthbook.io/command-palette): Open the GrowthBook command palette with Cmd+K or Ctrl+K to jump to any feature, experiment, metric, dashboard, page, doc, or REST API endpoint fro...
+- [Compliance](https://docs.growthbook.io/compliance): Compliance
+- [Setting up Contextual Bandits](https://docs.growthbook.io/contextual-bandits/config): import CommercialFeature from '@site/src/components/CommercialFeature';
+- [Driving a Contextual Bandit via API](https://docs.growthbook.io/contextual-bandits/contextual-bandit-via-api): import CommercialFeature from '@site/src/components/CommercialFeature';
+- [Contextual Bandits](https://docs.growthbook.io/contextual-bandits/overview): import CommercialFeature from '@site/src/components/CommercialFeature';
+- [GrowthBook and Google Analytics GA4](https://docs.growthbook.io/event-trackers/GA4-google-analytics): This guide walks you through using GrowthBook with Google Analytics 4 (GA4) to track your experiments and measure their impact on your business.
+- [Use environment variables or similar for passwords!](https://docs.growthbook.io/event-trackers/_default-event-instructions): Once you have chosen your event tracker and data source type and successfully connected, you will be given an
+- [Setting up Amplitude as an event tracker](https://docs.growthbook.io/event-trackers/amplitude): This document outlines the steps needed to add your Amplitude to GrowthBook.
+- [Setting up CleverTap as an event tracker](https://docs.growthbook.io/event-trackers/clevertap): This document outlines the steps needed to add your CleverTap to GrowthBook.
+- [Setting up a custom data source](https://docs.growthbook.io/event-trackers/custom): This document outlines the steps needed to add a custom data source to GrowthBook.
+- [Setting up Firebase as an event tracker](https://docs.growthbook.io/event-trackers/firebase): This document outlines the steps needed to add your Firebase to GrowthBook.
+- [Setting up Freshpaint as an event tracker](https://docs.growthbook.io/event-trackers/freshpaint): This document outlines the steps needed to add your Freshpaint to GrowthBook.
+- [Setting up Fullstory as an event tracker](https://docs.growthbook.io/event-trackers/fullstory): This document outlines the steps needed to add your Fullstory to GrowthBook.
+- [Setting up Heap as an event tracker](https://docs.growthbook.io/event-trackers/heap): This document outlines the steps needed to add your Heap to GrowthBook.
+- [Setting up Jitsu as an event tracker](https://docs.growthbook.io/event-trackers/jitsu): This document outlines the steps needed to add your Jitsu to GrowthBook.
+- [Setting up KeenIO as an event tracker](https://docs.growthbook.io/event-trackers/keenio): This document outlines the steps needed to add your KeenIO to GrowthBook.
+- [GrowthBook and Matomo](https://docs.growthbook.io/event-trackers/matomo): Configure GrowthBook to do A/B testing using Matomo Analytics
+- [Missing Event Tracker Docs](https://docs.growthbook.io/event-trackers/missing-event-tracker-docs): import Link from '@docusaurus/Link';
+- [Using GrowthBook with Mixpanel](https://docs.growthbook.io/event-trackers/mixpanel): This document outlines the steps needed to use Mixpanel with GrowthBook.
+- [Setting up MParticle as an event tracker](https://docs.growthbook.io/event-trackers/mparticle): This document outlines the steps needed to add your MParticle to GrowthBook.
+- [GrowthBook and RudderStack](https://docs.growthbook.io/event-trackers/rudderstack): Learn how to use GrowthBook with RudderStack to easily add A/B testing to your application
+- [Setting up Segment as an event tracker](https://docs.growthbook.io/event-trackers/segment): This document outlines the steps needed to add your Segment to GrowthBook.
+- [Setting Up Snowplow as an Event Tracker](https://docs.growthbook.io/event-trackers/snowplow): Learn how to integrate Snowplow with GrowthBook to track experiment exposure events using a custom Iglu schema, test with Snowplow Micro, and pass ...
+- [Choose Your Data Path](https://docs.growthbook.io/experimentation-analysis/choose-your-data-path): Decide between GrowthBook's Managed Warehouse, Event Forwarder, or connecting your own data warehouse.
+- [Cluster Experiments](https://docs.growthbook.io/experimentation-analysis/cluster-experiments): import MaxWidthImage from "@site/src/components/MaxWidthImage"
+- [Connecting to your data warehouse](https://docs.growthbook.io/experimentation-analysis/connecting-to-your-data-warehouse): This document outlines the steps needed to connect GrowthBook to your data warehouse.
+- [Data Pipeline](https://docs.growthbook.io/experimentation-analysis/data-pipeline): Learn about enabling Pipeline Mode and improving query efficiency
+- [Data Source Configuration](https://docs.growthbook.io/experimentation-analysis/data-source-configuration): This document outlines how to configure data source
+- [Experiment Decision Framework](https://docs.growthbook.io/experimentation-analysis/decision-framework): import MaxWidthImage from "@site/src/components/MaxWidthImage";
+- [Dimensions](https://docs.growthbook.io/experimentation-analysis/dimensions): Drill down into experiment results
+- [Event Forwarder](https://docs.growthbook.io/experimentation-analysis/event-forwarder): Forward events from GrowthBook Cloud to your own data warehouse
+- [Experiment Bulk Results API](https://docs.growthbook.io/experimentation-analysis/experiment-bulk-results-api): Snapshot-level export of every stored analysis for one experiment over a date window.
+- [Experiment Configuration](https://docs.growthbook.io/experimentation-analysis/experiment-configuration): Create, configure, and analyze your experiments.
+- [Experiment Dashboards](https://docs.growthbook.io/experimentation-analysis/experiment-dashboards): Create a tailored view of your experiment. Highlight key insights, add context, and share a clear story with your team.
+- [Understanding Experiment Results](https://docs.growthbook.io/experimentation-analysis/experiment-results): Learn how to analyze A/B test results, share insights, and make data-driven decisions. Includes statistical analysis, health checks, custom reports...
+- [Experiment Time Series](https://docs.growthbook.io/experimentation-analysis/experiment-time-series): import MaxWidthImage from "@site/src/components/MaxWidthImage";
+- [Managed Warehouse](https://docs.growthbook.io/experimentation-analysis/managed-warehouse): Get started with GrowthBook's fully managed data warehouse. One-click setup, built-in event tracking, and auto-created metrics.
+- [Query Optimization](https://docs.growthbook.io/experimentation-analysis/query-optimization): Learn about different techniques and settings to optimize SQL queries in GrowthBook
+- [SQL Templates](https://docs.growthbook.io/experimentation-analysis/sql-templates): Learn about using template variables and expressions to create dynamic SQL queries in GrowthBook
+- [Running Experiments on GrowthBook](https://docs.growthbook.io/experiments): Understanding the ways to run experiments with GrowthBook
+- [FAQ](https://docs.growthbook.io/faq): Frequently asked questions about GrowthBook.
+- [Feature Flag Fundamentals](https://docs.growthbook.io/features/basics): Learn about the basics of feature flags.
+- [Code References](https://docs.growthbook.io/features/code-references): See where feature flags are used in your codebase by scanning with a CLI tool or GitHub Action.
+- [Configs](https://docs.growthbook.io/features/configs): Typed, validated, composable shapes you can enforce on your feature flags
+- [Constants](https://docs.growthbook.io/features/constants): Define reusable values once and reference them from feature flags
+- [Custom Hooks](https://docs.growthbook.io/features/custom-hooks): Extend GrowthBook with custom feature validation hooks (self-hosted only)
+- [Feature Evaluation Diagnostics](https://docs.growthbook.io/features/diagnostics): Validate feature evaluations with diagnostics
+- [Environments](https://docs.growthbook.io/features/environments): Define multiple environments to control which features are enabled in each.
+- [Feature Flag Experiments](https://docs.growthbook.io/features/feature-flag-experiments): Run experiments using feature flags
+- [Feature Flags](https://docs.growthbook.io/features): Learn about feature flags and how to use them in your application.
+- [JSON Schema Validation](https://docs.growthbook.io/features/json-schema-validation): Validate JSON, string, and number feature flag values against a schema to prevent typos and costly mistakes.
+- [Prerequisite Features](https://docs.growthbook.io/features/prerequisites): Gate features, rules, and experiments by a prerequisite feature
+- [Publishing & Approval Flows](https://docs.growthbook.io/features/publishing-and-approval-flows): Learn about drafts, revisions, merge conflicts, and requiring approvals for feature flag and saved group changes
+- [Ramp Schedules](https://docs.growthbook.io/features/ramp-schedules): Release a feature gradually in timed stages, with optional approval gates and guardrail monitoring.
+- [Feature Flag Rules](https://docs.growthbook.io/features/rules): How rules override a feature's default value — targeting users, rolling out gradually, experimenting — and how to scope, ramp, and schedule them.
+- [Safe Rollouts](https://docs.growthbook.io/features/safe-rollouts): Release features to a subset of users while monitoring guardrail metrics for regressions. Detect issues early and reduce risk in production.
+- [Saved Group Revisions API](https://docs.growthbook.io/features/saved-group-revisions-api): Edit, review, and publish saved groups through the draft revision REST API.
+- [Stale Feature Flag Detection](https://docs.growthbook.io/features/stale-detection): Identify feature flags that are no longer actively used so you can clean them up.
+- [Targeting Conditions](https://docs.growthbook.io/features/targeting): Define who sees a feature using attributes, conditions, and saved groups.
+- [GrowthBook and Contentful](https://docs.growthbook.io/guide/contentful): This guide walks you through using GrowthBook with Contentful to enable content teams to run A/B tests without requiring developer intervention for...
+- [GrowthBook and BigQuery](https://docs.growthbook.io/guide/create-react-app-and-growthbook): This guide walks you through installing GrowthBook SDK into your Create React App
+- [Feature Flags and A/B Tests with Deno, Hono, and GrowthBook](https://docs.growthbook.io/guide/deno-hono): This guide shows you how to integrate GrowthBook with Deno and Hono to manage server-side feature flags and experiments.
+- [Express.js and GrowthBook](https://docs.growthbook.io/guide/express-js): This guide shows how to integrate GrowthBook with Express.js to manage server-side feature flags.
+- [How to A/B Test and Feature Flag with Google Tag Manager (GTM) and GrowthBook](https://docs.growthbook.io/guide/google-tag-manager-and-growthbook): This guide walks you through using GrowthBook with Google Tag Manager (GTM) to track your experiments and measure their impact on your business.
+- [Migrate from LaunchDarkly](https://docs.growthbook.io/guide/importing): Import all of your existing LaunchDarkly flags into GrowthBook
+- [How to Guides for installing the platform](https://docs.growthbook.io/guide): The following sections contain in-depth walkthroughs for setting up GrowthBook with various technologies.
+- [Migrate from Statsig to GrowthBook](https://docs.growthbook.io/guide/migrate-from-statsig): Everything you need to know to quickly migrate existing features, experiments, SDKs, and more from Statsig to GrowthBook, the largest open source e...
+- [GrowthBook and Next.js (Pages Router)](https://docs.growthbook.io/guide/nextjs-and-growthbook): This guide walks you through using GrowthBook with Next.js Pages Router.
+- [How to Integrate GrowthBook with Next.js, Vercel Edge Config, and Vercel Feature Flags](https://docs.growthbook.io/guide/nextjs-and-vercel-feature-flags): Step-by-step guide to integrating GrowthBook feature flags into your Next.js application deployed on Vercel. Includes using Edge Config, the Vercel...
+- [GrowthBook and Next.js (App Router)](https://docs.growthbook.io/guide/nextjs-app-router): This guide walks you through using GrowthBook with Next.js App Router.
+- [GrowthBook, Rudderstack, and Next.js](https://docs.growthbook.io/guide/rudderstack-and-nextjs-with-growthbook): Learn how to use GrowthBook with Rudderstack to easily add A/B testing to your application running on Next.js
+- [Sanity with GrowthBook](https://docs.growthbook.io/guide/sanity): This comprehensive tutorial will walk you through setting up Sanity with GrowthBook for A/B testing in a Next.js application. You'll learn how to c...
+- [How to feature flag and A/B test with GrowthBook, Strapi, and Next.js: A Complete Guide](https://docs.growthbook.io/guide/strapi): Learn to implement feature flags and A/B testing by integrating Strapi CMS with GrowthBook. Step-by-step tutorial for content experiments, feature ...
+- [Importing External Experiments](https://docs.growthbook.io/importing-experiments): Importing and analyzing experiments created outside of GrowthBook
+- [GrowthBook Documentation](https://docs.growthbook.io/index): import ButtonCard from '@site/src/components/ButtonCard'
+- [Insights](https://docs.growthbook.io/insights): Get a comprehensive view of your experimentation (A/B testing) program with GrowthBook's Insights dashboards. Analyze experiment impact, correlatio...
+- [Experiment skills](https://docs.growthbook.io/integrations/ai-agents/agent-skills/experiments): The GrowthBook Agent Skills for experiments: brainstorm, design, launch, analyze, and stop A/B tests from your AI agent, grounded in your own metri...
+- [Feature flag skills](https://docs.growthbook.io/integrations/ai-agents/agent-skills/feature-flags): The GrowthBook Agent Skills for feature flags: create, target, roll out, ramp, monitor, and clean up flags from your AI agent, with draft → review ...
+- [GrowthBook Agent Skills](https://docs.growthbook.io/integrations/ai-agents/agent-skills): Run the full feature-flag and experiment lifecycle from your AI coding agent. Install the GrowthBook Agent Skills for Claude Code, Cursor, and othe...
+- [Connect AI Agents to GrowthBook](https://docs.growthbook.io/integrations/ai-agents): GrowthBook connects to AI coding agents like Claude Code and Cursor in two ways: the MCP server and the Agent Skills library. Learn which to use.
+- [AI Integrations](https://docs.growthbook.io/integrations/ai): Learn about AI integrations with GrowthBook.
+- [Microsoft Clarity (Heatmaps)](https://docs.growthbook.io/integrations/clarity): Learn about integrating Microsoft Clarity heatmaps with GrowthBook
+- [DataDog Integration](https://docs.growthbook.io/integrations/datadog): Integrating DataDog's Real User Monitoring (RUM) with GrowthBook's feature flag data lets you quickly identify which experience your users were exp...
+- [Discord integration](https://docs.growthbook.io/integrations/discord): import ExternalLink from '@site/src/components/ExternalLink'
+- [Official GrowthBook for Framer Plugin](https://docs.growthbook.io/integrations/framer): How to integrate GrowthBook with Framer, making it easy to connect feature flags and experiments with Framer components for no-code A/B testing.
+- [GitHub (Metric Definitions)](https://docs.growthbook.io/integrations/github-metrics): Store metric definitions in GitHub and automatically sync them to GrowthBook
+- [GrowthBook integrations](https://docs.growthbook.io/integrations): GrowthBook plans on supporting more integrations in the near future. If you have a suggestion for an integration,
+- [Official GrowthBook for Jira Integration](https://docs.growthbook.io/integrations/jira): How to integrate GrowthBook with Jira, making it easy to connect feature flags and experiments with Jira issues.
+- [Official GrowthBook MCP Server](https://docs.growthbook.io/integrations/mcp): Connect local AI tools like Cursor, VS Code, Windsurf, Cline, and Claude to GrowthBook using the Model Context Protocol (MCP). Create feature flags...
+- [Configuring SCIM for GrowthBook](https://docs.growthbook.io/integrations/scim): Setting up SCIM Integration with GrowthBook
+- [Shopify Integration](https://docs.growthbook.io/integrations/shopify): import CommercialFeature from '@site/src/components/CommercialFeature';
+- [Slack integration](https://docs.growthbook.io/integrations/slack): import ExternalLink from '@site/src/components/ExternalLink'
+- [Vercel Native Integration](https://docs.growthbook.io/integrations/vercel): Integrate GrowthBook with Vercel to manage feature flags and experiments directly from your Vercel dashboard.
+- [Webflow Integration](https://docs.growthbook.io/integrations/webflow): Unleash the power of experimentation with GrowthBook to supercharge your Webflow site—no coding skills required!
+- [Wordpress Integration](https://docs.growthbook.io/integrations/wordpress): Unleash the power of experimentation with GrowthBook to supercharge your Wordpress site—no coding skills required!
+- [A/A Testing in GrowthBook](https://docs.growthbook.io/kb/experiments/aa-tests): A/A Testing in GrowthBook
+- [Carryover Bias](https://docs.growthbook.io/kb/experiments/carryover-bias): Carryover Bias
+- [Holdout Experiments](https://docs.growthbook.io/kb/experiments/holdouts): Holdout experiments (or simply "holdouts") measure the long-term impact of features by maintaining a control group that doesn't receive new functio...
+- [Troubleshooting Experiments](https://docs.growthbook.io/kb/experiments/troubleshooting-experiments): Troubleshooting Experiments
+- [Glossary](https://docs.growthbook.io/kb/glossary): A guide to common terms and concepts in GrowthBook
+- [Google Analytics (GA4) Troubleshooting](https://docs.growthbook.io/kb/google-analytics/google-analytics-ga4-troubleshooting): Troubleshooting Google Analytics (GA4)
+- [Google BigQuery (BQ) Troubleshooting](https://docs.growthbook.io/kb/google-analytics/google-big-query-bq-troubleshooting): Troubleshooting Google BigQuery (BQ)
+- [Google Tag Manager (GTM) Troubleshooting](https://docs.growthbook.io/kb/google-analytics/google-tag-manager-gtm-troubleshooting): Troubleshooting Google Tag Manager (GTM)
+- [Savings from Fact Metric Optimization](https://docs.growthbook.io/kb/metrics/fact-metric-optimization): import MaxWidthImage from "@site/src/components/MaxWidthImage";
+- [Build Your Own](https://docs.growthbook.io/lib/build-your-own): This guide is meant for library authors looking to build a GrowthBook SDK in a currently unsupported language.
+- [C# SDK](https://docs.growthbook.io/lib/csharp): GrowthBook SDK for C#
+- [Cloudflare Workers Edge App & SDK](https://docs.growthbook.io/lib/edge/cloudflare): GrowthBook SDK for Cloudflare Workers
+- [Fastly Compute Edge App & SDK](https://docs.growthbook.io/lib/edge/fastly): GrowthBook SDK for Fastly Compute
+- [Lambda@Edge Edge App & SDK](https://docs.growthbook.io/lib/edge/lambda): GrowthBook SDK for Lambda@Edge
+- [GrowthBook Edge App for other edge providers](https://docs.growthbook.io/lib/edge/other): GrowthBook SDK for other edge providers
+- [Elixir SDK](https://docs.growthbook.io/lib/elixir): GrowthBook SDK for Elixir
+- [Flutter SDK](https://docs.growthbook.io/lib/flutter): Flutter SDK for GrowthBook
+- [Go SDK](https://docs.growthbook.io/lib/go): GrowthBook SDK for Golang
+- [GrowthBookSDKs - Feature Flags & Experimentation](https://docs.growthbook.io/lib): Choose the right GrowthBook SDK for your application. Support for JavaScript, React, Python, Node.js, mobile, and edge platforms. Get started with ...
+- [Java SDK](https://docs.growthbook.io/lib/java): GrowthBook SDK for Java
+- [Javascript SDK](https://docs.growthbook.io/lib/js): GrowthBook SDK for Javascript
+- [Kotlin (JVM) SDK](https://docs.growthbook.io/lib/kotlin-jvm): GrowthBook SDK for Kotlin - JVM Backend
+- [Kotlin SDK](https://docs.growthbook.io/lib/kotlin): GrowthBook SDK for Kotlin - Android
+- [Next.js SDK (Flags)](https://docs.growthbook.io/lib/nextjs): GrowthBook Next.js SDK (Vercel Flags)
+- [Node.js SDK](https://docs.growthbook.io/lib/node): GrowthBook SDK for Node.js
+- [OpenFeature Providers](https://docs.growthbook.io/lib/open-feature): Use GrowthBook as an OpenFeature provider in Python, Go, .NET, and Java
+- [PHP SDK](https://docs.growthbook.io/lib/php): GrowthBook SDK for PHP
+- [Python SDK](https://docs.growthbook.io/lib/python): GrowthBook SDK for Python
+- [SDK Quickstart](https://docs.growthbook.io/lib/quickstart): Get GrowthBook feature flags and experiments running in your application with just a few lines of code.
+- [React Native SDK](https://docs.growthbook.io/lib/react-native): GrowthBook SDK for React Native
+- [React SDK](https://docs.growthbook.io/lib/react): GrowthBook SDK for React
+- [Roku SDK](https://docs.growthbook.io/lib/roku): GrowthBook SDK for Roku / js
+- [Ruby SDK](https://docs.growthbook.io/lib/ruby): GrowthBook SDK for Ruby
+- [Rust SDK](https://docs.growthbook.io/lib/rust): GrowthBook SDK for Rust Applications
+- [HTML Script Tag](https://docs.growthbook.io/lib/script-tag): Load the GrowthBook SDK in any website or low code platform
+- [Swift SDK](https://docs.growthbook.io/lib/swift): GrowthBook SDK for Swift - iOS
+- [How to Use GrowthBook with Vue](https://docs.growthbook.io/lib/vue): Start A/B testing and feature flagging in Vue. This guide shows you how to implement GrowthBook's JavaScript SDK using Vue's Composition and Option...
+- [Funnel Metrics](https://docs.growthbook.io/metrics/funnel-metrics): Measure the share of experiment units who complete an ordered series of steps, and see where they drop off, with funnel fact metrics in GrowthBook.
+- [Legacy Metrics](https://docs.growthbook.io/metrics/legacy-metrics): Learn about defining the metrics you will use in your A/B test results
+- [Metric Examples and Use Cases](https://docs.growthbook.io/metrics/metric-examples): Examples of different metrics you can define within GrowthBook
+- [Metrics and Fact Tables](https://docs.growthbook.io/metrics/metrics): Learn about defining metrics and fact tables within GrowthBook
+- [Official Resources](https://docs.growthbook.io/official-resources): Learn about official Resources in GrowthBook
+- [An overview of the GrowthBook Platform](https://docs.growthbook.io/overview): What is GrowthBook and how does it work? Learn about the GrowthBook platform and how it can help you grow your business.
+- [Dashboards](https://docs.growthbook.io/product-analytics/dashboards): Combine explorations, custom SQL, and markdown into curated, auto-refreshing dashboards. Share insights with your team without leaving GrowthBook.
+- [Explorer](https://docs.growthbook.io/product-analytics/explorer): Build ad-hoc charts from your metrics, fact tables, and raw warehouse data. Use AI Chat or configure explorations manually.
+- [Product Analytics](https://docs.growthbook.io/product-analytics): Explore your data, build dashboards, and turn metrics into product insights without leaving GrowthBook.
+- [Quick Start Guide to GrowthBook](https://docs.growthbook.io/quick-start): The basic instructions for getting started with GrowthBook
+- [Experiment Templates](https://docs.growthbook.io/running-experiments/experiment-templates): Experiment Templates provide standardized configurations for experiment creation across your team. By reducing setup overhead and eliminating commo...
+- [Make Changes to Experiments](https://docs.growthbook.io/running-experiments/making-changes): Make targeting and rollout changes to a running experiment
+- [Customizable Pre-Launch Checklists](https://docs.growthbook.io/running-experiments/pre-launch-checklist): Use GrowthBook's customizable pre-launch checklists to ensure all requirements are met before running an experiment. This guide explains how to cre...
+- [Holdouts](https://docs.growthbook.io/running-experiments/running-holdouts): Run holdout experiments to measure the long-term impact of features
+- [URL Redirect Testing](https://docs.growthbook.io/running-experiments/url-redirects): Easily A/B test multiple versions of a page without writing code
+- [Using a CDN](https://docs.growthbook.io/self-host/cdn): Adding a CDN in front of GrowthBook is a cheap and easy way to scale
+- [Config.yml](https://docs.growthbook.io/self-host/config): Adjust the configuration of the GrowthBook platform through Config.yml
+- [Environment Variables](https://docs.growthbook.io/self-host/env): Learn how to set environment variables for your self hosted version of GrowthBook
+- [FerretDB](https://docs.growthbook.io/self-host/ferretdb): How to use FerretDB with GrowthBook
+- [Overview](https://docs.growthbook.io/self-host): Learn how to set a self-hosted version of GrowthBook
+- [Deploying with Kubernetes](https://docs.growthbook.io/self-host/kubernetes): Instructions for deploying GrowthBook on a Kubernetes cluster
+- [Production](https://docs.growthbook.io/self-host/production): Best practices for running self-hosted GrowthBook securely at scale
+- [GrowthBook Proxy](https://docs.growthbook.io/self-host/proxy): Turbocharge your GrowthBook deployment with the GrowthBook Proxy server
+- [Remote Evaluation](https://docs.growthbook.io/self-host/remote-evaluation): Secure feature flag evaluation for client-side environments
+- [SSO Instructions](https://docs.growthbook.io/sso): Configuring GrowthBook for SSO
+- [Aggregate Data](https://docs.growthbook.io/statistics/aggregation): Aggregate Data
+- [Contextual Bandit Technical Details](https://docs.growthbook.io/statistics/contextual-bandit-technical): Technical details of contextual bandit
+- [Cuped Estimated Variance Technical Details](https://docs.growthbook.io/statistics/cuped-technical): Technical details of CUPED variance estimates
+- [CUPED](https://docs.growthbook.io/statistics/cuped): Regression Adjustment (CUPED) + post-stratification
+- [Statistical Details](https://docs.growthbook.io/statistics/details): Statistical Details
+- [Multiple Testing Corrections](https://docs.growthbook.io/statistics/multiple-corrections): Multiple Testing Corrections
+- [GrowthBook Statistics](https://docs.growthbook.io/statistics/overview): GrowthBook Statistics
+- [Post-stratification Technical Details](https://docs.growthbook.io/statistics/post-stratification): Technical details of post-stratification
+- [Power Analysis Technical Details](https://docs.growthbook.io/statistics/power-technical): Technical details of power analysis
+- [Power Analysis](https://docs.growthbook.io/statistics/power): Power Analysis
+- [Quantile Testing](https://docs.growthbook.io/statistics/quantile): Quantile Testing
+- [Sequential Testing](https://docs.growthbook.io/statistics/sequential): Sequential Testing
+- [Sticky Bucketing](https://docs.growthbook.io/sticky-bucketing): Ensure users continue to see the same variation when you make changes to a running experiment
+- [GrowthBook DevTools - Browser Extension for Feature Flags & A/B Testing](https://docs.growthbook.io/tools/chrome-extension): Learn how to use GrowthBook DevTools, a browser extension (Chrome and Firefox) for inspecting, debugging, and modifying feature flags and A/B tests...
+- [GrowthBook Command Line Interface (CLI)](https://docs.growthbook.io/tools/cli): The GrowthBook command-line interface (CLI) for managing feature flags, experiments, metrics, and more from your terminal
+- [Visual Studio Code Extension](https://docs.growthbook.io/tools/vscode-extension): GrowthBook's Visual Studio Code Extension
+- [Experimentation Best Practices](https://docs.growthbook.io/using/experimentation-best-practices): When you’ve finished integrating your experimentation platform (which for GrowthBook, is adding the
+- [Where Experimentation goes wrong](https://docs.growthbook.io/using/experimentation-problems): The following contains a list of common pitfalls and mistakes that can happen when running A/B tests.
+- [Experimenting in GrowthBook](https://docs.growthbook.io/using/experimenting): import MaxWidthImage from "@site/src/components/MaxWidthImage";
+- [A/B Testing Fundamentals](https://docs.growthbook.io/using/fundamentals): If you are new to A/B testing, you may find a lot of new terminology. The goal of this section is to help
+- [GrowthBook Best Practices](https://docs.growthbook.io/using/growthbook-best-practices): As you scale up your usage of GrowthBook and start running many experiments, keeping everything
+- [Using GrowthBook](https://docs.growthbook.io/using): This guide outlines everything you need to know as you scale up experimentation at your company. It covers everything from foundational knowledge (...
+- [Experimentation-driven product development](https://docs.growthbook.io/using/product-development): Experimentation-driven product development is a shift in product development from focusing **shipping**
+- [Experimentation Programs](https://docs.growthbook.io/using/programs): “Experimentation”, or being more “data driven” can mean a lot of different things for different
+- [Security](https://docs.growthbook.io/using/security): GrowthBook is built with security in mind, and we have made architectural decisions to ensure that your
+- [AI Mode — Generate A/B Test Variations With AI](https://docs.growthbook.io/visual-editor/ai-mode): Use natural language to generate A/B test variations with GrowthBook's AI-powered visual editor. Describe a change, preview the proposed edits, and...
+- [Import from Figma or an Image — Design to Variant](https://docs.growthbook.io/visual-editor/design-import): Turn a Figma frame or a mockup image into a high-fidelity, testable A/B variation. GrowthBook's AI rebuilds the design as a scoped component and in...
+- [Test Images in A/B Tests — Upload, AI Generation, and Library](https://docs.growthbook.io/visual-editor/images): Replace, upload, or AI-generate images for A/B test variations in GrowthBook. Reuse images across experiments with the shared image library.
+- [Install and Connect the GrowthBook Visual Editor](https://docs.growthbook.io/visual-editor/install-and-connect): Install the GrowthBook Visual Editor from the Chrome Web Store and connect it to your GrowthBook account with a single click.
+- [Visual Editor (Legacy) — In-Page Overlay](https://docs.growthbook.io/visual-editor/legacy): Reference docs for the original GrowthBook Visual Editor — the in-page overlay UI used before the side-panel editor.
+- [Manual Mode — Point-and-Click A/B Test Editor](https://docs.growthbook.io/visual-editor/manual-mode): Edit any element of your website with structured controls for content, typography, background, spacing, and visibility. Full reference for GrowthBo...
+- [Preview and QA Visual Editor Experiments](https://docs.growthbook.io/visual-editor/preview-and-qa): Preview draft A/B test variations with a querystring link, use the debug panel to diagnose issues, and avoid editing live experiments by mistake.
+- [Run Visual Experiments on Your Site — SDK Setup and Anti-Flicker](https://docs.growthbook.io/visual-editor/running-on-your-site): Install the GrowthBook Script Tag, JavaScript, React, or Edge SDK to render Visual Editor A/B tests on your live site. Strategies to eliminate flic...
+- [Visual Editor Troubleshooting](https://docs.growthbook.io/visual-editor/troubleshooting): Fixes for common issues with the GrowthBook Visual Editor — variations not showing, broken preview links, picking the right element with the tree s...
+- [Visual Editor](https://docs.growthbook.io/visual-editor): Design, preview, and run A/B tests on your live site from a Chrome side panel — with AI-generated variations or a point-and-click editor, no code r...
+- [Setting up Athena as a data source](https://docs.growthbook.io/warehouses/athena): This document outlines the steps needed to add your Athena database to GrowthBook.
+- [GrowthBook and BigQuery](https://docs.growthbook.io/warehouses/bigquery): This document outlines the steps needed to add your BigQuery database to GrowthBook.
+- [Setting up Clickhouse as a data source](https://docs.growthbook.io/warehouses/clickhouse): This document outlines the steps needed to add your Clickhouse database to GrowthBook.
+- [Setting up Databricks as a data source](https://docs.growthbook.io/warehouses/databricks): This document outlines the steps needed to add your Databricks database to GrowthBook.
+- [Missing Datasource Docs](https://docs.growthbook.io/warehouses/missing-datasource-docs): import Link from '@docusaurus/Link';
+- [Setting up Mixpanel as a data source](https://docs.growthbook.io/warehouses/mixpanel): This document outlines the steps needed to use Mixpanel with GrowthBook.
+- [Setting up MS SQL or SQL Server as a data source](https://docs.growthbook.io/warehouses/ms-sql-or-sql-server): This document outlines the steps needed to add your MS SQL or SQL Server database to GrowthBook.
+- [Setting up MySQL or MariaDB as a data source](https://docs.growthbook.io/warehouses/mysql-or-mariadb): This document outlines the steps needed to add your MySQL or MariaDB database to GrowthBook.
+- [Setting up Postgres as a data source](https://docs.growthbook.io/warehouses/postgres): This document outlines the steps needed to add your Postgres database to GrowthBook.
+- [Setting up Prestodb or Trino as a data source](https://docs.growthbook.io/warehouses/prestodb-or-trino): This document outlines the steps needed to add your Prestodb or Trino database to GrowthBook.
+- [Setting Up Amazon Redshift as a Data Source in GrowthBook](https://docs.growthbook.io/warehouses/redshift): This document outlines the steps needed to add your Redshift database to GrowthBook.
+- [Setting up Snowflake as a data source](https://docs.growthbook.io/warehouses/snowflake): This document outlines the steps needed to add your Snowflake database to GrowthBook.
+- [Setting up Vertica as a data source](https://docs.growthbook.io/warehouses/vertica): This document outlines the steps needed to configure Vertica as a data source in GrowthBook.
+- [Webhooks Events](https://docs.growthbook.io/webhooks/event-webhooks/events): List of Webhook Events
+- [Event Webhooks](https://docs.growthbook.io/webhooks/event-webhooks): Event Webhooks to help you update your cache or take other actions when the state changes on GrowthBook
+- [Global SDK Webhooks](https://docs.growthbook.io/webhooks/global-sdk-webhooks): Global SDK Webhooks capture SDK Payload changes across all SDK Connections.
+- [Webhooks Overview](https://docs.growthbook.io/webhooks/overview): An overview of the various webhooks that exist in GrowthBook
+- [SDK Webhooks](https://docs.growthbook.io/webhooks/sdk-webhooks): SDK Webhooks trigger every time your SDK Payload changes.

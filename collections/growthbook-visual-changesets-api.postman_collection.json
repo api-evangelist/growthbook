@@ -1,0 +1,662 @@
+{
+  "item": [
+    {
+      "id": "da2a0a33-9028-4101-8248-3337c6a01523",
+      "name": "visual-changesets",
+      "description": {
+        "content": "Groups of visual changes made by the visual editor to a single page",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "9912dbeb-b893-4269-8fa1-9e047cbc314c",
+          "name": "Get all visual changesets",
+          "request": {
+            "name": "Get all visual changesets",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "experiments",
+                ":id",
+                "visual-changesets"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "id",
+                  "description": "(Required) The experiment id the visual changesets belong to"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "63e30c9a-e217-4654-8a7d-94bac8ead890",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "experiments",
+                    ":id",
+                    "visual-changesets"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) The experiment id the visual changesets belong to"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"visualChangesets\": [\n    {\n      \"urlPatterns\": [\n        {\n          \"type\": \"simple\",\n          \"pattern\": \"string\",\n          \"include\": true\n        },\n        {\n          \"type\": \"regex\",\n          \"pattern\": \"string\",\n          \"include\": true\n        }\n      ],\n      \"editorUrl\": \"string\",\n      \"experiment\": \"string\",\n      \"visualChanges\": [\n        {\n          \"variation\": \"string\",\n          \"domMutations\": [\n            {\n              \"selector\": \"string\",\n              \"action\": \"set\",\n              \"attribute\": \"string\",\n              \"value\": \"string\",\n              \"parentSelector\": \"string\",\n              \"insertBeforeSelector\": \"string\"\n            },\n            {\n              \"selector\": \"string\",\n              \"action\": \"remove\",\n              \"attribute\": \"string\",\n              \"value\": \"string\",\n              \"parentSelector\": \"string\",\n              \"insertBeforeSelector\": \"string\"\n            }\n          ],\n          \"description\": \"string\",\n          \"css\": \"string\",\n          \"js\": \"string\"\n        },\n        {\n          \"variation\": \"string\",\n          \"domMutations\": [\n            {\n              \"selector\": \"string\",\n              \"action\": \"remove\",\n              \"attribute\": \"string\",\n              \"value\": \"string\",\n              \"parentSelector\": \"string\",\n              \"insertBeforeSelector\": \"string\"\n            },\n            {\n              \"selector\": \"string\",\n              \"action\": \"remove\",\n              \"attribute\": \"string\",\n              \"value\": \"string\",\n              \"parentSelector\": \"string\",\n              \"insertBeforeSelector\": \"string\"\n            }\n          ],\n          \"description\": \"string\",\n          \"css\": \"string\",\n          \"js\": \"string\"\n        }\n      ],\n      \"id\": \"string\"\n    },\n    {\n      \"urlPatterns\": [\n        {\n          \"type\": \"regex\",\n          \"pattern\": \"string\",\n          \"include\": true\n        },\n        {\n          \"type\": \"simple\",\n          \"pattern\": \"string\",\n          \"include\": true\n        }\n      ],\n      \"editorUrl\": \"string\",\n      \"experiment\": \"string\",\n      \"visualChanges\": [\n        {\n          \"variation\": \"string\",\n          \"domMutations\": [\n            {\n              \"selector\": \"string\",\n              \"action\": \"set\",\n              \"attribute\": \"string\",\n              \"value\": \"string\",\n              \"parentSelector\": \"string\",\n              \"insertBeforeSelector\": \"string\"\n            },\n            {\n              \"selector\": \"string\",\n              \"action\": \"set\",\n              \"attribute\": \"string\",\n              \"value\": \"string\",\n              \"parentSelector\": \"string\",\n              \"insertBeforeSelector\": \"string\"\n            }\n          ],\n          \"description\": \"string\",\n          \"css\": \"string\",\n          \"js\": \"string\"\n        },\n        {\n          \"variation\": \"string\",\n          \"domMutations\": [\n            {\n              \"selector\": \"string\",\n              \"action\": \"set\",\n              \"attribute\": \"string\",\n              \"value\": \"string\",\n              \"parentSelector\": \"string\",\n              \"insertBeforeSelector\": \"string\"\n            },\n            {\n              \"selector\": \"string\",\n              \"action\": \"append\",\n              \"attribute\": \"string\",\n              \"value\": \"string\",\n              \"parentSelector\": \"string\",\n              \"insertBeforeSelector\": \"string\"\n            }\n          ],\n          \"description\": \"string\",\n          \"css\": \"string\",\n          \"js\": \"string\"\n        }\n      ],\n      \"id\": \"string\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "48cce7a7-a97b-456c-aae0-630a01af5643",
+          "name": "Create a visual changeset for an experiment",
+          "request": {
+            "name": "Create a visual changeset for an experiment",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "experiments",
+                ":id",
+                "visual-changesets"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "id",
+                  "description": "(Required) The id of the requested resource"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"editorUrl\": \"<string>\",\n  \"urlPatterns\": [\n    {\n      \"type\": \"<string>\",\n      \"pattern\": \"<string>\",\n      \"include\": \"<boolean>\"\n    },\n    {\n      \"type\": \"<string>\",\n      \"pattern\": \"<string>\",\n      \"include\": \"<boolean>\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "1e1c44f6-1692-49c1-b8b3-68e4e20d5bbb",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "experiments",
+                    ":id",
+                    "visual-changesets"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) The id of the requested resource"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"editorUrl\": \"<string>\",\n  \"urlPatterns\": [\n    {\n      \"type\": \"<string>\",\n      \"pattern\": \"<string>\",\n      \"include\": \"<boolean>\"\n    },\n    {\n      \"type\": \"<string>\",\n      \"pattern\": \"<string>\",\n      \"include\": \"<boolean>\"\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"visualChangeset\": {\n    \"urlPatterns\": [\n      {\n        \"type\": \"simple\",\n        \"pattern\": \"string\",\n        \"include\": false\n      },\n      {\n        \"type\": \"simple\",\n        \"pattern\": \"string\",\n        \"include\": false\n      }\n    ],\n    \"editorUrl\": \"string\",\n    \"experiment\": \"string\",\n    \"visualChanges\": [\n      {\n        \"variation\": \"string\",\n        \"domMutations\": [\n          {\n            \"selector\": \"string\",\n            \"action\": \"remove\",\n            \"attribute\": \"string\",\n            \"value\": \"string\",\n            \"parentSelector\": \"string\",\n            \"insertBeforeSelector\": \"string\"\n          },\n          {\n            \"selector\": \"string\",\n            \"action\": \"set\",\n            \"attribute\": \"string\",\n            \"value\": \"string\",\n            \"parentSelector\": \"string\",\n            \"insertBeforeSelector\": \"string\"\n          }\n        ],\n        \"description\": \"string\",\n        \"css\": \"string\",\n        \"js\": \"string\"\n      },\n      {\n        \"variation\": \"string\",\n        \"domMutations\": [\n          {\n            \"selector\": \"string\",\n            \"action\": \"set\",\n            \"attribute\": \"string\",\n            \"value\": \"string\",\n            \"parentSelector\": \"string\",\n            \"insertBeforeSelector\": \"string\"\n          },\n          {\n            \"selector\": \"string\",\n            \"action\": \"append\",\n            \"attribute\": \"string\",\n            \"value\": \"string\",\n            \"parentSelector\": \"string\",\n            \"insertBeforeSelector\": \"string\"\n          }\n        ],\n        \"description\": \"string\",\n        \"css\": \"string\",\n        \"js\": \"string\"\n      }\n    ],\n    \"id\": \"string\"\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "1f9bac8a-e46a-44ed-b5a7-4fd9bd3284de",
+          "name": "Get a single visual changeset",
+          "request": {
+            "name": "Get a single visual changeset",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "visual-changesets",
+                ":id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "includeExperiment",
+                  "value": "<integer>",
+                  "description": "Include the associated experiment in payload"
+                }
+              ],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "id",
+                  "description": "(Required) The id of the requested resource"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "2149333a-931f-4b2f-9198-83433d91ec7a",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "visual-changesets",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "includeExperiment",
+                      "value": "<integer>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) The id of the requested resource"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"visualChangeset\": {\n    \"urlPatterns\": [\n      {\n        \"type\": \"simple\",\n        \"pattern\": \"string\",\n        \"include\": false\n      },\n      {\n        \"type\": \"simple\",\n        \"pattern\": \"string\",\n        \"include\": false\n      }\n    ],\n    \"editorUrl\": \"string\",\n    \"experiment\": \"string\",\n    \"visualChanges\": [\n      {\n        \"variation\": \"string\",\n        \"domMutations\": [\n          {\n            \"selector\": \"string\",\n            \"action\": \"set\",\n            \"attribute\": \"string\",\n            \"value\": \"string\",\n            \"parentSelector\": \"string\",\n            \"insertBeforeSelector\": \"string\"\n          },\n          {\n            \"selector\": \"string\",\n            \"action\": \"append\",\n            \"attribute\": \"string\",\n            \"value\": \"string\",\n            \"parentSelector\": \"string\",\n            \"insertBeforeSelector\": \"string\"\n          }\n        ],\n        \"description\": \"string\",\n        \"css\": \"string\",\n        \"js\": \"string\"\n      },\n      {\n        \"variation\": \"string\",\n        \"domMutations\": [\n          {\n            \"selector\": \"string\",\n            \"action\": \"set\",\n            \"attribute\": \"string\",\n            \"value\": \"string\",\n            \"parentSelector\": \"string\",\n            \"insertBeforeSelector\": \"string\"\n          },\n          {\n            \"selector\": \"string\",\n            \"action\": \"append\",\n            \"attribute\": \"string\",\n            \"value\": \"string\",\n            \"parentSelector\": \"string\",\n            \"insertBeforeSelector\": \"string\"\n          }\n        ],\n        \"description\": \"string\",\n        \"css\": \"string\",\n        \"js\": \"string\"\n      }\n    ],\n    \"id\": \"string\"\n  },\n  \"experiment\": {\n    \"id\": \"string\",\n    \"trackingKey\": \"string\",\n    \"dateCreated\": \"1999-12-20T16:12:57.325Z\",\n    \"dateUpdated\": \"1974-06-16T17:37:07.088Z\",\n    \"name\": \"string\",\n    \"type\": \"standard\",\n    \"project\": \"string\",\n    \"hypothesis\": \"string\",\n    \"description\": \"string\",\n    \"tags\": [\n      \"string\",\n      \"string\"\n    ],\n    \"owner\": \"string\",\n    \"archived\": true,\n    \"status\": \"string\",\n    \"autoRefresh\": false,\n    \"hashAttribute\": \"string\",\n    \"hashVersion\": 448.3356766180979,\n    \"variations\": [\n      {\n        \"variationId\": \"string\",\n        \"key\": \"string\",\n        \"name\": \"string\",\n        \"description\": \"string\",\n        \"screenshots\": [\n          \"string\",\n          \"string\"\n        ]\n      },\n      {\n        \"variationId\": \"string\",\n        \"key\": \"string\",\n        \"name\": \"string\",\n        \"description\": \"string\",\n        \"screenshots\": [\n          \"string\",\n          \"string\"\n        ]\n      }\n    ],\n    \"phases\": [\n      {\n        \"name\": \"string\",\n        \"dateStarted\": \"string\",\n        \"dateEnded\": \"string\",\n        \"reasonForStopping\": \"string\",\n        \"seed\": \"string\",\n        \"coverage\": 518.4881710964418,\n        \"trafficSplit\": [\n          {\n            \"variationId\": \"string\",\n            \"weight\": 1891.5458208290936\n          },\n          {\n            \"variationId\": \"string\",\n            \"weight\": 9188.660687452168\n          }\n        ],\n        \"targetingCondition\": \"string\",\n        \"namespace\": {\n          \"namespaceId\": \"string\",\n          \"enabled\": false,\n          \"range\": [\n            5312.989216439796,\n            5083.233590420915\n          ],\n          \"ranges\": [\n            [],\n            []\n          ]\n        },\n        \"prerequisites\": [\n          {\n            \"id\": \"string\",\n            \"condition\": \"string\"\n          },\n          {\n            \"id\": \"string\",\n            \"condition\": \"string\"\n          }\n        ],\n        \"savedGroupTargeting\": [\n          {\n            \"matchType\": \"all\",\n            \"savedGroups\": [\n              \"string\",\n              \"string\"\n            ]\n          },\n          {\n            \"matchType\": \"any\",\n            \"savedGroups\": [\n              \"string\",\n              \"string\"\n            ]\n          }\n        ]\n      },\n      {\n        \"name\": \"string\",\n        \"dateStarted\": \"string\",\n        \"dateEnded\": \"string\",\n        \"reasonForStopping\": \"string\",\n        \"seed\": \"string\",\n        \"coverage\": 1106.5092322902526,\n        \"trafficSplit\": [\n          {\n            \"variationId\": \"string\",\n            \"weight\": 558.3617753541726\n          },\n          {\n            \"variationId\": \"string\",\n            \"weight\": 2900.189078997739\n          }\n        ],\n        \"targetingCondition\": \"string\",\n        \"namespace\": {\n          \"namespaceId\": \"string\",\n          \"enabled\": false,\n          \"range\": [\n            9279.806169698644,\n            6262.474832910281\n          ],\n          \"ranges\": [\n            [],\n            []\n          ]\n        },\n        \"prerequisites\": [\n          {\n            \"id\": \"string\",\n            \"condition\": \"string\"\n          },\n          {\n            \"id\": \"string\",\n            \"condition\": \"string\"\n          }\n        ],\n        \"savedGroupTargeting\": [\n          {\n            \"matchType\": \"none\",\n            \"savedGroups\": [\n              \"string\",\n              \"string\"\n            ]\n          },\n          {\n            \"matchType\": \"any\",\n            \"savedGroups\": [\n              \"string\",\n              \"string\"\n            ]\n          }\n        ]\n      }\n    ],\n    \"settings\": {\n      \"datasourceId\": \"string\",\n      \"assignmentQueryId\": \"string\",\n      \"experimentId\": \"string\",\n      \"segmentId\": \"string\",\n      \"queryFilter\": \"string\",\n      \"inProgressConversions\": \"include\",\n      \"attributionModel\": \"firstExposure\",\n      \"statsEngine\": \"bayesian\",\n      \"goals\": [\n        {\n          \"metricId\": \"string\",\n          \"overrides\": {\n            \"delayHours\": 2476.0612532403748,\n            \"windowHours\": 3457.683204756573,\n            \"window\": \"conversion\",\n            \"winRiskThreshold\": 595.6122019962772,\n            \"loseRiskThreshold\": 5557.9541791395495,\n            \"properPriorOverride\": true,\n            \"properPriorEnabled\": false,\n            \"properPriorMean\": 5571.085882855209,\n            \"properPriorStdDev\": 873.6711464505709,\n            \"regressionAdjustmentOverride\": true,\n            \"regressionAdjustmentEnabled\": false,\n            \"regressionAdjustmentDays\": 9522.138555163321\n          }\n        },\n        {\n          \"metricId\": \"string\",\n          \"overrides\": {\n            \"delayHours\": 927.5148504506847,\n            \"windowHours\": 1229.3180731649468,\n            \"window\": \"\",\n            \"winRiskThreshold\": 4449.661319123341,\n            \"loseRiskThreshold\": 3655.1322938085505,\n            \"properPriorOverride\": true,\n            \"properPriorEnabled\": false,\n            \"properPriorMean\": 1510.6935635550733,\n            \"properPriorStdDev\": 3402.352732984298,\n            \"regressionAdjustmentOverride\": true,\n            \"regressionAdjustmentEnabled\": false,\n            \"regressionAdjustmentDays\": 9718.207422325138\n          }\n        }\n      ],\n      \"secondaryMetrics\": [\n        {\n          \"metricId\": \"string\",\n          \"overrides\": {\n            \"delayHours\": 9735.971104784767,\n            \"windowHours\": 2211.6655894507307,\n            \"window\": \"\",\n            \"winRiskThreshold\": 2811.8397471718927,\n            \"loseRiskThreshold\": 9077.875836094696,\n            \"properPriorOverride\": true,\n            \"properPriorEnabled\": true,\n            \"properPriorMean\": 4429.384908140112,\n            \"properPriorStdDev\": 7569.440389283599,\n            \"regressionAdjustmentOverride\": false,\n            \"regressionAdjustmentEnabled\": false,\n            \"regressionAdjustmentDays\": 2335.3678256538037\n          }\n        },\n        {\n          \"metricId\": \"string\",\n          \"overrides\": {\n            \"delayHours\": 2469.322722013002,\n            \"windowHours\": 5822.865976448558,\n            \"window\": \"conversion\",\n            \"winRiskThreshold\": 4814.259489282362,\n            \"loseRiskThreshold\": 5209.763617525103,\n            \"properPriorOverride\": true,\n            \"properPriorEnabled\": false,\n            \"properPriorMean\": 3622.925374516719,\n            \"properPriorStdDev\": 6222.9563880090955,\n            \"regressionAdjustmentOverride\": false,\n            \"regressionAdjustmentEnabled\": true,\n            \"regressionAdjustmentDays\": 3801.6489703189595\n          }\n        }\n      ],\n      \"guardrails\": [\n        {\n          \"metricId\": \"string\",\n          \"overrides\": {\n            \"delayHours\": 6887.538935426863,\n            \"windowHours\": 6374.672715706462,\n            \"window\": \"lookback\",\n            \"winRiskThreshold\": 7106.222453927615,\n            \"loseRiskThreshold\": 6375.282862558029,\n            \"properPriorOverride\": false,\n            \"properPriorEnabled\": false,\n            \"properPriorMean\": 2034.2695353375539,\n            \"properPriorStdDev\": 5504.461022415091,\n            \"regressionAdjustmentOverride\": false,\n            \"regressionAdjustmentEnabled\": false,\n            \"regressionAdjustmentDays\": 7332.123004277528\n          }\n        },\n        {\n          \"metricId\": \"string\",\n          \"overrides\": {\n            \"delayHours\": 2350.2346259070737,\n            \"windowHours\": 5464.158607687633,\n            \"window\": \"\",\n            \"winRiskThreshold\": 8429.522809142154,\n            \"loseRiskThreshold\": 3161.2682134485117,\n            \"properPriorOverride\": true,\n            \"properPriorEnabled\": false,\n            \"properPriorMean\": 7831.751127343148,\n            \"properPriorStdDev\": 3308.1260460804874,\n            \"regressionAdjustmentOverride\": false,\n            \"regressionAdjustmentEnabled\": true,\n            \"regressionAdjustmentDays\": 7409.65426488266\n          }\n        }\n      ],\n      \"lookbackOverride\": {\n        \"type\": \"date\",\n        \"value\": 5460.868219557403,\n        \"valueUnit\": \"minutes\"\n      },\n      \"regressionAdjustmentEnabled\": true,\n      \"sequentialTestingEnabled\": true,\n      \"sequentialTestingTuningParameter\": 1388.288815597165,\n      \"postStratificationEnabled\": false,\n      \"decisionFrameworkSettings\": {\n        \"decisionCriteriaId\": \"string\",\n        \"decisionFrameworkMetricOverrides\": [\n          {\n            \"id\": \"string\",\n            \"targetMDE\": 6753.844217718249\n          },\n          {\n            \"id\": \"string\",\n            \"targetMDE\": 7712.113748163193\n          }\n        ]\n      },\n      \"metricOverrides\": [\n        {\n          \"id\": \"string\",\n          \"windowType\": \"\",\n          \"windowHours\": 2613.5591202742226,\n          \"delayHours\": 7672.005843236902,\n          \"properPriorOverride\": false,\n          \"properPriorEnabled\": false,\n          \"properPriorMean\": 936.782344211019,\n          \"properPriorStdDev\": 2380.5368157310913,\n          \"regressionAdjustmentOverride\": true,\n          \"regressionAdjustmentEnabled\": false,\n          \"regressionAdjustmentDays\": 1572.5426897573602\n        },\n        {\n          \"id\": \"string\",\n          \"windowType\": \"conversion\",\n          \"windowHours\": 1541.653892932533,\n          \"delayHours\": 8735.991780886718,\n          \"properPriorOverride\": false,\n          \"properPriorEnabled\": true,\n          \"properPriorMean\": 9299.348938554744,\n          \"properPriorStdDev\": 7718.644496996893,\n          \"regressionAdjustmentOverride\": false,\n          \"regressionAdjustmentEnabled\": false,\n          \"regressionAdjustmentDays\": 928.9984910755655\n        }\n      ],\n      \"activationMetric\": {\n        \"metricId\": \"string\",\n        \"overrides\": {\n          \"delayHours\": 9602.370020192544,\n          \"windowHours\": 8587.490828878024,\n          \"window\": \"conversion\",\n          \"winRiskThreshold\": 74.20063520184539,\n          \"loseRiskThreshold\": 6554.571358924197,\n          \"properPriorOverride\": false,\n          \"properPriorEnabled\": false,\n          \"properPriorMean\": 9726.820163623779,\n          \"properPriorStdDev\": 8770.637760588805,\n          \"regressionAdjustmentOverride\": false,\n          \"regressionAdjustmentEnabled\": true,\n          \"regressionAdjustmentDays\": 8305.883119580896\n        }\n      }\n    },\n    \"ownerEmail\": \"string\",\n    \"fallbackAttribute\": \"string\",\n    \"disableStickyBucketing\": false,\n    \"bucketVersion\": 6818.917387885268,\n    \"minBucketVersion\": 7438.496668981687,\n    \"resultSummary\": {\n      \"status\": \"string\",\n      \"winner\": \"string\",\n      \"conclusions\": \"string\",\n      \"releasedVariationId\": \"string\",\n      \"excludeFromPayload\": true\n    },\n    \"shareLevel\": \"organization\",\n    \"publicUrl\": \"string\",\n    \"banditScheduleValue\": 8558.631406789851,\n    \"banditScheduleUnit\": \"days\",\n    \"banditBurnInValue\": 9957.82067143778,\n    \"banditBurnInUnit\": \"hours\",\n    \"banditConversionWindowValue\": 1134.876574771122,\n    \"banditConversionWindowUnit\": \"days\",\n    \"linkedFeatures\": [\n      \"string\",\n      \"string\"\n    ],\n    \"hasVisualChangesets\": false,\n    \"hasURLRedirects\": true,\n    \"customFields\": {\n      \"key_0\": {}\n    },\n    \"customMetricSlices\": [\n      {\n        \"slices\": [\n          {\n            \"column\": \"string\",\n            \"levels\": [\n              \"string\",\n              \"string\"\n            ]\n          },\n          {\n            \"column\": \"string\",\n            \"levels\": [\n              \"string\",\n              \"string\"\n            ]\n          }\n        ]\n      },\n      {\n        \"slices\": [\n          {\n            \"column\": \"string\",\n            \"levels\": [\n              \"string\",\n              \"string\"\n            ]\n          },\n          {\n            \"column\": \"string\",\n            \"levels\": [\n              \"string\",\n              \"string\"\n            ]\n          }\n        ]\n      }\n    ],\n    \"defaultDashboardId\": \"string\",\n    \"templateId\": \"string\"\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "3af73d98-5c15-4881-86e7-7f42dc917a9e",
+          "name": "Update a visual changeset",
+          "request": {
+            "name": "Update a visual changeset",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "visual-changesets",
+                ":id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "id",
+                  "description": "(Required) The id of the requested resource"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "PUT",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "e887a82d-7c63-481b-a003-20784852c312",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "visual-changesets",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) The id of the requested resource"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PUT",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"nModified\": 3482.4913692833093,\n  \"visualChangeset\": {\n    \"urlPatterns\": [\n      {\n        \"type\": \"simple\",\n        \"pattern\": \"string\",\n        \"include\": true\n      },\n      {\n        \"type\": \"simple\",\n        \"pattern\": \"string\",\n        \"include\": true\n      }\n    ],\n    \"editorUrl\": \"string\",\n    \"experiment\": \"string\",\n    \"visualChanges\": [\n      {\n        \"variation\": \"string\",\n        \"domMutations\": [\n          {\n            \"selector\": \"string\",\n            \"action\": \"remove\",\n            \"attribute\": \"string\",\n            \"value\": \"string\",\n            \"parentSelector\": \"string\",\n            \"insertBeforeSelector\": \"string\"\n          },\n          {\n            \"selector\": \"string\",\n            \"action\": \"remove\",\n            \"attribute\": \"string\",\n            \"value\": \"string\",\n            \"parentSelector\": \"string\",\n            \"insertBeforeSelector\": \"string\"\n          }\n        ],\n        \"description\": \"string\",\n        \"css\": \"string\",\n        \"js\": \"string\"\n      },\n      {\n        \"variation\": \"string\",\n        \"domMutations\": [\n          {\n            \"selector\": \"string\",\n            \"action\": \"set\",\n            \"attribute\": \"string\",\n            \"value\": \"string\",\n            \"parentSelector\": \"string\",\n            \"insertBeforeSelector\": \"string\"\n          },\n          {\n            \"selector\": \"string\",\n            \"action\": \"set\",\n            \"attribute\": \"string\",\n            \"value\": \"string\",\n            \"parentSelector\": \"string\",\n            \"insertBeforeSelector\": \"string\"\n          }\n        ],\n        \"description\": \"string\",\n        \"css\": \"string\",\n        \"js\": \"string\"\n      }\n    ],\n    \"id\": \"string\"\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "80c58a7a-8d6a-4969-876d-9d6b30cdb956",
+          "name": "Create a visual change for a visual changeset",
+          "request": {
+            "name": "Create a visual change for a visual changeset",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "visual-changesets",
+                ":id",
+                "visual-change"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "id",
+                  "description": "(Required) The id of the requested resource"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "079ca768-2a98-4ce0-aa62-779e41756be6",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "visual-changesets",
+                    ":id",
+                    "visual-change"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) The id of the requested resource"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"nModified\": 155.01476339054298\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "fbbc06b6-ed10-48c4-baef-d545ea9f328d",
+          "name": "Update a visual change for a visual changeset",
+          "request": {
+            "name": "Update a visual change for a visual changeset",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "visual-changesets",
+                ":id",
+                "visual-change",
+                ":visualChangeId"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "id",
+                  "description": "(Required) The id of the requested resource"
+                },
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "visualChangeId",
+                  "description": "(Required) Specify a specific visual change"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "PUT",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "d13c38e3-2cfe-4054-a38b-61ed6fb11e99",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "visual-changesets",
+                    ":id",
+                    "visual-change",
+                    ":visualChangeId"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) The id of the requested resource"
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "visualChangeId",
+                      "description": "(Required) Specify a specific visual change"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PUT",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"nModified\": 155.01476339054298\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.growthbook.io/api",
+      "key": "baseUrl"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}"
+      }
+    ]
+  },
+  "info": {
+    "_postman_id": "e089211d-33ad-4a91-a2d0-be8cbc352833",
+    "name": "GrowthBook REST AnalyticsExplorations visual-changesets API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "GrowthBook offers a full REST API for interacting with the application.\n\nRequest data can use either JSON or Form data encoding (with proper `Content-Type` headers). All response bodies are JSON-encoded.\n\nThe API base URL for GrowthBook Cloud is `https://api.growthbook.io/api`. For self-hosted deployments, it is the same as your API_HOST environment variable (defaults to `http://localhost:3100/api`). The rest of these docs will assume you are using GrowthBook Cloud.\n\n## Versioning\n\nEndpoints are versioned by path prefix:\n\n- `/v1/...` — stable, widely-supported endpoints\n- `/v2/...` — updated endpoints with improved shapes (e.g. unified per-rule environment scope for feature flags)\n\nNew integrations should prefer v2 where available.\n\n## Authentication\n\nWe support both the HTTP Basic and Bearer authentication schemes for convenience.\n\nYou first need to generate a new API Key in GrowthBook. Different keys have different permissions:\n\n- **Personal Access Tokens**: These are sensitive and provide the same level of access as the user has to an organization. These can be created by going to `Personal Access Tokens` under the your user menu.\n- **Secret Keys**: These are sensitive and provide the level of access for the role, which currently is either `admin` or `readonly`. Only Admins with the `manageApiKeys` permission can manage Secret Keys on behalf of an organization. These can be created by going to `Settings -> API Keys`\n\nIf using HTTP Basic auth, pass the Secret Key as the username and leave the password blank (when using curl, add `:` at the end of the secret to indicate an empty password)\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n  -u secret_abc123DEF456:\n```\n\nIf using Bearer auth, pass the Secret Key as the token:\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n-H \"Authorization: Bearer secret_abc123DEF456\"\n```\n\n## Errors\n\nThe API may return the following error status codes:\n\n- **400** - Bad Request - Often due to a missing required parameter\n- **401** - Unauthorized - No valid API key provided\n- **402** - Request Failed - The parameters are valid, but the request failed\n- **403** - Forbidden - Provided API key does not have the required access\n- **404** - Not Found - Unknown API route or requested resource\n- **429** - Too Many Requests - You exceeded the rate limit of 60 requests per minute. Try again later.\n- **5XX** - Server Error - Something went wrong on GrowthBook's end (these are rare)\n\nThe response body will be a JSON object with the following properties:\n\n- **message** - Information about the error\n",
+      "type": "text/plain"
+    }
+  }
+}

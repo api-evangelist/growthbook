@@ -1,0 +1,93 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "GrowthBook REST AnalyticsExplorations API",
+    "version": "1.0.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "AnalyticsExplorations",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Create a Metric based visualization",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.growthbook.io/api/v1/product-analytics/metric-exploration",
+            "params": [
+              {
+                "name": "cache",
+                "value": "",
+                "type": "query",
+                "description": "Controls cache behavior for this exploration: `preferred` (default) returns a cached result if one exists, otherwise runs a new query; `never` always runs a new query, ignoring any cached results; `required` only returns a cached result, if none exists returns exploration: null with a message"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a Metric based visualization"
+        },
+        {
+          "info": {
+            "name": "Run a Fact Table based visualization",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.growthbook.io/api/v1/product-analytics/fact-table-exploration",
+            "params": [
+              {
+                "name": "cache",
+                "value": "",
+                "type": "query",
+                "description": "Controls cache behavior for this exploration: `preferred` (default) returns a cached result if one exists, otherwise runs a new query; `never` always runs a new query, ignoring any cached results; `required` only returns a cached result, if none exists returns exploration: null with a message"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Run a Fact Table based visualization"
+        },
+        {
+          "info": {
+            "name": "Create a Data Source based visualization",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.growthbook.io/api/v1/product-analytics/data-source-exploration",
+            "params": [
+              {
+                "name": "cache",
+                "value": "",
+                "type": "query",
+                "description": "Controls cache behavior for this exploration: `preferred` (default) returns a cached result if one exists, otherwise runs a new query; `never` always runs a new query, ignoring any cached results; `required` only returns a cached result, if none exists returns exploration: null with a message"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a Data Source based visualization"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

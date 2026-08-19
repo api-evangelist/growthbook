@@ -1,0 +1,117 @@
+{
+  "item": [
+    {
+      "id": "554cdb65-3bbd-497b-9300-7bd7770aa42c",
+      "name": "settings",
+      "description": {
+        "content": "Get the organization settings.",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "14a66d47-bdcc-4df3-b448-4d610a821b66",
+          "name": "Get organization settings",
+          "request": {
+            "name": "Get organization settings",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "settings"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "dd4b552b-3008-4bc5-bb11-0174347cb518",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "settings"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"settings\": {\n    \"confidenceLevel\": 129.43660947173362,\n    \"northStar\": {\n      \"title\": \"string\",\n      \"metricIds\": [\n        \"string\",\n        \"string\"\n      ]\n    },\n    \"metricDefaults\": {\n      \"priorSettings\": {\n        \"override\": true,\n        \"proper\": true,\n        \"mean\": 3560.3932539804327,\n        \"stddev\": 9161.442557878938\n      },\n      \"minimumSampleSize\": 4697.460035678853,\n      \"maxPercentageChange\": 6659.198679651935,\n      \"minPercentageChange\": 8271.827023987886,\n      \"targetMDE\": 1772.2683201252198\n    },\n    \"pastExperimentsMinLength\": 1189.179704558716,\n    \"metricAnalysisDays\": 9904.343570809882,\n    \"updateSchedule\": {\n      \"type\": \"stale\",\n      \"cron\": \"string\",\n      \"hours\": 7626.516460300665\n    },\n    \"multipleExposureMinPercent\": 8434.196361741566,\n    \"defaultRole\": {\n      \"role\": \"string\",\n      \"limitAccessByEnvironment\": false,\n      \"environments\": [\n        \"string\",\n        \"string\"\n      ]\n    },\n    \"statsEngine\": \"string\",\n    \"pValueThreshold\": 5527.479805604055,\n    \"regressionAdjustmentEnabled\": true,\n    \"regressionAdjustmentDays\": 9346.512439624457,\n    \"sequentialTestingEnabled\": true,\n    \"sequentialTestingTuningParameter\": 8409.33596203337,\n    \"attributionModel\": \"lookbackOverride\",\n    \"targetMDE\": 310.4938033372162,\n    \"delayHours\": 2932.5347559230595,\n    \"windowType\": \"string\",\n    \"windowHours\": 5984.682457987187,\n    \"winRisk\": 6861.778289940582,\n    \"loseRisk\": 6822.876374739772,\n    \"secureAttributeSalt\": \"string\",\n    \"killswitchConfirmation\": false,\n    \"requireReviews\": [\n      {\n        \"requireReviewOn\": false,\n        \"resetReviewOnChange\": false,\n        \"environments\": [\n          \"string\",\n          \"string\"\n        ],\n        \"projects\": [\n          \"string\",\n          \"string\"\n        ],\n        \"featureRequireEnvironmentReview\": true,\n        \"featureRequireMetadataReview\": true\n      },\n      {\n        \"requireReviewOn\": true,\n        \"resetReviewOnChange\": false,\n        \"environments\": [\n          \"string\",\n          \"string\"\n        ],\n        \"projects\": [\n          \"string\",\n          \"string\"\n        ],\n        \"featureRequireEnvironmentReview\": true,\n        \"featureRequireMetadataReview\": true\n      }\n    ],\n    \"featureKeyExample\": \"string\",\n    \"featureRegexValidator\": \"string\",\n    \"banditScheduleValue\": 2056.5518262858163,\n    \"banditScheduleUnit\": \"days\",\n    \"banditBurnInValue\": 9075.759839874185,\n    \"banditBurnInUnit\": \"days\",\n    \"experimentMinLengthDays\": 75.34081837366702,\n    \"featureKillSwitchBehavior\": \"warn\",\n    \"restApiBypassesReviews\": false,\n    \"experimentMaxLengthDays\": 6713.631327125787,\n    \"preferredEnvironment\": \"string\",\n    \"maxMetricSliceLevels\": 7009.291651653452\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.growthbook.io/api",
+      "key": "baseUrl"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}"
+      }
+    ]
+  },
+  "info": {
+    "_postman_id": "f9fe9cca-0b40-45ee-aa52-7b7178fe1bf2",
+    "name": "GrowthBook REST AnalyticsExplorations settings API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "GrowthBook offers a full REST API for interacting with the application.\n\nRequest data can use either JSON or Form data encoding (with proper `Content-Type` headers). All response bodies are JSON-encoded.\n\nThe API base URL for GrowthBook Cloud is `https://api.growthbook.io/api`. For self-hosted deployments, it is the same as your API_HOST environment variable (defaults to `http://localhost:3100/api`). The rest of these docs will assume you are using GrowthBook Cloud.\n\n## Versioning\n\nEndpoints are versioned by path prefix:\n\n- `/v1/...` — stable, widely-supported endpoints\n- `/v2/...` — updated endpoints with improved shapes (e.g. unified per-rule environment scope for feature flags)\n\nNew integrations should prefer v2 where available.\n\n## Authentication\n\nWe support both the HTTP Basic and Bearer authentication schemes for convenience.\n\nYou first need to generate a new API Key in GrowthBook. Different keys have different permissions:\n\n- **Personal Access Tokens**: These are sensitive and provide the same level of access as the user has to an organization. These can be created by going to `Personal Access Tokens` under the your user menu.\n- **Secret Keys**: These are sensitive and provide the level of access for the role, which currently is either `admin` or `readonly`. Only Admins with the `manageApiKeys` permission can manage Secret Keys on behalf of an organization. These can be created by going to `Settings -> API Keys`\n\nIf using HTTP Basic auth, pass the Secret Key as the username and leave the password blank (when using curl, add `:` at the end of the secret to indicate an empty password)\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n  -u secret_abc123DEF456:\n```\n\nIf using Bearer auth, pass the Secret Key as the token:\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n-H \"Authorization: Bearer secret_abc123DEF456\"\n```\n\n## Errors\n\nThe API may return the following error status codes:\n\n- **400** - Bad Request - Often due to a missing required parameter\n- **401** - Unauthorized - No valid API key provided\n- **402** - Request Failed - The parameters are valid, but the request failed\n- **403** - Forbidden - Provided API key does not have the required access\n- **404** - Not Found - Unknown API route or requested resource\n- **429** - Too Many Requests - You exceeded the rate limit of 60 requests per minute. Try again later.\n- **5XX** - Server Error - Something went wrong on GrowthBook's end (these are rare)\n\nThe response body will be a JSON object with the following properties:\n\n- **message** - Information about the error\n",
+      "type": "text/plain"
+    }
+  }
+}

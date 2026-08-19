@@ -1,0 +1,559 @@
+{
+  "item": [
+    {
+      "id": "c899f3d1-fa9e-4ffb-8a8b-7e745ac4267b",
+      "name": "metrics",
+      "description": {
+        "content": "Metrics used as goals and guardrails for experiments",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "145056f9-aac3-4c05-aa03-d70d6a367751",
+          "name": "Get all metrics",
+          "request": {
+            "name": "Get all metrics",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "metrics"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "10",
+                  "description": "The number of items to return"
+                },
+                {
+                  "disabled": false,
+                  "key": "offset",
+                  "value": "0",
+                  "description": "How many items to skip (use in conjunction with limit for pagination)"
+                },
+                {
+                  "disabled": false,
+                  "key": "projectId",
+                  "value": "<string>",
+                  "description": "Filter by project id"
+                },
+                {
+                  "disabled": false,
+                  "key": "datasourceId",
+                  "value": "<string>",
+                  "description": "Filter by Data Source"
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "9618075d-30a3-492e-88b7-68051213b3ae",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "metrics"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "10"
+                    },
+                    {
+                      "key": "offset",
+                      "value": "0"
+                    },
+                    {
+                      "key": "projectId",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "datasourceId",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"count\": 4590,\n  \"hasMore\": true,\n  \"limit\": 1468,\n  \"metrics\": [\n    {\n      \"id\": \"string\",\n      \"managedBy\": \"admin\",\n      \"dateCreated\": \"string\",\n      \"dateUpdated\": \"string\",\n      \"owner\": \"string\",\n      \"datasourceId\": \"string\",\n      \"name\": \"string\",\n      \"description\": \"string\",\n      \"type\": \"revenue\",\n      \"tags\": [\n        \"string\",\n        \"string\"\n      ],\n      \"projects\": [\n        \"string\",\n        \"string\"\n      ],\n      \"archived\": false,\n      \"behavior\": {\n        \"goal\": \"increase\",\n        \"windowSettings\": {\n          \"type\": \"lookback\",\n          \"delayValue\": 4207.244675779431,\n          \"delayUnit\": \"weeks\",\n          \"windowValue\": 5815.226869562688,\n          \"windowUnit\": \"hours\"\n        },\n        \"riskThresholdSuccess\": 311.1442667428876,\n        \"riskThresholdDanger\": 9913.218193187127,\n        \"minPercentChange\": 6495.993664639672,\n        \"maxPercentChange\": 879.3052587859685,\n        \"minSampleSize\": 7702.908064331585,\n        \"targetMDE\": 6164.547982139003,\n        \"cappingSettings\": {\n          \"type\": \"none\",\n          \"value\": 7715.308282710529,\n          \"ignoreZeros\": true\n        },\n        \"cap\": 9525.733076755992,\n        \"capping\": \"absolute\",\n        \"capValue\": 4954.115190785629,\n        \"priorSettings\": {\n          \"override\": true,\n          \"proper\": false,\n          \"mean\": 976.1210361937777,\n          \"stddev\": 5116.803459400897\n        },\n        \"conversionWindowStart\": 5689.24256041047,\n        \"conversionWindowEnd\": 9505.965847535317\n      },\n      \"ownerEmail\": \"string\",\n      \"sql\": {\n        \"identifierTypes\": [\n          \"string\",\n          \"string\"\n        ],\n        \"conversionSQL\": \"string\",\n        \"userAggregationSQL\": \"string\",\n        \"denominatorMetricId\": \"string\"\n      },\n      \"sqlBuilder\": {\n        \"identifierTypeColumns\": [\n          {\n            \"identifierType\": \"string\",\n            \"columnName\": \"string\"\n          },\n          {\n            \"identifierType\": \"string\",\n            \"columnName\": \"string\"\n          }\n        ],\n        \"tableName\": \"string\",\n        \"valueColumnName\": \"string\",\n        \"timestampColumnName\": \"string\",\n        \"conditions\": [\n          {\n            \"column\": \"string\",\n            \"operator\": \"string\",\n            \"value\": \"string\"\n          },\n          {\n            \"column\": \"string\",\n            \"operator\": \"string\",\n            \"value\": \"string\"\n          }\n        ]\n      },\n      \"mixpanel\": {\n        \"eventName\": \"string\",\n        \"eventValue\": \"string\",\n        \"userAggregation\": \"string\",\n        \"conditions\": [\n          {\n            \"property\": \"string\",\n            \"operator\": \"string\",\n            \"value\": \"string\"\n          },\n          {\n            \"property\": \"string\",\n            \"operator\": \"string\",\n            \"value\": \"string\"\n          }\n        ]\n      }\n    },\n    {\n      \"id\": \"string\",\n      \"managedBy\": \"\",\n      \"dateCreated\": \"string\",\n      \"dateUpdated\": \"string\",\n      \"owner\": \"string\",\n      \"datasourceId\": \"string\",\n      \"name\": \"string\",\n      \"description\": \"string\",\n      \"type\": \"revenue\",\n      \"tags\": [\n        \"string\",\n        \"string\"\n      ],\n      \"projects\": [\n        \"string\",\n        \"string\"\n      ],\n      \"archived\": false,\n      \"behavior\": {\n        \"goal\": \"increase\",\n        \"windowSettings\": {\n          \"type\": \"conversion\",\n          \"delayValue\": 834.6310294611569,\n          \"delayUnit\": \"weeks\",\n          \"windowValue\": 8182.80002907699,\n          \"windowUnit\": \"hours\"\n        },\n        \"riskThresholdSuccess\": 2309.230396578604,\n        \"riskThresholdDanger\": 4170.788170883994,\n        \"minPercentChange\": 5733.2126084833535,\n        \"maxPercentChange\": 4244.868971363649,\n        \"minSampleSize\": 2447.796963899075,\n        \"targetMDE\": 229.03661924202012,\n        \"cappingSettings\": {\n          \"type\": \"absolute\",\n          \"value\": 4865.171508742881,\n          \"ignoreZeros\": false\n        },\n        \"cap\": 7612.915640554293,\n        \"capping\": \"absolute\",\n        \"capValue\": 1089.1972358847624,\n        \"priorSettings\": {\n          \"override\": true,\n          \"proper\": false,\n          \"mean\": 2943.8433248302463,\n          \"stddev\": 1031.7869677460246\n        },\n        \"conversionWindowStart\": 4305.006935219121,\n        \"conversionWindowEnd\": 2813.3945434637085\n      },\n      \"ownerEmail\": \"string\",\n      \"sql\": {\n        \"identifierTypes\": [\n          \"string\",\n          \"string\"\n        ],\n        \"conversionSQL\": \"string\",\n        \"userAggregationSQL\": \"string\",\n        \"denominatorMetricId\": \"string\"\n      },\n      \"sqlBuilder\": {\n        \"identifierTypeColumns\": [\n          {\n            \"identifierType\": \"string\",\n            \"columnName\": \"string\"\n          },\n          {\n            \"identifierType\": \"string\",\n            \"columnName\": \"string\"\n          }\n        ],\n        \"tableName\": \"string\",\n        \"valueColumnName\": \"string\",\n        \"timestampColumnName\": \"string\",\n        \"conditions\": [\n          {\n            \"column\": \"string\",\n            \"operator\": \"string\",\n            \"value\": \"string\"\n          },\n          {\n            \"column\": \"string\",\n            \"operator\": \"string\",\n            \"value\": \"string\"\n          }\n        ]\n      },\n      \"mixpanel\": {\n        \"eventName\": \"string\",\n        \"eventValue\": \"string\",\n        \"userAggregation\": \"string\",\n        \"conditions\": [\n          {\n            \"property\": \"string\",\n            \"operator\": \"string\",\n            \"value\": \"string\"\n          },\n          {\n            \"property\": \"string\",\n            \"operator\": \"string\",\n            \"value\": \"string\"\n          }\n        ]\n      }\n    }\n  ],\n  \"nextOffset\": 1532,\n  \"offset\": 1300,\n  \"total\": 8735\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "b6cba550-439f-46ab-8bca-71c8b80e9176",
+          "name": "Create a single metric",
+          "request": {
+            "name": "Create a single metric",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "metrics"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"datasourceId\": \"<string>\",\n  \"name\": \"<string>\",\n  \"type\": \"<string>\",\n  \"managedBy\": \"<string>\",\n  \"owner\": \"<string>\",\n  \"description\": \"<string>\",\n  \"tags\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"projects\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"archived\": \"<boolean>\",\n  \"behavior\": {\n    \"goal\": \"<string>\",\n    \"cappingSettings\": {\n      \"type\": \"<string>\",\n      \"value\": \"<number>\",\n      \"ignoreZeros\": \"<boolean>\"\n    },\n    \"cap\": \"<number>\",\n    \"capping\": \"<string>\",\n    \"capValue\": \"<number>\",\n    \"windowSettings\": {\n      \"type\": \"<string>\",\n      \"delayHours\": \"<number>\",\n      \"delayValue\": \"<number>\",\n      \"delayUnit\": \"<string>\",\n      \"windowValue\": \"<number>\",\n      \"windowUnit\": \"<string>\"\n    },\n    \"conversionWindowStart\": \"<number>\",\n    \"conversionWindowEnd\": \"<number>\",\n    \"priorSettings\": {\n      \"override\": \"<boolean>\",\n      \"proper\": \"<boolean>\",\n      \"mean\": \"<number>\",\n      \"stddev\": \"<number>\"\n    },\n    \"riskThresholdSuccess\": \"<number>\",\n    \"riskThresholdDanger\": \"<number>\",\n    \"minPercentChange\": \"<number>\",\n    \"maxPercentChange\": \"<number>\",\n    \"minSampleSize\": \"<number>\",\n    \"targetMDE\": \"<number>\"\n  },\n  \"sql\": {\n    \"identifierTypes\": [\n      \"<string>\",\n      \"<string>\"\n    ],\n    \"conversionSQL\": \"<string>\",\n    \"userAggregationSQL\": \"<string>\",\n    \"denominatorMetricId\": \"<string>\"\n  },\n  \"sqlBuilder\": {\n    \"identifierTypeColumns\": [\n      {\n        \"identifierType\": \"<string>\",\n        \"columnName\": \"<string>\"\n      },\n      {\n        \"identifierType\": \"<string>\",\n        \"columnName\": \"<string>\"\n      }\n    ],\n    \"tableName\": \"<string>\",\n    \"timestampColumnName\": \"<string>\",\n    \"valueColumnName\": \"<string>\",\n    \"conditions\": [\n      {\n        \"column\": \"<string>\",\n        \"operator\": \"<string>\",\n        \"value\": \"<string>\"\n      },\n      {\n        \"column\": \"<string>\",\n        \"operator\": \"<string>\",\n        \"value\": \"<string>\"\n      }\n    ]\n  },\n  \"mixpanel\": {\n    \"eventName\": \"<string>\",\n    \"userAggregation\": \"<string>\",\n    \"eventValue\": \"<string>\",\n    \"conditions\": [\n      {\n        \"property\": \"<string>\",\n        \"operator\": \"<string>\",\n        \"value\": \"<string>\"\n      },\n      {\n        \"property\": \"<string>\",\n        \"operator\": \"<string>\",\n        \"value\": \"<string>\"\n      }\n    ]\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "d1a72efb-fad3-475f-9031-fc5a10c1746e",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "metrics"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"datasourceId\": \"<string>\",\n  \"name\": \"<string>\",\n  \"type\": \"<string>\",\n  \"managedBy\": \"<string>\",\n  \"owner\": \"<string>\",\n  \"description\": \"<string>\",\n  \"tags\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"projects\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"archived\": \"<boolean>\",\n  \"behavior\": {\n    \"goal\": \"<string>\",\n    \"cappingSettings\": {\n      \"type\": \"<string>\",\n      \"value\": \"<number>\",\n      \"ignoreZeros\": \"<boolean>\"\n    },\n    \"cap\": \"<number>\",\n    \"capping\": \"<string>\",\n    \"capValue\": \"<number>\",\n    \"windowSettings\": {\n      \"type\": \"<string>\",\n      \"delayHours\": \"<number>\",\n      \"delayValue\": \"<number>\",\n      \"delayUnit\": \"<string>\",\n      \"windowValue\": \"<number>\",\n      \"windowUnit\": \"<string>\"\n    },\n    \"conversionWindowStart\": \"<number>\",\n    \"conversionWindowEnd\": \"<number>\",\n    \"priorSettings\": {\n      \"override\": \"<boolean>\",\n      \"proper\": \"<boolean>\",\n      \"mean\": \"<number>\",\n      \"stddev\": \"<number>\"\n    },\n    \"riskThresholdSuccess\": \"<number>\",\n    \"riskThresholdDanger\": \"<number>\",\n    \"minPercentChange\": \"<number>\",\n    \"maxPercentChange\": \"<number>\",\n    \"minSampleSize\": \"<number>\",\n    \"targetMDE\": \"<number>\"\n  },\n  \"sql\": {\n    \"identifierTypes\": [\n      \"<string>\",\n      \"<string>\"\n    ],\n    \"conversionSQL\": \"<string>\",\n    \"userAggregationSQL\": \"<string>\",\n    \"denominatorMetricId\": \"<string>\"\n  },\n  \"sqlBuilder\": {\n    \"identifierTypeColumns\": [\n      {\n        \"identifierType\": \"<string>\",\n        \"columnName\": \"<string>\"\n      },\n      {\n        \"identifierType\": \"<string>\",\n        \"columnName\": \"<string>\"\n      }\n    ],\n    \"tableName\": \"<string>\",\n    \"timestampColumnName\": \"<string>\",\n    \"valueColumnName\": \"<string>\",\n    \"conditions\": [\n      {\n        \"column\": \"<string>\",\n        \"operator\": \"<string>\",\n        \"value\": \"<string>\"\n      },\n      {\n        \"column\": \"<string>\",\n        \"operator\": \"<string>\",\n        \"value\": \"<string>\"\n      }\n    ]\n  },\n  \"mixpanel\": {\n    \"eventName\": \"<string>\",\n    \"userAggregation\": \"<string>\",\n    \"eventValue\": \"<string>\",\n    \"conditions\": [\n      {\n        \"property\": \"<string>\",\n        \"operator\": \"<string>\",\n        \"value\": \"<string>\"\n      },\n      {\n        \"property\": \"<string>\",\n        \"operator\": \"<string>\",\n        \"value\": \"<string>\"\n      }\n    ]\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"metric\": {\n    \"id\": \"string\",\n    \"managedBy\": \"admin\",\n    \"dateCreated\": \"string\",\n    \"dateUpdated\": \"string\",\n    \"owner\": \"string\",\n    \"datasourceId\": \"string\",\n    \"name\": \"string\",\n    \"description\": \"string\",\n    \"type\": \"revenue\",\n    \"tags\": [\n      \"string\",\n      \"string\"\n    ],\n    \"projects\": [\n      \"string\",\n      \"string\"\n    ],\n    \"archived\": true,\n    \"behavior\": {\n      \"goal\": \"increase\",\n      \"windowSettings\": {\n        \"type\": \"conversion\",\n        \"delayValue\": 1532.4503135126422,\n        \"delayUnit\": \"days\",\n        \"windowValue\": 4347.080794107279,\n        \"windowUnit\": \"hours\"\n      },\n      \"riskThresholdSuccess\": 3400.352588477794,\n      \"riskThresholdDanger\": 75.87308984029706,\n      \"minPercentChange\": 3451.1536639127603,\n      \"maxPercentChange\": 7718.766217323778,\n      \"minSampleSize\": 8972.321716977982,\n      \"targetMDE\": 2486.580807989961,\n      \"cappingSettings\": {\n        \"type\": \"percentile\",\n        \"value\": 835.3363800775193,\n        \"ignoreZeros\": true\n      },\n      \"cap\": 2087.643412524286,\n      \"capping\": \"absolute\",\n      \"capValue\": 7650.0360916080535,\n      \"priorSettings\": {\n        \"override\": false,\n        \"proper\": true,\n        \"mean\": 1148.264819814322,\n        \"stddev\": 1463.07464702643\n      },\n      \"conversionWindowStart\": 2268.9158429652935,\n      \"conversionWindowEnd\": 1884.1756505709195\n    },\n    \"ownerEmail\": \"string\",\n    \"sql\": {\n      \"identifierTypes\": [\n        \"string\",\n        \"string\"\n      ],\n      \"conversionSQL\": \"string\",\n      \"userAggregationSQL\": \"string\",\n      \"denominatorMetricId\": \"string\"\n    },\n    \"sqlBuilder\": {\n      \"identifierTypeColumns\": [\n        {\n          \"identifierType\": \"string\",\n          \"columnName\": \"string\"\n        },\n        {\n          \"identifierType\": \"string\",\n          \"columnName\": \"string\"\n        }\n      ],\n      \"tableName\": \"string\",\n      \"valueColumnName\": \"string\",\n      \"timestampColumnName\": \"string\",\n      \"conditions\": [\n        {\n          \"column\": \"string\",\n          \"operator\": \"string\",\n          \"value\": \"string\"\n        },\n        {\n          \"column\": \"string\",\n          \"operator\": \"string\",\n          \"value\": \"string\"\n        }\n      ]\n    },\n    \"mixpanel\": {\n      \"eventName\": \"string\",\n      \"eventValue\": \"string\",\n      \"userAggregation\": \"string\",\n      \"conditions\": [\n        {\n          \"property\": \"string\",\n          \"operator\": \"string\",\n          \"value\": \"string\"\n        },\n        {\n          \"property\": \"string\",\n          \"operator\": \"string\",\n          \"value\": \"string\"\n        }\n      ]\n    }\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "31262065-a5f6-4c4b-8a61-26d4f0076fa9",
+          "name": "Get a single metric",
+          "request": {
+            "name": "Get a single metric",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "metrics",
+                ":id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "id",
+                  "description": "(Required) The id of the requested resource"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "4bc47223-f0f9-4e09-9428-460480baacb8",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "metrics",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) The id of the requested resource"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"metric\": {\n    \"id\": \"string\",\n    \"managedBy\": \"admin\",\n    \"dateCreated\": \"string\",\n    \"dateUpdated\": \"string\",\n    \"owner\": \"string\",\n    \"datasourceId\": \"string\",\n    \"name\": \"string\",\n    \"description\": \"string\",\n    \"type\": \"revenue\",\n    \"tags\": [\n      \"string\",\n      \"string\"\n    ],\n    \"projects\": [\n      \"string\",\n      \"string\"\n    ],\n    \"archived\": true,\n    \"behavior\": {\n      \"goal\": \"increase\",\n      \"windowSettings\": {\n        \"type\": \"conversion\",\n        \"delayValue\": 1532.4503135126422,\n        \"delayUnit\": \"days\",\n        \"windowValue\": 4347.080794107279,\n        \"windowUnit\": \"hours\"\n      },\n      \"riskThresholdSuccess\": 3400.352588477794,\n      \"riskThresholdDanger\": 75.87308984029706,\n      \"minPercentChange\": 3451.1536639127603,\n      \"maxPercentChange\": 7718.766217323778,\n      \"minSampleSize\": 8972.321716977982,\n      \"targetMDE\": 2486.580807989961,\n      \"cappingSettings\": {\n        \"type\": \"percentile\",\n        \"value\": 835.3363800775193,\n        \"ignoreZeros\": true\n      },\n      \"cap\": 2087.643412524286,\n      \"capping\": \"absolute\",\n      \"capValue\": 7650.0360916080535,\n      \"priorSettings\": {\n        \"override\": false,\n        \"proper\": true,\n        \"mean\": 1148.264819814322,\n        \"stddev\": 1463.07464702643\n      },\n      \"conversionWindowStart\": 2268.9158429652935,\n      \"conversionWindowEnd\": 1884.1756505709195\n    },\n    \"ownerEmail\": \"string\",\n    \"sql\": {\n      \"identifierTypes\": [\n        \"string\",\n        \"string\"\n      ],\n      \"conversionSQL\": \"string\",\n      \"userAggregationSQL\": \"string\",\n      \"denominatorMetricId\": \"string\"\n    },\n    \"sqlBuilder\": {\n      \"identifierTypeColumns\": [\n        {\n          \"identifierType\": \"string\",\n          \"columnName\": \"string\"\n        },\n        {\n          \"identifierType\": \"string\",\n          \"columnName\": \"string\"\n        }\n      ],\n      \"tableName\": \"string\",\n      \"valueColumnName\": \"string\",\n      \"timestampColumnName\": \"string\",\n      \"conditions\": [\n        {\n          \"column\": \"string\",\n          \"operator\": \"string\",\n          \"value\": \"string\"\n        },\n        {\n          \"column\": \"string\",\n          \"operator\": \"string\",\n          \"value\": \"string\"\n        }\n      ]\n    },\n    \"mixpanel\": {\n      \"eventName\": \"string\",\n      \"eventValue\": \"string\",\n      \"userAggregation\": \"string\",\n      \"conditions\": [\n        {\n          \"property\": \"string\",\n          \"operator\": \"string\",\n          \"value\": \"string\"\n        },\n        {\n          \"property\": \"string\",\n          \"operator\": \"string\",\n          \"value\": \"string\"\n        }\n      ]\n    }\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "024819d6-1012-4992-9c35-aaa4a47dea09",
+          "name": "Update a metric",
+          "request": {
+            "name": "Update a metric",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "metrics",
+                ":id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "id",
+                  "description": "(Required) The id of the requested resource"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "PUT",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"managedBy\": \"<string>\",\n  \"owner\": \"<string>\",\n  \"name\": \"<string>\",\n  \"description\": \"<string>\",\n  \"type\": \"<string>\",\n  \"tags\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"projects\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"archived\": \"<boolean>\",\n  \"behavior\": {\n    \"goal\": \"<string>\",\n    \"cappingSettings\": {\n      \"type\": \"<string>\",\n      \"value\": \"<number>\",\n      \"ignoreZeros\": \"<boolean>\"\n    },\n    \"cap\": \"<number>\",\n    \"capping\": \"<string>\",\n    \"capValue\": \"<number>\",\n    \"windowSettings\": {\n      \"type\": \"<string>\",\n      \"delayHours\": \"<number>\",\n      \"delayValue\": \"<number>\",\n      \"delayUnit\": \"<string>\",\n      \"windowValue\": \"<number>\",\n      \"windowUnit\": \"<string>\"\n    },\n    \"conversionWindowStart\": \"<number>\",\n    \"conversionWindowEnd\": \"<number>\",\n    \"priorSettings\": {\n      \"override\": \"<boolean>\",\n      \"proper\": \"<boolean>\",\n      \"mean\": \"<number>\",\n      \"stddev\": \"<number>\"\n    },\n    \"riskThresholdSuccess\": \"<number>\",\n    \"riskThresholdDanger\": \"<number>\",\n    \"minPercentChange\": \"<number>\",\n    \"maxPercentChange\": \"<number>\",\n    \"minSampleSize\": \"<number>\",\n    \"targetMDE\": \"<number>\"\n  },\n  \"sql\": {\n    \"identifierTypes\": [\n      \"<string>\",\n      \"<string>\"\n    ],\n    \"conversionSQL\": \"<string>\",\n    \"userAggregationSQL\": \"<string>\",\n    \"denominatorMetricId\": \"<string>\"\n  },\n  \"sqlBuilder\": {\n    \"identifierTypeColumns\": [\n      {\n        \"identifierType\": \"<string>\",\n        \"columnName\": \"<string>\"\n      },\n      {\n        \"identifierType\": \"<string>\",\n        \"columnName\": \"<string>\"\n      }\n    ],\n    \"tableName\": \"<string>\",\n    \"valueColumnName\": \"<string>\",\n    \"timestampColumnName\": \"<string>\",\n    \"conditions\": [\n      {\n        \"column\": \"<string>\",\n        \"operator\": \"<string>\",\n        \"value\": \"<string>\"\n      },\n      {\n        \"column\": \"<string>\",\n        \"operator\": \"<string>\",\n        \"value\": \"<string>\"\n      }\n    ]\n  },\n  \"mixpanel\": {\n    \"eventName\": \"<string>\",\n    \"eventValue\": \"<string>\",\n    \"userAggregation\": \"<string>\",\n    \"conditions\": [\n      {\n        \"property\": \"<string>\",\n        \"operator\": \"<string>\",\n        \"value\": \"<string>\"\n      },\n      {\n        \"property\": \"<string>\",\n        \"operator\": \"<string>\",\n        \"value\": \"<string>\"\n      }\n    ]\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "35684fc1-ff53-4693-952c-3058e830e37a",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "metrics",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) The id of the requested resource"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PUT",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"managedBy\": \"<string>\",\n  \"owner\": \"<string>\",\n  \"name\": \"<string>\",\n  \"description\": \"<string>\",\n  \"type\": \"<string>\",\n  \"tags\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"projects\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"archived\": \"<boolean>\",\n  \"behavior\": {\n    \"goal\": \"<string>\",\n    \"cappingSettings\": {\n      \"type\": \"<string>\",\n      \"value\": \"<number>\",\n      \"ignoreZeros\": \"<boolean>\"\n    },\n    \"cap\": \"<number>\",\n    \"capping\": \"<string>\",\n    \"capValue\": \"<number>\",\n    \"windowSettings\": {\n      \"type\": \"<string>\",\n      \"delayHours\": \"<number>\",\n      \"delayValue\": \"<number>\",\n      \"delayUnit\": \"<string>\",\n      \"windowValue\": \"<number>\",\n      \"windowUnit\": \"<string>\"\n    },\n    \"conversionWindowStart\": \"<number>\",\n    \"conversionWindowEnd\": \"<number>\",\n    \"priorSettings\": {\n      \"override\": \"<boolean>\",\n      \"proper\": \"<boolean>\",\n      \"mean\": \"<number>\",\n      \"stddev\": \"<number>\"\n    },\n    \"riskThresholdSuccess\": \"<number>\",\n    \"riskThresholdDanger\": \"<number>\",\n    \"minPercentChange\": \"<number>\",\n    \"maxPercentChange\": \"<number>\",\n    \"minSampleSize\": \"<number>\",\n    \"targetMDE\": \"<number>\"\n  },\n  \"sql\": {\n    \"identifierTypes\": [\n      \"<string>\",\n      \"<string>\"\n    ],\n    \"conversionSQL\": \"<string>\",\n    \"userAggregationSQL\": \"<string>\",\n    \"denominatorMetricId\": \"<string>\"\n  },\n  \"sqlBuilder\": {\n    \"identifierTypeColumns\": [\n      {\n        \"identifierType\": \"<string>\",\n        \"columnName\": \"<string>\"\n      },\n      {\n        \"identifierType\": \"<string>\",\n        \"columnName\": \"<string>\"\n      }\n    ],\n    \"tableName\": \"<string>\",\n    \"valueColumnName\": \"<string>\",\n    \"timestampColumnName\": \"<string>\",\n    \"conditions\": [\n      {\n        \"column\": \"<string>\",\n        \"operator\": \"<string>\",\n        \"value\": \"<string>\"\n      },\n      {\n        \"column\": \"<string>\",\n        \"operator\": \"<string>\",\n        \"value\": \"<string>\"\n      }\n    ]\n  },\n  \"mixpanel\": {\n    \"eventName\": \"<string>\",\n    \"eventValue\": \"<string>\",\n    \"userAggregation\": \"<string>\",\n    \"conditions\": [\n      {\n        \"property\": \"<string>\",\n        \"operator\": \"<string>\",\n        \"value\": \"<string>\"\n      },\n      {\n        \"property\": \"<string>\",\n        \"operator\": \"<string>\",\n        \"value\": \"<string>\"\n      }\n    ]\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"updatedId\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "1de63581-2e29-4478-86e3-d9353dd06a88",
+          "name": "Deletes a metric",
+          "request": {
+            "name": "Deletes a metric",
+            "description": {},
+            "url": {
+              "path": [
+                "v1",
+                "metrics",
+                ":id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "id",
+                  "description": "(Required) The id of the requested resource"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "DELETE",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "084d7b66-4c7d-431c-99ba-605c1356655a",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "metrics",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) The id of the requested resource"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "DELETE",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"deletedId\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.growthbook.io/api",
+      "key": "baseUrl"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}"
+      }
+    ]
+  },
+  "info": {
+    "_postman_id": "30828692-d2ea-4a6c-ac7b-eff6b949e19d",
+    "name": "GrowthBook REST AnalyticsExplorations metrics API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "GrowthBook offers a full REST API for interacting with the application.\n\nRequest data can use either JSON or Form data encoding (with proper `Content-Type` headers). All response bodies are JSON-encoded.\n\nThe API base URL for GrowthBook Cloud is `https://api.growthbook.io/api`. For self-hosted deployments, it is the same as your API_HOST environment variable (defaults to `http://localhost:3100/api`). The rest of these docs will assume you are using GrowthBook Cloud.\n\n## Versioning\n\nEndpoints are versioned by path prefix:\n\n- `/v1/...` — stable, widely-supported endpoints\n- `/v2/...` — updated endpoints with improved shapes (e.g. unified per-rule environment scope for feature flags)\n\nNew integrations should prefer v2 where available.\n\n## Authentication\n\nWe support both the HTTP Basic and Bearer authentication schemes for convenience.\n\nYou first need to generate a new API Key in GrowthBook. Different keys have different permissions:\n\n- **Personal Access Tokens**: These are sensitive and provide the same level of access as the user has to an organization. These can be created by going to `Personal Access Tokens` under the your user menu.\n- **Secret Keys**: These are sensitive and provide the level of access for the role, which currently is either `admin` or `readonly`. Only Admins with the `manageApiKeys` permission can manage Secret Keys on behalf of an organization. These can be created by going to `Settings -> API Keys`\n\nIf using HTTP Basic auth, pass the Secret Key as the username and leave the password blank (when using curl, add `:` at the end of the secret to indicate an empty password)\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n  -u secret_abc123DEF456:\n```\n\nIf using Bearer auth, pass the Secret Key as the token:\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n-H \"Authorization: Bearer secret_abc123DEF456\"\n```\n\n## Errors\n\nThe API may return the following error status codes:\n\n- **400** - Bad Request - Often due to a missing required parameter\n- **401** - Unauthorized - No valid API key provided\n- **402** - Request Failed - The parameters are valid, but the request failed\n- **403** - Forbidden - Provided API key does not have the required access\n- **404** - Not Found - Unknown API route or requested resource\n- **429** - Too Many Requests - You exceeded the rate limit of 60 requests per minute. Try again later.\n- **5XX** - Server Error - Something went wrong on GrowthBook's end (these are rare)\n\nThe response body will be a JSON object with the following properties:\n\n- **message** - Information about the error\n",
+      "type": "text/plain"
+    }
+  }
+}
