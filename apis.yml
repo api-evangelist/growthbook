@@ -21,6 +21,12 @@ image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/growthbook
 tags:
   - Feature Flags
   - Experimentation
+  - Open-Source
+  - A/B Testing
+  - Analytics
+tags_raw:
+  - Feature Flags
+  - Experimentation
   - Open Source
   - AB Testing
   - Analytics
@@ -48,6 +54,8 @@ apis:
   humanURL: https://docs.growthbook.io/api
   baseURL: https://api.growthbook.io/api
   tags:
+  - Archetypes
+  tags_raw:
   - archetypes
   properties:
   - type: OpenAPI
@@ -60,6 +68,8 @@ apis:
   humanURL: https://docs.growthbook.io/api
   baseURL: https://api.growthbook.io/api
   tags:
+  - Attributes
+  tags_raw:
   - attributes
   properties:
   - type: OpenAPI
@@ -73,6 +83,8 @@ apis:
   humanURL: https://docs.growthbook.io/api
   baseURL: https://api.growthbook.io/api
   tags:
+  - Code References
+  tags_raw:
   - code-references
   properties:
   - type: OpenAPI
@@ -85,6 +97,8 @@ apis:
   humanURL: https://docs.growthbook.io/api
   baseURL: https://api.growthbook.io/api
   tags:
+  - Custom Fields
+  tags_raw:
   - CustomFields
   properties:
   - type: OpenAPI
@@ -111,6 +125,8 @@ apis:
   humanURL: https://docs.growthbook.io/api
   baseURL: https://api.growthbook.io/api
   tags:
+  - Data Sources
+  tags_raw:
   - data-sources
   properties:
   - type: OpenAPI
@@ -123,6 +139,8 @@ apis:
   humanURL: https://docs.growthbook.io/api
   baseURL: https://api.growthbook.io/api
   tags:
+  - Dimensions
+  tags_raw:
   - dimensions
   properties:
   - type: OpenAPI
@@ -137,6 +155,8 @@ apis:
   humanURL: https://docs.growthbook.io/api
   baseURL: https://api.growthbook.io/api
   tags:
+  - Environments
+  tags_raw:
   - environments
   properties:
   - type: OpenAPI
@@ -149,6 +169,8 @@ apis:
   humanURL: https://docs.growthbook.io/api
   baseURL: https://api.growthbook.io/api
   tags:
+  - Experiments
+  tags_raw:
   - experiments
   properties:
   - type: OpenAPI
@@ -161,6 +183,8 @@ apis:
   humanURL: https://docs.growthbook.io/api
   baseURL: https://api.growthbook.io/api
   tags:
+  - Experiment Templates
+  tags_raw:
   - ExperimentTemplates
   properties:
   - type: OpenAPI
@@ -234,6 +258,8 @@ apis:
   humanURL: https://docs.growthbook.io/api
   baseURL: https://api.growthbook.io/api
   tags:
+  - Features
+  tags_raw:
   - features
   properties:
   - type: OpenAPI
@@ -251,6 +277,8 @@ apis:
   humanURL: https://docs.growthbook.io/api
   baseURL: https://api.growthbook.io/api
   tags:
+  - Features v2
+  tags_raw:
   - features-v2
   properties:
   - type: OpenAPI
@@ -263,6 +291,8 @@ apis:
   humanURL: https://docs.growthbook.io/api
   baseURL: https://api.growthbook.io/api
   tags:
+  - Members
+  tags_raw:
   - members
   properties:
   - type: OpenAPI
@@ -275,6 +305,8 @@ apis:
   humanURL: https://docs.growthbook.io/api
   baseURL: https://api.growthbook.io/api
   tags:
+  - Metric Groups
+  tags_raw:
   - MetricGroups
   properties:
   - type: OpenAPI
@@ -287,6 +319,8 @@ apis:
   humanURL: https://docs.growthbook.io/api
   baseURL: https://api.growthbook.io/api
   tags:
+  - Metrics
+  tags_raw:
   - metrics
   properties:
   - type: OpenAPI
@@ -302,6 +336,8 @@ apis:
   humanURL: https://docs.growthbook.io/api
   baseURL: https://api.growthbook.io/api
   tags:
+  - Namespaces
+  tags_raw:
   - namespaces
   properties:
   - type: OpenAPI
@@ -316,6 +352,8 @@ apis:
   humanURL: https://docs.growthbook.io/api
   baseURL: https://api.growthbook.io/api
   tags:
+  - Organization
+  tags_raw:
   - organizations
   properties:
   - type: OpenAPI
@@ -328,6 +366,8 @@ apis:
   humanURL: https://docs.growthbook.io/api
   baseURL: https://api.growthbook.io/api
   tags:
+  - Project
+  tags_raw:
   - projects
   properties:
   - type: OpenAPI
@@ -340,6 +380,8 @@ apis:
   humanURL: https://docs.growthbook.io/api
   baseURL: https://api.growthbook.io/api
   tags:
+  - Query
+  tags_raw:
   - queries
   properties:
   - type: OpenAPI
@@ -416,6 +458,8 @@ apis:
   humanURL: https://docs.growthbook.io/api
   baseURL: https://api.growthbook.io/api
   tags:
+  - Segments
+  tags_raw:
   - segments
   properties:
   - type: OpenAPI
@@ -428,6 +472,8 @@ apis:
   humanURL: https://docs.growthbook.io/api
   baseURL: https://api.growthbook.io/api
   tags:
+  - Settings
+  tags_raw:
   - settings
   properties:
   - type: OpenAPI
@@ -440,6 +486,8 @@ apis:
   humanURL: https://docs.growthbook.io/api
   baseURL: https://api.growthbook.io/api
   tags:
+  - Snapshots
+  tags_raw:
   - snapshots
   properties:
   - type: OpenAPI
@@ -452,6 +500,8 @@ apis:
   humanURL: https://docs.growthbook.io/api
   baseURL: https://api.growthbook.io/api
   tags:
+  - Team
+  tags_raw:
   - Teams
   properties:
   - type: OpenAPI
@@ -476,6 +526,8 @@ apis:
   humanURL: https://docs.growthbook.io/api
   baseURL: https://api.growthbook.io/api
   tags:
+  - Usage
+  tags_raw:
   - usage
   properties:
   - type: OpenAPI
