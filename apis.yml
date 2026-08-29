@@ -559,6 +559,9 @@ apis:
   - type: Documentation
     url: https://docs.growthbook.io/api
 common:
+  - type: CapabilityMap
+    url: capabilities/growthbook-capability-edges.yml
+    name: GrowthBook Business Capability Map
   - type: AgenticAccess
     url: agentic-access/growthbook-agentic-access.yml
   - type: TrustCenter

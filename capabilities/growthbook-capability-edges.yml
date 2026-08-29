@@ -1,0 +1,89 @@
+slug: growthbook
+provider: GrowthBook
+generated_by: planning/capability-mapping/scripts/classify_capabilities.py
+model: claude-opus-5
+frame:
+- Software & Technology
+min_confidence: 0.7
+capability_model:
+  source: https://github.com/vincentmakes/turbo-ea-capabilities
+  license: CC-BY-4.0
+  attribution: Turbo EA Capabilities by Vincent Verdet — Turbo EA, https://github.com/vincentmakes/turbo-ea-capabilities,
+    CC BY 4.0
+  notice: NOTICE
+edge_count: 7
+edges:
+- tag: features
+  spec_file: growthbook-features-api-openapi.yml
+  capability_id: BC-4210.50
+  capability_id_l1: BC-4210
+  capability_name: Feature Flag Management
+  confidence: 0.92
+  evidence: POST /v1/features/{id}/toggle toggleFeature "Toggle a feature in one or more environments";
+    "Get stale status for one or more features"; schemas Feature, FeatureRolloutRule, FeatureEnvironment
+  reason: CRUD plus environment toggling and staleness checks over feature flags on an open-source feature
+    flagging platform; squarely feature flag lifecycle management.
+- tag: features-v2
+  spec_file: growthbook-features-v2-api-openapi.yml
+  capability_id: BC-4210.50
+  capability_id_l1: BC-4210
+  capability_name: Feature Flag Management
+  confidence: 0.92
+  evidence: POST /v2/features/{id}/toggle toggleFeatureV2 "Toggle a feature in one or more environments";
+    "Revert a feature to a specific revision"; schema FeatureV2, FeatureEnvironmentV2
+  reason: Same feature flag surface as v1 — create, update, toggle per environment, revert revisions —
+    i.e. feature flag lifecycle and runtime control.
+- tag: experiments
+  spec_file: growthbook-experiments-api-openapi.yml
+  capability_id: BC-4280.50
+  capability_id_l1: BC-4280
+  capability_name: A/B Test Execution
+  confidence: 0.9
+  evidence: POST /v1/experiments/{id}/start  postExperimentStart  Start an experiment; GET /v1/experiments/{id}/results  getExperimentResults  Get
+    results for an experiment
+  reason: Full lifecycle of A/B experiments — create, start, stop, variations, temporary rollout, snapshots
+    and results. This is plainly A/B test configuration, targeting and monitoring.
+- tag: feature-revisions
+  spec_file: growthbook-feature-revisions-api-openapi.yml
+  capability_id: BC-4210.50
+  capability_id_l1: BC-4210
+  capability_name: Feature Flag Management
+  confidence: 0.9
+  evidence: POST /v1/features/{id}/revisions/{version}/toggle  postFeatureRevisionToggle  Toggle an environment
+    on/off in a draft revision
+  reason: Draft revisions of feature flags with default values, prerequisites, rules (FeatureRolloutRule,
+    FeatureSafeRolloutRule, ScheduleRule) and per-environment toggling — the runtime lifecycle control
+    of feature flags.
+- tag: feature-revisions-v2
+  spec_file: growthbook-feature-revisions-v2-api-openapi.yml
+  capability_id: BC-4210.50
+  capability_id_l1: BC-4210
+  capability_name: Feature Flag Management
+  confidence: 0.88
+  evidence: POST /v2/features/{id}/revisions postFeatureRevisionV2 "Create a draft revision"; "Toggle
+    an environment on/off in a draft revision"; schema FeatureRuleV2, FeatureRolloutRule
+  reason: Operations manage draft revisions of feature flags — default values, prerequisites, rollout
+    rules, environment toggles — which is the lifecycle/runtime control of feature flags on this feature-flagging
+    platform.
+- tag: visual-changesets
+  spec_file: growthbook-visual-changesets-api-openapi.yml
+  capability_id: BC-4280.50
+  capability_id_l1: BC-4280
+  capability_name: A/B Test Execution
+  confidence: 0.8
+  evidence: POST /v1/experiments/{id}/visual-changesets Create a visual changeset for an experiment; schemas
+    VisualChangeset, ExperimentAnalysisSettings
+  reason: Visual changesets define the variation changes applied to pages for a given experiment — configuration
+    of running A/B tests. Clearly experimentation; only sub-capability boundary (execution vs programme
+    management) is uncertain.
+- tag: snapshots
+  spec_file: growthbook-snapshots-api-openapi.yml
+  capability_id: BC-4280.50
+  capability_id_l1: BC-4280
+  capability_name: A/B Test Execution
+  confidence: 0.7
+  evidence: POST /v1/experiments/{id}/snapshot postExperimentSnapshot Create Experiment Snapshot; GET
+    /v1/snapshots/{id} Get an experiment snapshot status
+  reason: Snapshots are the computed result/analysis runs of a running experiment, i.e. execution and
+    monitoring of A/B tests on this experimentation platform. Slight ambiguity between test execution
+    and experiment programme analysis keeps confidence moderate.
