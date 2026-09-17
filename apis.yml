@@ -104,20 +104,6 @@ apis:
     url: openapi/growthbook-code-references-api-openapi.yml
   - type: Documentation
     url: https://docs.growthbook.io/api
-- aid: growthbook:growthbook-customfields-api
-  name: GrowthBook CustomFields API
-  description: The CustomFields API from GrowthBook — 2 operation(s) for customfields.
-  humanURL: https://docs.growthbook.io/api
-  baseURL: https://api.growthbook.io/api
-  tags:
-  - Custom Fields
-  tags_raw:
-  - CustomFields
-  properties:
-  - type: OpenAPI
-    url: openapi/growthbook-customfields-api-openapi.yml
-  - type: Documentation
-    url: https://docs.growthbook.io/api
 - aid: growthbook:growthbook-dashboards-api
   name: GrowthBook Dashboards API
   description: The Dashboards API from GrowthBook — 3 operation(s) for dashboards.
@@ -188,20 +174,6 @@ apis:
   properties:
   - type: OpenAPI
     url: openapi/growthbook-experiments-api-openapi.yml
-  - type: Documentation
-    url: https://docs.growthbook.io/api
-- aid: growthbook:growthbook-experimenttemplates-api
-  name: GrowthBook ExperimentTemplates API
-  description: The ExperimentTemplates API from GrowthBook — 3 operation(s) for experimenttemplates.
-  humanURL: https://docs.growthbook.io/api
-  baseURL: https://api.growthbook.io/api
-  tags:
-  - Experiment Templates
-  tags_raw:
-  - ExperimentTemplates
-  properties:
-  - type: OpenAPI
-    url: openapi/growthbook-experimenttemplates-api-openapi.yml
   - type: Documentation
     url: https://docs.growthbook.io/api
 - aid: growthbook:growthbook-fact-metrics-api
@@ -310,20 +282,6 @@ apis:
   properties:
   - type: OpenAPI
     url: openapi/growthbook-members-api-openapi.yml
-  - type: Documentation
-    url: https://docs.growthbook.io/api
-- aid: growthbook:growthbook-metricgroups-api
-  name: GrowthBook MetricGroups API
-  description: The MetricGroups API from GrowthBook — 2 operation(s) for metricgroups.
-  humanURL: https://docs.growthbook.io/api
-  baseURL: https://api.growthbook.io/api
-  tags:
-  - Metric Groups
-  tags_raw:
-  - MetricGroups
-  properties:
-  - type: OpenAPI
-    url: openapi/growthbook-metricgroups-api-openapi.yml
   - type: Documentation
     url: https://docs.growthbook.io/api
 - aid: growthbook:growthbook-metrics-api
@@ -557,6 +515,42 @@ apis:
   properties:
   - type: OpenAPI
     url: openapi/growthbook-visual-changesets-api-openapi.yml
+  - type: Documentation
+    url: https://docs.growthbook.io/api
+- aid: growthbook:growthbook-custom-fields-api
+  name: GrowthBook Custom Fields API
+  description: The Custom Fields API from GrowthBook — 2 operation(s) for custom fields.
+  humanURL: https://docs.growthbook.io/api
+  baseURL: https://api.growthbook.io/api
+  tags:
+  - Custom Fields
+  properties:
+  - type: OpenAPI
+    url: openapi/growthbook-custom-fields-api-openapi.yml
+  - type: Documentation
+    url: https://docs.growthbook.io/api
+- aid: growthbook:growthbook-experiment-templates-api
+  name: GrowthBook Experiment Templates API
+  description: The Experiment Templates API from GrowthBook — 3 operation(s) for experiment templates.
+  humanURL: https://docs.growthbook.io/api
+  baseURL: https://api.growthbook.io/api
+  tags:
+  - Experiment Templates
+  properties:
+  - type: OpenAPI
+    url: openapi/growthbook-experiment-templates-api-openapi.yml
+  - type: Documentation
+    url: https://docs.growthbook.io/api
+- aid: growthbook:growthbook-metric-groups-api
+  name: GrowthBook Metric Groups API
+  description: The Metric Groups API from GrowthBook — 2 operation(s) for metric groups.
+  humanURL: https://docs.growthbook.io/api
+  baseURL: https://api.growthbook.io/api
+  tags:
+  - Metric Groups
+  properties:
+  - type: OpenAPI
+    url: openapi/growthbook-metric-groups-api-openapi.yml
   - type: Documentation
     url: https://docs.growthbook.io/api
 common:
