@@ -154,7 +154,7 @@ apis:
   humanURL: https://docs.growthbook.io/api
   baseURL: https://api.growthbook.io/api
   tags:
-  - Environments
+  - Environment
   tags_raw:
   - environments
   properties:
