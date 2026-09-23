@@ -1,8 +1,8 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
   version: 1.0.0
-  title: GrowthBook REST AnalyticsExplorations experiments API
-  description: "GrowthBook offers a full REST API for interacting with the application.\n\nRequest data can use either JSON or Form data encoding (with proper `Content-Type` headers). All response bodies are JSON-encoded.\n\nThe API base URL for GrowthBook Cloud is `https://api.growthbook.io/api`. For self-hosted deployments, it is the same as your API_HOST environment variable (defaults to `http://localhost:3100/api`). The rest of these docs will assume you are using GrowthBook Cloud.\n\n## Versioning\n\nEndpoints are versioned by path prefix:\n\n- `/v1/...` — stable, widely-supported endpoints\n- `/v2/...` — updated endpoints with improved shapes (e.g. unified per-rule environment scope for feature flags)\n\nNew integrations should prefer v2 where available.\n\n## Authentication\n\nWe support both the HTTP Basic and Bearer authentication schemes for convenience.\n\nYou first need to generate a new API Key in GrowthBook. Different keys have different permissions:\n\n- **Personal Access Tokens**: These are sensitive and provide the same level of access as the user has to an organization. These can be created by going to `Personal Access Tokens` under the your user menu.\n- **Secret Keys**: These are sensitive and provide the level of access for the role, which currently is either `admin` or `readonly`. Only Admins with the `manageApiKeys` permission can manage Secret Keys on behalf of an organization. These can be created by going to `Settings -> API Keys`\n\nIf using HTTP Basic auth, pass the Secret Key as the username and leave the password blank (when using curl, add `:` at the end of the secret to indicate an empty password)\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n  -u secret_abc123DEF456:\n```\n\nIf using Bearer auth, pass the Secret Key as the token:\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n-H \"Authorization: Bearer secret_abc123DEF456\"\n```\n\n## Errors\n\nThe API may return the following error status codes:\n\n- **400** - Bad Request - Often due to a missing required parameter\n- **401** - Unauthorized - No valid API key provided\n- **402** - Request Failed - The parameters are valid, but the request failed\n- **403** - Forbidden - Provided API key does not have the required access\n- **404** - Not Found - Unknown API route or requested resource\n- **429** - Too Many Requests - You exceeded the rate limit of 60 requests per minute. Try again later.\n- **5XX** - Server Error - Something went wrong on GrowthBook's end (these are rare)\n\nThe response body will be a JSON object with the following properties:\n\n- **message** - Information about the error\n"
+  title: GrowthBook REST Experiments API
+  description: GrowthBook offers a full REST API for interacting with the application.
 servers:
 - url: https://api.growthbook.io/api
   description: GrowthBook Cloud
@@ -12,7 +12,7 @@ security:
 - bearerAuth: []
 - basicAuth: []
 tags:
-- name: experiments
+- name: Experiments
   x-displayName: Experiments
   description: Experiments (A/B Tests)
 paths:
@@ -21,7 +21,7 @@ paths:
       operationId: listExperiments
       summary: Get all experiments
       tags:
-      - experiments
+      - Experiments
       parameters:
       - $ref: '#/components/parameters/limit'
       - $ref: '#/components/parameters/offset'
@@ -61,7 +61,7 @@ paths:
       operationId: postExperiment
       summary: Create a single experiment
       tags:
-      - experiments
+      - Experiments
       requestBody:
         required: true
         content:
@@ -500,7 +500,7 @@ paths:
       operationId: getExperiment
       summary: Get a single experiment
       tags:
-      - experiments
+      - Experiments
       parameters:
       - $ref: '#/components/parameters/id'
       responses:
@@ -522,7 +522,7 @@ paths:
       operationId: updateExperiment
       summary: Update a single experiment
       tags:
-      - experiments
+      - Experiments
       parameters:
       - $ref: '#/components/parameters/id'
       requestBody:
@@ -967,7 +967,7 @@ paths:
       operationId: getExperimentResults
       summary: Get results for an experiment
       tags:
-      - experiments
+      - Experiments
       parameters:
       - $ref: '#/components/parameters/id'
       - $ref: '#/components/parameters/phase'
@@ -992,7 +992,7 @@ paths:
       operationId: postExperimentStart
       summary: Start an experiment
       tags:
-      - experiments
+      - Experiments
       parameters:
       - $ref: '#/components/parameters/id'
       requestBody:
@@ -1026,7 +1026,7 @@ paths:
       operationId: postExperimentStop
       summary: Stop an experiment
       tags:
-      - experiments
+      - Experiments
       parameters:
       - $ref: '#/components/parameters/id'
       requestBody:
@@ -1085,7 +1085,7 @@ paths:
       operationId: postExperimentModifyTemporaryRollout
       summary: Modify temporary rollout status for a stopped experiment
       tags:
-      - experiments
+      - Experiments
       parameters:
       - $ref: '#/components/parameters/id'
       requestBody:
@@ -1124,7 +1124,7 @@ paths:
       operationId: postExperimentSnapshot
       summary: Create Experiment Snapshot
       tags:
-      - experiments
+      - Experiments
       parameters:
       - name: id
         in: path
@@ -1174,7 +1174,7 @@ paths:
       operationId: postVariationImageUpload
       summary: Upload a variation screenshot
       tags:
-      - experiments
+      - Experiments
       parameters:
       - name: id
         in: path
@@ -1228,7 +1228,7 @@ paths:
       operationId: deleteVariationScreenshot
       summary: Delete a variation screenshot
       tags:
-      - experiments
+      - Experiments
       parameters:
       - name: id
         in: path
@@ -1267,7 +1267,7 @@ paths:
       operationId: getExperimentNames
       summary: Get a list of experiments with names and ids
       tags:
-      - experiments
+      - Experiments
       parameters:
       - $ref: '#/components/parameters/projectId'
       responses:
@@ -1288,7 +1288,94 @@ paths:
       - lang: cURL
         source: "curl -X GET 'https://api.growthbook.io/api/v1/experiment-names' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
 components:
+  parameters:
+    limit:
+      name: limit
+      in: query
+      description: The number of items to return
+      schema:
+        default: 10
+        description: The number of items to return
+        type: integer
+        minimum: 1
+        maximum: 100
+    projectId:
+      name: projectId
+      in: query
+      description: Filter by project id
+      schema:
+        description: Filter by project id
+        type: string
+    trackingKey:
+      name: trackingKey
+      in: query
+      description: Filter by experiment tracking key
+      schema:
+        description: Filter by experiment tracking key
+        type: string
+    offset:
+      name: offset
+      in: query
+      description: How many items to skip (use in conjunction with limit for pagination)
+      schema:
+        default: 0
+        description: How many items to skip (use in conjunction with limit for pagination)
+        type: integer
+        minimum: 0
+    dimension:
+      name: dimension
+      in: query
+      description: ''
+      schema:
+        type: string
+    datasourceId:
+      name: datasourceId
+      in: query
+      description: Filter by Data Source
+      schema:
+        description: Filter by Data Source
+        type: string
+    variationId:
+      name: variationId
+      in: path
+      required: true
+      description: ''
+      schema:
+        type: string
+    id:
+      name: id
+      in: path
+      required: true
+      description: The id of the requested resource
+      schema:
+        description: The id of the requested resource
+        type: string
+    experimentId:
+      name: experimentId
+      in: query
+      description: Filter the returned list by the experiment tracking key (not the internal experiment ID). Note, this was deprecated to help reduce confusion, consider using `trackingKey` instead, which is functionally identical. You cannot use both params at the same time.
+      schema:
+        deprecated: true
+        description: Filter the returned list by the experiment tracking key (not the internal experiment ID). Note, this was deprecated to help reduce confusion, consider using `trackingKey` instead, which is functionally identical. You cannot use both params at the same time.
+        type: string
+    phase:
+      name: phase
+      in: query
+      description: ''
+      schema:
+        type: string
   schemas:
+    experiments:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+      required:
+      - id
+      - name
+      additionalProperties: false
     ExperimentResults:
       type: object
       properties:
@@ -1418,6 +1505,49 @@ components:
       - settings
       - queryIds
       - results
+      additionalProperties: false
+    ExperimentMetric:
+      type: object
+      properties:
+        metricId:
+          type: string
+        overrides:
+          type: object
+          properties:
+            delayHours:
+              type: number
+            windowHours:
+              type: number
+            window:
+              type: string
+              enum:
+              - conversion
+              - lookback
+              - ''
+            winRiskThreshold:
+              deprecated: true
+              type: number
+            loseRiskThreshold:
+              deprecated: true
+              type: number
+            properPriorOverride:
+              type: boolean
+            properPriorEnabled:
+              type: boolean
+            properPriorMean:
+              type: number
+            properPriorStdDev:
+              type: number
+            regressionAdjustmentOverride:
+              type: boolean
+            regressionAdjustmentEnabled:
+              type: boolean
+            regressionAdjustmentDays:
+              type: number
+          additionalProperties: false
+      required:
+      - metricId
+      - overrides
       additionalProperties: false
     Experiment:
       type: object
@@ -1711,136 +1841,6 @@ components:
       - phases
       - settings
       additionalProperties: false
-    ExperimentMetric:
-      type: object
-      properties:
-        metricId:
-          type: string
-        overrides:
-          type: object
-          properties:
-            delayHours:
-              type: number
-            windowHours:
-              type: number
-            window:
-              type: string
-              enum:
-              - conversion
-              - lookback
-              - ''
-            winRiskThreshold:
-              deprecated: true
-              type: number
-            loseRiskThreshold:
-              deprecated: true
-              type: number
-            properPriorOverride:
-              type: boolean
-            properPriorEnabled:
-              type: boolean
-            properPriorMean:
-              type: number
-            properPriorStdDev:
-              type: number
-            regressionAdjustmentOverride:
-              type: boolean
-            regressionAdjustmentEnabled:
-              type: boolean
-            regressionAdjustmentDays:
-              type: number
-          additionalProperties: false
-      required:
-      - metricId
-      - overrides
-      additionalProperties: false
-    LookbackOverride:
-      description: Controls the lookback override for the experiment. For type "window", value must be a non-negative number and valueUnit is required.
-      type: object
-      properties:
-        type:
-          type: string
-          enum:
-          - date
-          - window
-        value:
-          description: For "window" type - non-negative numeric value (e.g. 7 for 7 days). For "date" type a date string.
-          anyOf:
-          - description: For "window" type - non-negative numeric value (e.g. 7 for 7 days). For "date" type a date string.
-            type: number
-          - format: date-time
-            description: For "window" type - non-negative numeric value (e.g. 7 for 7 days). For "date" type a date string.
-            type: string
-        valueUnit:
-          description: Used when type is "window". Defaults to "days".
-          type: string
-          enum:
-          - minutes
-          - hours
-          - days
-          - weeks
-      required:
-      - type
-      - value
-      additionalProperties: false
-    experiments:
-      type: object
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-      required:
-      - id
-      - name
-      additionalProperties: false
-    PaginationFields:
-      type: object
-      properties:
-        limit:
-          type: integer
-        offset:
-          type: integer
-        count:
-          type: integer
-        total:
-          type: integer
-        hasMore:
-          type: boolean
-        nextOffset:
-          anyOf:
-          - type: integer
-          - type: 'null'
-      required:
-      - limit
-      - offset
-      - count
-      - total
-      - hasMore
-      - nextOffset
-      additionalProperties: false
-    ExperimentDecisionFrameworkSettings:
-      description: Controls the decision framework and metric overrides for the experiment. Replaces the entire stored object on update (does not patch individual fields).
-      type: object
-      properties:
-        decisionCriteriaId:
-          type: string
-        decisionFrameworkMetricOverrides:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                description: ID of the metric to override settings for.
-                type: string
-              targetMDE:
-                description: The target relative MDE to use for the metric, expressed as proportions (e.g. use 0.1 for 10%). Must be greater than 0.
-                type: number
-                exclusiveMinimum: 0
-            required:
-            - id
-            additionalProperties: false
-      additionalProperties: false
     ExperimentMetricOverrideEntry:
       description: Per-metric analysis overrides stored on the experiment (matches internal metricOverrides).
       type: object
@@ -1876,98 +1876,6 @@ components:
           type: number
       required:
       - id
-      additionalProperties: false
-    ExperimentAnalysisSettings:
-      type: object
-      properties:
-        datasourceId:
-          type: string
-        assignmentQueryId:
-          type: string
-        experimentId:
-          type: string
-        segmentId:
-          type: string
-        queryFilter:
-          type: string
-        inProgressConversions:
-          type: string
-          enum:
-          - include
-          - exclude
-        attributionModel:
-          description: Setting attribution model to `"experimentDuration"` is the same as selecting "Ignore Conversion Windows" for the Conversion Window Override. Setting it to `"lookbackOverride"` requires a `lookbackOverride` object to be provided.
-          type: string
-          enum:
-          - firstExposure
-          - experimentDuration
-          - lookbackOverride
-        lookbackOverride:
-          $ref: '#/components/schemas/LookbackOverride'
-        statsEngine:
-          type: string
-          enum:
-          - bayesian
-          - frequentist
-        regressionAdjustmentEnabled:
-          type: boolean
-        sequentialTestingEnabled:
-          type: boolean
-        sequentialTestingTuningParameter:
-          type: number
-        postStratificationEnabled:
-          description: When null, the organization default is used.
-          anyOf:
-          - description: When null, the organization default is used.
-            type: boolean
-          - description: When null, the organization default is used.
-            type: 'null'
-        decisionFrameworkSettings:
-          $ref: '#/components/schemas/ExperimentDecisionFrameworkSettings'
-        metricOverrides:
-          description: Per-metric analysis overrides; also reflected in goals/secondaryMetrics/guardrails overrides when applicable. On create/update, this replaces the entire stored array (it does not patch individual entries).
-          type: array
-          items:
-            $ref: '#/components/schemas/ExperimentMetricOverrideEntry'
-        goals:
-          type: array
-          items:
-            $ref: '#/components/schemas/ExperimentMetric'
-        secondaryMetrics:
-          type: array
-          items:
-            $ref: '#/components/schemas/ExperimentMetric'
-        guardrails:
-          type: array
-          items:
-            $ref: '#/components/schemas/ExperimentMetric'
-        activationMetric:
-          $ref: '#/components/schemas/ExperimentMetric'
-      required:
-      - datasourceId
-      - assignmentQueryId
-      - experimentId
-      - segmentId
-      - queryFilter
-      - inProgressConversions
-      - attributionModel
-      - statsEngine
-      - goals
-      - secondaryMetrics
-      - guardrails
-      additionalProperties: false
-    screenshot:
-      type: object
-      properties:
-        path:
-          description: URL or path to the uploaded screenshot
-          type: string
-        description:
-          description: Description of the screenshot
-          type: string
-      required:
-      - path
-      - description
       additionalProperties: false
     ExperimentWithEnhancedStatus:
       allOf:
@@ -2280,6 +2188,174 @@ components:
             - status
             additionalProperties: false
         additionalProperties: false
+    PaginationFields:
+      type: object
+      properties:
+        limit:
+          type: integer
+        offset:
+          type: integer
+        count:
+          type: integer
+        total:
+          type: integer
+        hasMore:
+          type: boolean
+        nextOffset:
+          anyOf:
+          - type: integer
+          - type: 'null'
+      required:
+      - limit
+      - offset
+      - count
+      - total
+      - hasMore
+      - nextOffset
+      additionalProperties: false
+    screenshot:
+      type: object
+      properties:
+        path:
+          description: URL or path to the uploaded screenshot
+          type: string
+        description:
+          description: Description of the screenshot
+          type: string
+      required:
+      - path
+      - description
+      additionalProperties: false
+    LookbackOverride:
+      description: Controls the lookback override for the experiment. For type "window", value must be a non-negative number and valueUnit is required.
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - date
+          - window
+        value:
+          description: For "window" type - non-negative numeric value (e.g. 7 for 7 days). For "date" type a date string.
+          anyOf:
+          - description: For "window" type - non-negative numeric value (e.g. 7 for 7 days). For "date" type a date string.
+            type: number
+          - format: date-time
+            description: For "window" type - non-negative numeric value (e.g. 7 for 7 days). For "date" type a date string.
+            type: string
+        valueUnit:
+          description: Used when type is "window". Defaults to "days".
+          type: string
+          enum:
+          - minutes
+          - hours
+          - days
+          - weeks
+      required:
+      - type
+      - value
+      additionalProperties: false
+    ExperimentDecisionFrameworkSettings:
+      description: Controls the decision framework and metric overrides for the experiment. Replaces the entire stored object on update (does not patch individual fields).
+      type: object
+      properties:
+        decisionCriteriaId:
+          type: string
+        decisionFrameworkMetricOverrides:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                description: ID of the metric to override settings for.
+                type: string
+              targetMDE:
+                description: The target relative MDE to use for the metric, expressed as proportions (e.g. use 0.1 for 10%). Must be greater than 0.
+                type: number
+                exclusiveMinimum: 0
+            required:
+            - id
+            additionalProperties: false
+      additionalProperties: false
+    ExperimentAnalysisSettings:
+      type: object
+      properties:
+        datasourceId:
+          type: string
+        assignmentQueryId:
+          type: string
+        experimentId:
+          type: string
+        segmentId:
+          type: string
+        queryFilter:
+          type: string
+        inProgressConversions:
+          type: string
+          enum:
+          - include
+          - exclude
+        attributionModel:
+          description: Setting attribution model to `"experimentDuration"` is the same as selecting "Ignore Conversion Windows" for the Conversion Window Override. Setting it to `"lookbackOverride"` requires a `lookbackOverride` object to be provided.
+          type: string
+          enum:
+          - firstExposure
+          - experimentDuration
+          - lookbackOverride
+        lookbackOverride:
+          $ref: '#/components/schemas/LookbackOverride'
+        statsEngine:
+          type: string
+          enum:
+          - bayesian
+          - frequentist
+        regressionAdjustmentEnabled:
+          type: boolean
+        sequentialTestingEnabled:
+          type: boolean
+        sequentialTestingTuningParameter:
+          type: number
+        postStratificationEnabled:
+          description: When null, the organization default is used.
+          anyOf:
+          - description: When null, the organization default is used.
+            type: boolean
+          - description: When null, the organization default is used.
+            type: 'null'
+        decisionFrameworkSettings:
+          $ref: '#/components/schemas/ExperimentDecisionFrameworkSettings'
+        metricOverrides:
+          description: Per-metric analysis overrides; also reflected in goals/secondaryMetrics/guardrails overrides when applicable. On create/update, this replaces the entire stored array (it does not patch individual entries).
+          type: array
+          items:
+            $ref: '#/components/schemas/ExperimentMetricOverrideEntry'
+        goals:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExperimentMetric'
+        secondaryMetrics:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExperimentMetric'
+        guardrails:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExperimentMetric'
+        activationMetric:
+          $ref: '#/components/schemas/ExperimentMetric'
+      required:
+      - datasourceId
+      - assignmentQueryId
+      - experimentId
+      - segmentId
+      - queryFilter
+      - inProgressConversions
+      - attributionModel
+      - statsEngine
+      - goals
+      - secondaryMetrics
+      - guardrails
+      additionalProperties: false
     snapshot:
       type: object
       properties:
@@ -2294,82 +2370,6 @@ components:
       - experiment
       - status
       additionalProperties: false
-  parameters:
-    projectId:
-      name: projectId
-      in: query
-      description: Filter by project id
-      schema:
-        description: Filter by project id
-        type: string
-    limit:
-      name: limit
-      in: query
-      description: The number of items to return
-      schema:
-        default: 10
-        description: The number of items to return
-        type: integer
-        minimum: 1
-        maximum: 100
-    offset:
-      name: offset
-      in: query
-      description: How many items to skip (use in conjunction with limit for pagination)
-      schema:
-        default: 0
-        description: How many items to skip (use in conjunction with limit for pagination)
-        type: integer
-        minimum: 0
-    experimentId:
-      name: experimentId
-      in: query
-      description: Filter the returned list by the experiment tracking key (not the internal experiment ID). Note, this was deprecated to help reduce confusion, consider using `trackingKey` instead, which is functionally identical. You cannot use both params at the same time.
-      schema:
-        deprecated: true
-        description: Filter the returned list by the experiment tracking key (not the internal experiment ID). Note, this was deprecated to help reduce confusion, consider using `trackingKey` instead, which is functionally identical. You cannot use both params at the same time.
-        type: string
-    trackingKey:
-      name: trackingKey
-      in: query
-      description: Filter by experiment tracking key
-      schema:
-        description: Filter by experiment tracking key
-        type: string
-    phase:
-      name: phase
-      in: query
-      description: ''
-      schema:
-        type: string
-    id:
-      name: id
-      in: path
-      required: true
-      description: The id of the requested resource
-      schema:
-        description: The id of the requested resource
-        type: string
-    dimension:
-      name: dimension
-      in: query
-      description: ''
-      schema:
-        type: string
-    variationId:
-      name: variationId
-      in: path
-      required: true
-      description: ''
-      schema:
-        type: string
-    datasourceId:
-      name: datasourceId
-      in: query
-      description: Filter by Data Source
-      schema:
-        description: Filter by Data Source
-        type: string
   securitySchemes:
     bearerAuth:
       type: http
