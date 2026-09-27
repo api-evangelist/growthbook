@@ -202,127 +202,168 @@ paths:
         source: "curl -X PUT 'https://api.growthbook.io/api/v1/visual-changesets/{id}/visual-change/{visualChangeId}' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
 components:
   schemas:
-    ExperimentMetric:
+    ExperimentDecisionFrameworkSettings:
+      description: Controls the decision framework and metric overrides for the experiment. Replaces the entire stored object on update (does not patch individual fields).
       type: object
       properties:
-        metricId:
+        decisionCriteriaId:
           type: string
-        overrides:
-          type: object
-          properties:
-            delayHours:
-              type: number
-            windowHours:
-              type: number
-            window:
-              type: string
-              enum:
-              - conversion
-              - lookback
-              - ''
-            winRiskThreshold:
-              deprecated: true
-              type: number
-            loseRiskThreshold:
-              deprecated: true
-              type: number
-            properPriorOverride:
-              type: boolean
-            properPriorEnabled:
-              type: boolean
-            properPriorMean:
-              type: number
-            properPriorStdDev:
-              type: number
-            regressionAdjustmentOverride:
-              type: boolean
-            regressionAdjustmentEnabled:
-              type: boolean
-            regressionAdjustmentDays:
-              type: number
-          additionalProperties: false
-      required:
-      - metricId
-      - overrides
+        decisionFrameworkMetricOverrides:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                description: ID of the metric to override settings for.
+                type: string
+              targetMDE:
+                description: The target relative MDE to use for the metric, expressed as proportions (e.g. use 0.1 for 10%). Must be greater than 0.
+                type: number
+                exclusiveMinimum: 0
+            required:
+            - id
+            additionalProperties: false
       additionalProperties: false
-    ExperimentAnalysisSettings:
+    ExperimentMetricOverrideEntry:
+      description: Per-metric analysis overrides stored on the experiment (matches internal metricOverrides).
       type: object
       properties:
-        datasourceId:
+        id:
+          description: ID of the metric to override settings for.
           type: string
-        assignmentQueryId:
-          type: string
-        experimentId:
-          type: string
-        segmentId:
-          type: string
-        queryFilter:
-          type: string
-        inProgressConversions:
+        windowType:
           type: string
           enum:
-          - include
-          - exclude
-        attributionModel:
-          description: Setting attribution model to `"experimentDuration"` is the same as selecting "Ignore Conversion Windows" for the Conversion Window Override. Setting it to `"lookbackOverride"` requires a `lookbackOverride` object to be provided.
-          type: string
-          enum:
-          - firstExposure
-          - experimentDuration
-          - lookbackOverride
-        lookbackOverride:
-          $ref: '#/components/schemas/LookbackOverride'
-        statsEngine:
-          type: string
-          enum:
-          - bayesian
-          - frequentist
+          - conversion
+          - lookback
+          - ''
+        windowHours:
+          type: number
+        delayHours:
+          type: number
+        properPriorOverride:
+          description: Must be true for the override to take effect. If true, the other proper prior settings in this object will be used if present.
+          type: boolean
+        properPriorEnabled:
+          type: boolean
+        properPriorMean:
+          type: number
+        properPriorStdDev:
+          type: number
+        regressionAdjustmentOverride:
+          description: Must be true for the override to take effect. If true, the other regression adjustment settings in this object will be used if present.
+          type: boolean
         regressionAdjustmentEnabled:
           type: boolean
-        sequentialTestingEnabled:
-          type: boolean
-        sequentialTestingTuningParameter:
+        regressionAdjustmentDays:
           type: number
-        postStratificationEnabled:
-          description: When null, the organization default is used.
-          anyOf:
-          - description: When null, the organization default is used.
-            type: boolean
-          - description: When null, the organization default is used.
-            type: 'null'
-        decisionFrameworkSettings:
-          $ref: '#/components/schemas/ExperimentDecisionFrameworkSettings'
-        metricOverrides:
-          description: Per-metric analysis overrides; also reflected in goals/secondaryMetrics/guardrails overrides when applicable. On create/update, this replaces the entire stored array (it does not patch individual entries).
-          type: array
-          items:
-            $ref: '#/components/schemas/ExperimentMetricOverrideEntry'
-        goals:
-          type: array
-          items:
-            $ref: '#/components/schemas/ExperimentMetric'
-        secondaryMetrics:
-          type: array
-          items:
-            $ref: '#/components/schemas/ExperimentMetric'
-        guardrails:
-          type: array
-          items:
-            $ref: '#/components/schemas/ExperimentMetric'
-        activationMetric:
-          $ref: '#/components/schemas/ExperimentMetric'
       required:
-      - datasourceId
-      - assignmentQueryId
-      - experimentId
-      - segmentId
-      - queryFilter
-      - inProgressConversions
-      - attributionModel
-      - statsEngine
-      - goals
-      - secondaryMetrics
-      - guardrails
+      - id
+      additionalProperties: false
+    LookbackOverride:
+      description: Controls the lookback override for the experiment. For type "window", value must be a non-negative number and valueUnit is required.
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - date
+          - window
+        value:
+          description: For "window" type - non-negative numeric value (e.g. 7 for 7 days). For "date" type a date string.
+          anyOf:
+          - description: For "window" type - non-negative numeric value (e.g. 7 for 7 days). For "date" type a date string.
+            type: number
+          - format: date-time
+            description: For "window" type - non-negative numeric value (e.g. 7 for 7 days). For "date" type a date string.
+            type: string
+        valueUnit:
+          description: Used when type is "window". Defaults to "days".
+          type: string
+          enum:
+          - minutes
+          - hours
+          - days
+          - weeks
+      required:
+      - type
+      - value
+      additionalProperties: false
+    VisualChangeset:
+      type: object
+      properties:
+        id:
+          type: string
+        urlPatterns:
+          type: array
+          items:
+            type: object
+            properties:
+              include:
+                type: boolean
+              type:
+                type: string
+                enum:
+                - simple
+                - regex
+              pattern:
+                type: string
+            required:
+            - type
+            - pattern
+            additionalProperties: false
+        editorUrl:
+          type: string
+        experiment:
+          type: string
+        visualChanges:
+          type: array
+          items:
+            type: object
+            properties:
+              description:
+                type: string
+              css:
+                type: string
+              js:
+                type: string
+              variation:
+                type: string
+              domMutations:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    selector:
+                      type: string
+                    action:
+                      type: string
+                      enum:
+                      - append
+                      - set
+                      - remove
+                    attribute:
+                      type: string
+                    value:
+                      type: string
+                    parentSelector:
+                      type: string
+                    insertBeforeSelector:
+                      type: string
+                  required:
+                  - selector
+                  - action
+                  - attribute
+                  additionalProperties: false
+            required:
+            - variation
+            - domMutations
+            additionalProperties: false
+      required:
+      - urlPatterns
+      - editorUrl
+      - experiment
+      - visualChanges
       additionalProperties: false
     Experiment:
       type: object
@@ -616,177 +657,129 @@ components:
       - phases
       - settings
       additionalProperties: false
-    LookbackOverride:
-      description: Controls the lookback override for the experiment. For type "window", value must be a non-negative number and valueUnit is required.
+    ExperimentAnalysisSettings:
       type: object
       properties:
-        type:
+        datasourceId:
+          type: string
+        assignmentQueryId:
+          type: string
+        experimentId:
+          type: string
+        segmentId:
+          type: string
+        queryFilter:
+          type: string
+        inProgressConversions:
           type: string
           enum:
-          - date
-          - window
-        value:
-          description: For "window" type - non-negative numeric value (e.g. 7 for 7 days). For "date" type a date string.
-          anyOf:
-          - description: For "window" type - non-negative numeric value (e.g. 7 for 7 days). For "date" type a date string.
-            type: number
-          - format: date-time
-            description: For "window" type - non-negative numeric value (e.g. 7 for 7 days). For "date" type a date string.
-            type: string
-        valueUnit:
-          description: Used when type is "window". Defaults to "days".
+          - include
+          - exclude
+        attributionModel:
+          description: Setting attribution model to `"experimentDuration"` is the same as selecting "Ignore Conversion Windows" for the Conversion Window Override. Setting it to `"lookbackOverride"` requires a `lookbackOverride` object to be provided.
           type: string
           enum:
-          - minutes
-          - hours
-          - days
-          - weeks
-      required:
-      - type
-      - value
-      additionalProperties: false
-    ExperimentMetricOverrideEntry:
-      description: Per-metric analysis overrides stored on the experiment (matches internal metricOverrides).
-      type: object
-      properties:
-        id:
-          description: ID of the metric to override settings for.
-          type: string
-        windowType:
+          - firstExposure
+          - experimentDuration
+          - lookbackOverride
+        lookbackOverride:
+          $ref: '#/components/schemas/LookbackOverride'
+        statsEngine:
           type: string
           enum:
-          - conversion
-          - lookback
-          - ''
-        windowHours:
-          type: number
-        delayHours:
-          type: number
-        properPriorOverride:
-          description: Must be true for the override to take effect. If true, the other proper prior settings in this object will be used if present.
-          type: boolean
-        properPriorEnabled:
-          type: boolean
-        properPriorMean:
-          type: number
-        properPriorStdDev:
-          type: number
-        regressionAdjustmentOverride:
-          description: Must be true for the override to take effect. If true, the other regression adjustment settings in this object will be used if present.
-          type: boolean
+          - bayesian
+          - frequentist
         regressionAdjustmentEnabled:
           type: boolean
-        regressionAdjustmentDays:
+        sequentialTestingEnabled:
+          type: boolean
+        sequentialTestingTuningParameter:
           type: number
+        postStratificationEnabled:
+          description: When null, the organization default is used.
+          anyOf:
+          - description: When null, the organization default is used.
+            type: boolean
+          - description: When null, the organization default is used.
+            type: 'null'
+        decisionFrameworkSettings:
+          $ref: '#/components/schemas/ExperimentDecisionFrameworkSettings'
+        metricOverrides:
+          description: Per-metric analysis overrides; also reflected in goals/secondaryMetrics/guardrails overrides when applicable. On create/update, this replaces the entire stored array (it does not patch individual entries).
+          type: array
+          items:
+            $ref: '#/components/schemas/ExperimentMetricOverrideEntry'
+        goals:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExperimentMetric'
+        secondaryMetrics:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExperimentMetric'
+        guardrails:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExperimentMetric'
+        activationMetric:
+          $ref: '#/components/schemas/ExperimentMetric'
       required:
-      - id
+      - datasourceId
+      - assignmentQueryId
+      - experimentId
+      - segmentId
+      - queryFilter
+      - inProgressConversions
+      - attributionModel
+      - statsEngine
+      - goals
+      - secondaryMetrics
+      - guardrails
       additionalProperties: false
-    ExperimentDecisionFrameworkSettings:
-      description: Controls the decision framework and metric overrides for the experiment. Replaces the entire stored object on update (does not patch individual fields).
+    ExperimentMetric:
       type: object
       properties:
-        decisionCriteriaId:
+        metricId:
           type: string
-        decisionFrameworkMetricOverrides:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                description: ID of the metric to override settings for.
-                type: string
-              targetMDE:
-                description: The target relative MDE to use for the metric, expressed as proportions (e.g. use 0.1 for 10%). Must be greater than 0.
-                type: number
-                exclusiveMinimum: 0
-            required:
-            - id
-            additionalProperties: false
-      additionalProperties: false
-    VisualChangeset:
-      type: object
-      properties:
-        id:
-          type: string
-        urlPatterns:
-          type: array
-          items:
-            type: object
-            properties:
-              include:
-                type: boolean
-              type:
-                type: string
-                enum:
-                - simple
-                - regex
-              pattern:
-                type: string
-            required:
-            - type
-            - pattern
-            additionalProperties: false
-        editorUrl:
-          type: string
-        experiment:
-          type: string
-        visualChanges:
-          type: array
-          items:
-            type: object
-            properties:
-              description:
-                type: string
-              css:
-                type: string
-              js:
-                type: string
-              variation:
-                type: string
-              domMutations:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    selector:
-                      type: string
-                    action:
-                      type: string
-                      enum:
-                      - append
-                      - set
-                      - remove
-                    attribute:
-                      type: string
-                    value:
-                      type: string
-                    parentSelector:
-                      type: string
-                    insertBeforeSelector:
-                      type: string
-                  required:
-                  - selector
-                  - action
-                  - attribute
-                  additionalProperties: false
-            required:
-            - variation
-            - domMutations
-            additionalProperties: false
+        overrides:
+          type: object
+          properties:
+            delayHours:
+              type: number
+            windowHours:
+              type: number
+            window:
+              type: string
+              enum:
+              - conversion
+              - lookback
+              - ''
+            winRiskThreshold:
+              deprecated: true
+              type: number
+            loseRiskThreshold:
+              deprecated: true
+              type: number
+            properPriorOverride:
+              type: boolean
+            properPriorEnabled:
+              type: boolean
+            properPriorMean:
+              type: number
+            properPriorStdDev:
+              type: number
+            regressionAdjustmentOverride:
+              type: boolean
+            regressionAdjustmentEnabled:
+              type: boolean
+            regressionAdjustmentDays:
+              type: number
+          additionalProperties: false
       required:
-      - urlPatterns
-      - editorUrl
-      - experiment
-      - visualChanges
+      - metricId
+      - overrides
       additionalProperties: false
   parameters:
-    includeExperiment:
-      name: includeExperiment
-      in: query
-      description: Include the associated experiment in payload
-      schema:
-        description: Include the associated experiment in payload
-        type: integer
     visualChangeId:
       name: visualChangeId
       in: path
@@ -803,6 +796,13 @@ components:
       schema:
         description: The id of the requested resource
         type: string
+    includeExperiment:
+      name: includeExperiment
+      in: query
+      description: Include the associated experiment in payload
+      schema:
+        description: Include the associated experiment in payload
+        type: integer
   securitySchemes:
     bearerAuth:
       type: http

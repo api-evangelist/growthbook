@@ -1179,7 +1179,305 @@ paths:
       - lang: cURL
         source: "curl -X GET 'https://api.growthbook.io/api/v2/stale-features' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
 components:
+  parameters:
+    offset:
+      name: offset
+      in: query
+      description: How many items to skip (use in conjunction with limit for pagination)
+      schema:
+        default: 0
+        description: How many items to skip (use in conjunction with limit for pagination)
+        type: integer
+        minimum: 0
+    withRevisions:
+      name: withRevisions
+      in: query
+      description: Also return feature revisions (all, draft, or published statuses)
+      schema:
+        description: Also return feature revisions (all, draft, or published statuses)
+        type: string
+        enum:
+        - all
+        - drafts
+        - published
+        - none
+    skipPagination:
+      name: skipPagination
+      in: query
+      description: 'If true, return all matching items and ignore limit/offset.
+
+        Self-hosted only. Has no effect unless API_ALLOW_SKIP_PAGINATION is set to true or 1.'
+      schema:
+        description: 'If true, return all matching items and ignore limit/offset.
+
+          Self-hosted only. Has no effect unless API_ALLOW_SKIP_PAGINATION is set to true or 1.'
+        default: false
+        anyOf:
+        - type: string
+          const: 'true'
+        - type: string
+          const: 'false'
+        - type: string
+          const: '0'
+        - type: string
+          const: '1'
+        - type: boolean
+      x-selfHostedOnly: true
+      x-requiresEnv: API_ALLOW_SKIP_PAGINATION
+    limit:
+      name: limit
+      in: query
+      description: The number of items to return
+      schema:
+        default: 10
+        description: The number of items to return
+        type: integer
+        minimum: 1
+        maximum: 100
+    id:
+      name: id
+      in: path
+      required: true
+      description: The id of the requested resource
+      schema:
+        description: The id of the requested resource
+        type: string
+    projectId:
+      name: projectId
+      in: query
+      description: Filter by project id
+      schema:
+        description: Filter by project id
+        type: string
+    ids:
+      name: ids
+      in: query
+      required: true
+      description: 'Comma-separated list of feature IDs (URL-encoded if needed). Example: `my_feature,another_feature`
+
+        '
+      schema:
+        description: 'Comma-separated list of feature IDs (URL-encoded if needed). Example: `my_feature,another_feature`
+
+          '
+        type: string
+    clientKey:
+      name: clientKey
+      in: query
+      description: Filter by a SDK connection's client key
+      schema:
+        description: Filter by a SDK connection's client key
+        type: string
   schemas:
+    FeatureForceRule:
+      allOf:
+      - description: 'Common fields shared by all feature rule types. Specific rule types extend
+
+          this base with their own required properties (value, coverage, etc.).
+
+          '
+        type: object
+        properties:
+          description:
+            type: string
+          condition:
+            type: string
+          id:
+            type: string
+          enabled:
+            type: boolean
+          scheduleRules:
+            description: Simple time-based on/off schedule for this rule
+            type: array
+            items:
+              $ref: '#/components/schemas/ScheduleRule'
+          scheduleType:
+            description: 'UI hint for which scheduling mode is active:
+
+              - `none` – no schedule
+
+              - `schedule` – simple time-based enable/disable via `scheduleRules`
+
+              - `ramp` – multi-step ramp-up controlled by an associated RampSchedule document
+
+              '
+            type: string
+            enum:
+            - none
+            - schedule
+            - ramp
+          savedGroupTargeting:
+            type: array
+            items:
+              type: object
+              properties:
+                matchType:
+                  type: string
+                  enum:
+                  - all
+                  - any
+                  - none
+                savedGroups:
+                  type: array
+                  items:
+                    type: string
+              required:
+              - matchType
+              - savedGroups
+              additionalProperties: false
+          prerequisites:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  description: Feature ID of the prerequisite
+                  type: string
+                condition:
+                  type: string
+              required:
+              - id
+              - condition
+              additionalProperties: false
+        required:
+        - description
+        - id
+        - enabled
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            const: force
+          value:
+            type: string
+        required:
+        - type
+        - value
+        additionalProperties: false
+    FeatureRule:
+      anyOf:
+      - $ref: '#/components/schemas/FeatureForceRule'
+      - $ref: '#/components/schemas/FeatureRolloutRule'
+      - $ref: '#/components/schemas/FeatureExperimentRule'
+      - $ref: '#/components/schemas/FeatureExperimentRefRule'
+      - $ref: '#/components/schemas/FeatureSafeRolloutRule'
+    FeatureExperimentRefRule:
+      allOf:
+      - description: 'Common fields shared by all feature rule types. Specific rule types extend
+
+          this base with their own required properties (value, coverage, etc.).
+
+          '
+        type: object
+        properties:
+          description:
+            type: string
+          condition:
+            type: string
+          id:
+            type: string
+          enabled:
+            type: boolean
+          scheduleRules:
+            description: Simple time-based on/off schedule for this rule
+            type: array
+            items:
+              $ref: '#/components/schemas/ScheduleRule'
+          scheduleType:
+            description: 'UI hint for which scheduling mode is active:
+
+              - `none` – no schedule
+
+              - `schedule` – simple time-based enable/disable via `scheduleRules`
+
+              - `ramp` – multi-step ramp-up controlled by an associated RampSchedule document
+
+              '
+            type: string
+            enum:
+            - none
+            - schedule
+            - ramp
+          savedGroupTargeting:
+            type: array
+            items:
+              type: object
+              properties:
+                matchType:
+                  type: string
+                  enum:
+                  - all
+                  - any
+                  - none
+                savedGroups:
+                  type: array
+                  items:
+                    type: string
+              required:
+              - matchType
+              - savedGroups
+              additionalProperties: false
+          prerequisites:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  description: Feature ID of the prerequisite
+                  type: string
+                condition:
+                  type: string
+              required:
+              - id
+              - condition
+              additionalProperties: false
+        required:
+        - description
+        - id
+        - enabled
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            const: experiment-ref
+          variations:
+            type: array
+            items:
+              type: object
+              properties:
+                value:
+                  type: string
+                variationId:
+                  type: string
+              required:
+              - value
+              - variationId
+              additionalProperties: false
+          experimentId:
+            type: string
+        required:
+        - type
+        - variations
+        - experimentId
+        additionalProperties: false
+    ScheduleRule:
+      type: object
+      properties:
+        enabled:
+          description: Whether the rule should be enabled or disabled at the specified timestamp.
+          type: boolean
+        timestamp:
+          description: ISO timestamp when the rule should activate.
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+      required:
+      - enabled
+      - timestamp
+      additionalProperties: false
     FeatureV2:
       type: object
       properties:
@@ -1286,307 +1584,20 @@ components:
       - environments
       - revision
       additionalProperties: false
-    FeatureExperimentRefRule:
-      allOf:
-      - description: 'Common fields shared by all feature rule types. Specific rule types extend
-
-          this base with their own required properties (value, coverage, etc.).
-
-          '
-        type: object
-        properties:
-          description:
-            type: string
-          condition:
-            type: string
-          id:
-            type: string
-          enabled:
-            type: boolean
-          scheduleRules:
-            description: Simple time-based on/off schedule for this rule
-            type: array
-            items:
-              $ref: '#/components/schemas/ScheduleRule'
-          scheduleType:
-            description: 'UI hint for which scheduling mode is active:
-
-              - `none` – no schedule
-
-              - `schedule` – simple time-based enable/disable via `scheduleRules`
-
-              - `ramp` – multi-step ramp-up controlled by an associated RampSchedule document
-
-              '
-            type: string
-            enum:
-            - none
-            - schedule
-            - ramp
-          savedGroupTargeting:
-            type: array
-            items:
-              type: object
-              properties:
-                matchType:
-                  type: string
-                  enum:
-                  - all
-                  - any
-                  - none
-                savedGroups:
-                  type: array
-                  items:
-                    type: string
-              required:
-              - matchType
-              - savedGroups
-              additionalProperties: false
-          prerequisites:
-            type: array
-            items:
-              type: object
-              properties:
-                id:
-                  description: Feature ID of the prerequisite
-                  type: string
-                condition:
-                  type: string
-              required:
-              - id
-              - condition
-              additionalProperties: false
-        required:
-        - description
-        - id
-        - enabled
-        additionalProperties: false
-      - type: object
-        properties:
-          type:
-            type: string
-            const: experiment-ref
-          variations:
-            type: array
-            items:
-              type: object
-              properties:
-                value:
-                  type: string
-                variationId:
-                  type: string
-              required:
-              - value
-              - variationId
-              additionalProperties: false
-          experimentId:
-            type: string
-        required:
-        - type
-        - variations
-        - experimentId
-        additionalProperties: false
-    FeatureSafeRolloutRule:
-      allOf:
-      - description: 'Common fields shared by all feature rule types. Specific rule types extend
-
-          this base with their own required properties (value, coverage, etc.).
-
-          '
-        type: object
-        properties:
-          description:
-            type: string
-          condition:
-            type: string
-          id:
-            type: string
-          enabled:
-            type: boolean
-          scheduleRules:
-            description: Simple time-based on/off schedule for this rule
-            type: array
-            items:
-              $ref: '#/components/schemas/ScheduleRule'
-          scheduleType:
-            description: 'UI hint for which scheduling mode is active:
-
-              - `none` – no schedule
-
-              - `schedule` – simple time-based enable/disable via `scheduleRules`
-
-              - `ramp` – multi-step ramp-up controlled by an associated RampSchedule document
-
-              '
-            type: string
-            enum:
-            - none
-            - schedule
-            - ramp
-          savedGroupTargeting:
-            type: array
-            items:
-              type: object
-              properties:
-                matchType:
-                  type: string
-                  enum:
-                  - all
-                  - any
-                  - none
-                savedGroups:
-                  type: array
-                  items:
-                    type: string
-              required:
-              - matchType
-              - savedGroups
-              additionalProperties: false
-          prerequisites:
-            type: array
-            items:
-              type: object
-              properties:
-                id:
-                  description: Feature ID of the prerequisite
-                  type: string
-                condition:
-                  type: string
-              required:
-              - id
-              - condition
-              additionalProperties: false
-        required:
-        - description
-        - id
-        - enabled
-        additionalProperties: false
-      - type: object
-        properties:
-          type:
-            type: string
-            const: safe-rollout
-          controlValue:
-            type: string
-          variationValue:
-            type: string
-          seed:
-            type: string
-          hashAttribute:
-            type: string
-          trackingKey:
-            type: string
-          safeRolloutId:
-            type: string
-          status:
-            type: string
-            enum:
-            - running
-            - released
-            - rolled-back
-            - stopped
-        required:
-        - type
-        - controlValue
-        - variationValue
-        additionalProperties: false
-    FeatureRolloutRule:
-      allOf:
-      - description: 'Common fields shared by all feature rule types. Specific rule types extend
-
-          this base with their own required properties (value, coverage, etc.).
-
-          '
-        type: object
-        properties:
-          description:
-            type: string
-          condition:
-            type: string
-          id:
-            type: string
-          enabled:
-            type: boolean
-          scheduleRules:
-            description: Simple time-based on/off schedule for this rule
-            type: array
-            items:
-              $ref: '#/components/schemas/ScheduleRule'
-          scheduleType:
-            description: 'UI hint for which scheduling mode is active:
-
-              - `none` – no schedule
-
-              - `schedule` – simple time-based enable/disable via `scheduleRules`
-
-              - `ramp` – multi-step ramp-up controlled by an associated RampSchedule document
-
-              '
-            type: string
-            enum:
-            - none
-            - schedule
-            - ramp
-          savedGroupTargeting:
-            type: array
-            items:
-              type: object
-              properties:
-                matchType:
-                  type: string
-                  enum:
-                  - all
-                  - any
-                  - none
-                savedGroups:
-                  type: array
-                  items:
-                    type: string
-              required:
-              - matchType
-              - savedGroups
-              additionalProperties: false
-          prerequisites:
-            type: array
-            items:
-              type: object
-              properties:
-                id:
-                  description: Feature ID of the prerequisite
-                  type: string
-                condition:
-                  type: string
-              required:
-              - id
-              - condition
-              additionalProperties: false
-        required:
-        - description
-        - id
-        - enabled
-        additionalProperties: false
-      - type: object
-        properties:
-          type:
-            type: string
-            const: rollout
-          value:
-            type: string
-          coverage:
-            type: number
-            minimum: 0
-            maximum: 1
-          hashAttribute:
-            type: string
-          seed:
-            description: Optional seed for the hash function; defaults to the rule id
-            type: string
-        required:
-        - type
-        - value
-        - coverage
-        - hashAttribute
-        additionalProperties: false
+    FeatureEnvironmentV2:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        defaultValue:
+          type: string
+        definition:
+          description: A JSON stringified [FeatureDefinition](#tag/FeatureDefinition_model)
+          type: string
+      required:
+      - enabled
+      - defaultValue
+      additionalProperties: false
     FeatureRevisionV2:
       type: object
       properties:
@@ -1719,6 +1730,258 @@ components:
       - status
       - rules
       additionalProperties: false
+    PaginationFields:
+      type: object
+      properties:
+        limit:
+          type: integer
+        offset:
+          type: integer
+        count:
+          type: integer
+        total:
+          type: integer
+        hasMore:
+          type: boolean
+        nextOffset:
+          anyOf:
+          - type: integer
+          - type: 'null'
+      required:
+      - limit
+      - offset
+      - count
+      - total
+      - hasMore
+      - nextOffset
+      additionalProperties: false
+    FeatureRuleV2:
+      allOf:
+      - $ref: '#/components/schemas/FeatureRule'
+      - type: object
+        properties:
+          allEnvironments:
+            description: When true the rule applies to all environments. When false only the environments listed in `environments` receive the rule.
+            type: boolean
+          environments:
+            description: The environment IDs this rule is active in. Populated when `allEnvironments` is false.
+            type: array
+            items:
+              type: string
+        required:
+        - allEnvironments
+        additionalProperties: false
+    FeatureSafeRolloutRule:
+      allOf:
+      - description: 'Common fields shared by all feature rule types. Specific rule types extend
+
+          this base with their own required properties (value, coverage, etc.).
+
+          '
+        type: object
+        properties:
+          description:
+            type: string
+          condition:
+            type: string
+          id:
+            type: string
+          enabled:
+            type: boolean
+          scheduleRules:
+            description: Simple time-based on/off schedule for this rule
+            type: array
+            items:
+              $ref: '#/components/schemas/ScheduleRule'
+          scheduleType:
+            description: 'UI hint for which scheduling mode is active:
+
+              - `none` – no schedule
+
+              - `schedule` – simple time-based enable/disable via `scheduleRules`
+
+              - `ramp` – multi-step ramp-up controlled by an associated RampSchedule document
+
+              '
+            type: string
+            enum:
+            - none
+            - schedule
+            - ramp
+          savedGroupTargeting:
+            type: array
+            items:
+              type: object
+              properties:
+                matchType:
+                  type: string
+                  enum:
+                  - all
+                  - any
+                  - none
+                savedGroups:
+                  type: array
+                  items:
+                    type: string
+              required:
+              - matchType
+              - savedGroups
+              additionalProperties: false
+          prerequisites:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  description: Feature ID of the prerequisite
+                  type: string
+                condition:
+                  type: string
+              required:
+              - id
+              - condition
+              additionalProperties: false
+        required:
+        - description
+        - id
+        - enabled
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            const: safe-rollout
+          controlValue:
+            type: string
+          variationValue:
+            type: string
+          seed:
+            type: string
+          hashAttribute:
+            type: string
+          trackingKey:
+            type: string
+          safeRolloutId:
+            type: string
+          status:
+            type: string
+            enum:
+            - running
+            - released
+            - rolled-back
+            - stopped
+        required:
+        - type
+        - controlValue
+        - variationValue
+        additionalProperties: false
+    FeatureWithRevisionsV2:
+      allOf:
+      - $ref: '#/components/schemas/FeatureV2'
+      - type: object
+        properties:
+          revisions:
+            type: array
+            items:
+              $ref: '#/components/schemas/FeatureRevisionV2'
+        additionalProperties: false
+    FeatureRolloutRule:
+      allOf:
+      - description: 'Common fields shared by all feature rule types. Specific rule types extend
+
+          this base with their own required properties (value, coverage, etc.).
+
+          '
+        type: object
+        properties:
+          description:
+            type: string
+          condition:
+            type: string
+          id:
+            type: string
+          enabled:
+            type: boolean
+          scheduleRules:
+            description: Simple time-based on/off schedule for this rule
+            type: array
+            items:
+              $ref: '#/components/schemas/ScheduleRule'
+          scheduleType:
+            description: 'UI hint for which scheduling mode is active:
+
+              - `none` – no schedule
+
+              - `schedule` – simple time-based enable/disable via `scheduleRules`
+
+              - `ramp` – multi-step ramp-up controlled by an associated RampSchedule document
+
+              '
+            type: string
+            enum:
+            - none
+            - schedule
+            - ramp
+          savedGroupTargeting:
+            type: array
+            items:
+              type: object
+              properties:
+                matchType:
+                  type: string
+                  enum:
+                  - all
+                  - any
+                  - none
+                savedGroups:
+                  type: array
+                  items:
+                    type: string
+              required:
+              - matchType
+              - savedGroups
+              additionalProperties: false
+          prerequisites:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  description: Feature ID of the prerequisite
+                  type: string
+                condition:
+                  type: string
+              required:
+              - id
+              - condition
+              additionalProperties: false
+        required:
+        - description
+        - id
+        - enabled
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            const: rollout
+          value:
+            type: string
+          coverage:
+            type: number
+            minimum: 0
+            maximum: 1
+          hashAttribute:
+            type: string
+          seed:
+            description: Optional seed for the hash function; defaults to the rule id
+            type: string
+        required:
+        - type
+        - value
+        - coverage
+        - hashAttribute
+        additionalProperties: false
     FeatureExperimentRule:
       allOf:
       - description: 'Common fields shared by all feature rule types. Specific rule types extend
@@ -1852,269 +2115,6 @@ components:
         required:
         - type
         additionalProperties: false
-    FeatureWithRevisionsV2:
-      allOf:
-      - $ref: '#/components/schemas/FeatureV2'
-      - type: object
-        properties:
-          revisions:
-            type: array
-            items:
-              $ref: '#/components/schemas/FeatureRevisionV2'
-        additionalProperties: false
-    ScheduleRule:
-      type: object
-      properties:
-        enabled:
-          description: Whether the rule should be enabled or disabled at the specified timestamp.
-          type: boolean
-        timestamp:
-          description: ISO timestamp when the rule should activate.
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-      required:
-      - enabled
-      - timestamp
-      additionalProperties: false
-    FeatureRuleV2:
-      allOf:
-      - $ref: '#/components/schemas/FeatureRule'
-      - type: object
-        properties:
-          allEnvironments:
-            description: When true the rule applies to all environments. When false only the environments listed in `environments` receive the rule.
-            type: boolean
-          environments:
-            description: The environment IDs this rule is active in. Populated when `allEnvironments` is false.
-            type: array
-            items:
-              type: string
-        required:
-        - allEnvironments
-        additionalProperties: false
-    FeatureRule:
-      anyOf:
-      - $ref: '#/components/schemas/FeatureForceRule'
-      - $ref: '#/components/schemas/FeatureRolloutRule'
-      - $ref: '#/components/schemas/FeatureExperimentRule'
-      - $ref: '#/components/schemas/FeatureExperimentRefRule'
-      - $ref: '#/components/schemas/FeatureSafeRolloutRule'
-    PaginationFields:
-      type: object
-      properties:
-        limit:
-          type: integer
-        offset:
-          type: integer
-        count:
-          type: integer
-        total:
-          type: integer
-        hasMore:
-          type: boolean
-        nextOffset:
-          anyOf:
-          - type: integer
-          - type: 'null'
-      required:
-      - limit
-      - offset
-      - count
-      - total
-      - hasMore
-      - nextOffset
-      additionalProperties: false
-    FeatureForceRule:
-      allOf:
-      - description: 'Common fields shared by all feature rule types. Specific rule types extend
-
-          this base with their own required properties (value, coverage, etc.).
-
-          '
-        type: object
-        properties:
-          description:
-            type: string
-          condition:
-            type: string
-          id:
-            type: string
-          enabled:
-            type: boolean
-          scheduleRules:
-            description: Simple time-based on/off schedule for this rule
-            type: array
-            items:
-              $ref: '#/components/schemas/ScheduleRule'
-          scheduleType:
-            description: 'UI hint for which scheduling mode is active:
-
-              - `none` – no schedule
-
-              - `schedule` – simple time-based enable/disable via `scheduleRules`
-
-              - `ramp` – multi-step ramp-up controlled by an associated RampSchedule document
-
-              '
-            type: string
-            enum:
-            - none
-            - schedule
-            - ramp
-          savedGroupTargeting:
-            type: array
-            items:
-              type: object
-              properties:
-                matchType:
-                  type: string
-                  enum:
-                  - all
-                  - any
-                  - none
-                savedGroups:
-                  type: array
-                  items:
-                    type: string
-              required:
-              - matchType
-              - savedGroups
-              additionalProperties: false
-          prerequisites:
-            type: array
-            items:
-              type: object
-              properties:
-                id:
-                  description: Feature ID of the prerequisite
-                  type: string
-                condition:
-                  type: string
-              required:
-              - id
-              - condition
-              additionalProperties: false
-        required:
-        - description
-        - id
-        - enabled
-        additionalProperties: false
-      - type: object
-        properties:
-          type:
-            type: string
-            const: force
-          value:
-            type: string
-        required:
-        - type
-        - value
-        additionalProperties: false
-    FeatureEnvironmentV2:
-      type: object
-      properties:
-        enabled:
-          type: boolean
-        defaultValue:
-          type: string
-        definition:
-          description: A JSON stringified [FeatureDefinition](#tag/FeatureDefinition_model)
-          type: string
-      required:
-      - enabled
-      - defaultValue
-      additionalProperties: false
-  parameters:
-    clientKey:
-      name: clientKey
-      in: query
-      description: Filter by a SDK connection's client key
-      schema:
-        description: Filter by a SDK connection's client key
-        type: string
-    limit:
-      name: limit
-      in: query
-      description: The number of items to return
-      schema:
-        default: 10
-        description: The number of items to return
-        type: integer
-        minimum: 1
-        maximum: 100
-    projectId:
-      name: projectId
-      in: query
-      description: Filter by project id
-      schema:
-        description: Filter by project id
-        type: string
-    offset:
-      name: offset
-      in: query
-      description: How many items to skip (use in conjunction with limit for pagination)
-      schema:
-        default: 0
-        description: How many items to skip (use in conjunction with limit for pagination)
-        type: integer
-        minimum: 0
-    withRevisions:
-      name: withRevisions
-      in: query
-      description: Also return feature revisions (all, draft, or published statuses)
-      schema:
-        description: Also return feature revisions (all, draft, or published statuses)
-        type: string
-        enum:
-        - all
-        - drafts
-        - published
-        - none
-    ids:
-      name: ids
-      in: query
-      required: true
-      description: 'Comma-separated list of feature IDs (URL-encoded if needed). Example: `my_feature,another_feature`
-
-        '
-      schema:
-        description: 'Comma-separated list of feature IDs (URL-encoded if needed). Example: `my_feature,another_feature`
-
-          '
-        type: string
-    id:
-      name: id
-      in: path
-      required: true
-      description: The id of the requested resource
-      schema:
-        description: The id of the requested resource
-        type: string
-    skipPagination:
-      name: skipPagination
-      in: query
-      description: 'If true, return all matching items and ignore limit/offset.
-
-        Self-hosted only. Has no effect unless API_ALLOW_SKIP_PAGINATION is set to true or 1.'
-      schema:
-        description: 'If true, return all matching items and ignore limit/offset.
-
-          Self-hosted only. Has no effect unless API_ALLOW_SKIP_PAGINATION is set to true or 1.'
-        default: false
-        anyOf:
-        - type: string
-          const: 'true'
-        - type: string
-          const: 'false'
-        - type: string
-          const: '0'
-        - type: string
-          const: '1'
-        - type: boolean
-      x-selfHostedOnly: true
-      x-requiresEnv: API_ALLOW_SKIP_PAGINATION
   securitySchemes:
     bearerAuth:
       type: http

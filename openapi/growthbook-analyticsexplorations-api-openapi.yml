@@ -1986,18 +1986,6 @@ paths:
       - lang: cURL
         source: "curl -X POST 'https://api.growthbook.io/api/v1/product-analytics/data-source-exploration' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
 components:
-  parameters:
-    cache:
-      name: cache
-      in: query
-      description: 'Controls cache behavior for this exploration: `preferred` (default) returns a cached result if one exists, otherwise runs a new query; `never` always runs a new query, ignoring any cached results; `required` only returns a cached result, if none exists returns exploration: null with a message'
-      schema:
-        description: 'Controls cache behavior for this exploration: `preferred` (default) returns a cached result if one exists, otherwise runs a new query; `never` always runs a new query, ignoring any cached results; `required` only returns a cached result, if none exists returns exploration: null with a message'
-        type: string
-        enum:
-        - preferred
-        - required
-        - never
   schemas:
     Query:
       type: object
@@ -2048,6 +2036,18 @@ components:
       - dependencies
       - runAtEnd
       additionalProperties: false
+  parameters:
+    cache:
+      name: cache
+      in: query
+      description: 'Controls cache behavior for this exploration: `preferred` (default) returns a cached result if one exists, otherwise runs a new query; `never` always runs a new query, ignoring any cached results; `required` only returns a cached result, if none exists returns exploration: null with a message'
+      schema:
+        description: 'Controls cache behavior for this exploration: `preferred` (default) returns a cached result if one exists, otherwise runs a new query; `never` always runs a new query, ignoring any cached results; `required` only returns a cached result, if none exists returns exploration: null with a message'
+        type: string
+        enum:
+        - preferred
+        - required
+        - never
   securitySchemes:
     bearerAuth:
       type: http

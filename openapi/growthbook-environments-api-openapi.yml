@@ -155,15 +155,6 @@ paths:
       - lang: cURL
         source: "curl -X DELETE 'https://api.growthbook.io/api/v1/environments/abc123' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
 components:
-  parameters:
-    id:
-      name: id
-      in: path
-      required: true
-      description: The id of the requested resource
-      schema:
-        description: The id of the requested resource
-        type: string
   schemas:
     Environment:
       type: object
@@ -189,6 +180,15 @@ components:
       - defaultState
       - projects
       additionalProperties: false
+  parameters:
+    id:
+      name: id
+      in: path
+      required: true
+      description: The id of the requested resource
+      schema:
+        description: The id of the requested resource
+        type: string
   securitySchemes:
     bearerAuth:
       type: http

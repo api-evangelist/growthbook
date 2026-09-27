@@ -927,6 +927,20 @@ paths:
         source: "curl -X POST 'https://api.growthbook.io/api/v1/bulk-import/facts' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"factTables\":[],\"factTableFilters\":[],\"factMetrics\":[]}'"
 components:
   parameters:
+    projectId:
+      name: projectId
+      in: query
+      description: Filter by project id
+      schema:
+        description: Filter by project id
+        type: string
+    datasourceId:
+      name: datasourceId
+      in: query
+      description: Filter by Data Source
+      schema:
+        description: Filter by Data Source
+        type: string
     offset:
       name: offset
       in: query
@@ -936,6 +950,14 @@ components:
         description: How many items to skip (use in conjunction with limit for pagination)
         type: integer
         minimum: 0
+    factTableId:
+      name: factTableId
+      in: path
+      required: true
+      description: Specify a specific fact table
+      schema:
+        description: Specify a specific fact table
+        type: string
     limit:
       name: limit
       in: query
@@ -946,13 +968,6 @@ components:
         type: integer
         minimum: 1
         maximum: 100
-    projectId:
-      name: projectId
-      in: query
-      description: Filter by project id
-      schema:
-        description: Filter by project id
-        type: string
     id:
       name: id
       in: path
@@ -960,21 +975,6 @@ components:
       description: The id of the requested resource
       schema:
         description: The id of the requested resource
-        type: string
-    factTableId:
-      name: factTableId
-      in: path
-      required: true
-      description: Specify a specific fact table
-      schema:
-        description: Specify a specific fact table
-        type: string
-    datasourceId:
-      name: datasourceId
-      in: query
-      description: Filter by Data Source
-      schema:
-        description: Filter by Data Source
         type: string
   schemas:
     PaginationFields:
@@ -1001,6 +1001,111 @@ components:
       - total
       - hasMore
       - nextOffset
+      additionalProperties: false
+    FactTableFilter:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        value:
+          type: string
+        managedBy:
+          description: Where this fact table filter must be managed from. If not set (empty string), it can be managed from anywhere.
+          type: string
+          enum:
+          - ''
+          - api
+        dateCreated:
+          format: date-time
+          type: string
+        dateUpdated:
+          format: date-time
+          type: string
+      required:
+      - id
+      - name
+      - description
+      - value
+      - managedBy
+      - dateCreated
+      - dateUpdated
+      additionalProperties: false
+    FactTable:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        owner:
+          description: The userId of the owner (or raw owner name/email for legacy records)
+          type: string
+        ownerEmail:
+          description: The email address of the owner, when the owner can be resolved to a known user.
+          type: string
+        projects:
+          type: array
+          items:
+            type: string
+        tags:
+          type: array
+          items:
+            type: string
+        datasource:
+          type: string
+        userIdTypes:
+          type: array
+          items:
+            type: string
+        sql:
+          type: string
+        eventName:
+          description: The event name used in SQL template variables
+          type: string
+        columns:
+          description: Array of column definitions for this fact table
+          type: array
+          items:
+            $ref: '#/components/schemas/FactTableColumn'
+        columnsError:
+          description: Error message if there was an issue parsing the SQL schema
+          anyOf:
+          - type: string
+          - type: 'null'
+        archived:
+          type: boolean
+        managedBy:
+          description: Where this fact table must be managed from. If not set (empty string), it can be managed from anywhere.
+          type: string
+          enum:
+          - ''
+          - api
+          - admin
+        dateCreated:
+          format: date-time
+          type: string
+        dateUpdated:
+          format: date-time
+          type: string
+      required:
+      - id
+      - name
+      - description
+      - owner
+      - projects
+      - tags
+      - datasource
+      - userIdTypes
+      - sql
+      - managedBy
+      - dateCreated
+      - dateUpdated
       additionalProperties: false
     FactTableColumn:
       type: object
@@ -1084,111 +1189,6 @@ components:
       required:
       - column
       - datatype
-      additionalProperties: false
-    FactTable:
-      type: object
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-        description:
-          type: string
-        owner:
-          description: The userId of the owner (or raw owner name/email for legacy records)
-          type: string
-        ownerEmail:
-          description: The email address of the owner, when the owner can be resolved to a known user.
-          type: string
-        projects:
-          type: array
-          items:
-            type: string
-        tags:
-          type: array
-          items:
-            type: string
-        datasource:
-          type: string
-        userIdTypes:
-          type: array
-          items:
-            type: string
-        sql:
-          type: string
-        eventName:
-          description: The event name used in SQL template variables
-          type: string
-        columns:
-          description: Array of column definitions for this fact table
-          type: array
-          items:
-            $ref: '#/components/schemas/FactTableColumn'
-        columnsError:
-          description: Error message if there was an issue parsing the SQL schema
-          anyOf:
-          - type: string
-          - type: 'null'
-        archived:
-          type: boolean
-        managedBy:
-          description: Where this fact table must be managed from. If not set (empty string), it can be managed from anywhere.
-          type: string
-          enum:
-          - ''
-          - api
-          - admin
-        dateCreated:
-          format: date-time
-          type: string
-        dateUpdated:
-          format: date-time
-          type: string
-      required:
-      - id
-      - name
-      - description
-      - owner
-      - projects
-      - tags
-      - datasource
-      - userIdTypes
-      - sql
-      - managedBy
-      - dateCreated
-      - dateUpdated
-      additionalProperties: false
-    FactTableFilter:
-      type: object
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-        description:
-          type: string
-        value:
-          type: string
-        managedBy:
-          description: Where this fact table filter must be managed from. If not set (empty string), it can be managed from anywhere.
-          type: string
-          enum:
-          - ''
-          - api
-        dateCreated:
-          format: date-time
-          type: string
-        dateUpdated:
-          format: date-time
-          type: string
-      required:
-      - id
-      - name
-      - description
-      - value
-      - managedBy
-      - dateCreated
-      - dateUpdated
       additionalProperties: false
   securitySchemes:
     bearerAuth:

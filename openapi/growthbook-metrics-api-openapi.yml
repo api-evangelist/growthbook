@@ -691,6 +691,20 @@ paths:
         source: "curl -X DELETE 'https://api.growthbook.io/api/v1/metrics/abc123' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
 components:
   parameters:
+    projectId:
+      name: projectId
+      in: query
+      description: Filter by project id
+      schema:
+        description: Filter by project id
+        type: string
+    datasourceId:
+      name: datasourceId
+      in: query
+      description: Filter by Data Source
+      schema:
+        description: Filter by Data Source
+        type: string
     offset:
       name: offset
       in: query
@@ -710,13 +724,6 @@ components:
         type: integer
         minimum: 1
         maximum: 100
-    projectId:
-      name: projectId
-      in: query
-      description: Filter by project id
-      schema:
-        description: Filter by project id
-        type: string
     id:
       name: id
       in: path
@@ -724,13 +731,6 @@ components:
       description: The id of the requested resource
       schema:
         description: The id of the requested resource
-        type: string
-    datasourceId:
-      name: datasourceId
-      in: query
-      description: Filter by Data Source
-      schema:
-        description: Filter by Data Source
         type: string
   schemas:
     PaginationFields:

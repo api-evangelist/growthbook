@@ -142,41 +142,6 @@ paths:
       - lang: cURL
         source: "curl -X PUT 'https://api.growthbook.io/api/v1/organizations/abc123' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"name\":\"My Subsidiary\",\"externalId\":\"subsidiary-123\"}'"
 components:
-  parameters:
-    offset:
-      name: offset
-      in: query
-      description: How many items to skip (use in conjunction with limit for pagination)
-      schema:
-        default: 0
-        description: How many items to skip (use in conjunction with limit for pagination)
-        type: integer
-        minimum: 0
-    search:
-      name: search
-      in: query
-      description: Search string to search organization names, owner emails, and external ids by
-      schema:
-        description: Search string to search organization names, owner emails, and external ids by
-        type: string
-    limit:
-      name: limit
-      in: query
-      description: The number of items to return
-      schema:
-        default: 10
-        description: The number of items to return
-        type: integer
-        minimum: 1
-        maximum: 100
-    id:
-      name: id
-      in: path
-      required: true
-      description: The id of the requested resource
-      schema:
-        description: The id of the requested resource
-        type: string
   schemas:
     Organization:
       type: object
@@ -198,6 +163,41 @@ components:
           description: The email address of the organization owner
           type: string
       additionalProperties: false
+  parameters:
+    offset:
+      name: offset
+      in: query
+      description: How many items to skip (use in conjunction with limit for pagination)
+      schema:
+        default: 0
+        description: How many items to skip (use in conjunction with limit for pagination)
+        type: integer
+        minimum: 0
+    limit:
+      name: limit
+      in: query
+      description: The number of items to return
+      schema:
+        default: 10
+        description: The number of items to return
+        type: integer
+        minimum: 1
+        maximum: 100
+    search:
+      name: search
+      in: query
+      description: Search string to search organization names, owner emails, and external ids by
+      schema:
+        description: Search string to search organization names, owner emails, and external ids by
+        type: string
+    id:
+      name: id
+      in: path
+      required: true
+      description: The id of the requested resource
+      schema:
+        description: The id of the requested resource
+        type: string
   securitySchemes:
     bearerAuth:
       type: http

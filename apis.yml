@@ -34,7 +34,7 @@ image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/growthbook
 tags:
   - Feature Flags
   - Experimentation
-  - Open-Source
+  - Open Source
   - A/B Testing
   - Analytics
 tags_raw:
@@ -43,6 +43,7 @@ tags_raw:
   - Open Source
   - AB Testing
   - Analytics
+  - Open-Source
 created: '2026-05-08'
 modified: '2026-05-19'
 specificationVersion: '0.23'
@@ -61,7 +62,7 @@ apis:
   - type: Documentation
     url: https://docs.growthbook.io/api
 - aid: growthbook:growthbook-archetypes-api
-  name: GrowthBook archetypes API
+  name: GrowthBook Archetypes API
   description: >-
     Archetypes allow you to simulate the result of targeting rules on pre-set user attributes
   humanURL: https://docs.growthbook.io/api
@@ -76,7 +77,7 @@ apis:
   - type: Documentation
     url: https://docs.growthbook.io/api
 - aid: growthbook:growthbook-attributes-api
-  name: GrowthBook attributes API
+  name: GrowthBook Attributes API
   description: Used when targeting feature flags and experiments.
   humanURL: https://docs.growthbook.io/api
   baseURL: https://api.growthbook.io/api
@@ -90,7 +91,7 @@ apis:
   - type: Documentation
     url: https://docs.growthbook.io/api
 - aid: growthbook:growthbook-code-references-api
-  name: GrowthBook code-references API
+  name: GrowthBook Code References API
   description: >-
     Intended for use with our code reference CI utility, [`gb-find-code-refs`](https://github.com/growthbook/gb-find-code-refs).
   humanURL: https://docs.growthbook.io/api
@@ -117,7 +118,7 @@ apis:
   - type: Documentation
     url: https://docs.growthbook.io/api
 - aid: growthbook:growthbook-data-sources-api
-  name: GrowthBook data-sources API
+  name: GrowthBook Data Sources API
   description: >-
     How GrowthBook connects and queries your data, including cached database schema metadata (information
     schemas) for tables and columns.
@@ -133,7 +134,7 @@ apis:
   - type: Documentation
     url: https://docs.growthbook.io/api
 - aid: growthbook:growthbook-dimensions-api
-  name: GrowthBook dimensions API
+  name: GrowthBook Dimensions API
   description: Dimensions used during experiment analysis
   humanURL: https://docs.growthbook.io/api
   baseURL: https://api.growthbook.io/api
@@ -147,7 +148,7 @@ apis:
   - type: Documentation
     url: https://docs.growthbook.io/api
 - aid: growthbook:growthbook-environments-api
-  name: GrowthBook environments API
+  name: GrowthBook Environments API
   description: >-
     GrowthBook comes with one environment by default (production), but you can add as many as you need.
     When used with feature flags, you can enable/disable feature flags on a per-environment basis.
@@ -163,7 +164,7 @@ apis:
   - type: Documentation
     url: https://docs.growthbook.io/api
 - aid: growthbook:growthbook-experiments-api
-  name: GrowthBook experiments API
+  name: GrowthBook Experiments API
   description: Experiments (A/B Tests)
   humanURL: https://docs.growthbook.io/api
   baseURL: https://api.growthbook.io/api
@@ -177,7 +178,7 @@ apis:
   - type: Documentation
     url: https://docs.growthbook.io/api
 - aid: growthbook:growthbook-fact-metrics-api
-  name: GrowthBook fact-metrics API
+  name: GrowthBook Fact Metrics API
   description: Fact Metrics are metrics built on top of Fact Table definitions
   humanURL: https://docs.growthbook.io/api
   baseURL: https://api.growthbook.io/api
@@ -189,7 +190,7 @@ apis:
   - type: Documentation
     url: https://docs.growthbook.io/api
 - aid: growthbook:growthbook-fact-tables-api
-  name: GrowthBook fact-tables API
+  name: GrowthBook Fact Tables API
   description: Fact Tables describe the shape of your data warehouse tables
   humanURL: https://docs.growthbook.io/api
   baseURL: https://api.growthbook.io/api
@@ -201,7 +202,7 @@ apis:
   - type: Documentation
     url: https://docs.growthbook.io/api
 - aid: growthbook:growthbook-feature-revisions-api
-  name: GrowthBook feature-revisions API
+  name: GrowthBook Feature Revisions API
   description: >-
     Draft revisions for feature flags, including rules, scheduling, and approval workflows.
 
@@ -217,7 +218,7 @@ apis:
   - type: Documentation
     url: https://docs.growthbook.io/api
 - aid: growthbook:growthbook-feature-revisions-v2-api
-  name: GrowthBook feature-revisions-v2 API
+  name: GrowthBook Feature Revisions V2 API
   description: >-
     Draft revisions for feature flags, including rules, scheduling, and approval workflows.
 
@@ -233,7 +234,7 @@ apis:
   - type: Documentation
     url: https://docs.growthbook.io/api
 - aid: growthbook:growthbook-features-api
-  name: GrowthBook features API
+  name: GrowthBook Features API
   description: >-
     Control your feature flags programatically.
 
@@ -252,7 +253,7 @@ apis:
   - type: Documentation
     url: https://docs.growthbook.io/api
 - aid: growthbook:growthbook-features-v2-api
-  name: GrowthBook features-v2 API
+  name: GrowthBook Features V2 API
   description: >-
     Control your feature flags programatically.
 
@@ -271,7 +272,7 @@ apis:
   - type: Documentation
     url: https://docs.growthbook.io/api
 - aid: growthbook:growthbook-members-api
-  name: GrowthBook members API
+  name: GrowthBook Members API
   description: Members are users who have been invited to an organization.
   humanURL: https://docs.growthbook.io/api
   baseURL: https://api.growthbook.io/api
@@ -285,7 +286,7 @@ apis:
   - type: Documentation
     url: https://docs.growthbook.io/api
 - aid: growthbook:growthbook-metrics-api
-  name: GrowthBook metrics API
+  name: GrowthBook Metrics API
   description: Metrics used as goals and guardrails for experiments
   humanURL: https://docs.growthbook.io/api
   baseURL: https://api.growthbook.io/api
@@ -299,7 +300,7 @@ apis:
   - type: Documentation
     url: https://docs.growthbook.io/api
 - aid: growthbook:growthbook-namespaces-api
-  name: GrowthBook namespaces API
+  name: GrowthBook Namespaces API
   description: >-
     Namespaces partition your user population into buckets so that experiments using the same hash attribute
     do not overlap unintentionally. Each namespace defines a 0–1 range and individual experiments claim
@@ -316,7 +317,7 @@ apis:
   - type: Documentation
     url: https://docs.growthbook.io/api
 - aid: growthbook:growthbook-organizations-api
-  name: GrowthBook organizations API
+  name: GrowthBook Organizations API
   description: >-
     Organizations are used for multi-org deployments where different teams can run their own isolated
     feature flags and experiments. These endpoints are only via a super-admin's Personal Access Token.
@@ -332,7 +333,7 @@ apis:
   - type: Documentation
     url: https://docs.growthbook.io/api
 - aid: growthbook:growthbook-projects-api
-  name: GrowthBook projects API
+  name: GrowthBook Projects API
   description: Projects are used to organize your feature flags and experiments
   humanURL: https://docs.growthbook.io/api
   baseURL: https://api.growthbook.io/api
@@ -346,7 +347,7 @@ apis:
   - type: Documentation
     url: https://docs.growthbook.io/api
 - aid: growthbook:growthbook-queries-api
-  name: GrowthBook queries API
+  name: GrowthBook Queries API
   description: Retrieve queries used in experiments to calculate results.
   humanURL: https://docs.growthbook.io/api
   baseURL: https://api.growthbook.io/api
@@ -360,7 +361,7 @@ apis:
   - type: Documentation
     url: https://docs.growthbook.io/api
 - aid: growthbook:growthbook-ramp-schedules-api
-  name: GrowthBook ramp-schedules API
+  name: GrowthBook Ramp Schedules API
   description: >-
     Multi-step rollout schedules that gradually ramp feature rule changes over time, with support for
     interval, approval, and scheduled triggers.
@@ -386,7 +387,7 @@ apis:
   - type: Documentation
     url: https://docs.growthbook.io/api
 - aid: growthbook:growthbook-saved-groups-api
-  name: GrowthBook saved-groups API
+  name: GrowthBook Saved Groups API
   description: >-
     Defined sets of attribute values which can be used with feature rules for targeting features at particular
     users.
@@ -400,7 +401,7 @@ apis:
   - type: Documentation
     url: https://docs.growthbook.io/api
 - aid: growthbook:growthbook-sdk-connections-api
-  name: GrowthBook sdk-connections API
+  name: GrowthBook SDK Connections API
   description: Client keys and settings for connecting SDKs to a GrowthBook instance
   humanURL: https://docs.growthbook.io/api
   baseURL: https://api.growthbook.io/api
@@ -424,7 +425,7 @@ apis:
   - type: Documentation
     url: https://docs.growthbook.io/api
 - aid: growthbook:growthbook-segments-api
-  name: GrowthBook segments API
+  name: GrowthBook Segments API
   description: Segments used during experiment analysis
   humanURL: https://docs.growthbook.io/api
   baseURL: https://api.growthbook.io/api
@@ -438,7 +439,7 @@ apis:
   - type: Documentation
     url: https://docs.growthbook.io/api
 - aid: growthbook:growthbook-settings-api
-  name: GrowthBook settings API
+  name: GrowthBook Settings API
   description: Get the organization settings.
   humanURL: https://docs.growthbook.io/api
   baseURL: https://api.growthbook.io/api
@@ -452,7 +453,7 @@ apis:
   - type: Documentation
     url: https://docs.growthbook.io/api
 - aid: growthbook:growthbook-snapshots-api
-  name: GrowthBook snapshots API
+  name: GrowthBook Snapshots API
   description: Experiment Snapshots (the individual updates of an experiment)
   humanURL: https://docs.growthbook.io/api
   baseURL: https://api.growthbook.io/api
@@ -492,7 +493,7 @@ apis:
   - type: Documentation
     url: https://docs.growthbook.io/api
 - aid: growthbook:growthbook-usage-api
-  name: GrowthBook usage API
+  name: GrowthBook Usage API
   description: Usage information for metrics in experiments.
   humanURL: https://docs.growthbook.io/api
   baseURL: https://api.growthbook.io/api
@@ -506,7 +507,7 @@ apis:
   - type: Documentation
     url: https://docs.growthbook.io/api
 - aid: growthbook:growthbook-visual-changesets-api
-  name: GrowthBook visual-changesets API
+  name: GrowthBook Visual Changesets API
   description: Groups of visual changes made by the visual editor to a single page
   humanURL: https://docs.growthbook.io/api
   baseURL: https://api.growthbook.io/api

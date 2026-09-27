@@ -925,6 +925,20 @@ paths:
         source: "curl -X POST 'https://api.growthbook.io/api/v1/fact-metrics/{id}/analysis' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"lookbackDays\":90}'"
 components:
   parameters:
+    projectId:
+      name: projectId
+      in: query
+      description: Filter by project id
+      schema:
+        description: Filter by project id
+        type: string
+    datasourceId:
+      name: datasourceId
+      in: query
+      description: Filter by Data Source
+      schema:
+        description: Filter by Data Source
+        type: string
     offset:
       name: offset
       in: query
@@ -944,13 +958,6 @@ components:
         type: integer
         minimum: 1
         maximum: 100
-    projectId:
-      name: projectId
-      in: query
-      description: Filter by project id
-      schema:
-        description: Filter by project id
-        type: string
     id:
       name: id
       in: path
@@ -958,13 +965,6 @@ components:
       description: The id of the requested resource
       schema:
         description: The id of the requested resource
-        type: string
-    datasourceId:
-      name: datasourceId
-      in: query
-      description: Filter by Data Source
-      schema:
-        description: Filter by Data Source
         type: string
   schemas:
     PaginationFields:
@@ -991,24 +991,6 @@ components:
       - total
       - hasMore
       - nextOffset
-      additionalProperties: false
-    MetricAnalysis:
-      type: object
-      properties:
-        id:
-          description: The ID of the created metric analysis
-          type: string
-        status:
-          description: The status of the analysis (e.g., "running", "completed", "error")
-          type: string
-        settings:
-          type: object
-          propertyNames:
-            type: string
-          additionalProperties: {}
-      required:
-      - id
-      - status
       additionalProperties: false
     FactMetric:
       type: object
@@ -1366,6 +1348,24 @@ components:
       - managedBy
       - dateCreated
       - dateUpdated
+      additionalProperties: false
+    MetricAnalysis:
+      type: object
+      properties:
+        id:
+          description: The ID of the created metric analysis
+          type: string
+        status:
+          description: The status of the analysis (e.g., "running", "completed", "error")
+          type: string
+        settings:
+          type: object
+          propertyNames:
+            type: string
+          additionalProperties: {}
+      required:
+      - id
+      - status
       additionalProperties: false
   securitySchemes:
     bearerAuth:
