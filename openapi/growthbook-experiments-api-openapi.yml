@@ -1288,223 +1288,35 @@ paths:
       - lang: cURL
         source: "curl -X GET 'https://api.growthbook.io/api/v1/experiment-names' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
 components:
-  parameters:
-    offset:
-      name: offset
-      in: query
-      description: How many items to skip (use in conjunction with limit for pagination)
-      schema:
-        default: 0
-        description: How many items to skip (use in conjunction with limit for pagination)
-        type: integer
-        minimum: 0
-    variationId:
-      name: variationId
-      in: path
-      required: true
-      description: ''
-      schema:
-        type: string
-    trackingKey:
-      name: trackingKey
-      in: query
-      description: Filter by experiment tracking key
-      schema:
-        description: Filter by experiment tracking key
-        type: string
-    limit:
-      name: limit
-      in: query
-      description: The number of items to return
-      schema:
-        default: 10
-        description: The number of items to return
-        type: integer
-        minimum: 1
-        maximum: 100
-    dimension:
-      name: dimension
-      in: query
-      description: ''
-      schema:
-        type: string
-    id:
-      name: id
-      in: path
-      required: true
-      description: The id of the requested resource
-      schema:
-        description: The id of the requested resource
-        type: string
-    projectId:
-      name: projectId
-      in: query
-      description: Filter by project id
-      schema:
-        description: Filter by project id
-        type: string
-    experimentId:
-      name: experimentId
-      in: query
-      description: Filter the returned list by the experiment tracking key (not the internal experiment ID). Note, this was deprecated to help reduce confusion, consider using `trackingKey` instead, which is functionally identical. You cannot use both params at the same time.
-      schema:
-        deprecated: true
-        description: Filter the returned list by the experiment tracking key (not the internal experiment ID). Note, this was deprecated to help reduce confusion, consider using `trackingKey` instead, which is functionally identical. You cannot use both params at the same time.
-        type: string
-    datasourceId:
-      name: datasourceId
-      in: query
-      description: Filter by Data Source
-      schema:
-        description: Filter by Data Source
-        type: string
-    phase:
-      name: phase
-      in: query
-      description: ''
-      schema:
-        type: string
   schemas:
-    experiments:
+    LookbackOverride:
+      description: Controls the lookback override for the experiment. For type "window", value must be a non-negative number and valueUnit is required.
       type: object
       properties:
-        id:
+        type:
           type: string
-        name:
-          type: string
-      required:
-      - id
-      - name
-      additionalProperties: false
-    ExperimentResults:
-      type: object
-      properties:
-        id:
-          type: string
-        dateUpdated:
-          type: string
-        experimentId:
-          type: string
-        phase:
-          type: string
-        dateStart:
-          type: string
-        dateEnd:
-          type: string
-        dimension:
-          type: object
-          properties:
-            type:
-              type: string
-            id:
-              type: string
-          required:
-          - type
-          additionalProperties: false
-        settings:
-          $ref: '#/components/schemas/ExperimentAnalysisSettings'
-        queryIds:
-          type: array
-          items:
+          enum:
+          - date
+          - window
+        value:
+          description: For "window" type - non-negative numeric value (e.g. 7 for 7 days). For "date" type a date string.
+          anyOf:
+          - description: For "window" type - non-negative numeric value (e.g. 7 for 7 days). For "date" type a date string.
+            type: number
+          - format: date-time
+            description: For "window" type - non-negative numeric value (e.g. 7 for 7 days). For "date" type a date string.
             type: string
-        results:
-          type: array
-          items:
-            type: object
-            properties:
-              dimension:
-                type: string
-              totalUsers:
-                type: number
-              checks:
-                type: object
-                properties:
-                  srm:
-                    type: number
-                required:
-                - srm
-                additionalProperties: false
-              metrics:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    metricId:
-                      type: string
-                    variations:
-                      type: array
-                      items:
-                        type: object
-                        properties:
-                          variationId:
-                            type: string
-                          users:
-                            type: number
-                          analyses:
-                            type: array
-                            items:
-                              type: object
-                              properties:
-                                engine:
-                                  type: string
-                                  enum:
-                                  - bayesian
-                                  - frequentist
-                                numerator:
-                                  type: number
-                                denominator:
-                                  type: number
-                                mean:
-                                  type: number
-                                stddev:
-                                  type: number
-                                percentChange:
-                                  type: number
-                                ciLow:
-                                  type: number
-                                ciHigh:
-                                  type: number
-                                pValue:
-                                  type: number
-                                risk:
-                                  type: number
-                                chanceToBeatControl:
-                                  type: number
-                              required:
-                              - engine
-                              - numerator
-                              - denominator
-                              - mean
-                              - stddev
-                              - percentChange
-                              - ciLow
-                              - ciHigh
-                              additionalProperties: false
-                        required:
-                        - variationId
-                        - analyses
-                        additionalProperties: false
-                  required:
-                  - metricId
-                  - variations
-                  additionalProperties: false
-            required:
-            - dimension
-            - totalUsers
-            - checks
-            - metrics
-            additionalProperties: false
+        valueUnit:
+          description: Used when type is "window". Defaults to "days".
+          type: string
+          enum:
+          - minutes
+          - hours
+          - days
+          - weeks
       required:
-      - id
-      - dateUpdated
-      - experimentId
-      - phase
-      - dateStart
-      - dateEnd
-      - dimension
-      - settings
-      - queryIds
-      - results
+      - type
+      - value
       additionalProperties: false
     ExperimentWithEnhancedStatus:
       allOf:
@@ -1817,6 +1629,45 @@ components:
             - status
             additionalProperties: false
         additionalProperties: false
+    snapshot:
+      type: object
+      properties:
+        id:
+          type: string
+        experiment:
+          type: string
+        status:
+          type: string
+      required:
+      - id
+      - experiment
+      - status
+      additionalProperties: false
+    PaginationFields:
+      type: object
+      properties:
+        limit:
+          type: integer
+        offset:
+          type: integer
+        count:
+          type: integer
+        total:
+          type: integer
+        hasMore:
+          type: boolean
+        nextOffset:
+          anyOf:
+          - type: integer
+          - type: 'null'
+      required:
+      - limit
+      - offset
+      - count
+      - total
+      - hasMore
+      - nextOffset
+      additionalProperties: false
     ExperimentAnalysisSettings:
       type: object
       properties:
@@ -1895,139 +1746,6 @@ components:
       - goals
       - secondaryMetrics
       - guardrails
-      additionalProperties: false
-    LookbackOverride:
-      description: Controls the lookback override for the experiment. For type "window", value must be a non-negative number and valueUnit is required.
-      type: object
-      properties:
-        type:
-          type: string
-          enum:
-          - date
-          - window
-        value:
-          description: For "window" type - non-negative numeric value (e.g. 7 for 7 days). For "date" type a date string.
-          anyOf:
-          - description: For "window" type - non-negative numeric value (e.g. 7 for 7 days). For "date" type a date string.
-            type: number
-          - format: date-time
-            description: For "window" type - non-negative numeric value (e.g. 7 for 7 days). For "date" type a date string.
-            type: string
-        valueUnit:
-          description: Used when type is "window". Defaults to "days".
-          type: string
-          enum:
-          - minutes
-          - hours
-          - days
-          - weeks
-      required:
-      - type
-      - value
-      additionalProperties: false
-    ExperimentMetric:
-      type: object
-      properties:
-        metricId:
-          type: string
-        overrides:
-          type: object
-          properties:
-            delayHours:
-              type: number
-            windowHours:
-              type: number
-            window:
-              type: string
-              enum:
-              - conversion
-              - lookback
-              - ''
-            winRiskThreshold:
-              deprecated: true
-              type: number
-            loseRiskThreshold:
-              deprecated: true
-              type: number
-            properPriorOverride:
-              type: boolean
-            properPriorEnabled:
-              type: boolean
-            properPriorMean:
-              type: number
-            properPriorStdDev:
-              type: number
-            regressionAdjustmentOverride:
-              type: boolean
-            regressionAdjustmentEnabled:
-              type: boolean
-            regressionAdjustmentDays:
-              type: number
-          additionalProperties: false
-      required:
-      - metricId
-      - overrides
-      additionalProperties: false
-    ExperimentDecisionFrameworkSettings:
-      description: Controls the decision framework and metric overrides for the experiment. Replaces the entire stored object on update (does not patch individual fields).
-      type: object
-      properties:
-        decisionCriteriaId:
-          type: string
-        decisionFrameworkMetricOverrides:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                description: ID of the metric to override settings for.
-                type: string
-              targetMDE:
-                description: The target relative MDE to use for the metric, expressed as proportions (e.g. use 0.1 for 10%). Must be greater than 0.
-                type: number
-                exclusiveMinimum: 0
-            required:
-            - id
-            additionalProperties: false
-      additionalProperties: false
-    PaginationFields:
-      type: object
-      properties:
-        limit:
-          type: integer
-        offset:
-          type: integer
-        count:
-          type: integer
-        total:
-          type: integer
-        hasMore:
-          type: boolean
-        nextOffset:
-          anyOf:
-          - type: integer
-          - type: 'null'
-      required:
-      - limit
-      - offset
-      - count
-      - total
-      - hasMore
-      - nextOffset
-      additionalProperties: false
-    snapshot:
-      type: object
-      properties:
-        id:
-          type: string
-        experiment:
-          type: string
-        status:
-          type: string
-      required:
-      - id
-      - experiment
-      - status
       additionalProperties: false
     ExperimentMetricOverrideEntry:
       description: Per-metric analysis overrides stored on the experiment (matches internal metricOverrides).
@@ -2370,6 +2088,288 @@ components:
       - phases
       - settings
       additionalProperties: false
+    experiments:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+      required:
+      - id
+      - name
+      additionalProperties: false
+    ExperimentDecisionFrameworkSettings:
+      description: Controls the decision framework and metric overrides for the experiment. Replaces the entire stored object on update (does not patch individual fields).
+      type: object
+      properties:
+        decisionCriteriaId:
+          type: string
+        decisionFrameworkMetricOverrides:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                description: ID of the metric to override settings for.
+                type: string
+              targetMDE:
+                description: The target relative MDE to use for the metric, expressed as proportions (e.g. use 0.1 for 10%). Must be greater than 0.
+                type: number
+                exclusiveMinimum: 0
+            required:
+            - id
+            additionalProperties: false
+      additionalProperties: false
+    ExperimentResults:
+      type: object
+      properties:
+        id:
+          type: string
+        dateUpdated:
+          type: string
+        experimentId:
+          type: string
+        phase:
+          type: string
+        dateStart:
+          type: string
+        dateEnd:
+          type: string
+        dimension:
+          type: object
+          properties:
+            type:
+              type: string
+            id:
+              type: string
+          required:
+          - type
+          additionalProperties: false
+        settings:
+          $ref: '#/components/schemas/ExperimentAnalysisSettings'
+        queryIds:
+          type: array
+          items:
+            type: string
+        results:
+          type: array
+          items:
+            type: object
+            properties:
+              dimension:
+                type: string
+              totalUsers:
+                type: number
+              checks:
+                type: object
+                properties:
+                  srm:
+                    type: number
+                required:
+                - srm
+                additionalProperties: false
+              metrics:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    metricId:
+                      type: string
+                    variations:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          variationId:
+                            type: string
+                          users:
+                            type: number
+                          analyses:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                engine:
+                                  type: string
+                                  enum:
+                                  - bayesian
+                                  - frequentist
+                                numerator:
+                                  type: number
+                                denominator:
+                                  type: number
+                                mean:
+                                  type: number
+                                stddev:
+                                  type: number
+                                percentChange:
+                                  type: number
+                                ciLow:
+                                  type: number
+                                ciHigh:
+                                  type: number
+                                pValue:
+                                  type: number
+                                risk:
+                                  type: number
+                                chanceToBeatControl:
+                                  type: number
+                              required:
+                              - engine
+                              - numerator
+                              - denominator
+                              - mean
+                              - stddev
+                              - percentChange
+                              - ciLow
+                              - ciHigh
+                              additionalProperties: false
+                        required:
+                        - variationId
+                        - analyses
+                        additionalProperties: false
+                  required:
+                  - metricId
+                  - variations
+                  additionalProperties: false
+            required:
+            - dimension
+            - totalUsers
+            - checks
+            - metrics
+            additionalProperties: false
+      required:
+      - id
+      - dateUpdated
+      - experimentId
+      - phase
+      - dateStart
+      - dateEnd
+      - dimension
+      - settings
+      - queryIds
+      - results
+      additionalProperties: false
+    ExperimentMetric:
+      type: object
+      properties:
+        metricId:
+          type: string
+        overrides:
+          type: object
+          properties:
+            delayHours:
+              type: number
+            windowHours:
+              type: number
+            window:
+              type: string
+              enum:
+              - conversion
+              - lookback
+              - ''
+            winRiskThreshold:
+              deprecated: true
+              type: number
+            loseRiskThreshold:
+              deprecated: true
+              type: number
+            properPriorOverride:
+              type: boolean
+            properPriorEnabled:
+              type: boolean
+            properPriorMean:
+              type: number
+            properPriorStdDev:
+              type: number
+            regressionAdjustmentOverride:
+              type: boolean
+            regressionAdjustmentEnabled:
+              type: boolean
+            regressionAdjustmentDays:
+              type: number
+          additionalProperties: false
+      required:
+      - metricId
+      - overrides
+      additionalProperties: false
+  parameters:
+    id:
+      name: id
+      in: path
+      required: true
+      description: The id of the requested resource
+      schema:
+        description: The id of the requested resource
+        type: string
+    limit:
+      name: limit
+      in: query
+      description: The number of items to return
+      schema:
+        default: 10
+        description: The number of items to return
+        type: integer
+        minimum: 1
+        maximum: 100
+    dimension:
+      name: dimension
+      in: query
+      description: ''
+      schema:
+        type: string
+    experimentId:
+      name: experimentId
+      in: query
+      description: Filter the returned list by the experiment tracking key (not the internal experiment ID). Note, this was deprecated to help reduce confusion, consider using `trackingKey` instead, which is functionally identical. You cannot use both params at the same time.
+      schema:
+        deprecated: true
+        description: Filter the returned list by the experiment tracking key (not the internal experiment ID). Note, this was deprecated to help reduce confusion, consider using `trackingKey` instead, which is functionally identical. You cannot use both params at the same time.
+        type: string
+    offset:
+      name: offset
+      in: query
+      description: How many items to skip (use in conjunction with limit for pagination)
+      schema:
+        default: 0
+        description: How many items to skip (use in conjunction with limit for pagination)
+        type: integer
+        minimum: 0
+    variationId:
+      name: variationId
+      in: path
+      required: true
+      description: ''
+      schema:
+        type: string
+    phase:
+      name: phase
+      in: query
+      description: ''
+      schema:
+        type: string
+    trackingKey:
+      name: trackingKey
+      in: query
+      description: Filter by experiment tracking key
+      schema:
+        description: Filter by experiment tracking key
+        type: string
+    datasourceId:
+      name: datasourceId
+      in: query
+      description: Filter by Data Source
+      schema:
+        description: Filter by Data Source
+        type: string
+    projectId:
+      name: projectId
+      in: query
+      description: Filter by project id
+      schema:
+        description: Filter by project id
+        type: string
   securitySchemes:
     bearerAuth:
       type: http

@@ -267,19 +267,6 @@ paths:
         source: "curl -X GET 'https://api.growthbook.io/api/v1/sdk-connections/lookup/abc123' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
 components:
   parameters:
-    projectId:
-      name: projectId
-      in: query
-      description: Filter by project id
-      schema:
-        description: Filter by project id
-        type: string
-    withProxy:
-      name: withProxy
-      in: query
-      description: ''
-      schema:
-        type: string
     offset:
       name: offset
       in: query
@@ -289,13 +276,19 @@ components:
         description: How many items to skip (use in conjunction with limit for pagination)
         type: integer
         minimum: 0
-    key:
-      name: key
+    id:
+      name: id
       in: path
       required: true
-      description: The key of the requested sdkConnection
+      description: The id of the requested resource
       schema:
-        description: The key of the requested sdkConnection
+        description: The id of the requested resource
+        type: string
+    withProxy:
+      name: withProxy
+      in: query
+      description: ''
+      schema:
         type: string
     limit:
       name: limit
@@ -313,13 +306,20 @@ components:
       description: ''
       schema:
         type: string
-    id:
-      name: id
+    projectId:
+      name: projectId
+      in: query
+      description: Filter by project id
+      schema:
+        description: Filter by project id
+        type: string
+    key:
+      name: key
       in: path
       required: true
-      description: The id of the requested resource
+      description: The key of the requested sdkConnection
       schema:
-        description: The id of the requested resource
+        description: The key of the requested sdkConnection
         type: string
   schemas:
     SdkConnection:

@@ -118,13 +118,6 @@ paths:
         source: "curl -X GET 'https://api.growthbook.io/api/v1/information-schema-tables/{tableId}' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
 components:
   parameters:
-    projectId:
-      name: projectId
-      in: query
-      description: Filter by project id
-      schema:
-        description: Filter by project id
-        type: string
     dataSourceId:
       name: dataSourceId
       in: path
@@ -142,6 +135,14 @@ components:
         description: How many items to skip (use in conjunction with limit for pagination)
         type: integer
         minimum: 0
+    id:
+      name: id
+      in: path
+      required: true
+      description: The id of the requested resource
+      schema:
+        description: The id of the requested resource
+        type: string
     limit:
       name: limit
       in: query
@@ -152,6 +153,13 @@ components:
         type: integer
         minimum: 1
         maximum: 100
+    projectId:
+      name: projectId
+      in: query
+      description: Filter by project id
+      schema:
+        description: Filter by project id
+        type: string
     tableId:
       name: tableId
       in: path
@@ -160,151 +168,7 @@ components:
       schema:
         description: The id of the information schema table
         type: string
-    id:
-      name: id
-      in: path
-      required: true
-      description: The id of the requested resource
-      schema:
-        description: The id of the requested resource
-        type: string
   schemas:
-    PaginationFields:
-      type: object
-      properties:
-        limit:
-          type: integer
-        offset:
-          type: integer
-        count:
-          type: integer
-        total:
-          type: integer
-        hasMore:
-          type: boolean
-        nextOffset:
-          anyOf:
-          - type: integer
-          - type: 'null'
-      required:
-      - limit
-      - offset
-      - count
-      - total
-      - hasMore
-      - nextOffset
-      additionalProperties: false
-    DataSource:
-      type: object
-      properties:
-        id:
-          type: string
-        dateCreated:
-          format: date-time
-          type: string
-        dateUpdated:
-          format: date-time
-          type: string
-        type:
-          type: string
-        name:
-          type: string
-        description:
-          type: string
-        projectIds:
-          type: array
-          items:
-            type: string
-        eventTracker:
-          type: string
-        identifierTypes:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              description:
-                type: string
-            required:
-            - id
-            - description
-            additionalProperties: false
-        assignmentQueries:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              name:
-                type: string
-              description:
-                type: string
-              identifierType:
-                type: string
-              sql:
-                type: string
-              includesNameColumns:
-                type: boolean
-              dimensionColumns:
-                type: array
-                items:
-                  type: string
-            required:
-            - id
-            - name
-            - description
-            - identifierType
-            - sql
-            - includesNameColumns
-            - dimensionColumns
-            additionalProperties: false
-        identifierJoinQueries:
-          type: array
-          items:
-            type: object
-            properties:
-              identifierTypes:
-                type: array
-                items:
-                  type: string
-              sql:
-                type: string
-            required:
-            - identifierTypes
-            - sql
-            additionalProperties: false
-        mixpanelSettings:
-          type: object
-          properties:
-            viewedExperimentEventName:
-              type: string
-            experimentIdProperty:
-              type: string
-            variationIdProperty:
-              type: string
-            extraUserIdProperty:
-              type: string
-          required:
-          - viewedExperimentEventName
-          - experimentIdProperty
-          - variationIdProperty
-          - extraUserIdProperty
-          additionalProperties: false
-      required:
-      - id
-      - dateCreated
-      - dateUpdated
-      - type
-      - name
-      - description
-      - projectIds
-      - eventTracker
-      - identifierTypes
-      - assignmentQueries
-      - identifierJoinQueries
-      additionalProperties: false
     InformationSchema:
       type: object
       properties:
@@ -461,6 +325,142 @@ components:
       - refreshMS
       - dateCreated
       - dateUpdated
+      additionalProperties: false
+    DataSource:
+      type: object
+      properties:
+        id:
+          type: string
+        dateCreated:
+          format: date-time
+          type: string
+        dateUpdated:
+          format: date-time
+          type: string
+        type:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        projectIds:
+          type: array
+          items:
+            type: string
+        eventTracker:
+          type: string
+        identifierTypes:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              description:
+                type: string
+            required:
+            - id
+            - description
+            additionalProperties: false
+        assignmentQueries:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              description:
+                type: string
+              identifierType:
+                type: string
+              sql:
+                type: string
+              includesNameColumns:
+                type: boolean
+              dimensionColumns:
+                type: array
+                items:
+                  type: string
+            required:
+            - id
+            - name
+            - description
+            - identifierType
+            - sql
+            - includesNameColumns
+            - dimensionColumns
+            additionalProperties: false
+        identifierJoinQueries:
+          type: array
+          items:
+            type: object
+            properties:
+              identifierTypes:
+                type: array
+                items:
+                  type: string
+              sql:
+                type: string
+            required:
+            - identifierTypes
+            - sql
+            additionalProperties: false
+        mixpanelSettings:
+          type: object
+          properties:
+            viewedExperimentEventName:
+              type: string
+            experimentIdProperty:
+              type: string
+            variationIdProperty:
+              type: string
+            extraUserIdProperty:
+              type: string
+          required:
+          - viewedExperimentEventName
+          - experimentIdProperty
+          - variationIdProperty
+          - extraUserIdProperty
+          additionalProperties: false
+      required:
+      - id
+      - dateCreated
+      - dateUpdated
+      - type
+      - name
+      - description
+      - projectIds
+      - eventTracker
+      - identifierTypes
+      - assignmentQueries
+      - identifierJoinQueries
+      additionalProperties: false
+    PaginationFields:
+      type: object
+      properties:
+        limit:
+          type: integer
+        offset:
+          type: integer
+        count:
+          type: integer
+        total:
+          type: integer
+        hasMore:
+          type: boolean
+        nextOffset:
+          anyOf:
+          - type: integer
+          - type: 'null'
+      required:
+      - limit
+      - offset
+      - count
+      - total
+      - hasMore
+      - nextOffset
       additionalProperties: false
   securitySchemes:
     bearerAuth:

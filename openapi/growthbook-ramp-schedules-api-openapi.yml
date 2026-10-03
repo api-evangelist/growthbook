@@ -1078,6 +1078,21 @@ paths:
         source: "curl -X PUT 'https://api.growthbook.io/api/v1/ramp-schedules/{id}' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
 components:
   parameters:
+    offset:
+      name: offset
+      in: query
+      description: How many items to skip (use in conjunction with limit for pagination)
+      schema:
+        default: 0
+        description: How many items to skip (use in conjunction with limit for pagination)
+        type: integer
+        minimum: 0
+    featureId:
+      name: featureId
+      in: query
+      description: ''
+      schema:
+        type: string
     limit:
       name: limit
       in: query
@@ -1088,21 +1103,6 @@ components:
         type: integer
         minimum: 1
         maximum: 100
-    featureId:
-      name: featureId
-      in: query
-      description: ''
-      schema:
-        type: string
-    offset:
-      name: offset
-      in: query
-      description: How many items to skip (use in conjunction with limit for pagination)
-      schema:
-        default: 0
-        description: How many items to skip (use in conjunction with limit for pagination)
-        type: integer
-        minimum: 0
   schemas:
     RampSchedule:
       type: object

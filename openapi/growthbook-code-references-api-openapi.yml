@@ -130,32 +130,46 @@ paths:
       - lang: cURL
         source: "curl -X GET 'https://api.growthbook.io/api/v1/code-refs/abc123' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
 components:
+  parameters:
+    offset:
+      name: offset
+      in: query
+      description: How many items to skip (use in conjunction with limit for pagination)
+      schema:
+        default: 0
+        description: How many items to skip (use in conjunction with limit for pagination)
+        type: integer
+        minimum: 0
+    id:
+      name: id
+      in: path
+      required: true
+      description: The id of the requested resource
+      schema:
+        description: The id of the requested resource
+        type: string
+    limit:
+      name: limit
+      in: query
+      description: The number of items to return
+      schema:
+        default: 10
+        description: The number of items to return
+        type: integer
+        minimum: 1
+        maximum: 100
+    deleteMissing:
+      name: deleteMissing
+      in: query
+      description: Whether to delete code references that are no longer present in the submitted data
+      schema:
+        description: Whether to delete code references that are no longer present in the submitted data
+        default: 'false'
+        type: string
+        enum:
+        - 'true'
+        - 'false'
   schemas:
-    PaginationFields:
-      type: object
-      properties:
-        limit:
-          type: integer
-        offset:
-          type: integer
-        count:
-          type: integer
-        total:
-          type: integer
-        hasMore:
-          type: boolean
-        nextOffset:
-          anyOf:
-          - type: integer
-          - type: 'null'
-      required:
-      - limit
-      - offset
-      - count
-      - total
-      - hasMore
-      - nextOffset
-      additionalProperties: false
     CodeRef:
       type: object
       properties:
@@ -213,45 +227,31 @@ components:
       - branch
       - refs
       additionalProperties: false
-  parameters:
-    offset:
-      name: offset
-      in: query
-      description: How many items to skip (use in conjunction with limit for pagination)
-      schema:
-        default: 0
-        description: How many items to skip (use in conjunction with limit for pagination)
-        type: integer
-        minimum: 0
-    limit:
-      name: limit
-      in: query
-      description: The number of items to return
-      schema:
-        default: 10
-        description: The number of items to return
-        type: integer
-        minimum: 1
-        maximum: 100
-    id:
-      name: id
-      in: path
-      required: true
-      description: The id of the requested resource
-      schema:
-        description: The id of the requested resource
-        type: string
-    deleteMissing:
-      name: deleteMissing
-      in: query
-      description: Whether to delete code references that are no longer present in the submitted data
-      schema:
-        description: Whether to delete code references that are no longer present in the submitted data
-        default: 'false'
-        type: string
-        enum:
-        - 'true'
-        - 'false'
+    PaginationFields:
+      type: object
+      properties:
+        limit:
+          type: integer
+        offset:
+          type: integer
+        count:
+          type: integer
+        total:
+          type: integer
+        hasMore:
+          type: boolean
+        nextOffset:
+          anyOf:
+          - type: integer
+          - type: 'null'
+      required:
+      - limit
+      - offset
+      - count
+      - total
+      - hasMore
+      - nextOffset
+      additionalProperties: false
   securitySchemes:
     bearerAuth:
       type: http

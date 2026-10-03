@@ -135,30 +135,45 @@ paths:
         source: "curl -X DELETE 'https://api.growthbook.io/api/v1/members/abc123' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
 components:
   schemas:
-    PaginationFields:
+    updatedMember:
       type: object
       properties:
-        limit:
-          type: integer
-        offset:
-          type: integer
-        count:
-          type: integer
-        total:
-          type: integer
-        hasMore:
+        id:
+          type: string
+        role:
+          type: string
+        environments:
+          type: array
+          items:
+            type: string
+        limitAccessByEnvironment:
           type: boolean
-        nextOffset:
-          anyOf:
-          - type: integer
-          - type: 'null'
+        projectRoles:
+          type: array
+          items:
+            type: object
+            properties:
+              project:
+                type: string
+              role:
+                type: string
+              limitAccessByEnvironment:
+                type: boolean
+              environments:
+                type: array
+                items:
+                  type: string
+            required:
+            - project
+            - role
+            - limitAccessByEnvironment
+            - environments
+            additionalProperties: false
       required:
-      - limit
-      - offset
-      - count
-      - total
-      - hasMore
-      - nextOffset
+      - id
+      - role
+      - environments
+      - limitAccessByEnvironment
       additionalProperties: false
     Member:
       type: object
@@ -218,45 +233,30 @@ components:
       - email
       - globalRole
       additionalProperties: false
-    updatedMember:
+    PaginationFields:
       type: object
       properties:
-        id:
-          type: string
-        role:
-          type: string
-        environments:
-          type: array
-          items:
-            type: string
-        limitAccessByEnvironment:
+        limit:
+          type: integer
+        offset:
+          type: integer
+        count:
+          type: integer
+        total:
+          type: integer
+        hasMore:
           type: boolean
-        projectRoles:
-          type: array
-          items:
-            type: object
-            properties:
-              project:
-                type: string
-              role:
-                type: string
-              limitAccessByEnvironment:
-                type: boolean
-              environments:
-                type: array
-                items:
-                  type: string
-            required:
-            - project
-            - role
-            - limitAccessByEnvironment
-            - environments
-            additionalProperties: false
+        nextOffset:
+          anyOf:
+          - type: integer
+          - type: 'null'
       required:
-      - id
-      - role
-      - environments
-      - limitAccessByEnvironment
+      - limit
+      - offset
+      - count
+      - total
+      - hasMore
+      - nextOffset
       additionalProperties: false
   parameters:
     offset:
@@ -268,12 +268,13 @@ components:
         description: How many items to skip (use in conjunction with limit for pagination)
         type: integer
         minimum: 0
-    userEmail:
-      name: userEmail
-      in: query
-      description: Email address of the user.
+    id:
+      name: id
+      in: path
+      required: true
+      description: The id of the requested resource
       schema:
-        description: Email address of the user.
+        description: The id of the requested resource
         type: string
     limit:
       name: limit
@@ -285,13 +286,6 @@ components:
         type: integer
         minimum: 1
         maximum: 100
-    globalRole:
-      name: globalRole
-      in: query
-      description: Name of the global role
-      schema:
-        description: Name of the global role
-        type: string
     userName:
       name: userName
       in: query
@@ -299,13 +293,19 @@ components:
       schema:
         description: Name of the user.
         type: string
-    id:
-      name: id
-      in: path
-      required: true
-      description: The id of the requested resource
+    globalRole:
+      name: globalRole
+      in: query
+      description: Name of the global role
       schema:
-        description: The id of the requested resource
+        description: Name of the global role
+        type: string
+    userEmail:
+      name: userEmail
+      in: query
+      description: Email address of the user.
+      schema:
+        description: Email address of the user.
         type: string
   securitySchemes:
     bearerAuth:

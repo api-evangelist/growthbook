@@ -927,20 +927,6 @@ paths:
         source: "curl -X POST 'https://api.growthbook.io/api/v1/bulk-import/facts' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"factTables\":[],\"factTableFilters\":[],\"factMetrics\":[]}'"
 components:
   parameters:
-    projectId:
-      name: projectId
-      in: query
-      description: Filter by project id
-      schema:
-        description: Filter by project id
-        type: string
-    datasourceId:
-      name: datasourceId
-      in: query
-      description: Filter by Data Source
-      schema:
-        description: Filter by Data Source
-        type: string
     offset:
       name: offset
       in: query
@@ -950,13 +936,13 @@ components:
         description: How many items to skip (use in conjunction with limit for pagination)
         type: integer
         minimum: 0
-    factTableId:
-      name: factTableId
+    id:
+      name: id
       in: path
       required: true
-      description: Specify a specific fact table
+      description: The id of the requested resource
       schema:
-        description: Specify a specific fact table
+        description: The id of the requested resource
         type: string
     limit:
       name: limit
@@ -968,72 +954,29 @@ components:
         type: integer
         minimum: 1
         maximum: 100
-    id:
-      name: id
+    datasourceId:
+      name: datasourceId
+      in: query
+      description: Filter by Data Source
+      schema:
+        description: Filter by Data Source
+        type: string
+    projectId:
+      name: projectId
+      in: query
+      description: Filter by project id
+      schema:
+        description: Filter by project id
+        type: string
+    factTableId:
+      name: factTableId
       in: path
       required: true
-      description: The id of the requested resource
+      description: Specify a specific fact table
       schema:
-        description: The id of the requested resource
+        description: Specify a specific fact table
         type: string
   schemas:
-    PaginationFields:
-      type: object
-      properties:
-        limit:
-          type: integer
-        offset:
-          type: integer
-        count:
-          type: integer
-        total:
-          type: integer
-        hasMore:
-          type: boolean
-        nextOffset:
-          anyOf:
-          - type: integer
-          - type: 'null'
-      required:
-      - limit
-      - offset
-      - count
-      - total
-      - hasMore
-      - nextOffset
-      additionalProperties: false
-    FactTableFilter:
-      type: object
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-        description:
-          type: string
-        value:
-          type: string
-        managedBy:
-          description: Where this fact table filter must be managed from. If not set (empty string), it can be managed from anywhere.
-          type: string
-          enum:
-          - ''
-          - api
-        dateCreated:
-          format: date-time
-          type: string
-        dateUpdated:
-          format: date-time
-          type: string
-      required:
-      - id
-      - name
-      - description
-      - value
-      - managedBy
-      - dateCreated
-      - dateUpdated
-      additionalProperties: false
     FactTable:
       type: object
       properties:
@@ -1103,6 +1046,38 @@ components:
       - datasource
       - userIdTypes
       - sql
+      - managedBy
+      - dateCreated
+      - dateUpdated
+      additionalProperties: false
+    FactTableFilter:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        value:
+          type: string
+        managedBy:
+          description: Where this fact table filter must be managed from. If not set (empty string), it can be managed from anywhere.
+          type: string
+          enum:
+          - ''
+          - api
+        dateCreated:
+          format: date-time
+          type: string
+        dateUpdated:
+          format: date-time
+          type: string
+      required:
+      - id
+      - name
+      - description
+      - value
       - managedBy
       - dateCreated
       - dateUpdated
@@ -1189,6 +1164,31 @@ components:
       required:
       - column
       - datatype
+      additionalProperties: false
+    PaginationFields:
+      type: object
+      properties:
+        limit:
+          type: integer
+        offset:
+          type: integer
+        count:
+          type: integer
+        total:
+          type: integer
+        hasMore:
+          type: boolean
+        nextOffset:
+          anyOf:
+          - type: integer
+          - type: 'null'
+      required:
+      - limit
+      - offset
+      - count
+      - total
+      - hasMore
+      - nextOffset
       additionalProperties: false
   securitySchemes:
     bearerAuth:

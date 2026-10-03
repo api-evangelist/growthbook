@@ -224,42 +224,6 @@ components:
             - id
             additionalProperties: false
       additionalProperties: false
-    ExperimentMetricOverrideEntry:
-      description: Per-metric analysis overrides stored on the experiment (matches internal metricOverrides).
-      type: object
-      properties:
-        id:
-          description: ID of the metric to override settings for.
-          type: string
-        windowType:
-          type: string
-          enum:
-          - conversion
-          - lookback
-          - ''
-        windowHours:
-          type: number
-        delayHours:
-          type: number
-        properPriorOverride:
-          description: Must be true for the override to take effect. If true, the other proper prior settings in this object will be used if present.
-          type: boolean
-        properPriorEnabled:
-          type: boolean
-        properPriorMean:
-          type: number
-        properPriorStdDev:
-          type: number
-        regressionAdjustmentOverride:
-          description: Must be true for the override to take effect. If true, the other regression adjustment settings in this object will be used if present.
-          type: boolean
-        regressionAdjustmentEnabled:
-          type: boolean
-        regressionAdjustmentDays:
-          type: number
-      required:
-      - id
-      additionalProperties: false
     LookbackOverride:
       description: Controls the lookback override for the experiment. For type "window", value must be a non-negative number and valueUnit is required.
       type: object
@@ -288,82 +252,6 @@ components:
       required:
       - type
       - value
-      additionalProperties: false
-    VisualChangeset:
-      type: object
-      properties:
-        id:
-          type: string
-        urlPatterns:
-          type: array
-          items:
-            type: object
-            properties:
-              include:
-                type: boolean
-              type:
-                type: string
-                enum:
-                - simple
-                - regex
-              pattern:
-                type: string
-            required:
-            - type
-            - pattern
-            additionalProperties: false
-        editorUrl:
-          type: string
-        experiment:
-          type: string
-        visualChanges:
-          type: array
-          items:
-            type: object
-            properties:
-              description:
-                type: string
-              css:
-                type: string
-              js:
-                type: string
-              variation:
-                type: string
-              domMutations:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    selector:
-                      type: string
-                    action:
-                      type: string
-                      enum:
-                      - append
-                      - set
-                      - remove
-                    attribute:
-                      type: string
-                    value:
-                      type: string
-                    parentSelector:
-                      type: string
-                    insertBeforeSelector:
-                      type: string
-                  required:
-                  - selector
-                  - action
-                  - attribute
-                  additionalProperties: false
-            required:
-            - variation
-            - domMutations
-            additionalProperties: false
-      required:
-      - urlPatterns
-      - editorUrl
-      - experiment
-      - visualChanges
       additionalProperties: false
     Experiment:
       type: object
@@ -779,15 +667,119 @@ components:
       - metricId
       - overrides
       additionalProperties: false
+    VisualChangeset:
+      type: object
+      properties:
+        id:
+          type: string
+        urlPatterns:
+          type: array
+          items:
+            type: object
+            properties:
+              include:
+                type: boolean
+              type:
+                type: string
+                enum:
+                - simple
+                - regex
+              pattern:
+                type: string
+            required:
+            - type
+            - pattern
+            additionalProperties: false
+        editorUrl:
+          type: string
+        experiment:
+          type: string
+        visualChanges:
+          type: array
+          items:
+            type: object
+            properties:
+              description:
+                type: string
+              css:
+                type: string
+              js:
+                type: string
+              variation:
+                type: string
+              domMutations:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    selector:
+                      type: string
+                    action:
+                      type: string
+                      enum:
+                      - append
+                      - set
+                      - remove
+                    attribute:
+                      type: string
+                    value:
+                      type: string
+                    parentSelector:
+                      type: string
+                    insertBeforeSelector:
+                      type: string
+                  required:
+                  - selector
+                  - action
+                  - attribute
+                  additionalProperties: false
+            required:
+            - variation
+            - domMutations
+            additionalProperties: false
+      required:
+      - urlPatterns
+      - editorUrl
+      - experiment
+      - visualChanges
+      additionalProperties: false
+    ExperimentMetricOverrideEntry:
+      description: Per-metric analysis overrides stored on the experiment (matches internal metricOverrides).
+      type: object
+      properties:
+        id:
+          description: ID of the metric to override settings for.
+          type: string
+        windowType:
+          type: string
+          enum:
+          - conversion
+          - lookback
+          - ''
+        windowHours:
+          type: number
+        delayHours:
+          type: number
+        properPriorOverride:
+          description: Must be true for the override to take effect. If true, the other proper prior settings in this object will be used if present.
+          type: boolean
+        properPriorEnabled:
+          type: boolean
+        properPriorMean:
+          type: number
+        properPriorStdDev:
+          type: number
+        regressionAdjustmentOverride:
+          description: Must be true for the override to take effect. If true, the other regression adjustment settings in this object will be used if present.
+          type: boolean
+        regressionAdjustmentEnabled:
+          type: boolean
+        regressionAdjustmentDays:
+          type: number
+      required:
+      - id
+      additionalProperties: false
   parameters:
-    visualChangeId:
-      name: visualChangeId
-      in: path
-      required: true
-      description: Specify a specific visual change
-      schema:
-        description: Specify a specific visual change
-        type: string
     id:
       name: id
       in: path
@@ -803,6 +795,14 @@ components:
       schema:
         description: Include the associated experiment in payload
         type: integer
+    visualChangeId:
+      name: visualChangeId
+      in: path
+      required: true
+      description: Specify a specific visual change
+      schema:
+        description: Specify a specific visual change
+        type: string
   securitySchemes:
     bearerAuth:
       type: http

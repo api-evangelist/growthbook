@@ -180,6 +180,15 @@ paths:
       - lang: cURL
         source: "curl -X DELETE 'https://api.growthbook.io/api/v1/archetypes/abc123' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
 components:
+  parameters:
+    id:
+      name: id
+      in: path
+      required: true
+      description: The id of the requested resource
+      schema:
+        description: The id of the requested resource
+        type: string
   schemas:
     Archetype:
       type: object
@@ -221,15 +230,6 @@ components:
       - isPublic
       - attributes
       additionalProperties: false
-  parameters:
-    id:
-      name: id
-      in: path
-      required: true
-      description: The id of the requested resource
-      schema:
-        description: The id of the requested resource
-        type: string
   securitySchemes:
     bearerAuth:
       type: http
