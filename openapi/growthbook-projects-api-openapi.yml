@@ -220,14 +220,6 @@ paths:
         source: "curl -X DELETE 'https://api.growthbook.io/api/v1/projects/abc123' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
 components:
   parameters:
-    id:
-      name: id
-      in: path
-      required: true
-      description: The id of the requested resource
-      schema:
-        description: The id of the requested resource
-        type: string
     offset:
       name: offset
       in: query
@@ -237,6 +229,14 @@ components:
         description: How many items to skip (use in conjunction with limit for pagination)
         type: integer
         minimum: 0
+    id:
+      name: id
+      in: path
+      required: true
+      description: The id of the requested resource
+      schema:
+        description: The id of the requested resource
+        type: string
     limit:
       name: limit
       in: query

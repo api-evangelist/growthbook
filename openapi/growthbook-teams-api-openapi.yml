@@ -358,14 +358,6 @@ paths:
       - lang: cURL
         source: "curl -X DELETE 'https://api.growthbook.io/api/v1/teams/{id}/members' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
 components:
-  parameters:
-    deleteMembers:
-      name: deleteMembers
-      in: query
-      description: When 'true', enables deleting a team that contains members
-      schema:
-        description: When 'true', enables deleting a team that contains members
-        type: string
   schemas:
     Team:
       type: object
@@ -454,6 +446,14 @@ components:
       - members
       - managedByIdp
       additionalProperties: false
+  parameters:
+    deleteMembers:
+      name: deleteMembers
+      in: query
+      description: When 'true', enables deleting a team that contains members
+      schema:
+        description: When 'true', enables deleting a team that contains members
+        type: string
   securitySchemes:
     bearerAuth:
       type: http

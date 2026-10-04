@@ -117,58 +117,80 @@ paths:
       - lang: cURL
         source: "curl -X GET 'https://api.growthbook.io/api/v1/information-schema-tables/{tableId}' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
 components:
-  parameters:
-    dataSourceId:
-      name: dataSourceId
-      in: path
-      required: true
-      description: The id of the data source
-      schema:
-        description: The id of the data source
-        type: string
-    offset:
-      name: offset
-      in: query
-      description: How many items to skip (use in conjunction with limit for pagination)
-      schema:
-        default: 0
-        description: How many items to skip (use in conjunction with limit for pagination)
-        type: integer
-        minimum: 0
-    id:
-      name: id
-      in: path
-      required: true
-      description: The id of the requested resource
-      schema:
-        description: The id of the requested resource
-        type: string
-    limit:
-      name: limit
-      in: query
-      description: The number of items to return
-      schema:
-        default: 10
-        description: The number of items to return
-        type: integer
-        minimum: 1
-        maximum: 100
-    projectId:
-      name: projectId
-      in: query
-      description: Filter by project id
-      schema:
-        description: Filter by project id
-        type: string
-    tableId:
-      name: tableId
-      in: path
-      required: true
-      description: The id of the information schema table
-      schema:
-        description: The id of the information schema table
-        type: string
   schemas:
+    InformationSchemaTable:
+      type: object
+      properties:
+        id:
+          type: string
+        datasourceId:
+          type: string
+        informationSchemaId:
+          type: string
+        tableName:
+          type: string
+        tableSchema:
+          type: string
+        databaseName:
+          type: string
+        columns:
+          type: array
+          items:
+            type: object
+            properties:
+              columnName:
+                type: string
+              dataType:
+                type: string
+            required:
+            - columnName
+            - dataType
+            additionalProperties: false
+        refreshMS:
+          type: number
+        dateCreated:
+          format: date-time
+          type: string
+        dateUpdated:
+          format: date-time
+          type: string
+      required:
+      - id
+      - datasourceId
+      - informationSchemaId
+      - tableName
+      - tableSchema
+      - databaseName
+      - columns
+      - refreshMS
+      - dateCreated
+      - dateUpdated
+      additionalProperties: false
+    PaginationFields:
+      type: object
+      properties:
+        limit:
+          type: integer
+        offset:
+          type: integer
+        count:
+          type: integer
+        total:
+          type: integer
+        hasMore:
+          type: boolean
+        nextOffset:
+          anyOf:
+          - type: integer
+          - type: 'null'
+      required:
+      - limit
+      - offset
+      - count
+      - total
+      - hasMore
+      - nextOffset
+      additionalProperties: false
     InformationSchema:
       type: object
       properties:
@@ -275,54 +297,6 @@ components:
       - datasourceId
       - status
       - databases
-      - dateCreated
-      - dateUpdated
-      additionalProperties: false
-    InformationSchemaTable:
-      type: object
-      properties:
-        id:
-          type: string
-        datasourceId:
-          type: string
-        informationSchemaId:
-          type: string
-        tableName:
-          type: string
-        tableSchema:
-          type: string
-        databaseName:
-          type: string
-        columns:
-          type: array
-          items:
-            type: object
-            properties:
-              columnName:
-                type: string
-              dataType:
-                type: string
-            required:
-            - columnName
-            - dataType
-            additionalProperties: false
-        refreshMS:
-          type: number
-        dateCreated:
-          format: date-time
-          type: string
-        dateUpdated:
-          format: date-time
-          type: string
-      required:
-      - id
-      - datasourceId
-      - informationSchemaId
-      - tableName
-      - tableSchema
-      - databaseName
-      - columns
-      - refreshMS
       - dateCreated
       - dateUpdated
       additionalProperties: false
@@ -437,31 +411,57 @@ components:
       - assignmentQueries
       - identifierJoinQueries
       additionalProperties: false
-    PaginationFields:
-      type: object
-      properties:
-        limit:
-          type: integer
-        offset:
-          type: integer
-        count:
-          type: integer
-        total:
-          type: integer
-        hasMore:
-          type: boolean
-        nextOffset:
-          anyOf:
-          - type: integer
-          - type: 'null'
-      required:
-      - limit
-      - offset
-      - count
-      - total
-      - hasMore
-      - nextOffset
-      additionalProperties: false
+  parameters:
+    id:
+      name: id
+      in: path
+      required: true
+      description: The id of the requested resource
+      schema:
+        description: The id of the requested resource
+        type: string
+    projectId:
+      name: projectId
+      in: query
+      description: Filter by project id
+      schema:
+        description: Filter by project id
+        type: string
+    dataSourceId:
+      name: dataSourceId
+      in: path
+      required: true
+      description: The id of the data source
+      schema:
+        description: The id of the data source
+        type: string
+    limit:
+      name: limit
+      in: query
+      description: The number of items to return
+      schema:
+        default: 10
+        description: The number of items to return
+        type: integer
+        minimum: 1
+        maximum: 100
+    offset:
+      name: offset
+      in: query
+      description: How many items to skip (use in conjunction with limit for pagination)
+      schema:
+        default: 0
+        description: How many items to skip (use in conjunction with limit for pagination)
+        type: integer
+        minimum: 0
+    tableId:
+      name: tableId
+      in: path
+      required: true
+      description: The id of the information schema table
+      schema:
+        description: The id of the information schema table
+        type: string
   securitySchemes:
     bearerAuth:
       type: http

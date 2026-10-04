@@ -291,6 +291,13 @@ paths:
       - lang: cURL
         source: "curl -X PUT 'https://api.growthbook.io/api/v1/custom-fields/{id}' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
 components:
+  parameters:
+    index:
+      name: index
+      in: query
+      description: ''
+      schema:
+        type: string
   schemas:
     CustomField:
       type: object
@@ -382,13 +389,6 @@ components:
       - required
       - sections
       additionalProperties: false
-  parameters:
-    index:
-      name: index
-      in: query
-      description: ''
-      schema:
-        type: string
   securitySchemes:
     bearerAuth:
       type: http

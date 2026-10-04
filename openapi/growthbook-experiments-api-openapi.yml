@@ -1289,6 +1289,146 @@ paths:
         source: "curl -X GET 'https://api.growthbook.io/api/v1/experiment-names' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
 components:
   schemas:
+    PaginationFields:
+      type: object
+      properties:
+        limit:
+          type: integer
+        offset:
+          type: integer
+        count:
+          type: integer
+        total:
+          type: integer
+        hasMore:
+          type: boolean
+        nextOffset:
+          anyOf:
+          - type: integer
+          - type: 'null'
+      required:
+      - limit
+      - offset
+      - count
+      - total
+      - hasMore
+      - nextOffset
+      additionalProperties: false
+    ExperimentAnalysisSettings:
+      type: object
+      properties:
+        datasourceId:
+          type: string
+        assignmentQueryId:
+          type: string
+        experimentId:
+          type: string
+        segmentId:
+          type: string
+        queryFilter:
+          type: string
+        inProgressConversions:
+          type: string
+          enum:
+          - include
+          - exclude
+        attributionModel:
+          description: Setting attribution model to `"experimentDuration"` is the same as selecting "Ignore Conversion Windows" for the Conversion Window Override. Setting it to `"lookbackOverride"` requires a `lookbackOverride` object to be provided.
+          type: string
+          enum:
+          - firstExposure
+          - experimentDuration
+          - lookbackOverride
+        lookbackOverride:
+          $ref: '#/components/schemas/LookbackOverride'
+        statsEngine:
+          type: string
+          enum:
+          - bayesian
+          - frequentist
+        regressionAdjustmentEnabled:
+          type: boolean
+        sequentialTestingEnabled:
+          type: boolean
+        sequentialTestingTuningParameter:
+          type: number
+        postStratificationEnabled:
+          description: When null, the organization default is used.
+          anyOf:
+          - description: When null, the organization default is used.
+            type: boolean
+          - description: When null, the organization default is used.
+            type: 'null'
+        decisionFrameworkSettings:
+          $ref: '#/components/schemas/ExperimentDecisionFrameworkSettings'
+        metricOverrides:
+          description: Per-metric analysis overrides; also reflected in goals/secondaryMetrics/guardrails overrides when applicable. On create/update, this replaces the entire stored array (it does not patch individual entries).
+          type: array
+          items:
+            $ref: '#/components/schemas/ExperimentMetricOverrideEntry'
+        goals:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExperimentMetric'
+        secondaryMetrics:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExperimentMetric'
+        guardrails:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExperimentMetric'
+        activationMetric:
+          $ref: '#/components/schemas/ExperimentMetric'
+      required:
+      - datasourceId
+      - assignmentQueryId
+      - experimentId
+      - segmentId
+      - queryFilter
+      - inProgressConversions
+      - attributionModel
+      - statsEngine
+      - goals
+      - secondaryMetrics
+      - guardrails
+      additionalProperties: false
+    ExperimentDecisionFrameworkSettings:
+      description: Controls the decision framework and metric overrides for the experiment. Replaces the entire stored object on update (does not patch individual fields).
+      type: object
+      properties:
+        decisionCriteriaId:
+          type: string
+        decisionFrameworkMetricOverrides:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                description: ID of the metric to override settings for.
+                type: string
+              targetMDE:
+                description: The target relative MDE to use for the metric, expressed as proportions (e.g. use 0.1 for 10%). Must be greater than 0.
+                type: number
+                exclusiveMinimum: 0
+            required:
+            - id
+            additionalProperties: false
+      additionalProperties: false
+    snapshot:
+      type: object
+      properties:
+        id:
+          type: string
+        experiment:
+          type: string
+        status:
+          type: string
+      required:
+      - id
+      - experiment
+      - status
+      additionalProperties: false
     LookbackOverride:
       description: Controls the lookback override for the experiment. For type "window", value must be a non-negative number and valueUnit is required.
       type: object
@@ -1317,6 +1457,531 @@ components:
       required:
       - type
       - value
+      additionalProperties: false
+    Experiment:
+      type: object
+      properties:
+        id:
+          type: string
+        trackingKey:
+          type: string
+        dateCreated:
+          format: date-time
+          type: string
+        dateUpdated:
+          format: date-time
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+          enum:
+          - standard
+          - multi-armed-bandit
+        project:
+          type: string
+        hypothesis:
+          type: string
+        description:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        owner:
+          description: The userId of the owner (or raw owner name/email for legacy records)
+          type: string
+        ownerEmail:
+          description: The email address of the owner, when the owner can be resolved to a known user.
+          type: string
+        archived:
+          type: boolean
+        status:
+          type: string
+        autoRefresh:
+          type: boolean
+        hashAttribute:
+          type: string
+        fallbackAttribute:
+          type: string
+        hashVersion:
+          anyOf:
+          - type: number
+            const: 1
+          - type: number
+            const: 2
+        disableStickyBucketing:
+          type: boolean
+        bucketVersion:
+          type: number
+        minBucketVersion:
+          type: number
+        variations:
+          type: array
+          items:
+            type: object
+            properties:
+              variationId:
+                type: string
+              key:
+                type: string
+              name:
+                type: string
+              description:
+                type: string
+              screenshots:
+                type: array
+                items:
+                  type: string
+            required:
+            - variationId
+            - key
+            - name
+            - description
+            - screenshots
+            additionalProperties: false
+        phases:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              dateStarted:
+                type: string
+              dateEnded:
+                type: string
+              reasonForStopping:
+                type: string
+              seed:
+                type: string
+              coverage:
+                type: number
+              trafficSplit:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    variationId:
+                      type: string
+                    weight:
+                      type: number
+                  required:
+                  - variationId
+                  - weight
+                  additionalProperties: false
+              namespace:
+                type: object
+                properties:
+                  namespaceId:
+                    type: string
+                  enabled:
+                    type: boolean
+                  range:
+                    minItems: 2
+                    maxItems: 2
+                    type: array
+                    items:
+                      type: number
+                  ranges:
+                    type: array
+                    items:
+                      type: array
+                      prefixItems:
+                      - type: number
+                      - type: number
+                required:
+                - namespaceId
+                additionalProperties: false
+              targetingCondition:
+                type: string
+              prerequisites:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    condition:
+                      type: string
+                  required:
+                  - id
+                  - condition
+                  additionalProperties: false
+              savedGroupTargeting:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    matchType:
+                      type: string
+                      enum:
+                      - all
+                      - any
+                      - none
+                    savedGroups:
+                      type: array
+                      items:
+                        type: string
+                  required:
+                  - matchType
+                  - savedGroups
+                  additionalProperties: false
+            required:
+            - name
+            - dateStarted
+            - dateEnded
+            - reasonForStopping
+            - seed
+            - coverage
+            - trafficSplit
+            - targetingCondition
+            additionalProperties: false
+        settings:
+          $ref: '#/components/schemas/ExperimentAnalysisSettings'
+        resultSummary:
+          type: object
+          properties:
+            status:
+              type: string
+            winner:
+              type: string
+            conclusions:
+              type: string
+            releasedVariationId:
+              type: string
+            excludeFromPayload:
+              type: boolean
+          required:
+          - status
+          - winner
+          - conclusions
+          - releasedVariationId
+          - excludeFromPayload
+          additionalProperties: false
+        shareLevel:
+          type: string
+          enum:
+          - public
+          - organization
+        publicUrl:
+          type: string
+        banditScheduleValue:
+          type: number
+        banditScheduleUnit:
+          type: string
+          enum:
+          - days
+          - hours
+        banditBurnInValue:
+          type: number
+        banditBurnInUnit:
+          type: string
+          enum:
+          - days
+          - hours
+        banditConversionWindowValue:
+          type: number
+        banditConversionWindowUnit:
+          type: string
+          enum:
+          - days
+          - hours
+        linkedFeatures:
+          type: array
+          items:
+            type: string
+        hasVisualChangesets:
+          type: boolean
+        hasURLRedirects:
+          type: boolean
+        customFields:
+          type: object
+          propertyNames:
+            type: string
+          additionalProperties: {}
+        customMetricSlices:
+          description: Custom slices that apply to ALL applicable metrics in the experiment
+          type: array
+          items:
+            type: object
+            properties:
+              slices:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    column:
+                      type: string
+                    levels:
+                      type: array
+                      items:
+                        type: string
+                  required:
+                  - column
+                  - levels
+                  additionalProperties: false
+            required:
+            - slices
+            additionalProperties: false
+        defaultDashboardId:
+          description: ID of the default dashboard for this experiment.
+          type: string
+        templateId:
+          type: string
+      required:
+      - id
+      - trackingKey
+      - dateCreated
+      - dateUpdated
+      - name
+      - type
+      - project
+      - hypothesis
+      - description
+      - tags
+      - owner
+      - archived
+      - status
+      - autoRefresh
+      - hashAttribute
+      - hashVersion
+      - variations
+      - phases
+      - settings
+      additionalProperties: false
+    experiments:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+      required:
+      - id
+      - name
+      additionalProperties: false
+    ExperimentMetricOverrideEntry:
+      description: Per-metric analysis overrides stored on the experiment (matches internal metricOverrides).
+      type: object
+      properties:
+        id:
+          description: ID of the metric to override settings for.
+          type: string
+        windowType:
+          type: string
+          enum:
+          - conversion
+          - lookback
+          - ''
+        windowHours:
+          type: number
+        delayHours:
+          type: number
+        properPriorOverride:
+          description: Must be true for the override to take effect. If true, the other proper prior settings in this object will be used if present.
+          type: boolean
+        properPriorEnabled:
+          type: boolean
+        properPriorMean:
+          type: number
+        properPriorStdDev:
+          type: number
+        regressionAdjustmentOverride:
+          description: Must be true for the override to take effect. If true, the other regression adjustment settings in this object will be used if present.
+          type: boolean
+        regressionAdjustmentEnabled:
+          type: boolean
+        regressionAdjustmentDays:
+          type: number
+      required:
+      - id
+      additionalProperties: false
+    ExperimentMetric:
+      type: object
+      properties:
+        metricId:
+          type: string
+        overrides:
+          type: object
+          properties:
+            delayHours:
+              type: number
+            windowHours:
+              type: number
+            window:
+              type: string
+              enum:
+              - conversion
+              - lookback
+              - ''
+            winRiskThreshold:
+              deprecated: true
+              type: number
+            loseRiskThreshold:
+              deprecated: true
+              type: number
+            properPriorOverride:
+              type: boolean
+            properPriorEnabled:
+              type: boolean
+            properPriorMean:
+              type: number
+            properPriorStdDev:
+              type: number
+            regressionAdjustmentOverride:
+              type: boolean
+            regressionAdjustmentEnabled:
+              type: boolean
+            regressionAdjustmentDays:
+              type: number
+          additionalProperties: false
+      required:
+      - metricId
+      - overrides
+      additionalProperties: false
+    screenshot:
+      type: object
+      properties:
+        path:
+          description: URL or path to the uploaded screenshot
+          type: string
+        description:
+          description: Description of the screenshot
+          type: string
+      required:
+      - path
+      - description
+      additionalProperties: false
+    ExperimentResults:
+      type: object
+      properties:
+        id:
+          type: string
+        dateUpdated:
+          type: string
+        experimentId:
+          type: string
+        phase:
+          type: string
+        dateStart:
+          type: string
+        dateEnd:
+          type: string
+        dimension:
+          type: object
+          properties:
+            type:
+              type: string
+            id:
+              type: string
+          required:
+          - type
+          additionalProperties: false
+        settings:
+          $ref: '#/components/schemas/ExperimentAnalysisSettings'
+        queryIds:
+          type: array
+          items:
+            type: string
+        results:
+          type: array
+          items:
+            type: object
+            properties:
+              dimension:
+                type: string
+              totalUsers:
+                type: number
+              checks:
+                type: object
+                properties:
+                  srm:
+                    type: number
+                required:
+                - srm
+                additionalProperties: false
+              metrics:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    metricId:
+                      type: string
+                    variations:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          variationId:
+                            type: string
+                          users:
+                            type: number
+                          analyses:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                engine:
+                                  type: string
+                                  enum:
+                                  - bayesian
+                                  - frequentist
+                                numerator:
+                                  type: number
+                                denominator:
+                                  type: number
+                                mean:
+                                  type: number
+                                stddev:
+                                  type: number
+                                percentChange:
+                                  type: number
+                                ciLow:
+                                  type: number
+                                ciHigh:
+                                  type: number
+                                pValue:
+                                  type: number
+                                risk:
+                                  type: number
+                                chanceToBeatControl:
+                                  type: number
+                              required:
+                              - engine
+                              - numerator
+                              - denominator
+                              - mean
+                              - stddev
+                              - percentChange
+                              - ciLow
+                              - ciHigh
+                              additionalProperties: false
+                        required:
+                        - variationId
+                        - analyses
+                        additionalProperties: false
+                  required:
+                  - metricId
+                  - variations
+                  additionalProperties: false
+            required:
+            - dimension
+            - totalUsers
+            - checks
+            - metrics
+            additionalProperties: false
+      required:
+      - id
+      - dateUpdated
+      - experimentId
+      - phase
+      - dateStart
+      - dateEnd
+      - dimension
+      - settings
+      - queryIds
+      - results
       additionalProperties: false
     ExperimentWithEnhancedStatus:
       allOf:
@@ -1629,679 +2294,41 @@ components:
             - status
             additionalProperties: false
         additionalProperties: false
-    snapshot:
-      type: object
-      properties:
-        id:
-          type: string
-        experiment:
-          type: string
-        status:
-          type: string
-      required:
-      - id
-      - experiment
-      - status
-      additionalProperties: false
-    PaginationFields:
-      type: object
-      properties:
-        limit:
-          type: integer
-        offset:
-          type: integer
-        count:
-          type: integer
-        total:
-          type: integer
-        hasMore:
-          type: boolean
-        nextOffset:
-          anyOf:
-          - type: integer
-          - type: 'null'
-      required:
-      - limit
-      - offset
-      - count
-      - total
-      - hasMore
-      - nextOffset
-      additionalProperties: false
-    ExperimentAnalysisSettings:
-      type: object
-      properties:
-        datasourceId:
-          type: string
-        assignmentQueryId:
-          type: string
-        experimentId:
-          type: string
-        segmentId:
-          type: string
-        queryFilter:
-          type: string
-        inProgressConversions:
-          type: string
-          enum:
-          - include
-          - exclude
-        attributionModel:
-          description: Setting attribution model to `"experimentDuration"` is the same as selecting "Ignore Conversion Windows" for the Conversion Window Override. Setting it to `"lookbackOverride"` requires a `lookbackOverride` object to be provided.
-          type: string
-          enum:
-          - firstExposure
-          - experimentDuration
-          - lookbackOverride
-        lookbackOverride:
-          $ref: '#/components/schemas/LookbackOverride'
-        statsEngine:
-          type: string
-          enum:
-          - bayesian
-          - frequentist
-        regressionAdjustmentEnabled:
-          type: boolean
-        sequentialTestingEnabled:
-          type: boolean
-        sequentialTestingTuningParameter:
-          type: number
-        postStratificationEnabled:
-          description: When null, the organization default is used.
-          anyOf:
-          - description: When null, the organization default is used.
-            type: boolean
-          - description: When null, the organization default is used.
-            type: 'null'
-        decisionFrameworkSettings:
-          $ref: '#/components/schemas/ExperimentDecisionFrameworkSettings'
-        metricOverrides:
-          description: Per-metric analysis overrides; also reflected in goals/secondaryMetrics/guardrails overrides when applicable. On create/update, this replaces the entire stored array (it does not patch individual entries).
-          type: array
-          items:
-            $ref: '#/components/schemas/ExperimentMetricOverrideEntry'
-        goals:
-          type: array
-          items:
-            $ref: '#/components/schemas/ExperimentMetric'
-        secondaryMetrics:
-          type: array
-          items:
-            $ref: '#/components/schemas/ExperimentMetric'
-        guardrails:
-          type: array
-          items:
-            $ref: '#/components/schemas/ExperimentMetric'
-        activationMetric:
-          $ref: '#/components/schemas/ExperimentMetric'
-      required:
-      - datasourceId
-      - assignmentQueryId
-      - experimentId
-      - segmentId
-      - queryFilter
-      - inProgressConversions
-      - attributionModel
-      - statsEngine
-      - goals
-      - secondaryMetrics
-      - guardrails
-      additionalProperties: false
-    ExperimentMetricOverrideEntry:
-      description: Per-metric analysis overrides stored on the experiment (matches internal metricOverrides).
-      type: object
-      properties:
-        id:
-          description: ID of the metric to override settings for.
-          type: string
-        windowType:
-          type: string
-          enum:
-          - conversion
-          - lookback
-          - ''
-        windowHours:
-          type: number
-        delayHours:
-          type: number
-        properPriorOverride:
-          description: Must be true for the override to take effect. If true, the other proper prior settings in this object will be used if present.
-          type: boolean
-        properPriorEnabled:
-          type: boolean
-        properPriorMean:
-          type: number
-        properPriorStdDev:
-          type: number
-        regressionAdjustmentOverride:
-          description: Must be true for the override to take effect. If true, the other regression adjustment settings in this object will be used if present.
-          type: boolean
-        regressionAdjustmentEnabled:
-          type: boolean
-        regressionAdjustmentDays:
-          type: number
-      required:
-      - id
-      additionalProperties: false
-    screenshot:
-      type: object
-      properties:
-        path:
-          description: URL or path to the uploaded screenshot
-          type: string
-        description:
-          description: Description of the screenshot
-          type: string
-      required:
-      - path
-      - description
-      additionalProperties: false
-    Experiment:
-      type: object
-      properties:
-        id:
-          type: string
-        trackingKey:
-          type: string
-        dateCreated:
-          format: date-time
-          type: string
-        dateUpdated:
-          format: date-time
-          type: string
-        name:
-          type: string
-        type:
-          type: string
-          enum:
-          - standard
-          - multi-armed-bandit
-        project:
-          type: string
-        hypothesis:
-          type: string
-        description:
-          type: string
-        tags:
-          type: array
-          items:
-            type: string
-        owner:
-          description: The userId of the owner (or raw owner name/email for legacy records)
-          type: string
-        ownerEmail:
-          description: The email address of the owner, when the owner can be resolved to a known user.
-          type: string
-        archived:
-          type: boolean
-        status:
-          type: string
-        autoRefresh:
-          type: boolean
-        hashAttribute:
-          type: string
-        fallbackAttribute:
-          type: string
-        hashVersion:
-          anyOf:
-          - type: number
-            const: 1
-          - type: number
-            const: 2
-        disableStickyBucketing:
-          type: boolean
-        bucketVersion:
-          type: number
-        minBucketVersion:
-          type: number
-        variations:
-          type: array
-          items:
-            type: object
-            properties:
-              variationId:
-                type: string
-              key:
-                type: string
-              name:
-                type: string
-              description:
-                type: string
-              screenshots:
-                type: array
-                items:
-                  type: string
-            required:
-            - variationId
-            - key
-            - name
-            - description
-            - screenshots
-            additionalProperties: false
-        phases:
-          type: array
-          items:
-            type: object
-            properties:
-              name:
-                type: string
-              dateStarted:
-                type: string
-              dateEnded:
-                type: string
-              reasonForStopping:
-                type: string
-              seed:
-                type: string
-              coverage:
-                type: number
-              trafficSplit:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    variationId:
-                      type: string
-                    weight:
-                      type: number
-                  required:
-                  - variationId
-                  - weight
-                  additionalProperties: false
-              namespace:
-                type: object
-                properties:
-                  namespaceId:
-                    type: string
-                  enabled:
-                    type: boolean
-                  range:
-                    minItems: 2
-                    maxItems: 2
-                    type: array
-                    items:
-                      type: number
-                  ranges:
-                    type: array
-                    items:
-                      type: array
-                      prefixItems:
-                      - type: number
-                      - type: number
-                required:
-                - namespaceId
-                additionalProperties: false
-              targetingCondition:
-                type: string
-              prerequisites:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: string
-                    condition:
-                      type: string
-                  required:
-                  - id
-                  - condition
-                  additionalProperties: false
-              savedGroupTargeting:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    matchType:
-                      type: string
-                      enum:
-                      - all
-                      - any
-                      - none
-                    savedGroups:
-                      type: array
-                      items:
-                        type: string
-                  required:
-                  - matchType
-                  - savedGroups
-                  additionalProperties: false
-            required:
-            - name
-            - dateStarted
-            - dateEnded
-            - reasonForStopping
-            - seed
-            - coverage
-            - trafficSplit
-            - targetingCondition
-            additionalProperties: false
-        settings:
-          $ref: '#/components/schemas/ExperimentAnalysisSettings'
-        resultSummary:
-          type: object
-          properties:
-            status:
-              type: string
-            winner:
-              type: string
-            conclusions:
-              type: string
-            releasedVariationId:
-              type: string
-            excludeFromPayload:
-              type: boolean
-          required:
-          - status
-          - winner
-          - conclusions
-          - releasedVariationId
-          - excludeFromPayload
-          additionalProperties: false
-        shareLevel:
-          type: string
-          enum:
-          - public
-          - organization
-        publicUrl:
-          type: string
-        banditScheduleValue:
-          type: number
-        banditScheduleUnit:
-          type: string
-          enum:
-          - days
-          - hours
-        banditBurnInValue:
-          type: number
-        banditBurnInUnit:
-          type: string
-          enum:
-          - days
-          - hours
-        banditConversionWindowValue:
-          type: number
-        banditConversionWindowUnit:
-          type: string
-          enum:
-          - days
-          - hours
-        linkedFeatures:
-          type: array
-          items:
-            type: string
-        hasVisualChangesets:
-          type: boolean
-        hasURLRedirects:
-          type: boolean
-        customFields:
-          type: object
-          propertyNames:
-            type: string
-          additionalProperties: {}
-        customMetricSlices:
-          description: Custom slices that apply to ALL applicable metrics in the experiment
-          type: array
-          items:
-            type: object
-            properties:
-              slices:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    column:
-                      type: string
-                    levels:
-                      type: array
-                      items:
-                        type: string
-                  required:
-                  - column
-                  - levels
-                  additionalProperties: false
-            required:
-            - slices
-            additionalProperties: false
-        defaultDashboardId:
-          description: ID of the default dashboard for this experiment.
-          type: string
-        templateId:
-          type: string
-      required:
-      - id
-      - trackingKey
-      - dateCreated
-      - dateUpdated
-      - name
-      - type
-      - project
-      - hypothesis
-      - description
-      - tags
-      - owner
-      - archived
-      - status
-      - autoRefresh
-      - hashAttribute
-      - hashVersion
-      - variations
-      - phases
-      - settings
-      additionalProperties: false
-    experiments:
-      type: object
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-      required:
-      - id
-      - name
-      additionalProperties: false
-    ExperimentDecisionFrameworkSettings:
-      description: Controls the decision framework and metric overrides for the experiment. Replaces the entire stored object on update (does not patch individual fields).
-      type: object
-      properties:
-        decisionCriteriaId:
-          type: string
-        decisionFrameworkMetricOverrides:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                description: ID of the metric to override settings for.
-                type: string
-              targetMDE:
-                description: The target relative MDE to use for the metric, expressed as proportions (e.g. use 0.1 for 10%). Must be greater than 0.
-                type: number
-                exclusiveMinimum: 0
-            required:
-            - id
-            additionalProperties: false
-      additionalProperties: false
-    ExperimentResults:
-      type: object
-      properties:
-        id:
-          type: string
-        dateUpdated:
-          type: string
-        experimentId:
-          type: string
-        phase:
-          type: string
-        dateStart:
-          type: string
-        dateEnd:
-          type: string
-        dimension:
-          type: object
-          properties:
-            type:
-              type: string
-            id:
-              type: string
-          required:
-          - type
-          additionalProperties: false
-        settings:
-          $ref: '#/components/schemas/ExperimentAnalysisSettings'
-        queryIds:
-          type: array
-          items:
-            type: string
-        results:
-          type: array
-          items:
-            type: object
-            properties:
-              dimension:
-                type: string
-              totalUsers:
-                type: number
-              checks:
-                type: object
-                properties:
-                  srm:
-                    type: number
-                required:
-                - srm
-                additionalProperties: false
-              metrics:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    metricId:
-                      type: string
-                    variations:
-                      type: array
-                      items:
-                        type: object
-                        properties:
-                          variationId:
-                            type: string
-                          users:
-                            type: number
-                          analyses:
-                            type: array
-                            items:
-                              type: object
-                              properties:
-                                engine:
-                                  type: string
-                                  enum:
-                                  - bayesian
-                                  - frequentist
-                                numerator:
-                                  type: number
-                                denominator:
-                                  type: number
-                                mean:
-                                  type: number
-                                stddev:
-                                  type: number
-                                percentChange:
-                                  type: number
-                                ciLow:
-                                  type: number
-                                ciHigh:
-                                  type: number
-                                pValue:
-                                  type: number
-                                risk:
-                                  type: number
-                                chanceToBeatControl:
-                                  type: number
-                              required:
-                              - engine
-                              - numerator
-                              - denominator
-                              - mean
-                              - stddev
-                              - percentChange
-                              - ciLow
-                              - ciHigh
-                              additionalProperties: false
-                        required:
-                        - variationId
-                        - analyses
-                        additionalProperties: false
-                  required:
-                  - metricId
-                  - variations
-                  additionalProperties: false
-            required:
-            - dimension
-            - totalUsers
-            - checks
-            - metrics
-            additionalProperties: false
-      required:
-      - id
-      - dateUpdated
-      - experimentId
-      - phase
-      - dateStart
-      - dateEnd
-      - dimension
-      - settings
-      - queryIds
-      - results
-      additionalProperties: false
-    ExperimentMetric:
-      type: object
-      properties:
-        metricId:
-          type: string
-        overrides:
-          type: object
-          properties:
-            delayHours:
-              type: number
-            windowHours:
-              type: number
-            window:
-              type: string
-              enum:
-              - conversion
-              - lookback
-              - ''
-            winRiskThreshold:
-              deprecated: true
-              type: number
-            loseRiskThreshold:
-              deprecated: true
-              type: number
-            properPriorOverride:
-              type: boolean
-            properPriorEnabled:
-              type: boolean
-            properPriorMean:
-              type: number
-            properPriorStdDev:
-              type: number
-            regressionAdjustmentOverride:
-              type: boolean
-            regressionAdjustmentEnabled:
-              type: boolean
-            regressionAdjustmentDays:
-              type: number
-          additionalProperties: false
-      required:
-      - metricId
-      - overrides
-      additionalProperties: false
   parameters:
-    id:
-      name: id
+    experimentId:
+      name: experimentId
+      in: query
+      description: Filter the returned list by the experiment tracking key (not the internal experiment ID). Note, this was deprecated to help reduce confusion, consider using `trackingKey` instead, which is functionally identical. You cannot use both params at the same time.
+      schema:
+        deprecated: true
+        description: Filter the returned list by the experiment tracking key (not the internal experiment ID). Note, this was deprecated to help reduce confusion, consider using `trackingKey` instead, which is functionally identical. You cannot use both params at the same time.
+        type: string
+    phase:
+      name: phase
+      in: query
+      description: ''
+      schema:
+        type: string
+    projectId:
+      name: projectId
+      in: query
+      description: Filter by project id
+      schema:
+        description: Filter by project id
+        type: string
+    datasourceId:
+      name: datasourceId
+      in: query
+      description: Filter by Data Source
+      schema:
+        description: Filter by Data Source
+        type: string
+    variationId:
+      name: variationId
       in: path
       required: true
-      description: The id of the requested resource
+      description: ''
       schema:
-        description: The id of the requested resource
         type: string
     limit:
       name: limit
@@ -2313,19 +2340,26 @@ components:
         type: integer
         minimum: 1
         maximum: 100
+    trackingKey:
+      name: trackingKey
+      in: query
+      description: Filter by experiment tracking key
+      schema:
+        description: Filter by experiment tracking key
+        type: string
+    id:
+      name: id
+      in: path
+      required: true
+      description: The id of the requested resource
+      schema:
+        description: The id of the requested resource
+        type: string
     dimension:
       name: dimension
       in: query
       description: ''
       schema:
-        type: string
-    experimentId:
-      name: experimentId
-      in: query
-      description: Filter the returned list by the experiment tracking key (not the internal experiment ID). Note, this was deprecated to help reduce confusion, consider using `trackingKey` instead, which is functionally identical. You cannot use both params at the same time.
-      schema:
-        deprecated: true
-        description: Filter the returned list by the experiment tracking key (not the internal experiment ID). Note, this was deprecated to help reduce confusion, consider using `trackingKey` instead, which is functionally identical. You cannot use both params at the same time.
         type: string
     offset:
       name: offset
@@ -2336,40 +2370,6 @@ components:
         description: How many items to skip (use in conjunction with limit for pagination)
         type: integer
         minimum: 0
-    variationId:
-      name: variationId
-      in: path
-      required: true
-      description: ''
-      schema:
-        type: string
-    phase:
-      name: phase
-      in: query
-      description: ''
-      schema:
-        type: string
-    trackingKey:
-      name: trackingKey
-      in: query
-      description: Filter by experiment tracking key
-      schema:
-        description: Filter by experiment tracking key
-        type: string
-    datasourceId:
-      name: datasourceId
-      in: query
-      description: Filter by Data Source
-      schema:
-        description: Filter by Data Source
-        type: string
-    projectId:
-      name: projectId
-      in: query
-      description: Filter by project id
-      schema:
-        description: Filter by project id
-        type: string
   securitySchemes:
     bearerAuth:
       type: http

@@ -281,61 +281,7 @@ paths:
       - lang: cURL
         source: "curl -X POST 'https://api.growthbook.io/api/v1/namespaces/ns-abc123/rotateSeed' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
 components:
-  parameters:
-    offset:
-      name: offset
-      in: query
-      description: How many items to skip (use in conjunction with limit for pagination)
-      schema:
-        default: 0
-        description: How many items to skip (use in conjunction with limit for pagination)
-        type: integer
-        minimum: 0
-    limit:
-      name: limit
-      in: query
-      description: The number of items to return
-      schema:
-        default: 10
-        description: The number of items to return
-        type: integer
-        minimum: 1
-        maximum: 100
   schemas:
-    NamespaceExperimentMember:
-      type: object
-      properties:
-        id:
-          description: The internal experiment ID.
-          type: string
-        name:
-          description: Display name of the experiment.
-          type: string
-        trackingKey:
-          description: The experiment tracking key used by the SDK.
-          type: string
-        status:
-          description: The current status of the experiment.
-          type: string
-          enum:
-          - draft
-          - running
-          - stopped
-        ranges:
-          description: The ranges claimed within this namespace, as [start, end] pairs between 0 and 1.
-          type: array
-          items:
-            type: array
-            prefixItems:
-            - type: number
-            - type: number
-      required:
-      - id
-      - name
-      - trackingKey
-      - status
-      - ranges
-      additionalProperties: false
     Namespace:
       type: object
       properties:
@@ -396,6 +342,60 @@ components:
       - hasMore
       - nextOffset
       additionalProperties: false
+    NamespaceExperimentMember:
+      type: object
+      properties:
+        id:
+          description: The internal experiment ID.
+          type: string
+        name:
+          description: Display name of the experiment.
+          type: string
+        trackingKey:
+          description: The experiment tracking key used by the SDK.
+          type: string
+        status:
+          description: The current status of the experiment.
+          type: string
+          enum:
+          - draft
+          - running
+          - stopped
+        ranges:
+          description: The ranges claimed within this namespace, as [start, end] pairs between 0 and 1.
+          type: array
+          items:
+            type: array
+            prefixItems:
+            - type: number
+            - type: number
+      required:
+      - id
+      - name
+      - trackingKey
+      - status
+      - ranges
+      additionalProperties: false
+  parameters:
+    limit:
+      name: limit
+      in: query
+      description: The number of items to return
+      schema:
+        default: 10
+        description: The number of items to return
+        type: integer
+        minimum: 1
+        maximum: 100
+    offset:
+      name: offset
+      in: query
+      description: How many items to skip (use in conjunction with limit for pagination)
+      schema:
+        default: 0
+        description: How many items to skip (use in conjunction with limit for pagination)
+        type: integer
+        minimum: 0
   securitySchemes:
     bearerAuth:
       type: http
