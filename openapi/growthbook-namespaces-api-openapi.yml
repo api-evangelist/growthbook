@@ -282,41 +282,6 @@ paths:
         source: "curl -X POST 'https://api.growthbook.io/api/v1/namespaces/ns-abc123/rotateSeed' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
 components:
   schemas:
-    Namespace:
-      type: object
-      properties:
-        id:
-          description: The unique internal identifier for the namespace (e.g. 'ns-abc123').
-          type: string
-        displayName:
-          description: Human-readable display name.
-          type: string
-        description:
-          type: string
-        status:
-          type: string
-          enum:
-          - active
-          - inactive
-        format:
-          description: Namespace format. 'multiRange' supports multiple ranges per experiment and a configurable hash attribute.
-          type: string
-          enum:
-          - legacy
-          - multiRange
-        hashAttribute:
-          description: The user attribute used to assign bucket membership. Only present on multiRange namespaces.
-          type: string
-        seed:
-          description: The seed used for bucket hashing. Changing this re-randomizes which traffic is eligible for which experiment. Use the rotateSeed endpoint to change it.
-          type: string
-      required:
-      - id
-      - displayName
-      - description
-      - status
-      - format
-      additionalProperties: false
     PaginationFields:
       type: object
       properties:
@@ -376,7 +341,51 @@ components:
       - status
       - ranges
       additionalProperties: false
+    Namespace:
+      type: object
+      properties:
+        id:
+          description: The unique internal identifier for the namespace (e.g. 'ns-abc123').
+          type: string
+        displayName:
+          description: Human-readable display name.
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+          enum:
+          - active
+          - inactive
+        format:
+          description: Namespace format. 'multiRange' supports multiple ranges per experiment and a configurable hash attribute.
+          type: string
+          enum:
+          - legacy
+          - multiRange
+        hashAttribute:
+          description: The user attribute used to assign bucket membership. Only present on multiRange namespaces.
+          type: string
+        seed:
+          description: The seed used for bucket hashing. Changing this re-randomizes which traffic is eligible for which experiment. Use the rotateSeed endpoint to change it.
+          type: string
+      required:
+      - id
+      - displayName
+      - description
+      - status
+      - format
+      additionalProperties: false
   parameters:
+    offset:
+      name: offset
+      in: query
+      description: How many items to skip (use in conjunction with limit for pagination)
+      schema:
+        default: 0
+        description: How many items to skip (use in conjunction with limit for pagination)
+        type: integer
+        minimum: 0
     limit:
       name: limit
       in: query
@@ -387,15 +396,6 @@ components:
         type: integer
         minimum: 1
         maximum: 100
-    offset:
-      name: offset
-      in: query
-      description: How many items to skip (use in conjunction with limit for pagination)
-      schema:
-        default: 0
-        description: How many items to skip (use in conjunction with limit for pagination)
-        type: integer
-        minimum: 0
   securitySchemes:
     bearerAuth:
       type: http

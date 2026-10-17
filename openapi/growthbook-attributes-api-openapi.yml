@@ -205,6 +205,15 @@ paths:
       - lang: cURL
         source: "curl -X DELETE 'https://api.growthbook.io/api/v1/attributes/abc123' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
 components:
+  parameters:
+    property:
+      name: property
+      in: path
+      required: true
+      description: The attribute property
+      schema:
+        description: The attribute property
+        type: string
   schemas:
     Attribute:
       type: object
@@ -249,15 +258,6 @@ components:
       - property
       - datatype
       additionalProperties: false
-  parameters:
-    property:
-      name: property
-      in: path
-      required: true
-      description: The attribute property
-      schema:
-        description: The attribute property
-        type: string
   securitySchemes:
     bearerAuth:
       type: http

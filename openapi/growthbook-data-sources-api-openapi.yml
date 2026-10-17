@@ -166,31 +166,6 @@ components:
       - dateCreated
       - dateUpdated
       additionalProperties: false
-    PaginationFields:
-      type: object
-      properties:
-        limit:
-          type: integer
-        offset:
-          type: integer
-        count:
-          type: integer
-        total:
-          type: integer
-        hasMore:
-          type: boolean
-        nextOffset:
-          anyOf:
-          - type: integer
-          - type: 'null'
-      required:
-      - limit
-      - offset
-      - count
-      - total
-      - hasMore
-      - nextOffset
-      additionalProperties: false
     InformationSchema:
       type: object
       properties:
@@ -411,15 +386,32 @@ components:
       - assignmentQueries
       - identifierJoinQueries
       additionalProperties: false
+    PaginationFields:
+      type: object
+      properties:
+        limit:
+          type: integer
+        offset:
+          type: integer
+        count:
+          type: integer
+        total:
+          type: integer
+        hasMore:
+          type: boolean
+        nextOffset:
+          anyOf:
+          - type: integer
+          - type: 'null'
+      required:
+      - limit
+      - offset
+      - count
+      - total
+      - hasMore
+      - nextOffset
+      additionalProperties: false
   parameters:
-    id:
-      name: id
-      in: path
-      required: true
-      description: The id of the requested resource
-      schema:
-        description: The id of the requested resource
-        type: string
     projectId:
       name: projectId
       in: query
@@ -435,6 +427,31 @@ components:
       schema:
         description: The id of the data source
         type: string
+    tableId:
+      name: tableId
+      in: path
+      required: true
+      description: The id of the information schema table
+      schema:
+        description: The id of the information schema table
+        type: string
+    offset:
+      name: offset
+      in: query
+      description: How many items to skip (use in conjunction with limit for pagination)
+      schema:
+        default: 0
+        description: How many items to skip (use in conjunction with limit for pagination)
+        type: integer
+        minimum: 0
+    id:
+      name: id
+      in: path
+      required: true
+      description: The id of the requested resource
+      schema:
+        description: The id of the requested resource
+        type: string
     limit:
       name: limit
       in: query
@@ -445,23 +462,6 @@ components:
         type: integer
         minimum: 1
         maximum: 100
-    offset:
-      name: offset
-      in: query
-      description: How many items to skip (use in conjunction with limit for pagination)
-      schema:
-        default: 0
-        description: How many items to skip (use in conjunction with limit for pagination)
-        type: integer
-        minimum: 0
-    tableId:
-      name: tableId
-      in: path
-      required: true
-      description: The id of the information schema table
-      schema:
-        description: The id of the information schema table
-        type: string
   securitySchemes:
     bearerAuth:
       type: http

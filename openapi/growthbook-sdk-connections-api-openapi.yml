@@ -266,61 +266,6 @@ paths:
       - lang: cURL
         source: "curl -X GET 'https://api.growthbook.io/api/v1/sdk-connections/lookup/abc123' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
 components:
-  parameters:
-    key:
-      name: key
-      in: path
-      required: true
-      description: The key of the requested sdkConnection
-      schema:
-        description: The key of the requested sdkConnection
-        type: string
-    id:
-      name: id
-      in: path
-      required: true
-      description: The id of the requested resource
-      schema:
-        description: The id of the requested resource
-        type: string
-    multiOrg:
-      name: multiOrg
-      in: query
-      description: ''
-      schema:
-        type: string
-    projectId:
-      name: projectId
-      in: query
-      description: Filter by project id
-      schema:
-        description: Filter by project id
-        type: string
-    limit:
-      name: limit
-      in: query
-      description: The number of items to return
-      schema:
-        default: 10
-        description: The number of items to return
-        type: integer
-        minimum: 1
-        maximum: 100
-    offset:
-      name: offset
-      in: query
-      description: How many items to skip (use in conjunction with limit for pagination)
-      schema:
-        default: 0
-        description: How many items to skip (use in conjunction with limit for pagination)
-        type: integer
-        minimum: 0
-    withProxy:
-      name: withProxy
-      in: query
-      description: ''
-      schema:
-        type: string
   schemas:
     PaginationFields:
       type: object
@@ -433,6 +378,61 @@ components:
       - proxyHost
       - proxySigningKey
       additionalProperties: false
+  parameters:
+    withProxy:
+      name: withProxy
+      in: query
+      description: ''
+      schema:
+        type: string
+    projectId:
+      name: projectId
+      in: query
+      description: Filter by project id
+      schema:
+        description: Filter by project id
+        type: string
+    offset:
+      name: offset
+      in: query
+      description: How many items to skip (use in conjunction with limit for pagination)
+      schema:
+        default: 0
+        description: How many items to skip (use in conjunction with limit for pagination)
+        type: integer
+        minimum: 0
+    id:
+      name: id
+      in: path
+      required: true
+      description: The id of the requested resource
+      schema:
+        description: The id of the requested resource
+        type: string
+    limit:
+      name: limit
+      in: query
+      description: The number of items to return
+      schema:
+        default: 10
+        description: The number of items to return
+        type: integer
+        minimum: 1
+        maximum: 100
+    multiOrg:
+      name: multiOrg
+      in: query
+      description: ''
+      schema:
+        type: string
+    key:
+      name: key
+      in: path
+      required: true
+      description: The key of the requested sdkConnection
+      schema:
+        description: The key of the requested sdkConnection
+        type: string
   securitySchemes:
     bearerAuth:
       type: http
