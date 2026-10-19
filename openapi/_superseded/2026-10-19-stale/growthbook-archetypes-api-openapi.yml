@@ -1,0 +1,361 @@
+openapi: 3.2.0
+info:
+  version: 1.0.0
+  title: GrowthBook REST Archetypes API
+  description: GrowthBook offers a full REST API for interacting with the application.
+servers:
+- url: https://api.growthbook.io/api
+  description: GrowthBook Cloud
+- url: https://{domain}/api
+  description: Self-hosted GrowthBook
+security:
+- bearerAuth: []
+- basicAuth: []
+tags:
+- name: Archetypes
+  x-displayName: Archetypes
+  description: Archetypes allow you to simulate the result of targeting rules on pre-set user attributes
+paths:
+  /v1/archetypes:
+    get:
+      operationId: listArchetypes
+      summary: Get the organization's archetypes
+      tags:
+      - Archetypes
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  archetypes:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Archetype'
+                required:
+                - archetypes
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/archetypes' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+    post:
+      operationId: postArchetype
+      summary: Create a single archetype
+      tags:
+      - Archetypes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                isPublic:
+                  description: Whether to make this Archetype available to other team members
+                  type: boolean
+                attributes:
+                  description: The attributes to set when using this Archetype
+                  type: object
+                  propertyNames:
+                    type: string
+                  additionalProperties: {}
+                projects:
+                  type: array
+                  items:
+                    type: string
+              required:
+              - name
+              - isPublic
+              additionalProperties: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  archetype:
+                    $ref: '#/components/schemas/Archetype'
+                required:
+                - archetype
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/archetypes' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/archetypes/{id}:
+    get:
+      operationId: getArchetype
+      summary: Get a single archetype
+      tags:
+      - Archetypes
+      parameters:
+      - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  archetype:
+                    $ref: '#/components/schemas/Archetype'
+                required:
+                - archetype
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/archetypes/abc123' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+    put:
+      operationId: putArchetype
+      summary: Update a single archetype
+      tags:
+      - Archetypes
+      parameters:
+      - $ref: '#/components/parameters/id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                isPublic:
+                  description: Whether to make this Archetype available to other team members
+                  type: boolean
+                attributes:
+                  description: The attributes to set when using this Archetype
+                  type: object
+                  propertyNames:
+                    type: string
+                  additionalProperties: {}
+                projects:
+                  type: array
+                  items:
+                    type: string
+              additionalProperties: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  archetype:
+                    $ref: '#/components/schemas/Archetype'
+                required:
+                - archetype
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X PUT 'https://api.growthbook.io/api/v1/archetypes/abc123' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"description\":\"New description\"}'"
+    delete:
+      operationId: deleteArchetype
+      summary: Deletes a single archetype
+      tags:
+      - Archetypes
+      parameters:
+      - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deletedId:
+                    type: string
+                required:
+                - deletedId
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X DELETE 'https://api.growthbook.io/api/v1/archetypes/abc123' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+components:
+  parameters:
+    id:
+      name: id
+      in: path
+      required: true
+      description: The id of the requested resource
+      schema:
+        description: The id of the requested resource
+        type: string
+  schemas:
+    Archetype:
+      type: object
+      properties:
+        id:
+          type: string
+        dateCreated:
+          type: string
+        dateUpdated:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        owner:
+          description: The userId of the owner (or raw owner name/email for legacy records)
+          type: string
+        ownerEmail:
+          description: The email address of the owner, when the owner can be resolved to a known user.
+          type: string
+        isPublic:
+          type: boolean
+        attributes:
+          description: The attributes to set when using this Archetype
+          type: object
+          propertyNames:
+            type: string
+          additionalProperties: {}
+        projects:
+          type: array
+          items:
+            type: string
+      required:
+      - id
+      - dateCreated
+      - dateUpdated
+      - name
+      - owner
+      - isPublic
+      - attributes
+      additionalProperties: false
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: 'If using Bearer auth, pass the Secret Key as the token:
+
+        ```bash
+
+        curl https://api.growthbook.io/api/v1/features   -H "Authorization: Bearer secret_abc123DEF456"
+
+        ```
+
+        '
+    basicAuth:
+      type: http
+      scheme: basic
+      description: 'If using HTTP Basic auth, pass the Secret Key as the username and leave the password blank:
+
+        ```bash
+
+        curl https://api.growthbook.io/api/v1/features   -u secret_abc123DEF456:
+
+        # The ":" at the end stops curl from asking for a password
+
+        ```
+
+        '
+x-tagGroups:
+- name: Endpoints
+  tags:
+  - projects
+  - environments
+  - features-v2
+  - feature-revisions-v2
+  - features
+  - feature-revisions
+  - ramp-schedules
+  - data-sources
+  - fact-tables
+  - fact-metrics
+  - metrics
+  - experiments
+  - namespaces
+  - snapshots
+  - dimensions
+  - segments
+  - sdk-connections
+  - visual-changesets
+  - saved-groups
+  - organizations
+  - members
+  - code-references
+  - archetypes
+  - queries
+  - settings
+  - attributes
+  - usage
+  - Dashboards
+  - CustomFields
+  - MetricGroups
+  - Teams
+  - ExperimentTemplates
+  - AnalyticsExplorations
+  - RampScheduleTemplates
+- name: Models
+  tags:
+  - AnalyticsExploration_model
+  - Archetype_model
+  - Attribute_model
+  - CodeRef_model
+  - CustomField_model
+  - Dashboard_model
+  - DataSource_model
+  - Dimension_model
+  - Environment_model
+  - Experiment_model
+  - ExperimentAnalysisSettings_model
+  - ExperimentDecisionFrameworkSettings_model
+  - ExperimentMetric_model
+  - ExperimentMetricOverrideEntry_model
+  - ExperimentResults_model
+  - ExperimentSnapshot_model
+  - ExperimentTemplate_model
+  - ExperimentWithEnhancedStatus_model
+  - FactMetric_model
+  - FactTable_model
+  - FactTableColumn_model
+  - FactTableFilter_model
+  - Feature_model
+  - FeatureBaseRule_model
+  - FeatureDefinition_model
+  - FeatureEnvironment_model
+  - FeatureEnvironmentV2_model
+  - FeatureExperimentRefRule_model
+  - FeatureExperimentRule_model
+  - FeatureForceRule_model
+  - FeatureRevision_model
+  - FeatureRevisionV2_model
+  - FeatureRolloutRule_model
+  - FeatureRule_model
+  - FeatureRuleV2_model
+  - FeatureSafeRolloutRule_model
+  - FeatureV2_model
+  - FeatureWithRevisions_model
+  - FeatureWithRevisionsV2_model
+  - InformationSchema_model
+  - InformationSchemaTable_model
+  - LookbackOverride_model
+  - Member_model
+  - Metric_model
+  - MetricAnalysis_model
+  - MetricGroup_model
+  - MetricUsage_model
+  - Namespace_model
+  - NamespaceExperimentMember_model
+  - Organization_model
+  - PaginationFields_model
+  - Project_model
+  - Query_model
+  - RampSchedule_model
+  - RampScheduleTemplate_model
+  - SavedGroup_model
+  - ScheduleRule_model
+  - SdkConnection_model
+  - Segment_model
+  - Settings_model
+  - Team_model
+  - VisualChange_model
+  - VisualChangeset_model

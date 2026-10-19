@@ -1,0 +1,2829 @@
+openapi: 3.2.0
+info:
+  version: 5.1.0
+  title: GrowthBook REST Config Revisions API
+  description: 'GrowthBook offers a full REST API for interacting with the application. Request data can use either JSON or Form data encoding (with proper `Content-Type` headers). All response bodies are JSON-encoded. The API base URL for GrowthBook Cloud is `https://api.growthbook.io/api`. For self-hosted deployments, it is the same as your API_HOST environment variable (defaults to `http://localhost:3100/api`). The rest of these docs will assume you are using GrowthBook Cloud. ## Versioning
+
+
+    Endpoints are versioned by path prefix:
+
+
+    - `/v1/...` — stable, widely-supported endpoints
+
+    - `/v2/...` — updated endpoints with improved shapes (e.g. unified per-rule environment scope for feature flags)
+
+
+    New integrations should prefer v2 where available. Feature-flag and metric v1 routes are deprecated: they are tagged **LEGACY** in the sidebar and collapsed by default. Use the matching v2 group when both exist. ## Authentication
+
+
+    We support both the HTTP Basic and Bearer authentication schemes for convenience. You first need to generate a new API Key in GrowthBook. Different keys have different permissions:
+
+
+    - **Personal Access Tokens**: These are sensitive and provide the same level of access as the user has to an organization, or less if the token''s permissions are limited. These can be created by going to `Personal Access Tokens` under your user menu. Members with the API Keys **Manage members'' tokens** permission can disable a member''s token under `Settings -> Manage PATs`, and admins can require new tokens to expire within a maximum lifetime. - **Secret Keys**: These are sensitive and provide the level of access of the role they are given, which can be any built-in or custom role, with optional per-project role overrides and environment limits. Managing Secret Keys on behalf of an organization takes the API Keys permissions. These can be created by going to `Settings -> API Keys`, where Admins can also require new Secret Keys to expire within a maximum lifetime. If using HTTP Basic auth, pass the Secret Key as the username and leave the password blank (when using curl, add `:` at the end of the secret to indicate an empty password)
+
+
+    ```bash
+
+    curl https://api.growthbook.io/api/v1/features \
+
+    -u secret_abc123DEF456:
+
+    ```
+
+
+    If using Bearer auth, pass the Secret Key as the token:
+
+
+    ```bash
+
+    curl https://api.growthbook.io/api/v1/features \
+
+    -H "Authorization: Bearer secret_abc123DEF456"
+
+    ```
+
+
+    If a key has an expiration date, every response includes it in the `X-GrowthBook-Key-Expires-At` header (ISO 8601), so scripts can warn before the key stops working. Requests made with an expired key fail with a `401` that says where to create a replacement. See Expiration for choosing a key''s expiration, the warnings before it lapses, and the organization policies. ## Naming who asked
+
+
+    Requests made with a Secret Key may add an `X-GrowthBook-Requested-By` header naming the organization member who asked for the change, as a user id or an email address. History, revision logs and webhooks show that member next to the key. Each key''s settings under `Settings -> API Keys`:
+
+
+    - **Header**: **Optional** (the default) uses the header when it''s sent, **Required** rejects requests without it, and **Rejected** rejects requests that send it, each with a 400. - **Permissions**, when a member is named:
+
+    - **Assume member''s role** (the default): the request acts as that member, with only what both the key and the member can do, so the header can narrow a key but never widen it. Drafts, owners, `mine` filters and reviews are the member''s. The member''s rights over their own drafts, comments and verdicts apply only where the key''s own role allows the same action. - **Use key''s role**: the key acts as itself, with its own permissions, and the name is only recorded in history. Drafts, verdicts and ownership are the key''s, as when no member is named.'
+servers:
+- url: https://api.growthbook.io/api
+  description: GrowthBook Cloud
+- url: https://{domain}/api
+  description: Self-hosted GrowthBook
+  variables:
+    domain:
+      default: localhost:3100
+      description: Your self-hosted GrowthBook host (and port)
+security:
+- bearerAuth: []
+- basicAuth: []
+tags:
+- name: config-revisions
+  x-displayName: Config Revisions
+  description: '**Beta** — these endpoints are new and may change in backwards-incompatible ways.
+
+
+    Draft revisions for configs, including value and schema edits, schema import (JSON Schema / TypeScript / inferred), approvals, and lifecycle (publish, discard, revert). Publishing a schema change cascades the "base wins" normalization to descendant configs; a publish that removes or retypes fields descendants still use soft-blocks with a 422 unless the request body sets `ignoreWarnings: true`. Pass `version: "new"` on edit endpoints to auto-create a draft.'
+paths:
+  /v1/configs-revisions:
+    get:
+      operationId: listConfigRevisions
+      summary: List config revisions across the organization
+      description: Returns a paginated list of revisions across all configs in the organization, sorted newest-first. Optionally filtered by config, status, author, or the calling user's involvement.
+      tags:
+      - config-revisions
+      parameters:
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/skipPagination'
+      - name: key
+        in: query
+        description: Restrict results to revisions for a single config (by its key). When omitted, returns revisions across every config the caller can read.
+        schema:
+          description: Restrict results to revisions for a single config (by its key). When omitted, returns revisions across every config the caller can read.
+          type: string
+      - name: status
+        in: query
+        description: Filter by revision status. Accepts a comma-separated list, or the literal `open` for non-merged/non-discarded revisions.
+        schema:
+          description: Filter by revision status. Accepts a comma-separated list, or the literal `open` for non-merged/non-discarded revisions.
+          type: string
+      - $ref: '#/components/parameters/author'
+      - name: mine
+        in: query
+        description: If true, return only revisions authored by the calling user. Needs a personal access token, or an organization API key that assumes a named member's role. Mutually exclusive with `author`.
+        schema:
+          description: If true, return only revisions authored by the calling user. Needs a personal access token, or an organization API key that assumes a named member's role. Mutually exclusive with `author`.
+          anyOf:
+          - type: string
+            const: 'true'
+          - type: string
+            const: 'false'
+          - type: string
+            const: '0'
+          - type: string
+            const: '1'
+          - type: boolean
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  revisions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ConfigRevision'
+                  limit:
+                    type: integer
+                  offset:
+                    type: integer
+                  count:
+                    type: integer
+                  total:
+                    type: integer
+                  hasMore:
+                    type: boolean
+                  nextOffset:
+                    anyOf:
+                    - type: integer
+                    - type: 'null'
+                required:
+                - revisions
+                - limit
+                - offset
+                - count
+                - total
+                - hasMore
+                - nextOffset
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/configs-revisions' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/configs-revisions/{key}:
+    get:
+      operationId: getConfigRevisions
+      summary: List revisions for a config
+      description: Returns a paginated list of revisions for this config, sorted newest-first. Optionally filtered by status, author, or the calling user's involvement.
+      tags:
+      - config-revisions
+      parameters:
+      - name: key
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/skipPagination'
+      - name: status
+        in: query
+        description: Filter by revision status. Accepts a comma-separated list, or the literal `open` for non-merged/non-discarded revisions.
+        schema:
+          description: Filter by revision status. Accepts a comma-separated list, or the literal `open` for non-merged/non-discarded revisions.
+          type: string
+      - $ref: '#/components/parameters/author'
+      - name: mine
+        in: query
+        description: If true, return only revisions authored by the calling user. Needs a personal access token, or an organization API key that assumes a named member's role. Mutually exclusive with `author`.
+        schema:
+          description: If true, return only revisions authored by the calling user. Needs a personal access token, or an organization API key that assumes a named member's role. Mutually exclusive with `author`.
+          anyOf:
+          - type: string
+            const: 'true'
+          - type: string
+            const: 'false'
+          - type: string
+            const: '0'
+          - type: string
+            const: '1'
+          - type: boolean
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  revisions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ConfigRevision'
+                  limit:
+                    type: integer
+                  offset:
+                    type: integer
+                  count:
+                    type: integer
+                  total:
+                    type: integer
+                  hasMore:
+                    type: boolean
+                  nextOffset:
+                    anyOf:
+                    - type: integer
+                    - type: 'null'
+                required:
+                - revisions
+                - limit
+                - offset
+                - count
+                - total
+                - hasMore
+                - nextOffset
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/configs-revisions/checkout-flow' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+    post:
+      operationId: postConfigRevision
+      summary: Create a draft revision
+      description: Creates a new draft revision branched from the current live config. A config can have multiple concurrent drafts; use this to start an isolated line of edits.
+      tags:
+      - config-revisions
+      parameters:
+      - name: key
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                comment:
+                  type: string
+              additionalProperties: false
+      responses:
+        '200':
+          description: Resource created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  revision:
+                    $ref: '#/components/schemas/ConfigRevision'
+                required:
+                - revision
+                additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/configs-revisions/{key}' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/configs-revisions/{key}/latest:
+    get:
+      operationId: getConfigRevisionLatest
+      summary: Get the most recent active draft revision
+      description: Returns the most recently updated open (non-merged, non-discarded) revision for the config. Returns 404 if there is no active draft. Pass `mine=true` to restrict to drafts authored by the calling user. Needs a personal access token, or an organization API key that assumes a named member's role.
+      tags:
+      - config-revisions
+      parameters:
+      - name: key
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: mine
+        in: query
+        description: If true, return only the most recent active draft authored by the calling user. Needs a personal access token, or an organization API key that assumes a named member's role.
+        schema:
+          description: If true, return only the most recent active draft authored by the calling user. Needs a personal access token, or an organization API key that assumes a named member's role.
+          anyOf:
+          - type: string
+            const: 'true'
+          - type: string
+            const: 'false'
+          - type: string
+            const: '0'
+          - type: string
+            const: '1'
+          - type: boolean
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  revision:
+                    $ref: '#/components/schemas/ConfigRevision'
+                required:
+                - revision
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/configs-revisions/checkout-flow/latest' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/configs-revisions/{key}/{version}:
+    get:
+      operationId: getConfigRevision
+      summary: Get a single config revision
+      description: Returns the revision at the specified version for this config. Use `GET /configs-revisions/{key}/latest` for the most recent active draft.
+      tags:
+      - config-revisions
+      parameters:
+      - name: key
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - $ref: '#/components/parameters/version'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  revision:
+                    $ref: '#/components/schemas/ConfigRevision'
+                required:
+                - revision
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/configs-revisions/checkout-flow/3' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/configs-revisions/{key}/{version}/metadata:
+    put:
+      operationId: putConfigRevisionMetadata
+      summary: Update config metadata in a draft revision
+      description: 'Stages metadata changes (name, owner, description, project, lineage parent, extensibility) on the draft. Pass `version: "new"` to auto-create a draft. The change is only applied to the live config when the revision is merged.'
+      tags:
+      - config-revisions
+      parameters:
+      - name: key
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: version
+        in: path
+        required: true
+        description: ''
+        schema:
+          anyOf:
+          - type: integer
+          - type: string
+            const: new
+      - $ref: '#/components/parameters/skipSchemaValidation'
+      - $ref: '#/components/parameters/ignoreWarnings'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                revisionTitle:
+                  description: Short draft title (e.g. `Enable for beta testers`). Only used when `version` is "new"; ignored for existing drafts.
+                  type: string
+                revisionComment:
+                  description: Markdown. What changed and why, for reviewers. Only used when `version` is "new"; ignored for existing drafts.
+                  type: string
+                name:
+                  description: Short display name. Put details in `description`.
+                  type: string
+                owner:
+                  description: The userId or email address of the owner. If an email address is provided, it will be used to look up the userId of the matching organization member. If an ID is provided, it will be validated as existing in the organization.
+                  type: string
+                description:
+                  description: Markdown. Put context here, not in the name.
+                  type: string
+                project:
+                  type: string
+                parent:
+                  description: Change the lineage parent (the `key` to inherit from). Empty string detaches from the parent.
+                  type: string
+                extends:
+                  description: Replace the composition mixins layered on top of `parent`, in precedence order (later overrides earlier; all override `parent`; own keys win last). Send the complete set; an empty array clears all mixins.
+                  type: array
+                  items:
+                    type: string
+                extensible:
+                  type: boolean
+                ignoreWarnings:
+                  description: Set to true to acknowledge the warnings listed in a blocked response and continue. This covers experiment guards, locked dependents, and references affected by an archive. When the organization treats schema failures as warnings, it also covers schema and invariant warnings. It never bypasses a rejected Custom Hook. On revision publish endpoints, it can also force-publish an out-of-date draft when the caller has Bypass draft approvals access. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+                skipSchemaValidation:
+                  description: Set to true to publish despite schema validation errors, failed invariants, or schema changes that invalidate dependent resources. This does not bypass a rejected Custom Hook; use `skipHooks` for that. The caller must have Bypass draft approvals access for Feature Flags, Configs, and Constants in every Project. Otherwise, this field is ignored. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+                skipHooks:
+                  description: Set to true to publish despite a Custom Hook rejection. This does not bypass schema validation; use `skipSchemaValidation` for that. The caller must have Bypass draft approvals access for Feature Flags, Configs, and Constants in every Project. Otherwise, this field is ignored. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+              additionalProperties: false
+      responses:
+        '200':
+          description: Resource updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  revision:
+                    $ref: '#/components/schemas/ConfigRevision'
+                  warnings:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ConfigSchemaWarning'
+                required:
+                - revision
+                additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X PUT 'https://api.growthbook.io/api/v1/configs-revisions/{key}/{version}/metadata' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/configs-revisions/{key}/{version}/value:
+    put:
+      operationId: putConfigRevisionValue
+      summary: Update the value of a config draft revision
+      description: 'Stages a new `value` (this config''s own JSON object) on the draft. Pass `version: "new"` to auto-create a draft. A `@config:` inheritance entry in the value is rejected — express lineage via the `parent`/`extends` metadata fields instead. Configs are environment-agnostic: there is no per-environment override (use a Constant for that).
+
+
+        Inheritance is a deep (targeted) patch: this value is merged onto the resolved parent recursively, key by key — restate only the leaves you want to change and the rest are inherited. Arrays and scalars replace wholesale, `null` is a value (it does not delete a key), and a value composed from a constant via `$extends` is applied whole.
+
+
+        Set `inferSchemaIfMissing: true` to derive and stage a field schema from the value when the config has none yet.'
+      tags:
+      - config-revisions
+      parameters:
+      - name: key
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: version
+        in: path
+        required: true
+        description: ''
+        schema:
+          anyOf:
+          - type: integer
+          - type: string
+            const: new
+      - $ref: '#/components/parameters/skipSchemaValidation'
+      - $ref: '#/components/parameters/ignoreWarnings'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                revisionTitle:
+                  description: Short draft title (e.g. `Enable for beta testers`). Only used when `version` is "new"; ignored for existing drafts.
+                  type: string
+                revisionComment:
+                  description: Markdown. What changed and why, for reviewers. Only used when `version` is "new"; ignored for existing drafts.
+                  type: string
+                value:
+                  description: This config's own value as a JSON object — a targeted patch deep-merged onto the resolved parent value.
+                  type: object
+                  propertyNames:
+                    type: string
+                  additionalProperties: {}
+                inferSchemaIfMissing:
+                  description: When the config has no schema yet, infer one from the supplied `value` and stage it on the same draft.
+                  type: boolean
+                ignoreWarnings:
+                  description: Set to true to acknowledge the warnings listed in a blocked response and continue. This covers experiment guards, locked dependents, and references affected by an archive. When the organization treats schema failures as warnings, it also covers schema and invariant warnings. It never bypasses a rejected Custom Hook. On revision publish endpoints, it can also force-publish an out-of-date draft when the caller has Bypass draft approvals access. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+                skipSchemaValidation:
+                  description: Set to true to publish despite schema validation errors, failed invariants, or schema changes that invalidate dependent resources. This does not bypass a rejected Custom Hook; use `skipHooks` for that. The caller must have Bypass draft approvals access for Feature Flags, Configs, and Constants in every Project. Otherwise, this field is ignored. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+                skipHooks:
+                  description: Set to true to publish despite a Custom Hook rejection. This does not bypass schema validation; use `skipSchemaValidation` for that. The caller must have Bypass draft approvals access for Feature Flags, Configs, and Constants in every Project. Otherwise, this field is ignored. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+              additionalProperties: false
+      responses:
+        '200':
+          description: Resource updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  revision:
+                    $ref: '#/components/schemas/ConfigRevision'
+                  warnings:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ConfigSchemaWarning'
+                required:
+                - revision
+                additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X PUT 'https://api.growthbook.io/api/v1/configs-revisions/{key}/{version}/value' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/configs-revisions/{key}/{version}/property:
+    put:
+      operationId: putConfigRevisionProperty
+      summary: Set one property of a config draft revision's value
+      description: 'Stages a single property of this config''s own value on the draft, leaving every other property untouched. Prefer this over `PUT .../value` when changing one field: a whole-value write from a stale read silently drops properties someone else added in the meantime.
+
+
+        `null` is a value (it does not remove the property) — use `DELETE .../property` to remove one. Pass `version: "new"` to auto-create a draft.'
+      tags:
+      - config-revisions
+      parameters:
+      - name: key
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: version
+        in: path
+        required: true
+        description: ''
+        schema:
+          anyOf:
+          - type: integer
+          - type: string
+            const: new
+      - $ref: '#/components/parameters/skipSchemaValidation'
+      - $ref: '#/components/parameters/ignoreWarnings'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                revisionTitle:
+                  description: Short draft title (e.g. `Enable for beta testers`). Only used when `version` is "new"; ignored for existing drafts.
+                  type: string
+                revisionComment:
+                  description: Markdown. What changed and why, for reviewers. Only used when `version` is "new"; ignored for existing drafts.
+                  type: string
+                property:
+                  description: Name of the property to set in this config's own value.
+                  type: string
+                value:
+                  description: The property's new value. `null` sets it to null.
+                ignoreWarnings:
+                  description: Set to true to acknowledge the warnings listed in a blocked response and continue. This covers experiment guards, locked dependents, and references affected by an archive. When the organization treats schema failures as warnings, it also covers schema and invariant warnings. It never bypasses a rejected Custom Hook. On revision publish endpoints, it can also force-publish an out-of-date draft when the caller has Bypass draft approvals access. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+                skipSchemaValidation:
+                  description: Set to true to publish despite schema validation errors, failed invariants, or schema changes that invalidate dependent resources. This does not bypass a rejected Custom Hook; use `skipHooks` for that. The caller must have Bypass draft approvals access for Feature Flags, Configs, and Constants in every Project. Otherwise, this field is ignored. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+                skipHooks:
+                  description: Set to true to publish despite a Custom Hook rejection. This does not bypass schema validation; use `skipSchemaValidation` for that. The caller must have Bypass draft approvals access for Feature Flags, Configs, and Constants in every Project. Otherwise, this field is ignored. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+              required:
+              - property
+              - value
+              additionalProperties: false
+      responses:
+        '200':
+          description: Resource updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  revision:
+                    $ref: '#/components/schemas/ConfigRevision'
+                  warnings:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ConfigSchemaWarning'
+                required:
+                - revision
+                additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X PUT 'https://api.growthbook.io/api/v1/configs-revisions/{key}/{version}/property' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+    delete:
+      operationId: deleteConfigRevisionProperty
+      summary: Remove one property from a config draft revision's value
+      description: 'Stages removal of a single property from this config''s own value on the draft; the config then inherits that property from its parent (if any). Every other property is untouched. Pass `version: "new"` to auto-create a draft.'
+      tags:
+      - config-revisions
+      parameters:
+      - name: key
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: version
+        in: path
+        required: true
+        description: ''
+        schema:
+          anyOf:
+          - type: integer
+          - type: string
+            const: new
+      - name: property
+        in: query
+        required: true
+        description: Name of the property to remove.
+        schema:
+          description: Name of the property to remove.
+          type: string
+      - $ref: '#/components/parameters/skipSchemaValidation'
+      - $ref: '#/components/parameters/ignoreWarnings'
+      responses:
+        '200':
+          description: Resource deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  revision:
+                    $ref: '#/components/schemas/ConfigRevision'
+                required:
+                - revision
+                additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X DELETE 'https://api.growthbook.io/api/v1/configs-revisions/{key}/{version}/property' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/configs-revisions/{key}/{version}/schema:
+    put:
+      operationId: putConfigRevisionSchema
+      summary: Update or import the schema of a config draft revision
+      description: 'Stages this config''s field schema on the draft. Provide exactly ONE source:
+
+        - `schema`: a schema document — `{ type: "json-schema", value }` (a JSON Schema object) or `{ type: "typescript", value }` (TypeScript source). **JSON Schema is the recommended ("happy path") format** — it is the canonical pivot, preserves nested objects/arrays, and resolves local `$ref`/`$defs` (so generator output with referenced types works). `typescript` is a best-effort convenience parser. All conversions are lossy-by-design and degrade exotic constructs to permissive types WITH warnings (returned in `warnings`).
+
+        - `infer: true`: derive the schema from the draft''s value.
+
+
+        Fields whose key a published ancestor already owns follow "base wins": an identical re-declaration is stripped with a `redundant-declaration` warning; one with a differing definition is rejected. Pass `version: "new"` to auto-create a draft.'
+      tags:
+      - config-revisions
+      parameters:
+      - name: key
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: version
+        in: path
+        required: true
+        description: ''
+        schema:
+          anyOf:
+          - type: integer
+          - type: string
+            const: new
+      - $ref: '#/components/parameters/skipSchemaValidation'
+      - $ref: '#/components/parameters/ignoreWarnings'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                revisionTitle:
+                  description: Short draft title (e.g. `Enable for beta testers`). Only used when `version` is "new"; ignored for existing drafts.
+                  type: string
+                revisionComment:
+                  description: Markdown. What changed and why, for reviewers. Only used when `version` is "new"; ignored for existing drafts.
+                  type: string
+                schema:
+                  $ref: '#/components/schemas/ConfigSchemaSource'
+                infer:
+                  description: Derive the schema from the draft's value instead.
+                  type: boolean
+                additionalProperties:
+                  description: Whether the resulting object schema permits extra keys (family extensibility).
+                  type: boolean
+                ignoreWarnings:
+                  description: Set to true to acknowledge the warnings listed in a blocked response and continue. This covers experiment guards, locked dependents, and references affected by an archive. When the organization treats schema failures as warnings, it also covers schema and invariant warnings. It never bypasses a rejected Custom Hook. On revision publish endpoints, it can also force-publish an out-of-date draft when the caller has Bypass draft approvals access. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+                skipSchemaValidation:
+                  description: Set to true to publish despite schema validation errors, failed invariants, or schema changes that invalidate dependent resources. This does not bypass a rejected Custom Hook; use `skipHooks` for that. The caller must have Bypass draft approvals access for Feature Flags, Configs, and Constants in every Project. Otherwise, this field is ignored. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+                skipHooks:
+                  description: Set to true to publish despite a Custom Hook rejection. This does not bypass schema validation; use `skipSchemaValidation` for that. The caller must have Bypass draft approvals access for Feature Flags, Configs, and Constants in every Project. Otherwise, this field is ignored. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+              additionalProperties: false
+      responses:
+        '200':
+          description: Resource updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  revision:
+                    $ref: '#/components/schemas/ConfigRevision'
+                  warnings:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ConfigSchemaWarning'
+                required:
+                - revision
+                additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X PUT 'https://api.growthbook.io/api/v1/configs-revisions/{key}/{version}/schema' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/configs-revisions/{key}/{version}/projection:
+    put:
+      operationId: putConfigRevisionProjection
+      summary: Set (or update) a config's per-source render projection on a draft
+      description: 'Stages a per-source render projection on the draft, AND the schema it implies. Provide a named `schema` source (`{ type: "typescript" | "protobuf" | "python" | "go" | "rust" | "json-schema", value }`) for the consuming codebase identified by `source`: GrowthBook derives the config''s canonical schema from it (so the change projects into the Config) and captures that source''s named-type structure under `renderProjections[source]`. Both are staged on the draft and published through the normal flow. Pass `version: "new"` to auto-create a draft. Lossy conversions degrade with `warnings`.'
+      tags:
+      - config-revisions
+      parameters:
+      - name: key
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: version
+        in: path
+        required: true
+        description: ''
+        schema:
+          anyOf:
+          - type: integer
+          - type: string
+            const: new
+      - $ref: '#/components/parameters/skipSchemaValidation'
+      - $ref: '#/components/parameters/ignoreWarnings'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                revisionTitle:
+                  description: Short draft title (e.g. `Enable for beta testers`). Only used when `version` is "new"; ignored for existing drafts.
+                  type: string
+                revisionComment:
+                  description: Markdown. What changed and why, for reviewers. Only used when `version` is "new"; ignored for existing drafts.
+                  type: string
+                source:
+                  description: Identifier of the consuming codebase/service this projection belongs to.
+                  type: string
+                schema:
+                  description: The named schema source for this projection. Its type names are captured; its structure derives the config's canonical schema.
+                  $ref: '#/components/schemas/ConfigSchemaSource'
+                additionalProperties:
+                  description: Whether the resulting object schema permits extra keys (family extensibility).
+                  type: boolean
+                ignoreWarnings:
+                  description: Set to true to acknowledge the warnings listed in a blocked response and continue. This covers experiment guards, locked dependents, and references affected by an archive. When the organization treats schema failures as warnings, it also covers schema and invariant warnings. It never bypasses a rejected Custom Hook. On revision publish endpoints, it can also force-publish an out-of-date draft when the caller has Bypass draft approvals access. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+                skipSchemaValidation:
+                  description: Set to true to publish despite schema validation errors, failed invariants, or schema changes that invalidate dependent resources. This does not bypass a rejected Custom Hook; use `skipHooks` for that. The caller must have Bypass draft approvals access for Feature Flags, Configs, and Constants in every Project. Otherwise, this field is ignored. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+                skipHooks:
+                  description: Set to true to publish despite a Custom Hook rejection. This does not bypass schema validation; use `skipSchemaValidation` for that. The caller must have Bypass draft approvals access for Feature Flags, Configs, and Constants in every Project. Otherwise, this field is ignored. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+              required:
+              - source
+              - schema
+              additionalProperties: false
+      responses:
+        '200':
+          description: Resource updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  revision:
+                    $ref: '#/components/schemas/ConfigRevision'
+                  warnings:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ConfigSchemaWarning'
+                required:
+                - revision
+                additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X PUT 'https://api.growthbook.io/api/v1/configs-revisions/{key}/{version}/projection' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+    delete:
+      operationId: deleteConfigRevisionProjection
+      summary: Remove a config's per-source render projection on a draft
+      description: 'Stages removal of the `source` projection from `renderProjections` on the draft (the canonical schema is unchanged). Published through the normal flow. Pass `version: "new"` to auto-create a draft.'
+      tags:
+      - config-revisions
+      parameters:
+      - name: key
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: version
+        in: path
+        required: true
+        description: ''
+        schema:
+          anyOf:
+          - type: integer
+          - type: string
+            const: new
+      - name: source
+        in: query
+        required: true
+        description: Identifier of the projection (source) to remove.
+        schema:
+          description: Identifier of the projection (source) to remove.
+          type: string
+      responses:
+        '200':
+          description: Resource deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  revision:
+                    $ref: '#/components/schemas/ConfigRevision'
+                required:
+                - revision
+                additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X DELETE 'https://api.growthbook.io/api/v1/configs-revisions/{key}/{version}/projection' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/configs-revisions/{key}/{version}/archive:
+    put:
+      operationId: putConfigRevisionArchive
+      summary: Stage an archive/unarchive in a draft revision
+      description: 'Stages an archive or unarchive on the draft. Pass `version: "new"` to auto-create a draft. Archived configs can be permanently deleted via `DELETE /configs/{key}` once the archive is published.'
+      tags:
+      - config-revisions
+      parameters:
+      - name: key
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: version
+        in: path
+        required: true
+        description: ''
+        schema:
+          anyOf:
+          - type: integer
+          - type: string
+            const: new
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                revisionTitle:
+                  description: Short draft title (e.g. `Enable for beta testers`). Only used when `version` is "new"; ignored for existing drafts.
+                  type: string
+                revisionComment:
+                  description: Markdown. What changed and why, for reviewers. Only used when `version` is "new"; ignored for existing drafts.
+                  type: string
+                archived:
+                  type: boolean
+                ignoreWarnings:
+                  description: Set to true to acknowledge the warnings listed in a blocked response and continue. This covers experiment guards, locked dependents, and references affected by an archive. When the organization treats schema failures as warnings, it also covers schema and invariant warnings. It never bypasses a rejected Custom Hook. On revision publish endpoints, it can also force-publish an out-of-date draft when the caller has Bypass draft approvals access. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+                skipSchemaValidation:
+                  description: Set to true to publish despite schema validation errors, failed invariants, or schema changes that invalidate dependent resources. This does not bypass a rejected Custom Hook; use `skipHooks` for that. The caller must have Bypass draft approvals access for Feature Flags, Configs, and Constants in every Project. Otherwise, this field is ignored. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+                skipHooks:
+                  description: Set to true to publish despite a Custom Hook rejection. This does not bypass schema validation; use `skipSchemaValidation` for that. The caller must have Bypass draft approvals access for Feature Flags, Configs, and Constants in every Project. Otherwise, this field is ignored. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+              required:
+              - archived
+              additionalProperties: false
+      responses:
+        '200':
+          description: Resource updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  revision:
+                    $ref: '#/components/schemas/ConfigRevision'
+                required:
+                - revision
+                additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X PUT 'https://api.growthbook.io/api/v1/configs-revisions/{key}/{version}/archive' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/configs-revisions/{key}/{version}/request-review:
+    post:
+      operationId: postConfigRevisionRequestReview
+      summary: Request review for a draft revision
+      description: 'Moves the draft from `draft` into `pending-review`. Notifies reviewers per the org''s approval-flow settings.
+
+
+        Set `autoPublishOnApproval` to `true` to publish the revision automatically the moment it is approved. This requires the org to have auto-publish-on-approval enabled and the caller to have publish permission on the config.'
+      tags:
+      - config-revisions
+      parameters:
+      - name: key
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - $ref: '#/components/parameters/version'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                autoPublishOnApproval:
+                  type: boolean
+                ignoreWarnings:
+                  description: Set to true to acknowledge the warnings listed in a blocked response and continue. This covers experiment guards, locked dependents, and references affected by an archive. When the organization treats schema failures as warnings, it also covers schema and invariant warnings. It never bypasses a rejected Custom Hook. On revision publish endpoints, it can also force-publish an out-of-date draft when the caller has Bypass draft approvals access. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+                skipSchemaValidation:
+                  description: Set to true to publish despite schema validation errors, failed invariants, or schema changes that invalidate dependent resources. This does not bypass a rejected Custom Hook; use `skipHooks` for that. The caller must have Bypass draft approvals access for Feature Flags, Configs, and Constants in every Project. Otherwise, this field is ignored. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+                skipHooks:
+                  description: Set to true to publish despite a Custom Hook rejection. This does not bypass schema validation; use `skipSchemaValidation` for that. The caller must have Bypass draft approvals access for Feature Flags, Configs, and Constants in every Project. Otherwise, this field is ignored. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+              additionalProperties: false
+      responses:
+        '200':
+          description: Resource created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  revision:
+                    $ref: '#/components/schemas/ConfigRevision'
+                required:
+                - revision
+                additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/configs-revisions/{key}/{version}/request-review' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/configs-revisions/{key}/{version}/submit-review:
+    post:
+      operationId: postConfigRevisionSubmitReview
+      summary: Submit a review on a draft revision
+      description: 'Submits an `approve`, `request-changes`, or `comment` review on the revision. The verdict belongs to whoever the request acts as; see Naming who asked. No one can rule on a draft they created. Submitting `approve` or `request-changes` needs Review access. A `comment` is participation rather than a verdict, so it is also open to the Comments permission or draft authority on the entity. Authors and contributors cannot submit `approve` reviews on their own drafts when the org has `blockSelfApproval` enabled.
+
+
+        When `decision` is `approve` and the revision has `autoPublishOnApproval` enabled, the revision is automatically published after approval. The response includes `autoPublished: true` when this happens. Pass `skipAutoPublish: true` to approve without triggering auto-publish.'
+      tags:
+      - config-revisions
+      parameters:
+      - name: key
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - $ref: '#/components/parameters/version'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                decision:
+                  type: string
+                  enum:
+                  - approve
+                  - request-changes
+                  - comment
+                comment:
+                  description: Markdown. Why you approved, requested changes or commented.
+                  type: string
+                skipAutoPublish:
+                  type: boolean
+              required:
+              - decision
+              additionalProperties: false
+      responses:
+        '200':
+          description: Resource created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  revision:
+                    $ref: '#/components/schemas/ConfigRevision'
+                  autoPublished:
+                    type: boolean
+                required:
+                - revision
+                additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/configs-revisions/{key}/{version}/submit-review' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/configs-revisions/{key}/{version}/undo-review:
+    post:
+      operationId: postConfigRevisionUndoReview
+      summary: Retract your own review verdict
+      description: Retracts the calling user's own active `approve` or `request-changes` verdict, returning the revision to `pending-review`. Review comments stay in the log. Retracting a `request-changes` can leave the revision approved by someone else, in which case an armed auto-publish fires. The verdict belongs to whoever the request acts as; see Naming who asked. No one can rule on a draft they created.
+      tags:
+      - config-revisions
+      parameters:
+      - name: key
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - $ref: '#/components/parameters/version'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+              additionalProperties: false
+      responses:
+        '200':
+          description: Resource created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  revision:
+                    $ref: '#/components/schemas/ConfigRevision'
+                required:
+                - revision
+                additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/configs-revisions/{key}/{version}/undo-review' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/configs-revisions/{key}/{version}/recall-review:
+    post:
+      operationId: postConfigRevisionRecallReview
+      summary: Recall a review request
+      description: Pulls a revision in review (`pending-review`, `changes-requested`, or `approved`) back to `draft`, clearing existing reviews and disarming any auto-publish-on-approval.
+      tags:
+      - config-revisions
+      parameters:
+      - name: key
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - $ref: '#/components/parameters/version'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+              additionalProperties: false
+      responses:
+        '200':
+          description: Resource created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  revision:
+                    $ref: '#/components/schemas/ConfigRevision'
+                required:
+                - revision
+                additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/configs-revisions/{key}/{version}/recall-review' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/configs-revisions/{key}/{version}/reopen:
+    post:
+      operationId: postConfigRevisionReopen
+      summary: Reopen a discarded revision
+      description: Returns a previously discarded revision to `draft` status so it can be edited and published again. Only discarded revisions can be reopened.
+      tags:
+      - config-revisions
+      parameters:
+      - name: key
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - $ref: '#/components/parameters/version'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+              additionalProperties: false
+      responses:
+        '200':
+          description: Resource created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  revision:
+                    $ref: '#/components/schemas/ConfigRevision'
+                required:
+                - revision
+                additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/configs-revisions/{key}/{version}/reopen' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/configs-revisions/{key}/{version}/schedule-publish:
+    post:
+      operationId: postConfigRevisionSchedulePublish
+      summary: Schedule (or cancel) a deferred publish
+      description: Arms a revision to publish automatically at a future time. Pass `scheduledPublishAt` as an RFC3339 timestamp in the future to arm, or `null` to cancel a pending schedule. Requires the `scheduled-revisions` commercial feature and publish permission on the config. A draft that still requires approval must request review first (or be armed with `bypassApproval` by a caller who can bypass).
+      tags:
+      - config-revisions
+      parameters:
+      - name: key
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - $ref: '#/components/parameters/version'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                scheduledPublishAt:
+                  description: When to publish, as an RFC3339 timestamp (e.g. `2026-01-31T09:00:00Z` or `2026-01-31T02:00:00-07:00`), or `null` to cancel a pending schedule.
+                  anyOf:
+                  - type: string
+                    format: date-time
+                  - type: 'null'
+                lockEdits:
+                  type: boolean
+                lockOthers:
+                  type: boolean
+                bypassApproval:
+                  type: boolean
+                ignoreWarnings:
+                  description: Set to true to acknowledge the warnings listed in a blocked response and continue. This covers experiment guards, locked dependents, and references affected by an archive. When the organization treats schema failures as warnings, it also covers schema and invariant warnings. It never bypasses a rejected Custom Hook. On revision publish endpoints, it can also force-publish an out-of-date draft when the caller has Bypass draft approvals access. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+                skipSchemaValidation:
+                  description: Set to true to publish despite schema validation errors, failed invariants, or schema changes that invalidate dependent resources. This does not bypass a rejected Custom Hook; use `skipHooks` for that. The caller must have Bypass draft approvals access for Feature Flags, Configs, and Constants in every Project. Otherwise, this field is ignored. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+                skipHooks:
+                  description: Set to true to publish despite a Custom Hook rejection. This does not bypass schema validation; use `skipSchemaValidation` for that. The caller must have Bypass draft approvals access for Feature Flags, Configs, and Constants in every Project. Otherwise, this field is ignored. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+              required:
+              - scheduledPublishAt
+              additionalProperties: false
+      responses:
+        '200':
+          description: Resource created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  revision:
+                    $ref: '#/components/schemas/ConfigRevision'
+                required:
+                - revision
+                additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/configs-revisions/{key}/{version}/schedule-publish' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/configs-revisions/{key}/{version}/merge-status:
+    get:
+      operationId: getConfigRevisionMergeStatus
+      summary: Get merge status for a draft revision
+      description: Runs a dry-run merge of the draft against the current live config and returns any conflicts. Use this before publishing to preview changes and detect conflicting edits.
+      tags:
+      - config-revisions
+      parameters:
+      - name: key
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - $ref: '#/components/parameters/version'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  hasConflicts:
+                    type: boolean
+                  conflicts:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        field:
+                          type: string
+                        baseValue: {}
+                        liveValue: {}
+                        proposedValue: {}
+                      required:
+                      - field
+                      - baseValue
+                      - liveValue
+                      - proposedValue
+                      additionalProperties: false
+                  canAutoMerge:
+                    type: boolean
+                required:
+                - success
+                - hasConflicts
+                - conflicts
+                - canAutoMerge
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/configs-revisions/{key}/{version}/merge-status' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/configs-revisions/{key}/{version}/rebase:
+    post:
+      operationId: postConfigRevisionRebase
+      summary: Rebase a draft revision onto the current live config
+      description: Updates the draft's base snapshot to the current live state, applying the draft's changes on top. Supply `conflictResolutions` to resolve any conflicting fields. Strategies are `overwrite` (use the draft's value), `discard` (keep the live value), or `union` (merge arrays without duplicates — for array fields like `extends`; pass a `customValues` entry to supply the resolved array yourself).
+      tags:
+      - config-revisions
+      parameters:
+      - name: key
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - $ref: '#/components/parameters/version'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                conflictResolutions:
+                  type: object
+                  propertyNames:
+                    type: string
+                  additionalProperties:
+                    type: string
+                    enum:
+                    - overwrite
+                    - discard
+                    - union
+                customValues:
+                  description: Custom values to use for `union` strategy fields. Keyed by field name.
+                  type: object
+                  propertyNames:
+                    type: string
+                  additionalProperties:
+                    type: array
+                    items: {}
+              additionalProperties: false
+      responses:
+        '200':
+          description: Resource created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  revision:
+                    $ref: '#/components/schemas/ConfigRevision'
+                required:
+                - revision
+                additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/configs-revisions/{key}/{version}/rebase' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/configs-revisions/{key}/{version}/publish:
+    post:
+      operationId: postConfigRevisionPublish
+      summary: Publish a draft revision
+      description: 'Publishes the draft and makes its changes live. The caller needs Publish access for the affected environments. When approval is required, the draft must be approved unless the caller has Bypass draft approvals access. If the organization requires rebasing, an out-of-date draft must be rebased first; an authorized caller can instead send `ignoreWarnings: true` to force-publish it. A locked Config cannot be published. A 422 response lists every blocking gate and the available resolution. Publishing a schema change also normalizes descendant Configs according to their inheritance rules.'
+      tags:
+      - config-revisions
+      parameters:
+      - name: key
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - $ref: '#/components/parameters/version'
+      - $ref: '#/components/parameters/skipSchemaValidation'
+      - $ref: '#/components/parameters/ignoreWarnings'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                bypassApproval:
+                  description: Deprecated and ignored. Approval is bypassed automatically when the caller has Bypass draft approvals access for this resource or when the organization enables the REST API approval bypass. Otherwise, the revision must be approved before it can be published.
+                  type: boolean
+                ignoreWarnings:
+                  description: Set to true to acknowledge the warnings listed in a blocked response and continue. This covers experiment guards, locked dependents, and references affected by an archive. When the organization treats schema failures as warnings, it also covers schema and invariant warnings. It never bypasses a rejected Custom Hook. On revision publish endpoints, it can also force-publish an out-of-date draft when the caller has Bypass draft approvals access. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+                skipSchemaValidation:
+                  description: Set to true to publish despite schema validation errors, failed invariants, or schema changes that invalidate dependent resources. This does not bypass a rejected Custom Hook; use `skipHooks` for that. The caller must have Bypass draft approvals access for Feature Flags, Configs, and Constants in every Project. Otherwise, this field is ignored. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+                skipHooks:
+                  description: Set to true to publish despite a Custom Hook rejection. This does not bypass schema validation; use `skipSchemaValidation` for that. The caller must have Bypass draft approvals access for Feature Flags, Configs, and Constants in every Project. Otherwise, this field is ignored. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+              additionalProperties: false
+      responses:
+        '200':
+          description: Resource created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  revision:
+                    $ref: '#/components/schemas/ConfigRevision'
+                  bypassedGates:
+                    description: Gates that would have blocked this publish but were bypassed by the caller's authority. Present only when at least one gate was bypassed.
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/bypassedGates'
+                required:
+                - revision
+                additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/configs-revisions/{key}/{version}/publish' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/configs-revisions/{key}/{version}/discard:
+    post:
+      operationId: postConfigRevisionDiscard
+      summary: Discard a draft revision
+      description: Permanently discards a draft revision. Only open revisions (not merged or already-discarded) can be discarded.
+      tags:
+      - config-revisions
+      parameters:
+      - name: key
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - $ref: '#/components/parameters/version'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+              additionalProperties: false
+      responses:
+        '200':
+          description: Resource created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  revision:
+                    $ref: '#/components/schemas/ConfigRevision'
+                required:
+                - revision
+                additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/configs-revisions/{key}/{version}/discard' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/configs-revisions/{key}/{version}/revert:
+    post:
+      operationId: postConfigRevisionRevert
+      summary: Revert the config to a prior revision
+      description: Creates a new draft (or immediately publishes) whose content matches the specified historical revision. Defaults to creating a draft; when the org enables 'reverts bypass approval' it defaults to publishing immediately. Pass `strategy` to override.
+      tags:
+      - config-revisions
+      parameters:
+      - name: key
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - $ref: '#/components/parameters/version'
+      - $ref: '#/components/parameters/skipSchemaValidation'
+      - $ref: '#/components/parameters/ignoreWarnings'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                strategy:
+                  description: Whether to stage the revert as a draft or publish it immediately. Defaults to `draft`, or to `publish` when the org enables 'reverts bypass approval'.
+                  type: string
+                  enum:
+                  - draft
+                  - publish
+                title:
+                  description: Short draft title (e.g. `Enable for beta testers`).
+                  type: string
+                comment:
+                  description: Currently ignored. Use `title` to describe the revert.
+                  type: string
+                ignoreWarnings:
+                  description: Set to true to acknowledge the warnings listed in a blocked response and continue. This covers experiment guards, locked dependents, and references affected by an archive. When the organization treats schema failures as warnings, it also covers schema and invariant warnings. It never bypasses a rejected Custom Hook. On revision publish endpoints, it can also force-publish an out-of-date draft when the caller has Bypass draft approvals access. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+                skipSchemaValidation:
+                  description: Set to true to publish despite schema validation errors, failed invariants, or schema changes that invalidate dependent resources. This does not bypass a rejected Custom Hook; use `skipHooks` for that. The caller must have Bypass draft approvals access for Feature Flags, Configs, and Constants in every Project. Otherwise, this field is ignored. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+                skipHooks:
+                  description: Set to true to publish despite a Custom Hook rejection. This does not bypass schema validation; use `skipSchemaValidation` for that. The caller must have Bypass draft approvals access for Feature Flags, Configs, and Constants in every Project. Otherwise, this field is ignored. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+              additionalProperties: false
+      responses:
+        '200':
+          description: Resource created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  revision:
+                    $ref: '#/components/schemas/ConfigRevision'
+                  bypassedGates:
+                    description: Gates that would have blocked this publish but were bypassed by the caller's authority. Present only when at least one gate was bypassed.
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/bypassedGates'
+                required:
+                - revision
+                additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/configs-revisions/{key}/{version}/revert' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+components:
+  schemas:
+    Config:
+      type: object
+      properties:
+        id:
+          type: string
+        key:
+          description: Stable reference handle; used as `@config:key` in values
+          type: string
+        name:
+          type: string
+        owner:
+          description: The userId of the owner (or raw owner name/email for legacy records)
+          type: string
+        ownerEmail:
+          description: The email address of the owner, when the owner can be resolved to a known user.
+          type: string
+        parent:
+          description: The `key` of the config this one inherits from (lineage parent — the primary spine). Synthesized into `$extends` at resolution time and never stored in `value`.
+          type: string
+        extends:
+          description: Additional composition bases (config `key`s) layered on top of `parent`, in precedence order (later overrides earlier; all override `parent`; this config's own keys win last). Like `parent`, set via this field — never via a `@config:` entry in `value`.
+          type: array
+          items:
+            type: string
+        value:
+          description: This config's own base value as a JSON object (its declared fields only — inherited fields are layered in at resolution time, not stored here). Per-environment/project variants are expressed via `scopedOverrides`, not here.
+          type: object
+          propertyNames:
+            type: string
+          additionalProperties: {}
+        scopedOverrides:
+          description: 'Ordered, first-match-wins environment/project-scoped variant selection. Each entry points at a flavor config (a child config, by `key`) whose value is deep-merged onto this config''s resolved value when the (environment, project) scope matches — resolved at build time, per layer. This is how you create an environment-scoped override (as opposed to a plain child config): make a child config for the override value, then add it here with its scope. Send the complete list to replace it; an empty array clears all overrides. Entries must reference existing configs, may not reference this config itself, and may not be unreachable (fully subsumed by an earlier entry).'
+          type: array
+          items:
+            type: object
+            properties:
+              config:
+                description: The `key` of the flavor config (a child config) whose value patches this config when the scope matches.
+                type: string
+              environments:
+                description: Environment ids this entry applies to. Empty/omitted = any environment.
+                type: array
+                items:
+                  type: string
+              projects:
+                description: Project ids this entry applies to. Empty/omitted = any project.
+                type: array
+                items:
+                  type: string
+            required:
+            - config
+            additionalProperties: false
+        scopedConfig:
+          description: 'Present ONLY when this config is an environment/project-scoped override (a "flavor") of another config. Its value is a patch that applies solely within the listed environments/projects, layered onto `parent` at resolution — it is NOT a standalone config. A plain config (including an ordinary child that just inherits from a `parent`) omits this field entirely. Read-only: create/change the relationship via the parent config''s `scopedOverrides`, never by setting this directly.'
+          type: object
+          properties:
+            parent:
+              description: The base config this one is a scoped override of.
+              type: string
+            environments:
+              description: Environments this override applies to (empty/absent = every environment).
+              type: array
+              items:
+                type: string
+            projects:
+              description: Projects this override applies to (empty/absent = every project).
+              type: array
+              items:
+                type: string
+          required:
+          - parent
+          additionalProperties: false
+        description:
+          type: string
+          maxLength: 10000
+        project:
+          description: The project this config belongs to (empty = all projects)
+          type: string
+        archived:
+          type: boolean
+        schema:
+          description: This config's own field definitions as a JSON Schema document (its contribution to the family's effective schema). Inherited fields are owned by ancestors and are not repeated here.
+          type: object
+          properties:
+            type:
+              type: string
+              const: json-schema
+            value:
+              description: A JSON Schema document (an object).
+              type: object
+              propertyNames:
+                type: string
+              additionalProperties: {}
+          required:
+          - type
+          - value
+          additionalProperties: false
+        extensible:
+          description: Whether this config family permits extra keys beyond the declared fields (child configs, feature rules, ad-hoc overrides). Only the root config's flag applies. Absent = inherit the org default.
+          type: boolean
+        invariants:
+          description: Cross-field validation rules (relational checks JSON Schema can't express, e.g. implications or comparing two fields), evaluated against the resolved value at publish.
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                description: Unique name for the rule.
+                type: string
+                maxLength: 128
+              rule:
+                description: A mongo condition (mongrule) boolean expression over the config's fields.
+                type: object
+                propertyNames:
+                  type: string
+                additionalProperties: {}
+              message:
+                description: Human-readable error shown when the rule is violated.
+                type: string
+                maxLength: 10000
+            required:
+            - name
+            - rule
+            - message
+            additionalProperties: false
+        locked:
+          description: Whether this Config is locked to a published revision. Drafts can still be created and edited while locked, but no change can be published until a user with Bypass draft approvals access unlocks it.
+          type: boolean
+        experimentGuard:
+          description: 'Whether the experiment guard is enabled. When enabled, publishing a value used by a running experiment returns a warning that must be acknowledged with `ignoreWarnings: true`. Disabling the guard requires Bypass draft approvals access.'
+          type: boolean
+        lockedRevision:
+          description: The pinned published revision (present only when `locked`). Fetch it via `GET /configs-revisions/:key/:version` for a value guaranteed not to disappear or mutate — use it to pin reproducible builds.
+          type: object
+          properties:
+            id:
+              type: string
+            version:
+              type: number
+          required:
+          - id
+          - version
+          additionalProperties: false
+        lockedBy:
+          description: 'Who locked the config: a member''s user ID, or an API key''s ID when it acted as itself'
+          type: string
+        dateLocked:
+          format: date-time
+          description: When the config was locked (when `locked`).
+          type: string
+        dateCreated:
+          format: date-time
+          type: string
+        dateUpdated:
+          format: date-time
+          type: string
+      required:
+      - id
+      - key
+      - name
+      - dateCreated
+      - dateUpdated
+      additionalProperties: false
+    ConfigRevisionReview:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          description: 'Who acted: a member''s user ID, or an API key''s ID when it acted as itself'
+          type: string
+        decision:
+          type: string
+          enum:
+          - approve
+          - request-changes
+          - comment
+        comment:
+          type: string
+        stale:
+          description: True if a later review cycle (re-submit, approval reset, recall, or reopen) superseded this verdict. Stale verdicts are kept for attribution but no longer count as an active approval or change-request.
+          type: boolean
+        dateCreated:
+          format: date-time
+          type: string
+        user:
+          $ref: '#/components/schemas/EventUser'
+      required:
+      - id
+      - userId
+      - decision
+      - dateCreated
+      additionalProperties: false
+    EventUser:
+      description: Who performed an action
+      type: object
+      properties:
+        type:
+          description: '`dashboard` (signed-in member), `api_key` (API key or personal access token) or `system`'
+          type: string
+          enum:
+          - dashboard
+          - api_key
+          - system
+        id:
+          description: The member's user ID. Absent for an organization API key
+          type: string
+        apiKey:
+          description: The API key's ID, when the action came through one
+          type: string
+        name:
+          description: The member's name, or the organization API key's name
+          type: string
+        email:
+          description: The member's email. Absent for an organization API key
+          type: string
+        requestedBy:
+          description: The member named with `X-GrowthBook-Requested-By`
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            email:
+              type: string
+          required:
+          - id
+          - name
+          - email
+          additionalProperties: false
+        assumedRole:
+          description: Whether the key assumed the named member's role
+          type: boolean
+      required:
+      - type
+      additionalProperties: false
+    ConfigSchemaSource:
+      anyOf:
+      - type: object
+        properties:
+          type:
+            type: string
+            const: json-schema
+          value:
+            description: A JSON Schema document (an object).
+            type: object
+            propertyNames:
+              type: string
+            additionalProperties: {}
+        required:
+        - type
+        - value
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            const: typescript
+          value:
+            description: TypeScript source — an interface or object type.
+            type: string
+        required:
+        - type
+        - value
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            const: protobuf
+          value:
+            description: Protobuf (proto3) source — a `message` definition.
+            type: string
+        required:
+        - type
+        - value
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            const: python
+          value:
+            description: Python source — a Pydantic `BaseModel` class.
+            type: string
+        required:
+        - type
+        - value
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            const: go
+          value:
+            description: Go source — a `struct` definition.
+            type: string
+        required:
+        - type
+        - value
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            const: rust
+          value:
+            description: Rust source — a serde `struct` definition.
+            type: string
+        required:
+        - type
+        - value
+        additionalProperties: false
+    bypassedGates:
+      type: object
+      properties:
+        type:
+          description: The gate that was bypassed (e.g. "approval-required", "stale-base", "schema-break").
+          type: string
+        outcome:
+          type: string
+          const: bypassed
+        via:
+          description: How the gate was bypassed. The value identifies a request field (`ignoreWarnings`, `skipSchemaValidation`, or `skipHooks`), the caller's permission (`bypassApprovalPermission`), or an organization setting (`restApiBypassesReviews`, or `revertsBypassApproval` on a revert).
+          type: string
+          enum:
+          - ignoreWarnings
+          - skipSchemaValidation
+          - skipHooks
+          - bypassApprovalPermission
+          - restApiBypassesReviews
+          - revertsBypassApproval
+      required:
+      - type
+      - outcome
+      - via
+      additionalProperties: false
+    ConfigRevision:
+      type: object
+      properties:
+        id:
+          type: string
+        version:
+          type: integer
+        title:
+          type: string
+        status:
+          type: string
+          enum:
+          - draft
+          - pending-review
+          - approved
+          - changes-requested
+          - merged
+          - discarded
+        authorId:
+          description: 'Who acted: a member''s user ID, or an API key''s ID when it acted as itself'
+          type: string
+        author:
+          description: Who created the revision, with an API key's name
+          $ref: '#/components/schemas/EventUser'
+        authorEmail:
+          type: string
+        contributors:
+          type: array
+          items:
+            type: string
+        revertedFrom:
+          type: string
+        reviews:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConfigRevisionReview'
+        activityLog:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConfigRevisionActivityLogEntry'
+        autoPublishOnApproval:
+          description: Publish automatically the moment this revision is approved.
+          type: boolean
+        autoPublishEnabledBy:
+          description: User or API key the deferred publish runs as, re-checked when it fires. A key that assumed a member's role is recorded as `<keyId>:<memberId>`.
+          type: string
+        autoPublishEnabledByUser:
+          description: Who armed the deferred publish, with an API key's name
+          $ref: '#/components/schemas/EventUser'
+        scheduledPublishAt:
+          description: When the deferred publish fires. Absent when the revision publishes on approval instead, or is not armed at all.
+          format: date-time
+          type: string
+        scheduledPublishLockEdits:
+          description: Content edits to this revision are frozen until it fires.
+          type: boolean
+        scheduledPublishLockOthers:
+          description: Other revisions of the same resource cannot publish until this one fires or is cancelled.
+          type: boolean
+        scheduledPublishBypassApproval:
+          description: Armed by a caller who bypassed the approval requirement. Such a schedule must be cancelled and re-armed rather than edited.
+          type: boolean
+        scheduledPublishAttempts:
+          description: How many times the poller has tried to publish this revision.
+          type: integer
+        scheduledPublishLastError:
+          description: Why the most recent deferred-publish attempt failed.
+          type: string
+        scheduledPublishGaveUpAt:
+          description: When the poller stopped retrying. Giving up CLEARS the schedule and disarms auto-publish, so nothing fires again until the revision is re-armed. The draft is left open, with `scheduledPublishLastError` preserved for context.
+          format: date-time
+          type: string
+        resolution:
+          type: object
+          properties:
+            action:
+              type: string
+              enum:
+              - merged
+              - discarded
+            userId:
+              description: 'Who acted: a member''s user ID, or an API key''s ID when it acted as itself'
+              type: string
+            user:
+              $ref: '#/components/schemas/EventUser'
+            dateCreated:
+              format: date-time
+              type: string
+          required:
+          - action
+          - userId
+          - dateCreated
+          additionalProperties: false
+        dateCreated:
+          format: date-time
+          type: string
+        dateUpdated:
+          format: date-time
+          type: string
+        baseConfig:
+          $ref: '#/components/schemas/Config'
+        proposedConfig:
+          $ref: '#/components/schemas/Config'
+        proposedChanges:
+          type: array
+          items:
+            anyOf:
+            - type: object
+              properties:
+                op:
+                  type: string
+                  const: add
+                path:
+                  type: string
+                  pattern: ^\/[^/]+$
+                value: {}
+              required:
+              - op
+              - path
+              - value
+              additionalProperties: false
+            - type: object
+              properties:
+                op:
+                  type: string
+                  const: remove
+                path:
+                  type: string
+                  pattern: ^\/[^/]+$
+              required:
+              - op
+              - path
+              additionalProperties: false
+            - type: object
+              properties:
+                op:
+                  type: string
+                  const: replace
+                path:
+                  type: string
+                  pattern: ^\/[^/]+$
+                value: {}
+              required:
+              - op
+              - path
+              - value
+              additionalProperties: false
+            - type: object
+              properties:
+                op:
+                  type: string
+                  const: move
+                from:
+                  type: string
+                  pattern: ^\/[^/]+$
+                path:
+                  type: string
+                  pattern: ^\/[^/]+$
+              required:
+              - op
+              - from
+              - path
+              additionalProperties: false
+            - type: object
+              properties:
+                op:
+                  type: string
+                  const: copy
+                from:
+                  type: string
+                  pattern: ^\/[^/]+$
+                path:
+                  type: string
+                  pattern: ^\/[^/]+$
+              required:
+              - op
+              - from
+              - path
+              additionalProperties: false
+            - type: object
+              properties:
+                op:
+                  type: string
+                  const: test
+                path:
+                  type: string
+                  pattern: ^\/[^/]+$
+                value: {}
+              required:
+              - op
+              - path
+              - value
+              additionalProperties: false
+      required:
+      - id
+      - status
+      - authorId
+      - reviews
+      - activityLog
+      - dateCreated
+      - dateUpdated
+      - baseConfig
+      - proposedConfig
+      - proposedChanges
+      additionalProperties: false
+    ConfigSchemaWarning:
+      type: object
+      properties:
+        code:
+          type: string
+          enum:
+          - dropped-declaration
+          - non-object-root
+          - unresolved-type
+          - unsupported-member
+          - redundant-declaration
+          - undeclared-rule-field
+        message:
+          type: string
+        path:
+          type: string
+      required:
+      - code
+      - message
+      additionalProperties: false
+    ConfigRevisionActivityLogEntry:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          description: 'Who acted: a member''s user ID, or an API key''s ID when it acted as itself'
+          type: string
+        action:
+          type: string
+          enum:
+          - created
+          - updated
+          - reviewed
+          - approved
+          - requested-changes
+          - commented
+          - review-requested
+          - review-retracted
+          - merged
+          - discarded
+          - reopened
+          - recalled
+          - scheduled-publish
+          - scheduled-publish-updated
+          - scheduled-publish-canceled
+          - merge-recovered
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+        proposedChangesSnapshot:
+          type: array
+          items:
+            anyOf:
+            - type: object
+              properties:
+                op:
+                  type: string
+                  const: add
+                path:
+                  type: string
+                  pattern: ^\/[^/]+$
+                value: {}
+              required:
+              - op
+              - path
+              - value
+              additionalProperties: false
+            - type: object
+              properties:
+                op:
+                  type: string
+                  const: remove
+                path:
+                  type: string
+                  pattern: ^\/[^/]+$
+              required:
+              - op
+              - path
+              additionalProperties: false
+            - type: object
+              properties:
+                op:
+                  type: string
+                  const: replace
+                path:
+                  type: string
+                  pattern: ^\/[^/]+$
+                value: {}
+              required:
+              - op
+              - path
+              - value
+              additionalProperties: false
+            - type: object
+              properties:
+                op:
+                  type: string
+                  const: move
+                from:
+                  type: string
+                  pattern: ^\/[^/]+$
+                path:
+                  type: string
+                  pattern: ^\/[^/]+$
+              required:
+              - op
+              - from
+              - path
+              additionalProperties: false
+            - type: object
+              properties:
+                op:
+                  type: string
+                  const: copy
+                from:
+                  type: string
+                  pattern: ^\/[^/]+$
+                path:
+                  type: string
+                  pattern: ^\/[^/]+$
+              required:
+              - op
+              - from
+              - path
+              additionalProperties: false
+            - type: object
+              properties:
+                op:
+                  type: string
+                  const: test
+                path:
+                  type: string
+                  pattern: ^\/[^/]+$
+                value: {}
+              required:
+              - op
+              - path
+              - value
+              additionalProperties: false
+        targetSnapshot: {}
+        dateCreated:
+          format: date-time
+          type: string
+        user:
+          $ref: '#/components/schemas/EventUser'
+      required:
+      - id
+      - userId
+      - action
+      - dateCreated
+      additionalProperties: false
+    Confirmation:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+          enum:
+          - pending
+          - running
+          - completed
+          - rejected
+          - expired
+        actions:
+          type: array
+          items:
+            type: object
+            properties:
+              action:
+                type: string
+                enum:
+                - feature.create
+                - feature.draft
+                - feature.review
+                - feature.publish
+                - feature.archive
+                - feature.delete
+                - feature.other
+                - experiment.create
+                - experiment.draft
+                - experiment.start
+                - experiment.stop
+                - experiment.targeting
+                - experiment.traffic
+                - experiment.phases
+                - experiment.visualEditor
+                - experiment.other
+                - savedGroup.create
+                - savedGroup.draft
+                - savedGroup.review
+                - savedGroup.publish
+                - savedGroup.archive
+                - savedGroup.delete
+                - savedGroup.other
+                - constant.create
+                - constant.draft
+                - constant.review
+                - constant.publish
+                - constant.archive
+                - constant.delete
+                - constant.other
+                - config.create
+                - config.draft
+                - config.review
+                - config.publish
+                - config.archive
+                - config.delete
+                - config.other
+                - rampSchedule.create
+                - rampSchedule.start
+                - rampSchedule.pause
+                - rampSchedule.progression
+                - rampSchedule.approve
+                - rampSchedule.edit
+                - rampSchedule.delete
+                - rampSchedule.other
+                - settings.approvals
+                - settings.other
+                - access.members
+                - access.teams
+                - customHook.create
+                - customHook.edit
+                - customHook.delete
+                - environment.create
+                - environment.edit
+                - environment.delete
+                - project.create
+                - project.edit
+                - project.delete
+                - attribute.create
+                - attribute.edit
+                - attribute.delete
+                - customField.create
+                - customField.edit
+                - customField.delete
+                - sdkConnection.create
+                - sdkConnection.edit
+                - sdkConnection.delete
+                - metric.create
+                - metric.edit
+                - metric.delete
+                - factTable.create
+                - factTable.edit
+                - factTable.delete
+                - segment.create
+                - segment.edit
+                - segment.delete
+                - dimension.create
+                - dimension.edit
+                - dimension.delete
+                - override.ignoreWarnings
+                - override.skipSchemaValidation
+                - override.skipHooks
+                - override.bypassApproval
+                - override.restBypassesReviews
+                - override.draftLimit
+                - override.skipChecklist
+                - override.bypassDuplicateKeyCheck
+                - other.write
+              environments:
+                type: array
+                items:
+                  type: string
+            required:
+            - action
+            - environments
+            additionalProperties: false
+        summary:
+          type: string
+        url:
+          type: string
+        expiresAt:
+          type: string
+        response:
+          anyOf:
+          - type: object
+            properties:
+              status:
+                type: number
+              body: {}
+            required:
+            - status
+            - body
+            additionalProperties: false
+          - type: 'null'
+        note:
+          anyOf:
+          - type: string
+          - type: 'null'
+      required:
+      - id
+      - status
+      - actions
+      - summary
+      - url
+      - expiresAt
+      - response
+      - note
+      additionalProperties: false
+    ConfirmationHeld:
+      type: object
+      properties:
+        confirmation:
+          $ref: '#/components/schemas/Confirmation'
+        message:
+          type: string
+      required:
+      - confirmation
+      - message
+      additionalProperties: false
+      $defs:
+        Confirmation:
+          id: Confirmation
+          type: object
+          properties:
+            id:
+              type: string
+            status:
+              type: string
+              enum:
+              - pending
+              - running
+              - completed
+              - rejected
+              - expired
+            actions:
+              type: array
+              items:
+                type: object
+                properties:
+                  action:
+                    type: string
+                    enum:
+                    - feature.create
+                    - feature.draft
+                    - feature.review
+                    - feature.publish
+                    - feature.archive
+                    - feature.delete
+                    - feature.other
+                    - experiment.create
+                    - experiment.draft
+                    - experiment.start
+                    - experiment.stop
+                    - experiment.targeting
+                    - experiment.traffic
+                    - experiment.phases
+                    - experiment.visualEditor
+                    - experiment.other
+                    - savedGroup.create
+                    - savedGroup.draft
+                    - savedGroup.review
+                    - savedGroup.publish
+                    - savedGroup.archive
+                    - savedGroup.delete
+                    - savedGroup.other
+                    - constant.create
+                    - constant.draft
+                    - constant.review
+                    - constant.publish
+                    - constant.archive
+                    - constant.delete
+                    - constant.other
+                    - config.create
+                    - config.draft
+                    - config.review
+                    - config.publish
+                    - config.archive
+                    - config.delete
+                    - config.other
+                    - rampSchedule.create
+                    - rampSchedule.start
+                    - rampSchedule.pause
+                    - rampSchedule.progression
+                    - rampSchedule.approve
+                    - rampSchedule.edit
+                    - rampSchedule.delete
+                    - rampSchedule.other
+                    - settings.approvals
+                    - settings.other
+                    - access.members
+                    - access.teams
+                    - customHook.create
+                    - customHook.edit
+                    - customHook.delete
+                    - environment.create
+                    - environment.edit
+                    - environment.delete
+                    - project.create
+                    - project.edit
+                    - project.delete
+                    - attribute.create
+                    - attribute.edit
+                    - attribute.delete
+                    - customField.create
+                    - customField.edit
+                    - customField.delete
+                    - sdkConnection.create
+                    - sdkConnection.edit
+                    - sdkConnection.delete
+                    - metric.create
+                    - metric.edit
+                    - metric.delete
+                    - factTable.create
+                    - factTable.edit
+                    - factTable.delete
+                    - segment.create
+                    - segment.edit
+                    - segment.delete
+                    - dimension.create
+                    - dimension.edit
+                    - dimension.delete
+                    - override.ignoreWarnings
+                    - override.skipSchemaValidation
+                    - override.skipHooks
+                    - override.bypassApproval
+                    - override.restBypassesReviews
+                    - override.draftLimit
+                    - override.skipChecklist
+                    - override.bypassDuplicateKeyCheck
+                    - other.write
+                  environments:
+                    type: array
+                    items:
+                      type: string
+                required:
+                - action
+                - environments
+                additionalProperties: false
+            summary:
+              type: string
+            url:
+              type: string
+            expiresAt:
+              type: string
+            response:
+              anyOf:
+              - type: object
+                properties:
+                  status:
+                    type: number
+                  body: {}
+                required:
+                - status
+                - body
+                additionalProperties: false
+              - type: 'null'
+            note:
+              anyOf:
+              - type: string
+              - type: 'null'
+          required:
+          - id
+          - status
+          - actions
+          - summary
+          - url
+          - expiresAt
+          - response
+          - note
+          additionalProperties: false
+  parameters:
+    skipSchemaValidation:
+      name: skipSchemaValidation
+      in: query
+      description: Deprecated — pass `skipSchemaValidation` in the request body instead.
+      schema:
+        description: Deprecated — pass `skipSchemaValidation` in the request body instead.
+        deprecated: true
+        anyOf:
+        - type: string
+          const: 'true'
+        - type: string
+          const: 'false'
+        - type: string
+          const: '0'
+        - type: string
+          const: '1'
+        - type: boolean
+    limit:
+      name: limit
+      in: query
+      description: The number of items to return
+      schema:
+        default: 10
+        description: The number of items to return
+        type: integer
+        minimum: 1
+        maximum: 100
+    version:
+      name: version
+      in: path
+      required: true
+      description: ''
+      schema:
+        type: integer
+    offset:
+      name: offset
+      in: query
+      description: How many items to skip (use in conjunction with limit for pagination)
+      schema:
+        default: 0
+        description: How many items to skip (use in conjunction with limit for pagination)
+        type: integer
+        minimum: 0
+    author:
+      name: author
+      in: query
+      description: ''
+      schema:
+        type: string
+    skipPagination:
+      name: skipPagination
+      in: query
+      description: 'If true, return all matching items and ignore limit/offset.
+
+        Self-hosted only. Has no effect unless API_ALLOW_SKIP_PAGINATION is set to true or 1.'
+      schema:
+        description: 'If true, return all matching items and ignore limit/offset.
+
+          Self-hosted only. Has no effect unless API_ALLOW_SKIP_PAGINATION is set to true or 1.'
+        default: false
+        anyOf:
+        - type: string
+          const: 'true'
+        - type: string
+          const: 'false'
+        - type: string
+          const: '0'
+        - type: string
+          const: '1'
+        - type: boolean
+      x-selfHostedOnly: true
+      x-requiresEnv: API_ALLOW_SKIP_PAGINATION
+    ignoreWarnings:
+      name: ignoreWarnings
+      in: query
+      description: Deprecated — pass `ignoreWarnings` in the request body instead.
+      schema:
+        description: Deprecated — pass `ignoreWarnings` in the request body instead.
+        deprecated: true
+        anyOf:
+        - type: string
+          const: 'true'
+        - type: string
+          const: 'false'
+        - type: string
+          const: '0'
+        - type: string
+          const: '1'
+        - type: boolean
+  responses:
+    ConfirmationHeld:
+      description: Held until a person confirms it in GrowthBook. Poll the Location until the confirmation completes.
+      headers:
+        Location:
+          description: The confirmation to poll
+          schema:
+            type: string
+        Retry-After:
+          description: Seconds to wait before polling
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ConfirmationHeld'
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: 'If using Bearer auth, pass the Secret Key as the token:
+
+        ```bash
+
+        curl https://api.growthbook.io/api/v1/features   -H "Authorization: Bearer secret_abc123DEF456"
+
+        ```
+
+        '
+    basicAuth:
+      type: http
+      scheme: basic
+      description: 'If using HTTP Basic auth, pass the Secret Key as the username and leave the password blank:
+
+        ```bash
+
+        curl https://api.growthbook.io/api/v1/features   -u secret_abc123DEF456:
+
+        # The ":" at the end stops curl from asking for a password
+
+        ```
+
+        '
+x-tagGroups:
+- name: Endpoints
+  tags:
+  - projects
+  - environments
+  - features-v2
+  - feature-revisions-v2
+  - features
+  - feature-revisions
+  - ramp-schedules
+  - data-sources
+  - fact-tables
+  - fact-metrics
+  - metrics
+  - experiments
+  - namespaces
+  - snapshots
+  - dimensions
+  - segments
+  - reports
+  - sdk-connections
+  - visual-changesets
+  - saved-groups
+  - saved-group-revisions
+  - constants
+  - constant-revisions
+  - configs
+  - config-revisions
+  - releases
+  - custom-hooks
+  - organizations
+  - members
+  - code-references
+  - archetypes
+  - queries
+  - settings
+  - attributes
+  - usage
+  - meta
+  - ContextualBandits
+  - Dashboards
+  - ContextualBanditQueries
+  - CustomFields
+  - MetricGroups
+  - Teams
+  - ExperimentTemplates
+  - AnalyticsExplorations
+  - RampScheduleTemplates
+  - Learnings
+  - Holdouts
+  - AutoRuns
+  - Populations
+- name: Models
+  tags:
+  - AggregatedFactTable_model
+  - AnalyticsExploration_model
+  - Archetype_model
+  - Attribute_model
+  - AutoRun_model
+  - CodeRef_model
+  - Config_model
+  - ConfigKeyUsage_model
+  - ConfigLineage_model
+  - ConfigReferences_model
+  - ConfigRevision_model
+  - ConfigRevisionActivityLogEntry_model
+  - ConfigRevisionRef_model
+  - ConfigRevisionReview_model
+  - ConfigSchemaExport_model
+  - ConfigSchemaSource_model
+  - ConfigSchemaVerify_model
+  - ConfigSchemaWarning_model
+  - Confirmation_model
+  - ConfirmationHeld_model
+  - Constant_model
+  - ConstantReferences_model
+  - ConstantRevision_model
+  - ConstantRevisionActivityLogEntry_model
+  - ConstantRevisionRef_model
+  - ConstantRevisionReview_model
+  - ContextualBandit_model
+  - ContextualBanditQuery_model
+  - CustomField_model
+  - CustomHook_model
+  - Dashboard_model
+  - DataSource_model
+  - Dimension_model
+  - Environment_model
+  - EventUser_model
+  - Experiment_model
+  - Experiment Rule_model
+  - ExperimentAnalysisSettings_model
+  - ExperimentDecisionFrameworkSettings_model
+  - ExperimentMetric_model
+  - ExperimentMetricOverrideEntry_model
+  - ExperimentResults_model
+  - ExperimentSnapshot_model
+  - ExperimentTemplate_model
+  - ExperimentWithEnhancedStatus_model
+  - FactMetric_model
+  - FactTable_model
+  - FactTableColumn_model
+  - FactTableFilter_model
+  - FeatureBaseRule_model
+  - FeatureContextualBanditRefRule_model
+  - FeatureDefinition_model
+  - FeatureEnvironmentV1_model
+  - FeatureEnvironmentV2_model
+  - FeatureExperimentRefRule_model
+  - FeatureExperimentRule_model
+  - FeatureForceRule_model
+  - FeatureRevisionRef_model
+  - FeatureRevisionSummary_model
+  - FeatureRevisionV1_model
+  - FeatureRevisionV2_model
+  - FeatureRolloutRule_model
+  - FeatureRuleV1_model
+  - FeatureRuleV2_model
+  - FeatureSafeRolloutRule_model
+  - FeatureV1_model
+  - FeatureV2_model
+  - FeatureWithRevisionsV1_model
+  - FeatureWithRevisionsV2_model
+  - Holdout_model
+  - InformationSchema_model
+  - InformationSchemaTable_model
+  - Learning_model
+  - LookbackOverride_model
+  - Member_model
+  - Metric_model
+  - MetricAnalysis_model
+  - MetricGroup_model
+  - MetricUsage_model
+  - Namespace_model
+  - NamespaceExperimentMember_model
+  - Organization_model
+  - PaginationFields_model
+  - Population_model
+  - Project_model
+  - Query_model
+  - RampSchedule_model
+  - RampScheduleTemplate_model
+  - Report_model
+  - RequireReviewRule_model
+  - RequireReviewRuleInput_model
+  - RevisionIdRef_model
+  - Safe Rollout Rule_model
+  - SavedGroup_model
+  - SavedGroupApprovalRule_model
+  - SavedGroupReferenceResource_model
+  - SavedGroupReferences_model
+  - SavedGroupRevision_model
+  - SavedGroupRevisionActivityLogEntry_model
+  - SavedGroupRevisionRef_model
+  - SavedGroupRevisionReview_model
+  - ScheduleRule_model
+  - ScheduledStopPlan_model
+  - SdkConnection_model
+  - Segment_model
+  - Settings_model
+  - Targeting Rule_model
+  - TargetingReviewRule_model
+  - Team_model
+  - VisualChange_model
+  - VisualChangeset_model
+  - VisualEditorCbExperimentStub_model

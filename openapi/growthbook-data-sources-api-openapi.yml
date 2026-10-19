@@ -1,13 +1,66 @@
 openapi: 3.2.0
 info:
-  version: 1.0.0
+  version: 5.1.0
   title: GrowthBook REST Data Sources API
-  description: GrowthBook offers a full REST API for interacting with the application.
+  description: 'GrowthBook offers a full REST API for interacting with the application. Request data can use either JSON or Form data encoding (with proper `Content-Type` headers). All response bodies are JSON-encoded. The API base URL for GrowthBook Cloud is `https://api.growthbook.io/api`. For self-hosted deployments, it is the same as your API_HOST environment variable (defaults to `http://localhost:3100/api`). The rest of these docs will assume you are using GrowthBook Cloud. ## Versioning
+
+
+    Endpoints are versioned by path prefix:
+
+
+    - `/v1/...` — stable, widely-supported endpoints
+
+    - `/v2/...` — updated endpoints with improved shapes (e.g. unified per-rule environment scope for feature flags)
+
+
+    New integrations should prefer v2 where available. Feature-flag and metric v1 routes are deprecated: they are tagged **LEGACY** in the sidebar and collapsed by default. Use the matching v2 group when both exist. ## Authentication
+
+
+    We support both the HTTP Basic and Bearer authentication schemes for convenience. You first need to generate a new API Key in GrowthBook. Different keys have different permissions:
+
+
+    - **Personal Access Tokens**: These are sensitive and provide the same level of access as the user has to an organization, or less if the token''s permissions are limited. These can be created by going to `Personal Access Tokens` under your user menu. Members with the API Keys **Manage members'' tokens** permission can disable a member''s token under `Settings -> Manage PATs`, and admins can require new tokens to expire within a maximum lifetime. - **Secret Keys**: These are sensitive and provide the level of access of the role they are given, which can be any built-in or custom role, with optional per-project role overrides and environment limits. Managing Secret Keys on behalf of an organization takes the API Keys permissions. These can be created by going to `Settings -> API Keys`, where Admins can also require new Secret Keys to expire within a maximum lifetime. If using HTTP Basic auth, pass the Secret Key as the username and leave the password blank (when using curl, add `:` at the end of the secret to indicate an empty password)
+
+
+    ```bash
+
+    curl https://api.growthbook.io/api/v1/features \
+
+    -u secret_abc123DEF456:
+
+    ```
+
+
+    If using Bearer auth, pass the Secret Key as the token:
+
+
+    ```bash
+
+    curl https://api.growthbook.io/api/v1/features \
+
+    -H "Authorization: Bearer secret_abc123DEF456"
+
+    ```
+
+
+    If a key has an expiration date, every response includes it in the `X-GrowthBook-Key-Expires-At` header (ISO 8601), so scripts can warn before the key stops working. Requests made with an expired key fail with a `401` that says where to create a replacement. See Expiration for choosing a key''s expiration, the warnings before it lapses, and the organization policies. ## Naming who asked
+
+
+    Requests made with a Secret Key may add an `X-GrowthBook-Requested-By` header naming the organization member who asked for the change, as a user id or an email address. History, revision logs and webhooks show that member next to the key. Each key''s settings under `Settings -> API Keys`:
+
+
+    - **Header**: **Optional** (the default) uses the header when it''s sent, **Required** rejects requests without it, and **Rejected** rejects requests that send it, each with a 400. - **Permissions**, when a member is named:
+
+    - **Assume member''s role** (the default): the request acts as that member, with only what both the key and the member can do, so the header can narrow a key but never widen it. Drafts, owners, `mine` filters and reviews are the member''s. The member''s rights over their own drafts, comments and verdicts apply only where the key''s own role allows the same action. - **Use key''s role**: the key acts as itself, with its own permissions, and the name is only recorded in history. Drafts, verdicts and ownership are the key''s, as when no member is named.'
 servers:
 - url: https://api.growthbook.io/api
   description: GrowthBook Cloud
 - url: https://{domain}/api
   description: Self-hosted GrowthBook
+  variables:
+    domain:
+      default: localhost:3100
+      description: Your self-hosted GrowthBook host (and port)
 security:
 - bearerAuth: []
 - basicAuth: []
@@ -28,6 +81,7 @@ paths:
       - $ref: '#/components/parameters/projectId'
       responses:
         '200':
+          description: Successful response
           content:
             application/json:
               schema:
@@ -55,6 +109,7 @@ paths:
       - $ref: '#/components/parameters/id'
       responses:
         '200':
+          description: Successful response
           content:
             application/json:
               schema:
@@ -79,6 +134,7 @@ paths:
       - $ref: '#/components/parameters/dataSourceId'
       responses:
         '200':
+          description: Successful response
           content:
             application/json:
               schema:
@@ -92,6 +148,401 @@ paths:
       x-codeSamples:
       - lang: cURL
         source: "curl -X GET 'https://api.growthbook.io/api/v1/data-sources/{dataSourceId}/information-schema' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/data-sources/{id}/sql/search-tables:
+    post:
+      operationId: searchWarehouseTables
+      summary: Search warehouse tables
+      tags:
+      - Data Sources
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: The id of the data source
+        schema:
+          description: The id of the data source
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                query:
+                  description: Case-insensitive substring match on table name. Empty returns all.
+                  type: string
+                limit:
+                  description: Max results to return. Defaults to 20.
+                  type: integer
+                  minimum: 1
+                  maximum: 50
+              additionalProperties: false
+      responses:
+        '200':
+          description: Resource created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tables:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/tables'
+                  total:
+                    type: number
+                  schemas:
+                    type: array
+                    items:
+                      type: string
+                  datasourceType:
+                    type: string
+                required:
+                - tables
+                - total
+                - schemas
+                - datasourceType
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/data-sources/{id}/sql/search-tables' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/data-sources/{id}/sql/table-schema:
+    post:
+      operationId: getWarehouseTableSchema
+      summary: Get warehouse table schemas
+      tags:
+      - Data Sources
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: The id of the data source
+        schema:
+          description: The id of the data source
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tables:
+                  minItems: 1
+                  maxItems: 5
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      databaseName:
+                        type: string
+                      tableSchema:
+                        type: string
+                      tableName:
+                        type: string
+                    required:
+                    - databaseName
+                    - tableSchema
+                    - tableName
+                    additionalProperties: false
+              required:
+              - tables
+              additionalProperties: false
+      responses:
+        '200':
+          description: Resource created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tables:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        database:
+                          type: string
+                        schema:
+                          type: string
+                        table:
+                          type: string
+                        columns:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              name:
+                                type: string
+                              type:
+                                type: string
+                              description:
+                                type: string
+                            required:
+                            - name
+                            - type
+                            additionalProperties: false
+                      required:
+                      - database
+                      - schema
+                      - table
+                      - columns
+                      additionalProperties: false
+                required:
+                - tables
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/data-sources/{id}/sql/table-schema' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/data-sources/{id}/sql/preview-values:
+    post:
+      operationId: previewWarehouseColumnValues
+      summary: Preview distinct column values
+      tags:
+      - Data Sources
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: The id of the data source
+        schema:
+          description: The id of the data source
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                databaseName:
+                  description: Database or project name.
+                  type: string
+                tableSchema:
+                  description: Schema or dataset name.
+                  type: string
+                tableName:
+                  description: Table name (unqualified).
+                  type: string
+                columns:
+                  minItems: 1
+                  maxItems: 3
+                  type: array
+                  items:
+                    type: string
+                limit:
+                  description: Max rows to return. Defaults to 20.
+                  type: integer
+                  minimum: 1
+                  maximum: 20
+              required:
+              - databaseName
+              - tableSchema
+              - tableName
+              - columns
+              additionalProperties: false
+      responses:
+        '200':
+          description: Resource created
+          content:
+            application/json:
+              schema:
+                anyOf:
+                - type: object
+                  properties:
+                    status:
+                      type: string
+                      const: success
+                    table:
+                      type: string
+                    columns:
+                      type: array
+                      items:
+                        type: string
+                    rows:
+                      type: array
+                      items:
+                        type: object
+                        propertyNames:
+                          type: string
+                        additionalProperties: {}
+                    rowCount:
+                      type: number
+                    warning:
+                      type: string
+                  required:
+                  - status
+                  - table
+                  - columns
+                  - rows
+                  - rowCount
+                  additionalProperties: false
+                - type: object
+                  properties:
+                    status:
+                      type: string
+                      const: error
+                    message:
+                      type: string
+                  required:
+                  - status
+                  - message
+                  additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/data-sources/{id}/sql/preview-values' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/data-sources/{id}/sql/run-query:
+    post:
+      operationId: runSqlQuery
+      summary: Execute a read-only SQL query
+      tags:
+      - Data Sources
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: The id of the data source
+        schema:
+          description: The id of the data source
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sql:
+                  description: A read-only SELECT or WITH query.
+                  type: string
+                purpose:
+                  description: One-line description of what this query answers.
+                  type: string
+                confirm:
+                  description: Set to true to execute a query that previously returned confirmation_required.
+                  type: boolean
+                tableMetadata:
+                  description: Table metadata from earlier discovery steps. When provided, the response includes an explorationUrl for viewing results in the product analytics explorer.
+                  type: object
+                  properties:
+                    table:
+                      description: Table name, e.g. 'events'
+                      type: string
+                    path:
+                      description: Fully qualified path, e.g. 'db.schema.events'
+                      type: string
+                    timestampColumn:
+                      description: A date/timestamp column name
+                      type: string
+                    columnTypes:
+                      description: Map of column names to types
+                      type: object
+                      propertyNames:
+                        type: string
+                      additionalProperties:
+                        type: string
+                        enum:
+                        - string
+                        - number
+                        - date
+                        - boolean
+                        - other
+                  required:
+                  - table
+                  - path
+                  - timestampColumn
+                  - columnTypes
+                  additionalProperties: false
+              required:
+              - sql
+              - purpose
+              additionalProperties: false
+      responses:
+        '200':
+          description: Resource created
+          content:
+            application/json:
+              schema:
+                anyOf:
+                - type: object
+                  properties:
+                    status:
+                      type: string
+                      const: success
+                    summary:
+                      type: string
+                    rowCount:
+                      type: number
+                    columns:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          name:
+                            type: string
+                          dataType:
+                            type: string
+                        required:
+                        - name
+                        additionalProperties: false
+                    resultCsv:
+                      type: string
+                    truncated:
+                      type: boolean
+                    durationMs:
+                      type: number
+                    sql:
+                      type: string
+                    explorationUrl:
+                      type: string
+                    explorationId:
+                      type: string
+                    notice:
+                      type: string
+                  required:
+                  - status
+                  - summary
+                  - rowCount
+                  - columns
+                  - resultCsv
+                  - truncated
+                  - durationMs
+                  - sql
+                  additionalProperties: false
+                - type: object
+                  properties:
+                    status:
+                      type: string
+                      const: confirmation_required
+                    estimatedBytesProcessed:
+                      type: number
+                    estimatedCostUsd:
+                      type: number
+                    sql:
+                      type: string
+                    message:
+                      type: string
+                  required:
+                  - status
+                  - estimatedBytesProcessed
+                  - sql
+                  - message
+                  additionalProperties: false
+                - type: object
+                  properties:
+                    status:
+                      type: string
+                      const: error
+                    message:
+                      type: string
+                  required:
+                  - status
+                  - message
+                  additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/data-sources/{id}/sql/run-query' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
   /v1/information-schema-tables/{tableId}:
     get:
       operationId: getInformationSchemaTable
@@ -103,6 +554,7 @@ paths:
       - $ref: '#/components/parameters/tableId'
       responses:
         '200':
+          description: Successful response
           content:
             application/json:
               schema:
@@ -118,54 +570,6 @@ paths:
         source: "curl -X GET 'https://api.growthbook.io/api/v1/information-schema-tables/{tableId}' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
 components:
   schemas:
-    InformationSchemaTable:
-      type: object
-      properties:
-        id:
-          type: string
-        datasourceId:
-          type: string
-        informationSchemaId:
-          type: string
-        tableName:
-          type: string
-        tableSchema:
-          type: string
-        databaseName:
-          type: string
-        columns:
-          type: array
-          items:
-            type: object
-            properties:
-              columnName:
-                type: string
-              dataType:
-                type: string
-            required:
-            - columnName
-            - dataType
-            additionalProperties: false
-        refreshMS:
-          type: number
-        dateCreated:
-          format: date-time
-          type: string
-        dateUpdated:
-          format: date-time
-          type: string
-      required:
-      - id
-      - datasourceId
-      - informationSchemaId
-      - tableName
-      - tableSchema
-      - databaseName
-      - columns
-      - refreshMS
-      - dateCreated
-      - dateUpdated
-      additionalProperties: false
     InformationSchema:
       type: object
       properties:
@@ -275,6 +679,31 @@ components:
       - dateCreated
       - dateUpdated
       additionalProperties: false
+    PaginationFields:
+      type: object
+      properties:
+        limit:
+          type: integer
+        offset:
+          type: integer
+        count:
+          type: integer
+        total:
+          type: integer
+        hasMore:
+          type: boolean
+        nextOffset:
+          anyOf:
+          - type: integer
+          - type: 'null'
+      required:
+      - limit
+      - offset
+      - count
+      - total
+      - hasMore
+      - nextOffset
+      additionalProperties: false
     DataSource:
       type: object
       properties:
@@ -292,6 +721,7 @@ components:
           type: string
         description:
           type: string
+          maxLength: 10000
         projectIds:
           type: array
           items:
@@ -307,6 +737,7 @@ components:
                 type: string
               description:
                 type: string
+                maxLength: 10000
             required:
             - id
             - description
@@ -322,7 +753,13 @@ components:
                 type: string
               description:
                 type: string
+                maxLength: 10000
+              identifierTypes:
+                type: array
+                items:
+                  type: string
               identifierType:
+                deprecated: true
                 type: string
               sql:
                 type: string
@@ -332,14 +769,20 @@ components:
                 type: array
                 items:
                   type: string
+              projects:
+                type: array
+                items:
+                  type: string
             required:
             - id
             - name
             - description
+            - identifierTypes
             - identifierType
             - sql
             - includesNameColumns
             - dimensionColumns
+            - projects
             additionalProperties: false
         identifierJoinQueries:
           type: array
@@ -386,54 +829,88 @@ components:
       - assignmentQueries
       - identifierJoinQueries
       additionalProperties: false
-    PaginationFields:
+    tables:
       type: object
       properties:
-        limit:
-          type: integer
-        offset:
-          type: integer
-        count:
-          type: integer
-        total:
-          type: integer
-        hasMore:
-          type: boolean
-        nextOffset:
-          anyOf:
-          - type: integer
-          - type: 'null'
+        database:
+          type: string
+        schema:
+          type: string
+        table:
+          type: string
+        columnCount:
+          type: number
       required:
-      - limit
-      - offset
-      - count
-      - total
-      - hasMore
-      - nextOffset
+      - database
+      - schema
+      - table
+      - columnCount
+      additionalProperties: false
+    InformationSchemaTable:
+      type: object
+      properties:
+        id:
+          type: string
+        datasourceId:
+          type: string
+        informationSchemaId:
+          type: string
+        tableName:
+          type: string
+        tableSchema:
+          type: string
+        databaseName:
+          type: string
+        columns:
+          type: array
+          items:
+            type: object
+            properties:
+              columnName:
+                type: string
+              dataType:
+                type: string
+            required:
+            - columnName
+            - dataType
+            additionalProperties: false
+        refreshMS:
+          type: number
+        dateCreated:
+          format: date-time
+          type: string
+        dateUpdated:
+          format: date-time
+          type: string
+      required:
+      - id
+      - datasourceId
+      - informationSchemaId
+      - tableName
+      - tableSchema
+      - databaseName
+      - columns
+      - refreshMS
+      - dateCreated
+      - dateUpdated
       additionalProperties: false
   parameters:
+    limit:
+      name: limit
+      in: query
+      description: The number of items to return
+      schema:
+        default: 10
+        description: The number of items to return
+        type: integer
+        minimum: 1
+        maximum: 100
     projectId:
       name: projectId
       in: query
       description: Filter by project id
       schema:
         description: Filter by project id
-        type: string
-    dataSourceId:
-      name: dataSourceId
-      in: path
-      required: true
-      description: The id of the data source
-      schema:
-        description: The id of the data source
-        type: string
-    tableId:
-      name: tableId
-      in: path
-      required: true
-      description: The id of the information schema table
-      schema:
-        description: The id of the information schema table
         type: string
     offset:
       name: offset
@@ -452,16 +929,22 @@ components:
       schema:
         description: The id of the requested resource
         type: string
-    limit:
-      name: limit
-      in: query
-      description: The number of items to return
+    dataSourceId:
+      name: dataSourceId
+      in: path
+      required: true
+      description: The id of the data source
       schema:
-        default: 10
-        description: The number of items to return
-        type: integer
-        minimum: 1
-        maximum: 100
+        description: The id of the data source
+        type: string
+    tableId:
+      name: tableId
+      in: path
+      required: true
+      description: The id of the information schema table
+      schema:
+        description: The id of the information schema table
+        type: string
   securitySchemes:
     bearerAuth:
       type: http
@@ -508,9 +991,17 @@ x-tagGroups:
   - snapshots
   - dimensions
   - segments
+  - reports
   - sdk-connections
   - visual-changesets
   - saved-groups
+  - saved-group-revisions
+  - constants
+  - constant-revisions
+  - configs
+  - config-revisions
+  - releases
+  - custom-hooks
   - organizations
   - members
   - code-references
@@ -519,25 +1010,59 @@ x-tagGroups:
   - settings
   - attributes
   - usage
+  - meta
+  - ContextualBandits
   - Dashboards
+  - ContextualBanditQueries
   - CustomFields
   - MetricGroups
   - Teams
   - ExperimentTemplates
   - AnalyticsExplorations
   - RampScheduleTemplates
+  - Learnings
+  - Holdouts
+  - AutoRuns
+  - Populations
 - name: Models
   tags:
+  - AggregatedFactTable_model
   - AnalyticsExploration_model
   - Archetype_model
   - Attribute_model
+  - AutoRun_model
   - CodeRef_model
+  - Config_model
+  - ConfigKeyUsage_model
+  - ConfigLineage_model
+  - ConfigReferences_model
+  - ConfigRevision_model
+  - ConfigRevisionActivityLogEntry_model
+  - ConfigRevisionRef_model
+  - ConfigRevisionReview_model
+  - ConfigSchemaExport_model
+  - ConfigSchemaSource_model
+  - ConfigSchemaVerify_model
+  - ConfigSchemaWarning_model
+  - Confirmation_model
+  - ConfirmationHeld_model
+  - Constant_model
+  - ConstantReferences_model
+  - ConstantRevision_model
+  - ConstantRevisionActivityLogEntry_model
+  - ConstantRevisionRef_model
+  - ConstantRevisionReview_model
+  - ContextualBandit_model
+  - ContextualBanditQuery_model
   - CustomField_model
+  - CustomHook_model
   - Dashboard_model
   - DataSource_model
   - Dimension_model
   - Environment_model
+  - EventUser_model
   - Experiment_model
+  - Experiment Rule_model
   - ExperimentAnalysisSettings_model
   - ExperimentDecisionFrameworkSettings_model
   - ExperimentMetric_model
@@ -550,25 +1075,30 @@ x-tagGroups:
   - FactTable_model
   - FactTableColumn_model
   - FactTableFilter_model
-  - Feature_model
   - FeatureBaseRule_model
+  - FeatureContextualBanditRefRule_model
   - FeatureDefinition_model
-  - FeatureEnvironment_model
+  - FeatureEnvironmentV1_model
   - FeatureEnvironmentV2_model
   - FeatureExperimentRefRule_model
   - FeatureExperimentRule_model
   - FeatureForceRule_model
-  - FeatureRevision_model
+  - FeatureRevisionRef_model
+  - FeatureRevisionSummary_model
+  - FeatureRevisionV1_model
   - FeatureRevisionV2_model
   - FeatureRolloutRule_model
-  - FeatureRule_model
+  - FeatureRuleV1_model
   - FeatureRuleV2_model
   - FeatureSafeRolloutRule_model
+  - FeatureV1_model
   - FeatureV2_model
-  - FeatureWithRevisions_model
+  - FeatureWithRevisionsV1_model
   - FeatureWithRevisionsV2_model
+  - Holdout_model
   - InformationSchema_model
   - InformationSchemaTable_model
+  - Learning_model
   - LookbackOverride_model
   - Member_model
   - Metric_model
@@ -579,15 +1109,32 @@ x-tagGroups:
   - NamespaceExperimentMember_model
   - Organization_model
   - PaginationFields_model
+  - Population_model
   - Project_model
   - Query_model
   - RampSchedule_model
   - RampScheduleTemplate_model
+  - Report_model
+  - RequireReviewRule_model
+  - RequireReviewRuleInput_model
+  - RevisionIdRef_model
+  - Safe Rollout Rule_model
   - SavedGroup_model
+  - SavedGroupApprovalRule_model
+  - SavedGroupReferenceResource_model
+  - SavedGroupReferences_model
+  - SavedGroupRevision_model
+  - SavedGroupRevisionActivityLogEntry_model
+  - SavedGroupRevisionRef_model
+  - SavedGroupRevisionReview_model
   - ScheduleRule_model
+  - ScheduledStopPlan_model
   - SdkConnection_model
   - Segment_model
   - Settings_model
+  - Targeting Rule_model
+  - TargetingReviewRule_model
   - Team_model
   - VisualChange_model
   - VisualChangeset_model
+  - VisualEditorCbExperimentStub_model

@@ -1,13 +1,66 @@
 openapi: 3.2.0
 info:
-  version: 1.0.0
+  version: 5.1.0
   title: GrowthBook REST Fact Tables API
-  description: GrowthBook offers a full REST API for interacting with the application.
+  description: 'GrowthBook offers a full REST API for interacting with the application. Request data can use either JSON or Form data encoding (with proper `Content-Type` headers). All response bodies are JSON-encoded. The API base URL for GrowthBook Cloud is `https://api.growthbook.io/api`. For self-hosted deployments, it is the same as your API_HOST environment variable (defaults to `http://localhost:3100/api`). The rest of these docs will assume you are using GrowthBook Cloud. ## Versioning
+
+
+    Endpoints are versioned by path prefix:
+
+
+    - `/v1/...` — stable, widely-supported endpoints
+
+    - `/v2/...` — updated endpoints with improved shapes (e.g. unified per-rule environment scope for feature flags)
+
+
+    New integrations should prefer v2 where available. Feature-flag and metric v1 routes are deprecated: they are tagged **LEGACY** in the sidebar and collapsed by default. Use the matching v2 group when both exist. ## Authentication
+
+
+    We support both the HTTP Basic and Bearer authentication schemes for convenience. You first need to generate a new API Key in GrowthBook. Different keys have different permissions:
+
+
+    - **Personal Access Tokens**: These are sensitive and provide the same level of access as the user has to an organization, or less if the token''s permissions are limited. These can be created by going to `Personal Access Tokens` under your user menu. Members with the API Keys **Manage members'' tokens** permission can disable a member''s token under `Settings -> Manage PATs`, and admins can require new tokens to expire within a maximum lifetime. - **Secret Keys**: These are sensitive and provide the level of access of the role they are given, which can be any built-in or custom role, with optional per-project role overrides and environment limits. Managing Secret Keys on behalf of an organization takes the API Keys permissions. These can be created by going to `Settings -> API Keys`, where Admins can also require new Secret Keys to expire within a maximum lifetime. If using HTTP Basic auth, pass the Secret Key as the username and leave the password blank (when using curl, add `:` at the end of the secret to indicate an empty password)
+
+
+    ```bash
+
+    curl https://api.growthbook.io/api/v1/features \
+
+    -u secret_abc123DEF456:
+
+    ```
+
+
+    If using Bearer auth, pass the Secret Key as the token:
+
+
+    ```bash
+
+    curl https://api.growthbook.io/api/v1/features \
+
+    -H "Authorization: Bearer secret_abc123DEF456"
+
+    ```
+
+
+    If a key has an expiration date, every response includes it in the `X-GrowthBook-Key-Expires-At` header (ISO 8601), so scripts can warn before the key stops working. Requests made with an expired key fail with a `401` that says where to create a replacement. See Expiration for choosing a key''s expiration, the warnings before it lapses, and the organization policies. ## Naming who asked
+
+
+    Requests made with a Secret Key may add an `X-GrowthBook-Requested-By` header naming the organization member who asked for the change, as a user id or an email address. History, revision logs and webhooks show that member next to the key. Each key''s settings under `Settings -> API Keys`:
+
+
+    - **Header**: **Optional** (the default) uses the header when it''s sent, **Required** rejects requests without it, and **Rejected** rejects requests that send it, each with a 400. - **Permissions**, when a member is named:
+
+    - **Assume member''s role** (the default): the request acts as that member, with only what both the key and the member can do, so the header can narrow a key but never widen it. Drafts, owners, `mine` filters and reviews are the member''s. The member''s rights over their own drafts, comments and verdicts apply only where the key''s own role allows the same action. - **Use key''s role**: the key acts as itself, with its own permissions, and the name is only recorded in history. Drafts, verdicts and ownership are the key''s, as when no member is named.'
 servers:
 - url: https://api.growthbook.io/api
   description: GrowthBook Cloud
 - url: https://{domain}/api
   description: Self-hosted GrowthBook
+  variables:
+    domain:
+      default: localhost:3100
+      description: Your self-hosted GrowthBook host (and port)
 security:
 - bearerAuth: []
 - basicAuth: []
@@ -29,6 +82,7 @@ paths:
       - $ref: '#/components/parameters/projectId'
       responses:
         '200':
+          description: Successful response
           content:
             application/json:
               schema:
@@ -59,10 +113,12 @@ paths:
               type: object
               properties:
                 name:
+                  description: Short display name. Put details in `description`.
                   type: string
                 description:
-                  description: Description of the fact table
+                  description: Markdown. Put context here, not in the name.
                   type: string
+                  maxLength: 10000
                 owner:
                   description: The userId or email address of the owner. If an email address is provided, it will be used to look up the userId of the matching organization member. If an ID is provided, it will be validated as existing in the organization.
                   type: string
@@ -84,12 +140,58 @@ paths:
                   type: array
                   items:
                     type: string
+                userIdColumns:
+                  description: 'Maps an identifier type to the column holding it, for SQL that does not alias its columns to the identifier type names, e.g. `{"user_id": "userId"}`. May also be a single-level field path into a JSON column (`properties.userId`). Unmapped types use the identifier type name as the column name.'
+                  type: object
+                  propertyNames:
+                    type: string
+                  additionalProperties:
+                    type: string
+                aggregatedFactTableSettings:
+                  description: Settings for maintaining shared daily aggregated tables (a subset of userIdTypes plus the daily update time and restate lookback window) used to speed up CUPED. Requires the data pipeline (pipeline-mode) feature.
+                  type: object
+                  properties:
+                    idTypes:
+                      type: array
+                      items:
+                        type: string
+                    updateTime:
+                      type: object
+                      properties:
+                        time:
+                          type: string
+                        timezone:
+                          type: string
+                      required:
+                      - time
+                      - timezone
+                      additionalProperties: false
+                    lookbackWindow:
+                      type: integer
+                      exclusiveMinimum: 0
+                    restateChunkDays:
+                      type: integer
+                      minimum: 1
+                      maximum: 7
+                  required:
+                  - idTypes
+                  - updateTime
+                  - lookbackWindow
+                  additionalProperties: false
                 sql:
                   description: The SQL query for this fact table
+                  type: string
+                timestampColumn:
+                  description: The column holding the event timestamp. Must be a date column on this fact table. Defaults to "timestamp" when unset.
                   type: string
                 eventName:
                   description: The event name used in SQL template variables
                   type: string
+                columns:
+                  description: Optional array of column definitions to store for this fact table. Supplied columns are stored as-is. Omit `datatype` (or send "") on a column to have it auto-detected from the SQL.
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/FactTableColumnInput'
                 managedBy:
                   description: Set this to "api" to disable editing in the GrowthBook UI
                   type: string
@@ -105,6 +207,7 @@ paths:
               additionalProperties: false
       responses:
         '200':
+          description: Resource created
           content:
             application/json:
               schema:
@@ -115,6 +218,8 @@ paths:
                 required:
                 - factTable
                 additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
       x-codeSamples:
       - lang: cURL
         source: "curl -X POST 'https://api.growthbook.io/api/v1/fact-tables' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"name\":\"Orders\",\"datasource\":\"ds_abc123\",\"userIdTypes\":[\"id\"],\"sql\":\"SELECT * FROM orders\"}'"
@@ -128,6 +233,7 @@ paths:
       - $ref: '#/components/parameters/id'
       responses:
         '200':
+          description: Successful response
           content:
             application/json:
               schema:
@@ -156,10 +262,12 @@ paths:
               type: object
               properties:
                 name:
+                  description: Short display name. Put details in `description`.
                   type: string
                 description:
-                  description: Description of the fact table
+                  description: Markdown. Put context here, not in the name.
                   type: string
+                  maxLength: 10000
                 owner:
                   description: The userId or email address of the owner. If an email address is provided, it will be used to look up the userId of the matching organization member. If an ID is provided, it will be validated as existing in the organization.
                   type: string
@@ -178,22 +286,58 @@ paths:
                   type: array
                   items:
                     type: string
+                userIdColumns:
+                  description: 'Maps an identifier type to the column holding it, for SQL that does not alias its columns to the identifier type names, e.g. `{"user_id": "userId"}`. May also be a single-level field path into a JSON column (`properties.userId`). Unmapped types use the identifier type name as the column name.'
+                  type: object
+                  propertyNames:
+                    type: string
+                  additionalProperties:
+                    type: string
+                aggregatedFactTableSettings:
+                  description: Settings for maintaining shared daily aggregated tables (a subset of userIdTypes plus the daily update time and restate lookback window) used to speed up CUPED. Requires the data pipeline (pipeline-mode) feature.
+                  type: object
+                  properties:
+                    idTypes:
+                      type: array
+                      items:
+                        type: string
+                    updateTime:
+                      type: object
+                      properties:
+                        time:
+                          type: string
+                        timezone:
+                          type: string
+                      required:
+                      - time
+                      - timezone
+                      additionalProperties: false
+                    lookbackWindow:
+                      type: integer
+                      exclusiveMinimum: 0
+                    restateChunkDays:
+                      type: integer
+                      minimum: 1
+                      maximum: 7
+                  required:
+                  - idTypes
+                  - updateTime
+                  - lookbackWindow
+                  additionalProperties: false
                 sql:
                   description: The SQL query for this fact table
+                  type: string
+                timestampColumn:
+                  description: The column holding the event timestamp. Must be a date column on this fact table. Defaults to "timestamp" when unset.
                   type: string
                 eventName:
                   description: The event name used in SQL template variables
                   type: string
                 columns:
-                  description: Optional array of columns that you want to update. Only allows updating properties of existing columns. Cannot create new columns or delete existing ones. Columns cannot be added or deleted; column structure is determined by SQL parsing. Slice-related properties require an enterprise license.
+                  description: 'Optional array of columns to upsert by `column`: existing columns are patched, new columns are created, and columns not included are left unchanged. Omit `datatype` to leave an existing column''s type untouched; send "" to reset it for auto-detection; new columns are auto-detected when `datatype` is omitted or "". Slice-related properties require an enterprise license.'
                   type: array
                   items:
-                    $ref: '#/components/schemas/FactTableColumn'
-                columnsError:
-                  description: Error message if there was an issue parsing the SQL schema
-                  anyOf:
-                  - type: string
-                  - type: 'null'
+                    $ref: '#/components/schemas/FactTableColumnInput'
                 managedBy:
                   description: Set this to "api" to disable editing in the GrowthBook UI
                   type: string
@@ -206,6 +350,7 @@ paths:
               additionalProperties: false
       responses:
         '200':
+          description: Resource created
           content:
             application/json:
               schema:
@@ -216,6 +361,8 @@ paths:
                 required:
                 - factTable
                 additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
       x-codeSamples:
       - lang: cURL
         source: "curl -X POST 'https://api.growthbook.io/api/v1/fact-tables/abc123' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"name\":\"New Fact Table Name\"}'"
@@ -228,6 +375,7 @@ paths:
       - $ref: '#/components/parameters/id'
       responses:
         '200':
+          description: Resource deleted
           content:
             application/json:
               schema:
@@ -240,6 +388,8 @@ paths:
                 required:
                 - deletedId
                 additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
       x-codeSamples:
       - lang: cURL
         source: "curl -X DELETE 'https://api.growthbook.io/api/v1/fact-tables/abc123' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
@@ -255,6 +405,7 @@ paths:
       - $ref: '#/components/parameters/offset'
       responses:
         '200':
+          description: Successful response
           content:
             application/json:
               schema:
@@ -287,10 +438,12 @@ paths:
               type: object
               properties:
                 name:
+                  description: Short display name. Put details in `description`.
                   type: string
                 description:
                   description: Description of the fact table filter
                   type: string
+                  maxLength: 10000
                 value:
                   description: The SQL expression for this filter.
                   example: country = 'US'
@@ -307,6 +460,7 @@ paths:
               additionalProperties: false
       responses:
         '200':
+          description: Resource created
           content:
             application/json:
               schema:
@@ -317,6 +471,8 @@ paths:
                 required:
                 - factTableFilter
                 additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
       x-codeSamples:
       - lang: cURL
         source: "curl -X POST 'https://api.growthbook.io/api/v1/fact-tables/abc123/filters' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"name\":\"High Value Order\",\"value\":\"amount>100\"}'"
@@ -331,6 +487,7 @@ paths:
       - $ref: '#/components/parameters/id'
       responses:
         '200':
+          description: Successful response
           content:
             application/json:
               schema:
@@ -360,10 +517,12 @@ paths:
               type: object
               properties:
                 name:
+                  description: Short display name. Put details in `description`.
                   type: string
                 description:
                   description: Description of the fact table filter
                   type: string
+                  maxLength: 10000
                 value:
                   description: The SQL expression for this filter.
                   example: country = 'US'
@@ -377,6 +536,7 @@ paths:
               additionalProperties: false
       responses:
         '200':
+          description: Resource created
           content:
             application/json:
               schema:
@@ -387,6 +547,8 @@ paths:
                 required:
                 - factTableFilter
                 additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
       x-codeSamples:
       - lang: cURL
         source: "curl -X POST 'https://api.growthbook.io/api/v1/fact-tables/abc123/filters/abc123' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"value\":\"amount > 50\"}'"
@@ -400,6 +562,7 @@ paths:
       - $ref: '#/components/parameters/id'
       responses:
         '200':
+          description: Resource deleted
           content:
             application/json:
               schema:
@@ -412,13 +575,319 @@ paths:
                 required:
                 - deletedId
                 additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
       x-codeSamples:
       - lang: cURL
         source: "curl -X DELETE 'https://api.growthbook.io/api/v1/fact-tables/abc123/filters/abc123' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/fact-tables/{factTableId}/virtual-columns:
+    post:
+      operationId: postFactTableVirtualColumn
+      summary: Create a virtual (computed) column on a fact table
+      tags:
+      - fact-tables
+      parameters:
+      - $ref: '#/components/parameters/factTableId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                column:
+                  description: The column identifier used in generated SQL. Must contain only letters, numbers, and underscores and end with `_vc`.
+                  example: revenue_vc
+                  type: string
+                name:
+                  description: Display name for the column
+                  type: string
+                description:
+                  description: Put context here, not in the name.
+                  type: string
+                  maxLength: 10000
+                numberFormat:
+                  type: string
+                  enum:
+                  - ''
+                  - currency
+                  - time:seconds
+                  - time:milliseconds
+                  - memory:bytes
+                  - memory:kilobytes
+                datatype:
+                  description: The data type of the computed column
+                  type: string
+                  enum:
+                  - number
+                  - string
+                  - date
+                  - boolean
+                  - json
+                  - binary
+                  - other
+                sql:
+                  description: The SQL expression that computes the column value
+                  example: price * quantity
+                  type: string
+              required:
+              - column
+              - datatype
+              - sql
+              additionalProperties: false
+      responses:
+        '200':
+          description: Resource created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  factTableColumn:
+                    $ref: '#/components/schemas/FactTableColumn'
+                required:
+                - factTableColumn
+                additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/fact-tables/abc123/virtual-columns' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"column\":\"revenue_vc\",\"datatype\":\"number\",\"sql\":\"price * quantity\"}'"
+  /v1/fact-tables/{factTableId}/virtual-columns/{id}:
+    post:
+      operationId: updateFactTableVirtualColumn
+      summary: Update a virtual (computed) column on a fact table
+      tags:
+      - fact-tables
+      parameters:
+      - $ref: '#/components/parameters/factTableId'
+      - $ref: '#/components/parameters/id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  description: Display name for the column
+                  type: string
+                description:
+                  description: Put context here, not in the name.
+                  type: string
+                  maxLength: 10000
+                numberFormat:
+                  type: string
+                  enum:
+                  - ''
+                  - currency
+                  - time:seconds
+                  - time:milliseconds
+                  - memory:bytes
+                  - memory:kilobytes
+                datatype:
+                  description: The data type of the computed column
+                  type: string
+                  enum:
+                  - number
+                  - string
+                  - date
+                  - boolean
+                  - json
+                  - binary
+                  - other
+                sql:
+                  description: The SQL expression that computes the column value
+                  type: string
+              additionalProperties: false
+      responses:
+        '200':
+          description: Resource created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  factTableColumn:
+                    $ref: '#/components/schemas/FactTableColumn'
+                required:
+                - factTableColumn
+                additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/fact-tables/abc123/virtual-columns/revenue_vc' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"sql\":\"price * quantity * 1.1\"}'"
+    delete:
+      operationId: deleteFactTableVirtualColumn
+      summary: Delete a virtual (computed) column from a fact table
+      tags:
+      - fact-tables
+      parameters:
+      - $ref: '#/components/parameters/factTableId'
+      - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: Resource deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deletedId:
+                    description: The id of the deleted virtual column
+                    example: revenue_vc
+                    type: string
+                required:
+                - deletedId
+                additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X DELETE 'https://api.growthbook.io/api/v1/fact-tables/abc123/virtual-columns/revenue_vc' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/fact-tables/{id}/aggregated-tables:
+    get:
+      operationId: getAggregatedFactTables
+      summary: Get the materialization status of a fact table's shared daily aggregated tables
+      tags:
+      - fact-tables
+      parameters:
+      - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  aggregatedFactTables:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AggregatedFactTable'
+                  nextScheduledUpdate:
+                    description: When the next scheduled nightly refresh will run, or null if no schedule is configured
+                    anyOf:
+                    - format: date-time
+                      type: string
+                    - type: 'null'
+                required:
+                - aggregatedFactTables
+                - nextScheduledUpdate
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/fact-tables/abc123/aggregated-tables' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/fact-tables/{id}/aggregated-tables/refresh:
+    post:
+      operationId: refreshAggregatedFactTable
+      summary: Force a refresh or full restate of a fact table's shared daily aggregated tables
+      tags:
+      - fact-tables
+      parameters:
+      - $ref: '#/components/parameters/id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                idType:
+                  description: Limit the refresh to a single id type. If omitted, all of the fact table's aggregatedFactTableSettings.idTypes are refreshed.
+                  type: string
+                fullRestate:
+                  description: Drop and recreate the table, re-scanning the retained window. This is significantly more expensive than the default incremental append (it scans ~2-3 months of history).
+                  type: boolean
+              additionalProperties: false
+      responses:
+        '200':
+          description: Resource created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  runs:
+                    description: One entry per id type refreshed
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AggregatedTableRefreshTrigger'
+                required:
+                - runs
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/fact-tables/abc123/aggregated-tables/refresh' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"fullRestate\":false}'"
+  /v1/fact-tables/{id}/aggregated-tables/runs:
+    get:
+      operationId: listAggregatedTableRuns
+      summary: List aggregated table runs
+      tags:
+      - fact-tables
+      parameters:
+      - $ref: '#/components/parameters/id'
+      - $ref: '#/components/parameters/idType'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                - type: object
+                  properties:
+                    runs:
+                      description: A list of the aggregated table runs for the fact table
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/AggregatedTableRunSummary'
+                  required:
+                  - runs
+                  additionalProperties: false
+                - $ref: '#/components/schemas/PaginationFields'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/fact-tables/ftb_123/aggregated-tables/runs?idType=user_id' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/fact-tables/{id}/aggregated-tables/runs/{runId}:
+    get:
+      operationId: getAggregatedTableRun
+      summary: Get a single aggregated table run
+      tags:
+      - fact-tables
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: The id of the fact table
+        schema:
+          description: The id of the fact table
+          type: string
+      - $ref: '#/components/parameters/runId'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  run:
+                    $ref: '#/components/schemas/AggregatedTableRun'
+                required:
+                - run
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/fact-tables/abc123/aggregated-tables/runs/aftr_abc123' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
   /v1/bulk-import/facts:
     post:
       operationId: postBulkImportFacts
       summary: Bulk import fact tables, filters, and metrics
+      description: 'Creates or updates Fact Tables, Fact Table filters, and Fact Metrics. Resources upsert by `id`. Pass `dryRun: true` to validate with zero writes. Not transactional: a live mid-loop failure returns HTTP 400 (403 for a permission failure) with write counts and `errors`.'
       tags:
       - fact-tables
       requestBody:
@@ -428,6 +897,16 @@ paths:
             schema:
               type: object
               properties:
+                defaultManagedBy:
+                  description: Fallback `managedBy` for Fact Tables and Fact Metrics that omit the field. Defaults to `"api"`. Filters inherit `"api"` only when the parent Fact Table is api-managed.
+                  type: string
+                  enum:
+                  - ''
+                  - api
+                  - admin
+                dryRun:
+                  description: Validate with zero writes.
+                  type: boolean
                 factTables:
                   type: array
                   items:
@@ -439,10 +918,12 @@ paths:
                         type: object
                         properties:
                           name:
+                            description: Short display name. Put details in `description`.
                             type: string
                           description:
-                            description: Description of the fact table
+                            description: Markdown. Put context here, not in the name.
                             type: string
+                            maxLength: 10000
                           owner:
                             description: The userId or email address of the owner. If an email address is provided, it will be used to look up the userId of the matching organization member. If an ID is provided, it will be validated as existing in the organization.
                             type: string
@@ -464,12 +945,58 @@ paths:
                             type: array
                             items:
                               type: string
+                          userIdColumns:
+                            description: 'Maps an identifier type to the column holding it, for SQL that does not alias its columns to the identifier type names, e.g. `{"user_id": "userId"}`. May also be a single-level field path into a JSON column (`properties.userId`). Unmapped types use the identifier type name as the column name.'
+                            type: object
+                            propertyNames:
+                              type: string
+                            additionalProperties:
+                              type: string
+                          aggregatedFactTableSettings:
+                            description: Settings for maintaining shared daily aggregated tables (a subset of userIdTypes plus the daily update time and restate lookback window) used to speed up CUPED. Requires the data pipeline (pipeline-mode) feature.
+                            type: object
+                            properties:
+                              idTypes:
+                                type: array
+                                items:
+                                  type: string
+                              updateTime:
+                                type: object
+                                properties:
+                                  time:
+                                    type: string
+                                  timezone:
+                                    type: string
+                                required:
+                                - time
+                                - timezone
+                                additionalProperties: false
+                              lookbackWindow:
+                                type: integer
+                                exclusiveMinimum: 0
+                              restateChunkDays:
+                                type: integer
+                                minimum: 1
+                                maximum: 7
+                            required:
+                            - idTypes
+                            - updateTime
+                            - lookbackWindow
+                            additionalProperties: false
                           sql:
                             description: The SQL query for this fact table
+                            type: string
+                          timestampColumn:
+                            description: The column holding the event timestamp. Must be a date column on this fact table. Defaults to "timestamp" when unset.
                             type: string
                           eventName:
                             description: The event name used in SQL template variables
                             type: string
+                          columns:
+                            description: 'Optional array of column definitions for this fact table. On create, columns are stored as-is. On update, columns upsert by `column`: existing columns are patched, new columns are created, and columns not included are left unchanged. Omit `datatype` to leave an existing column''s type untouched; send "" to reset it for auto-detection; new columns are auto-detected when `datatype` is omitted or "". Datatype-dependent properties (e.g. `alwaysInlineFilter`) are validated once the datatype is known. Slice-related properties require an enterprise license.'
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/FactTableColumnInput'
                           managedBy:
                             description: Set this to "api" to disable editing in the GrowthBook UI
                             type: string
@@ -500,10 +1027,12 @@ paths:
                         type: object
                         properties:
                           name:
+                            description: Short display name. Put details in `description`.
                             type: string
                           description:
                             description: Description of the fact table filter
                             type: string
+                            maxLength: 10000
                           value:
                             description: The SQL expression for this filter.
                             example: country = 'US'
@@ -534,9 +1063,12 @@ paths:
                         type: object
                         properties:
                           name:
+                            description: Short display name (e.g. `Purchases per user`). Put the definition in `description`.
                             type: string
                           description:
+                            description: Markdown. Put context here, not in the name.
                             type: string
+                            maxLength: 10000
                           owner:
                             description: The userId or email address of the owner. If an email address is provided, it will be used to look up the userId of the matching organization member. If an ID is provided, it will be validated as existing in the organization.
                             type: string
@@ -545,6 +1077,7 @@ paths:
                             items:
                               type: string
                           tags:
+                            description: Tags for filtering and grouping. Use these instead of encoding groups in names.
                             type: array
                             items:
                               type: string
@@ -557,86 +1090,93 @@ paths:
                             - quantile
                             - ratio
                             - dailyParticipation
+                            - funnel
                           numerator:
-                            type: object
-                            properties:
-                              factTableId:
-                                type: string
-                              column:
-                                description: 'Must be empty for proportion metrics and dailyParticipation metrics. Otherwise, the column name or one of the special values: ''$$distinctUsers'' or ''$$count'' (or ''$$distinctDates'' if metricType is ''mean'' or ''ratio'' or ''quantile'' and quantileSettings.type is ''unit'')'
-                                type: string
-                              aggregation:
-                                description: 'User aggregation of selected column. Either sum or max for numeric columns; count distinct for string columns; hll merge / kll merge for pre-built sketch columns (requires data-source support); ignored for special columns. Default: sum. If you specify a string column you must explicitly specify count distinct. Not used for proportion metrics; for event quantile metrics only kll merge is applicable.'
-                                type: string
-                                enum:
-                                - sum
-                                - max
-                                - count distinct
-                                - hll merge
-                                - kll merge
-                              filters:
-                                deprecated: true
-                                description: Array of Fact Table Filter Ids. Deprecated, use rowFilters instead.
-                                type: array
-                                items:
+                            anyOf:
+                            - type: object
+                              properties:
+                                factTableId:
                                   type: string
-                              inlineFilters:
-                                deprecated: true
-                                description: Inline filters to apply to the fact table. Keys are column names, values are arrays of values to filter by. Deprecated, use rowFilters instead.
-                                type: object
-                                propertyNames:
+                                column:
+                                  description: 'Must be empty for proportion metrics and dailyParticipation metrics. Otherwise, the column name or one of the special values: ''$$distinctUsers'' or ''$$count'' (or ''$$distinctDates'' if metricType is ''mean'' or ''ratio'' or ''quantile'' and quantileSettings.type is ''unit'')'
                                   type: string
-                                additionalProperties:
+                                aggregation:
+                                  description: 'User aggregation of selected column. Either sum or max for numeric columns; count distinct for string columns; hll merge / kll merge for pre-built sketch columns (requires data-source support); ignored for special columns. Default: sum. If you specify a string column you must explicitly specify count distinct. Not used for proportion metrics; for event quantile metrics only kll merge is applicable.'
+                                  type: string
+                                  enum:
+                                  - sum
+                                  - max
+                                  - count distinct
+                                  - hll merge
+                                  - kll merge
+                                filters:
+                                  deprecated: true
+                                  description: Array of Fact Table Filter Ids. Deprecated, use rowFilters instead.
                                   type: array
                                   items:
                                     type: string
-                              rowFilters:
-                                description: Filters to apply to the rows of the fact table before aggregation.
-                                type: array
-                                items:
+                                inlineFilters:
+                                  deprecated: true
+                                  description: Inline filters to apply to the fact table. Keys are column names, values are arrays of values to filter by. Deprecated, use rowFilters instead.
                                   type: object
-                                  properties:
-                                    operator:
+                                  propertyNames:
+                                    type: string
+                                  additionalProperties:
+                                    type: array
+                                    items:
                                       type: string
-                                      enum:
-                                      - '='
-                                      - '!='
-                                      - '>'
-                                      - <
-                                      - '>='
-                                      - <=
-                                      - in
-                                      - not_in
-                                      - is_null
-                                      - not_null
-                                      - is_true
-                                      - is_false
-                                      - contains
-                                      - not_contains
-                                      - starts_with
-                                      - ends_with
-                                      - sql_expr
-                                      - saved_filter
-                                    values:
-                                      description: Not required for is_null, not_null, is_true, is_false operators.
-                                      type: array
-                                      items:
+                                rowFilters:
+                                  description: Filters to apply to the rows of the fact table before aggregation.
+                                  type: array
+                                  items:
+                                    type: object
+                                    properties:
+                                      operator:
                                         type: string
-                                    column:
-                                      description: Required for all operators except sql_expr and saved_filter.
-                                      type: string
-                                  required:
-                                  - operator
-                                  additionalProperties: false
-                              aggregateFilterColumn:
-                                description: Column to use to filter users after aggregation. Either '$$count' of rows or the name of a numeric column that will be summed by user. Must specify `aggregateFilter` if using this. Only can be used with 'retention' and 'proportion' metrics.
-                                type: string
-                              aggregateFilter:
-                                description: Simple comparison operator and value to apply after aggregation (e.g. '= 10' or '>= 1'). Requires `aggregateFilterColumn`.
-                                type: string
-                            required:
-                            - factTableId
-                            additionalProperties: false
+                                        enum:
+                                        - '='
+                                        - '!='
+                                        - '>'
+                                        - <
+                                        - '>='
+                                        - <=
+                                        - between
+                                        - not_between
+                                        - in
+                                        - not_in
+                                        - is_null
+                                        - not_null
+                                        - is_true
+                                        - is_false
+                                        - contains
+                                        - not_contains
+                                        - matches_pattern
+                                        - not_matches_pattern
+                                        - starts_with
+                                        - ends_with
+                                        - sql_expr
+                                        - saved_filter
+                                      values:
+                                        description: Not required for is_null, not_null, is_true, is_false operators. The between and not_between operators take at most two values, a lower and an upper bound in that order; leave a bound as an empty string for an open-ended range.
+                                        type: array
+                                        items:
+                                          type: string
+                                      column:
+                                        description: Required for all operators except sql_expr and saved_filter.
+                                        type: string
+                                    required:
+                                    - operator
+                                    additionalProperties: false
+                                aggregateFilterColumn:
+                                  description: Column to use to filter users after aggregation. Either '$$count' of rows or the name of a numeric column that will be summed by user. Must specify `aggregateFilter` if using this. Only can be used with 'retention' and 'proportion' metrics.
+                                  type: string
+                                aggregateFilter:
+                                  description: Simple comparison operator and value to apply after aggregation (e.g. '= 10' or '>= 1'). Requires `aggregateFilterColumn`.
+                                  type: string
+                              required:
+                              - factTableId
+                              additionalProperties: false
+                            - type: 'null'
                           denominator:
                             description: Only when metricType is 'ratio'
                             type: object
@@ -686,6 +1226,8 @@ paths:
                                       - <
                                       - '>='
                                       - <=
+                                      - between
+                                      - not_between
                                       - in
                                       - not_in
                                       - is_null
@@ -694,12 +1236,14 @@ paths:
                                       - is_false
                                       - contains
                                       - not_contains
+                                      - matches_pattern
+                                      - not_matches_pattern
                                       - starts_with
                                       - ends_with
                                       - sql_expr
                                       - saved_filter
                                     values:
-                                      description: Not required for is_null, not_null, is_true, is_false operators.
+                                      description: Not required for is_null, not_null, is_true, is_false operators. The between and not_between operators take at most two values, a lower and an upper bound in that order; leave a bound as an empty string for an open-ended range.
                                       type: array
                                       items:
                                         type: string
@@ -743,8 +1287,109 @@ paths:
                             - ignoreZeros
                             - quantile
                             additionalProperties: false
+                          funnelSettings:
+                            description: Funnel metric settings (required when metricType is "funnel")
+                            type: object
+                            properties:
+                              steps:
+                                description: Ordered list of funnel steps. Minimum 2 steps required.
+                                minItems: 2
+                                maxItems: 20
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    name:
+                                      description: Display name for the funnel step
+                                      type: string
+                                    factTableId:
+                                      description: The fact table this step draws events from
+                                      type: string
+                                    rowFilters:
+                                      description: Filters that decide whether an event row counts as this step
+                                      type: array
+                                      items:
+                                        type: object
+                                        properties:
+                                          operator:
+                                            type: string
+                                            enum:
+                                            - '='
+                                            - '!='
+                                            - '>'
+                                            - <
+                                            - '>='
+                                            - <=
+                                            - between
+                                            - not_between
+                                            - in
+                                            - not_in
+                                            - is_null
+                                            - not_null
+                                            - is_true
+                                            - is_false
+                                            - contains
+                                            - not_contains
+                                            - matches_pattern
+                                            - not_matches_pattern
+                                            - starts_with
+                                            - ends_with
+                                            - sql_expr
+                                            - saved_filter
+                                          values:
+                                            description: Not required for is_null, not_null, is_true, is_false operators. The between and not_between operators take at most two values, a lower and an upper bound in that order; leave a bound as an empty string for an open-ended range.
+                                            type: array
+                                            items:
+                                              type: string
+                                          column:
+                                            description: Required for all operators except sql_expr and saved_filter.
+                                            type: string
+                                        required:
+                                        - operator
+                                        additionalProperties: false
+                                    optional:
+                                      description: When true, this step still counts for its own conversion but does not anchor later steps. Later steps window off the nearest prior required step (or exposure, for experiment funnel metrics, when every prior step is optional).
+                                      type: boolean
+                                    conversionWindow:
+                                      anyOf:
+                                      - description: Bounds how long after the nearest prior required step (or exposure, for the first step / after only-optional priors of an experiment funnel metric) this step's event can occur.
+                                        type: object
+                                        properties:
+                                          unit:
+                                            type: string
+                                            enum:
+                                            - weeks
+                                            - days
+                                            - hours
+                                            - minutes
+                                          value:
+                                            type: number
+                                            exclusiveMinimum: 0
+                                        required:
+                                        - unit
+                                        - value
+                                        additionalProperties: false
+                                      - type: 'null'
+                                  required:
+                                  - name
+                                  - factTableId
+                                  - rowFilters
+                                  - optional
+                                  additionalProperties: false
+                              ordering:
+                                description: Step ordering mode. Only 'sequential' is supported in v1.
+                                type: string
+                                enum:
+                                - sequential
+                              concurrencyWindowSeconds:
+                                description: Out-of-order tolerance between adjacent steps in seconds. Defaults to 0.
+                                type: integer
+                                minimum: 0
+                            required:
+                            - steps
+                            additionalProperties: false
                           cappingSettings:
-                            description: Controls how outliers are handled
+                            description: 'Upper cap. Omit on update to preserve it. Use type: none to disable it explicitly. Invalid values are rejected.'
                             type: object
                             properties:
                               type:
@@ -754,7 +1399,7 @@ paths:
                                 - absolute
                                 - percentile
                               value:
-                                description: When type is absolute, this is the absolute value. When type is percentile, this is the percentile value (from 0.0 to 1.0).
+                                description: When type is absolute, this must be a finite number greater than zero. When type is percentile, this must be strictly between 0 and 1. Required when enabling capping or changing type; omitted values are preserved only for same-type updates.
                                 type: number
                               ignoreZeros:
                                 description: If true and capping is `percentile`, zeros will be ignored when calculating the percentile.
@@ -762,6 +1407,28 @@ paths:
                             required:
                             - type
                             additionalProperties: false
+                          lowerCappingSettings:
+                            description: 'Independent lower cap. Omit on update to preserve it. Use null or type: none to disable it explicitly. Invalid values are rejected. For mixed cap types, the absolute bound takes precedence if thresholds cross.'
+                            anyOf:
+                            - description: Independent lower-tail capping settings. Configured separately from the upper tail, so the type can differ.
+                              type: object
+                              properties:
+                                type:
+                                  type: string
+                                  enum:
+                                  - none
+                                  - absolute
+                                  - percentile
+                                value:
+                                  description: When type is absolute, this is a finite lower bound, including zero or negative values. When type is percentile, this must be strictly between 0 and 1. Required when enabling capping or changing type; omitted values are preserved only for same-type updates.
+                                  type: number
+                                ignoreZeros:
+                                  description: If true and capping is `percentile`, zeros will be ignored when calculating the percentile.
+                                  type: boolean
+                              required:
+                              - type
+                              additionalProperties: false
+                            - type: 'null'
                           windowSettings:
                             description: Controls the conversion window for the metric
                             type: object
@@ -874,18 +1541,22 @@ paths:
                             - ''
                             - api
                             - admin
-                          archived:
-                            description: Set to true to archive the metric. Archived metrics are hidden by default in the UI and excluded from new experiments.
-                            type: boolean
                           metricAutoSlices:
                             description: Array of slice column names that will be automatically included in metric analysis. This is an enterprise feature.
                             type: array
                             items:
                               type: string
+                          replaces:
+                            description: Ids of older metrics (legacy or fact) that this metric supersedes, for example the legacy metric it was migrated from. Cannot include this metric's own id. Informational only - GrowthBook uses it to link the old and new definitions in the UI and to keep showing results from a snapshot that was created before an experiment switched to this metric. This field can only be set through the API.
+                            type: array
+                            items:
+                              type: string
+                          archived:
+                            description: Set to true to archive the metric. Archived metrics are hidden by default in the UI and excluded from new experiments.
+                            type: boolean
                         required:
                         - name
                         - metricType
-                        - numerator
                         additionalProperties: false
                     required:
                     - id
@@ -894,12 +1565,15 @@ paths:
               additionalProperties: false
       responses:
         '200':
+          description: Resource created
           content:
             application/json:
               schema:
                 type: object
                 properties:
                   success:
+                    type: boolean
+                  dryRun:
                     type: boolean
                   factTablesAdded:
                     type: integer
@@ -913,20 +1587,134 @@ paths:
                     type: integer
                   factMetricsUpdated:
                     type: integer
+                  errors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/BulkImportError'
                 required:
                 - success
+                - dryRun
                 - factTablesAdded
                 - factTablesUpdated
                 - factTableFiltersAdded
                 - factTableFiltersUpdated
                 - factMetricsAdded
                 - factMetricsUpdated
+                - errors
                 additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
       x-codeSamples:
       - lang: cURL
         source: "curl -X POST 'https://api.growthbook.io/api/v1/bulk-import/facts' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"factTables\":[],\"factTableFilters\":[],\"factMetrics\":[]}'"
 components:
+  parameters:
+    offset:
+      name: offset
+      in: query
+      description: How many items to skip (use in conjunction with limit for pagination)
+      schema:
+        default: 0
+        description: How many items to skip (use in conjunction with limit for pagination)
+        type: integer
+        minimum: 0
+    id:
+      name: id
+      in: path
+      required: true
+      description: The id of the requested resource
+      schema:
+        description: The id of the requested resource
+        type: string
+    factTableId:
+      name: factTableId
+      in: path
+      required: true
+      description: Specify a specific fact table
+      schema:
+        description: Specify a specific fact table
+        type: string
+    datasourceId:
+      name: datasourceId
+      in: query
+      description: Filter by Data Source
+      schema:
+        description: Filter by Data Source
+        type: string
+    projectId:
+      name: projectId
+      in: query
+      description: Filter by project id
+      schema:
+        description: Filter by project id
+        type: string
+    idType:
+      name: idType
+      in: query
+      description: Only return runs for this id type. When omitted, runs for all id types are returned.
+      schema:
+        description: Only return runs for this id type. When omitted, runs for all id types are returned.
+        type: string
+    limit:
+      name: limit
+      in: query
+      description: The number of items to return
+      schema:
+        default: 10
+        description: The number of items to return
+        type: integer
+        minimum: 1
+        maximum: 100
+    runId:
+      name: runId
+      in: path
+      required: true
+      description: The id of the aggregated table run (e.g. aftr_...)
+      schema:
+        description: The id of the aggregated table run (e.g. aftr_...)
+        type: string
   schemas:
+    AggregatedTableRefreshTrigger:
+      type: object
+      properties:
+        idType:
+          description: The id type this refresh targets
+          type: string
+        runId:
+          description: The id of the run, set when status is started or failed and null when skipped.
+          anyOf:
+          - type: string
+          - type: 'null'
+        status:
+          description: Whether a refresh was started, failed to be created, or was skipped
+          type: string
+          enum:
+          - started
+          - failed
+          - skipped
+        reason:
+          description: Why the refresh was skipped, when status is skipped.
+          anyOf:
+          - type: string
+            enum:
+            - already-in-progress
+            - datasource-not-found
+            - pipeline-not-configured
+            - unsupported-datasource
+            - no-eligible-metrics
+          - type: 'null'
+        error:
+          description: The error message when status is failed; null otherwise.
+          anyOf:
+          - type: string
+          - type: 'null'
+      required:
+      - idType
+      - runId
+      - status
+      - reason
+      - error
+      additionalProperties: false
     PaginationFields:
       type: object
       properties:
@@ -952,6 +1740,811 @@ components:
       - hasMore
       - nextOffset
       additionalProperties: false
+    AggregatedFactTable:
+      type: object
+      properties:
+        idType:
+          description: The id type this aggregated table is keyed by
+          type: string
+        status:
+          description: 'Materialization status: `pending` (not yet built), `running` (a refresh is in progress), `active` (materialized and queryable), or `error` (the last run failed).'
+          type: string
+          enum:
+          - running
+          - error
+          - pending
+          - active
+        tableFullName:
+          description: Fully-qualified warehouse table name, or null if it has not been created yet
+          anyOf:
+          - type: string
+          - type: 'null'
+        firstEventDate:
+          description: Earliest event date covered by the materialized data
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+        lastEventDate:
+          description: Latest event date covered by the materialized data
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+        lastMaxTimestamp:
+          description: Event-time high-water mark; the next incremental refresh appends events after this timestamp
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+        lastError:
+          description: Error message from the last failed run, if any
+          anyOf:
+          - type: string
+          - type: 'null'
+        dateUpdated:
+          description: When the aggregation metadata was last updated
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+        pendingRestate:
+          description: Whether the next run will be forced to drop and rebuild the table instead of appending incrementally
+          type: boolean
+        pendingRestateReason:
+          description: Why a restate is pending, if `pendingRestate` is true
+          anyOf:
+          - type: string
+            enum:
+            - incomplete-write
+            - schema-drift
+          - type: 'null'
+      required:
+      - idType
+      - status
+      - tableFullName
+      - firstEventDate
+      - lastEventDate
+      - lastMaxTimestamp
+      - lastError
+      - dateUpdated
+      - pendingRestate
+      - pendingRestateReason
+      additionalProperties: false
+    FactTableColumn:
+      type: object
+      properties:
+        column:
+          description: The actual column name in the database/SQL query
+          type: string
+        datatype:
+          description: The column's data type (can be an override of the warehouse-reported datatype, for JSON string columns for example).
+          type: string
+          enum:
+          - number
+          - string
+          - date
+          - boolean
+          - json
+          - binary
+          - other
+          - ''
+        dataTypeFromWarehouse:
+          readOnly: true
+          description: The warehouse-reported datatype.
+          type: string
+          enum:
+          - number
+          - string
+          - date
+          - boolean
+          - json
+          - binary
+          - other
+          - ''
+        numberFormat:
+          type: string
+          enum:
+          - ''
+          - currency
+          - time:seconds
+          - time:milliseconds
+          - memory:bytes
+          - memory:kilobytes
+        jsonFields:
+          description: For JSON columns, defines the structure of nested fields
+          type: object
+          propertyNames:
+            type: string
+          additionalProperties:
+            type: object
+            properties:
+              datatype:
+                type: string
+                enum:
+                - number
+                - string
+                - date
+                - boolean
+                - json
+                - binary
+                - other
+                - ''
+            additionalProperties: false
+        name:
+          description: Display name for the column (can be different from the actual column name)
+          type: string
+        description:
+          description: What the column contains.
+          type: string
+          maxLength: 10000
+        alwaysInlineFilter:
+          default: false
+          description: Whether this column should always be included as an inline filter in queries
+          type: boolean
+        conditionalInlineFilters:
+          description: 'Value -> additional column to prompt for when a metric filters this column to that value, e.g. {"Page View": "path", "Modal Open": "properties.modalType"}. Requires alwaysInlineFilter.'
+          type: object
+          propertyNames:
+            type: string
+          additionalProperties:
+            type: string
+        deleted:
+          default: false
+          type: boolean
+        isAutoSliceColumn:
+          default: false
+          description: Whether this column can be used for auto slice analysis. This is an enterprise feature.
+          type: boolean
+        autoSlices:
+          description: Specific slices to automatically analyze for this column.
+          type: array
+          items:
+            type: string
+        lockedAutoSlices:
+          description: Locked slices that are protected from automatic updates. These will always be included in the slice levels even if they're not in the top values query results.
+          type: array
+          items:
+            type: string
+        isVirtual:
+          default: false
+          description: Whether this is a virtual (computed) column defined by a SQL expression rather than detected from the fact table SQL. Can be set when creating a column, but a column's origin cannot be changed afterwards — sending a value that contradicts an existing column is rejected.
+          type: boolean
+        sql:
+          description: For virtual columns, the SQL expression that computes the column value. Only valid on a virtual column; when omitted from an update, the existing expression is preserved.
+          type: string
+        topValues:
+          readOnly: true
+          description: The most common values for this column, sampled from the warehouse to populate filter pickers and auto slices. Read-only.
+          type: array
+          items:
+            type: string
+        topValuesDate:
+          readOnly: true
+          format: date-time
+          description: When topValues was last refreshed for this column.
+          type: string
+        dateCreated:
+          readOnly: true
+          format: date-time
+          type: string
+        dateUpdated:
+          readOnly: true
+          format: date-time
+          type: string
+      required:
+      - column
+      - datatype
+      additionalProperties: false
+    Confirmation:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+          enum:
+          - pending
+          - running
+          - completed
+          - rejected
+          - expired
+        actions:
+          type: array
+          items:
+            type: object
+            properties:
+              action:
+                type: string
+                enum:
+                - feature.create
+                - feature.draft
+                - feature.review
+                - feature.publish
+                - feature.archive
+                - feature.delete
+                - feature.other
+                - experiment.create
+                - experiment.draft
+                - experiment.start
+                - experiment.stop
+                - experiment.targeting
+                - experiment.traffic
+                - experiment.phases
+                - experiment.visualEditor
+                - experiment.other
+                - savedGroup.create
+                - savedGroup.draft
+                - savedGroup.review
+                - savedGroup.publish
+                - savedGroup.archive
+                - savedGroup.delete
+                - savedGroup.other
+                - constant.create
+                - constant.draft
+                - constant.review
+                - constant.publish
+                - constant.archive
+                - constant.delete
+                - constant.other
+                - config.create
+                - config.draft
+                - config.review
+                - config.publish
+                - config.archive
+                - config.delete
+                - config.other
+                - rampSchedule.create
+                - rampSchedule.start
+                - rampSchedule.pause
+                - rampSchedule.progression
+                - rampSchedule.approve
+                - rampSchedule.edit
+                - rampSchedule.delete
+                - rampSchedule.other
+                - settings.approvals
+                - settings.other
+                - access.members
+                - access.teams
+                - customHook.create
+                - customHook.edit
+                - customHook.delete
+                - environment.create
+                - environment.edit
+                - environment.delete
+                - project.create
+                - project.edit
+                - project.delete
+                - attribute.create
+                - attribute.edit
+                - attribute.delete
+                - customField.create
+                - customField.edit
+                - customField.delete
+                - sdkConnection.create
+                - sdkConnection.edit
+                - sdkConnection.delete
+                - metric.create
+                - metric.edit
+                - metric.delete
+                - factTable.create
+                - factTable.edit
+                - factTable.delete
+                - segment.create
+                - segment.edit
+                - segment.delete
+                - dimension.create
+                - dimension.edit
+                - dimension.delete
+                - override.ignoreWarnings
+                - override.skipSchemaValidation
+                - override.skipHooks
+                - override.bypassApproval
+                - override.restBypassesReviews
+                - override.draftLimit
+                - override.skipChecklist
+                - override.bypassDuplicateKeyCheck
+                - other.write
+              environments:
+                type: array
+                items:
+                  type: string
+            required:
+            - action
+            - environments
+            additionalProperties: false
+        summary:
+          type: string
+        url:
+          type: string
+        expiresAt:
+          type: string
+        response:
+          anyOf:
+          - type: object
+            properties:
+              status:
+                type: number
+              body: {}
+            required:
+            - status
+            - body
+            additionalProperties: false
+          - type: 'null'
+        note:
+          anyOf:
+          - type: string
+          - type: 'null'
+      required:
+      - id
+      - status
+      - actions
+      - summary
+      - url
+      - expiresAt
+      - response
+      - note
+      additionalProperties: false
+    AggregatedTableRun:
+      type: object
+      properties:
+        id:
+          description: The run id (e.g. aftr_...)
+          type: string
+        idType:
+          description: The id type this run materialized
+          type: string
+        mode:
+          description: Whether this run appended new data or rebuilt the table
+          type: string
+          enum:
+          - incremental
+          - restate
+        status:
+          description: Overall run status derived from its warehouse queries
+          type: string
+          enum:
+          - queued
+          - running
+          - failed
+          - partially-succeeded
+          - succeeded
+        runStarted:
+          description: When query execution began
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+        dateCreated:
+          format: date-time
+          description: When the run record was created
+          type: string
+        finishedAt:
+          description: When the run finished, or null if still in progress
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+        error:
+          description: Error message when the run failed
+          anyOf:
+          - type: string
+          - type: 'null'
+        queryIds:
+          description: Warehouse query ids for this run; poll each via GET /queries/{id} for per-query status
+          type: array
+          items:
+            type: string
+        factTableId:
+          type: string
+        datasourceId:
+          type: string
+        result:
+          description: Coverage written on success, or null while running/failed
+          anyOf:
+          - type: object
+            properties:
+              lastMaxTimestamp:
+                anyOf:
+                - format: date-time
+                  type: string
+                - type: 'null'
+              firstEventDate:
+                anyOf:
+                - format: date-time
+                  type: string
+                - type: 'null'
+              lastEventDate:
+                anyOf:
+                - format: date-time
+                  type: string
+                - type: 'null'
+            required:
+            - lastMaxTimestamp
+            - firstEventDate
+            - lastEventDate
+            additionalProperties: false
+          - type: 'null'
+      required:
+      - id
+      - idType
+      - mode
+      - status
+      - runStarted
+      - dateCreated
+      - finishedAt
+      - error
+      - queryIds
+      - factTableId
+      - datasourceId
+      - result
+      additionalProperties: false
+    ConfirmationHeld:
+      type: object
+      properties:
+        confirmation:
+          $ref: '#/components/schemas/Confirmation'
+        message:
+          type: string
+      required:
+      - confirmation
+      - message
+      additionalProperties: false
+      $defs:
+        Confirmation:
+          id: Confirmation
+          type: object
+          properties:
+            id:
+              type: string
+            status:
+              type: string
+              enum:
+              - pending
+              - running
+              - completed
+              - rejected
+              - expired
+            actions:
+              type: array
+              items:
+                type: object
+                properties:
+                  action:
+                    type: string
+                    enum:
+                    - feature.create
+                    - feature.draft
+                    - feature.review
+                    - feature.publish
+                    - feature.archive
+                    - feature.delete
+                    - feature.other
+                    - experiment.create
+                    - experiment.draft
+                    - experiment.start
+                    - experiment.stop
+                    - experiment.targeting
+                    - experiment.traffic
+                    - experiment.phases
+                    - experiment.visualEditor
+                    - experiment.other
+                    - savedGroup.create
+                    - savedGroup.draft
+                    - savedGroup.review
+                    - savedGroup.publish
+                    - savedGroup.archive
+                    - savedGroup.delete
+                    - savedGroup.other
+                    - constant.create
+                    - constant.draft
+                    - constant.review
+                    - constant.publish
+                    - constant.archive
+                    - constant.delete
+                    - constant.other
+                    - config.create
+                    - config.draft
+                    - config.review
+                    - config.publish
+                    - config.archive
+                    - config.delete
+                    - config.other
+                    - rampSchedule.create
+                    - rampSchedule.start
+                    - rampSchedule.pause
+                    - rampSchedule.progression
+                    - rampSchedule.approve
+                    - rampSchedule.edit
+                    - rampSchedule.delete
+                    - rampSchedule.other
+                    - settings.approvals
+                    - settings.other
+                    - access.members
+                    - access.teams
+                    - customHook.create
+                    - customHook.edit
+                    - customHook.delete
+                    - environment.create
+                    - environment.edit
+                    - environment.delete
+                    - project.create
+                    - project.edit
+                    - project.delete
+                    - attribute.create
+                    - attribute.edit
+                    - attribute.delete
+                    - customField.create
+                    - customField.edit
+                    - customField.delete
+                    - sdkConnection.create
+                    - sdkConnection.edit
+                    - sdkConnection.delete
+                    - metric.create
+                    - metric.edit
+                    - metric.delete
+                    - factTable.create
+                    - factTable.edit
+                    - factTable.delete
+                    - segment.create
+                    - segment.edit
+                    - segment.delete
+                    - dimension.create
+                    - dimension.edit
+                    - dimension.delete
+                    - override.ignoreWarnings
+                    - override.skipSchemaValidation
+                    - override.skipHooks
+                    - override.bypassApproval
+                    - override.restBypassesReviews
+                    - override.draftLimit
+                    - override.skipChecklist
+                    - override.bypassDuplicateKeyCheck
+                    - other.write
+                  environments:
+                    type: array
+                    items:
+                      type: string
+                required:
+                - action
+                - environments
+                additionalProperties: false
+            summary:
+              type: string
+            url:
+              type: string
+            expiresAt:
+              type: string
+            response:
+              anyOf:
+              - type: object
+                properties:
+                  status:
+                    type: number
+                  body: {}
+                required:
+                - status
+                - body
+                additionalProperties: false
+              - type: 'null'
+            note:
+              anyOf:
+              - type: string
+              - type: 'null'
+          required:
+          - id
+          - status
+          - actions
+          - summary
+          - url
+          - expiresAt
+          - response
+          - note
+          additionalProperties: false
+    FactTableColumnInput:
+      type: object
+      properties:
+        column:
+          description: The actual column name in the database/SQL query
+          type: string
+        datatype:
+          description: The column's data type. Omit (or send "") to have it auto-detected from the SQL.
+          type: string
+          enum:
+          - number
+          - string
+          - date
+          - boolean
+          - json
+          - binary
+          - other
+          - ''
+        numberFormat:
+          type: string
+          enum:
+          - ''
+          - currency
+          - time:seconds
+          - time:milliseconds
+          - memory:bytes
+          - memory:kilobytes
+        jsonFields:
+          description: For JSON columns, defines the structure of nested fields
+          type: object
+          propertyNames:
+            type: string
+          additionalProperties:
+            type: object
+            properties:
+              datatype:
+                type: string
+                enum:
+                - number
+                - string
+                - date
+                - boolean
+                - json
+                - binary
+                - other
+                - ''
+            additionalProperties: false
+        name:
+          description: Display name for the column (can be different from the actual column name)
+          type: string
+        description:
+          description: What the column contains.
+          type: string
+          maxLength: 10000
+        alwaysInlineFilter:
+          default: false
+          description: Whether this column should always be included as an inline filter in queries
+          type: boolean
+        conditionalInlineFilters:
+          description: 'Value -> additional column to prompt for when a metric filters this column to that value, e.g. {"Page View": "path", "Modal Open": "properties.modalType"}. Requires alwaysInlineFilter.'
+          type: object
+          propertyNames:
+            type: string
+          additionalProperties:
+            type: string
+        deleted:
+          default: false
+          type: boolean
+        isAutoSliceColumn:
+          default: false
+          description: Whether this column can be used for auto slice analysis. This is an enterprise feature.
+          type: boolean
+        autoSlices:
+          description: Specific slices to automatically analyze for this column.
+          type: array
+          items:
+            type: string
+        lockedAutoSlices:
+          description: Locked slices that are protected from automatic updates. These will always be included in the slice levels even if they're not in the top values query results.
+          type: array
+          items:
+            type: string
+        isVirtual:
+          default: false
+          description: Whether this is a virtual (computed) column defined by a SQL expression rather than detected from the fact table SQL. Can be set when creating a column, but a column's origin cannot be changed afterwards — sending a value that contradicts an existing column is rejected.
+          type: boolean
+        sql:
+          description: For virtual columns, the SQL expression that computes the column value. Only valid on a virtual column; when omitted from an update, the existing expression is preserved.
+          type: string
+      required:
+      - column
+      additionalProperties: false
+    BulkImportError:
+      type: object
+      properties:
+        resourceType:
+          type: string
+          enum:
+          - factTable
+          - factTableFilter
+          - factMetric
+        id:
+          type: string
+        message:
+          type: string
+      required:
+      - resourceType
+      - id
+      - message
+      additionalProperties: false
+    FactTableFilter:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+          maxLength: 10000
+        value:
+          type: string
+        managedBy:
+          description: Where this fact table filter must be managed from. If not set (empty string), it can be managed from anywhere.
+          type: string
+          enum:
+          - ''
+          - api
+        dateCreated:
+          format: date-time
+          type: string
+        dateUpdated:
+          format: date-time
+          type: string
+      required:
+      - id
+      - name
+      - description
+      - value
+      - managedBy
+      - dateCreated
+      - dateUpdated
+      additionalProperties: false
+    AggregatedTableRunSummary:
+      type: object
+      properties:
+        id:
+          description: The run id (e.g. aftr_...)
+          type: string
+        idType:
+          description: The id type this run materialized
+          type: string
+        mode:
+          description: Whether this run appended new data or rebuilt the table
+          type: string
+          enum:
+          - incremental
+          - restate
+        status:
+          description: Overall run status derived from its warehouse queries
+          type: string
+          enum:
+          - queued
+          - running
+          - failed
+          - partially-succeeded
+          - succeeded
+        runStarted:
+          description: When query execution began
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+        dateCreated:
+          format: date-time
+          description: When the run record was created
+          type: string
+        finishedAt:
+          description: When the run finished, or null if still in progress
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+        error:
+          description: Error message when the run failed
+          anyOf:
+          - type: string
+          - type: 'null'
+        queryIds:
+          description: Warehouse query ids for this run; poll each via GET /queries/{id} for per-query status
+          type: array
+          items:
+            type: string
+      required:
+      - id
+      - idType
+      - mode
+      - status
+      - runStarted
+      - dateCreated
+      - finishedAt
+      - error
+      - queryIds
+      additionalProperties: false
     FactTable:
       type: object
       properties:
@@ -961,6 +2554,7 @@ components:
           type: string
         description:
           type: string
+          maxLength: 10000
         owner:
           description: The userId of the owner (or raw owner name/email for legacy records)
           type: string
@@ -981,7 +2575,48 @@ components:
           type: array
           items:
             type: string
+        userIdColumns:
+          description: 'Maps an identifier type to the column holding it, for SQL that does not alias its columns to the identifier type names, e.g. `{"user_id": "userId"}`. May also be a single-level field path into a JSON column (`properties.userId`). Unmapped types use the identifier type name as the column name.'
+          type: object
+          propertyNames:
+            type: string
+          additionalProperties:
+            type: string
+        aggregatedFactTableSettings:
+          description: Settings for maintaining shared daily aggregated tables (a subset of userIdTypes plus the daily update time and restate lookback window) used to speed up CUPED. Requires the data pipeline (pipeline-mode) feature.
+          type: object
+          properties:
+            idTypes:
+              type: array
+              items:
+                type: string
+            updateTime:
+              type: object
+              properties:
+                time:
+                  type: string
+                timezone:
+                  type: string
+              required:
+              - time
+              - timezone
+              additionalProperties: false
+            lookbackWindow:
+              type: integer
+              exclusiveMinimum: 0
+            restateChunkDays:
+              type: integer
+              minimum: 1
+              maximum: 7
+          required:
+          - idTypes
+          - updateTime
+          - lookbackWindow
+          additionalProperties: false
         sql:
+          type: string
+        timestampColumn:
+          description: The column holding the event timestamp. Must be a date column on this fact table. Defaults to "timestamp" when unset.
           type: string
         eventName:
           description: The event name used in SQL template variables
@@ -992,11 +2627,18 @@ components:
           items:
             $ref: '#/components/schemas/FactTableColumn'
         columnsError:
+          readOnly: true
           description: Error message if there was an issue parsing the SQL schema
           anyOf:
           - type: string
           - type: 'null'
+        columnRefreshPending:
+          description: True while the fact table's column schema is being detected in the background. While true, `columns` may be empty or incomplete and metrics referencing not-yet-detected columns cannot be created.
+          type: boolean
         archived:
+          type: boolean
+        autoSliceUpdatesEnabled:
+          description: Whether Auto Slice values for this fact table's columns are refreshed automatically in the background.
           type: boolean
         managedBy:
           description: Where this fact table must be managed from. If not set (empty string), it can be managed from anywhere.
@@ -1025,171 +2667,22 @@ components:
       - dateCreated
       - dateUpdated
       additionalProperties: false
-    FactTableFilter:
-      type: object
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-        description:
-          type: string
-        value:
-          type: string
-        managedBy:
-          description: Where this fact table filter must be managed from. If not set (empty string), it can be managed from anywhere.
-          type: string
-          enum:
-          - ''
-          - api
-        dateCreated:
-          format: date-time
-          type: string
-        dateUpdated:
-          format: date-time
-          type: string
-      required:
-      - id
-      - name
-      - description
-      - value
-      - managedBy
-      - dateCreated
-      - dateUpdated
-      additionalProperties: false
-    FactTableColumn:
-      type: object
-      properties:
-        column:
-          description: The actual column name in the database/SQL query
-          type: string
-        datatype:
-          type: string
-          enum:
-          - number
-          - string
-          - date
-          - boolean
-          - json
-          - binary
-          - other
-          - ''
-        numberFormat:
-          type: string
-          enum:
-          - ''
-          - currency
-          - time:seconds
-          - memory:bytes
-          - memory:kilobytes
-        jsonFields:
-          description: For JSON columns, defines the structure of nested fields
-          type: object
-          propertyNames:
+  responses:
+    ConfirmationHeld:
+      description: Held until a person confirms it in GrowthBook. Poll the Location until the confirmation completes.
+      headers:
+        Location:
+          description: The confirmation to poll
+          schema:
             type: string
-          additionalProperties:
-            type: object
-            properties:
-              datatype:
-                type: string
-                enum:
-                - number
-                - string
-                - date
-                - boolean
-                - json
-                - binary
-                - other
-                - ''
-            additionalProperties: false
-        name:
-          description: Display name for the column (can be different from the actual column name)
-          type: string
-        description:
-          type: string
-        alwaysInlineFilter:
-          default: false
-          description: Whether this column should always be included as an inline filter in queries
-          type: boolean
-        deleted:
-          default: false
-          type: boolean
-        isAutoSliceColumn:
-          default: false
-          description: Whether this column can be used for auto slice analysis. This is an enterprise feature.
-          type: boolean
-        autoSlices:
-          description: Specific slices to automatically analyze for this column.
-          type: array
-          items:
-            type: string
-        lockedAutoSlices:
-          description: Locked slices that are protected from automatic updates. These will always be included in the slice levels even if they're not in the top values query results.
-          type: array
-          items:
-            type: string
-        dateCreated:
-          readOnly: true
-          format: date-time
-          type: string
-        dateUpdated:
-          readOnly: true
-          format: date-time
-          type: string
-      required:
-      - column
-      - datatype
-      additionalProperties: false
-  parameters:
-    datasourceId:
-      name: datasourceId
-      in: query
-      description: Filter by Data Source
-      schema:
-        description: Filter by Data Source
-        type: string
-    projectId:
-      name: projectId
-      in: query
-      description: Filter by project id
-      schema:
-        description: Filter by project id
-        type: string
-    factTableId:
-      name: factTableId
-      in: path
-      required: true
-      description: Specify a specific fact table
-      schema:
-        description: Specify a specific fact table
-        type: string
-    offset:
-      name: offset
-      in: query
-      description: How many items to skip (use in conjunction with limit for pagination)
-      schema:
-        default: 0
-        description: How many items to skip (use in conjunction with limit for pagination)
-        type: integer
-        minimum: 0
-    id:
-      name: id
-      in: path
-      required: true
-      description: The id of the requested resource
-      schema:
-        description: The id of the requested resource
-        type: string
-    limit:
-      name: limit
-      in: query
-      description: The number of items to return
-      schema:
-        default: 10
-        description: The number of items to return
-        type: integer
-        minimum: 1
-        maximum: 100
+        Retry-After:
+          description: Seconds to wait before polling
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ConfirmationHeld'
   securitySchemes:
     bearerAuth:
       type: http
@@ -1236,9 +2729,17 @@ x-tagGroups:
   - snapshots
   - dimensions
   - segments
+  - reports
   - sdk-connections
   - visual-changesets
   - saved-groups
+  - saved-group-revisions
+  - constants
+  - constant-revisions
+  - configs
+  - config-revisions
+  - releases
+  - custom-hooks
   - organizations
   - members
   - code-references
@@ -1247,25 +2748,59 @@ x-tagGroups:
   - settings
   - attributes
   - usage
+  - meta
+  - ContextualBandits
   - Dashboards
+  - ContextualBanditQueries
   - CustomFields
   - MetricGroups
   - Teams
   - ExperimentTemplates
   - AnalyticsExplorations
   - RampScheduleTemplates
+  - Learnings
+  - Holdouts
+  - AutoRuns
+  - Populations
 - name: Models
   tags:
+  - AggregatedFactTable_model
   - AnalyticsExploration_model
   - Archetype_model
   - Attribute_model
+  - AutoRun_model
   - CodeRef_model
+  - Config_model
+  - ConfigKeyUsage_model
+  - ConfigLineage_model
+  - ConfigReferences_model
+  - ConfigRevision_model
+  - ConfigRevisionActivityLogEntry_model
+  - ConfigRevisionRef_model
+  - ConfigRevisionReview_model
+  - ConfigSchemaExport_model
+  - ConfigSchemaSource_model
+  - ConfigSchemaVerify_model
+  - ConfigSchemaWarning_model
+  - Confirmation_model
+  - ConfirmationHeld_model
+  - Constant_model
+  - ConstantReferences_model
+  - ConstantRevision_model
+  - ConstantRevisionActivityLogEntry_model
+  - ConstantRevisionRef_model
+  - ConstantRevisionReview_model
+  - ContextualBandit_model
+  - ContextualBanditQuery_model
   - CustomField_model
+  - CustomHook_model
   - Dashboard_model
   - DataSource_model
   - Dimension_model
   - Environment_model
+  - EventUser_model
   - Experiment_model
+  - Experiment Rule_model
   - ExperimentAnalysisSettings_model
   - ExperimentDecisionFrameworkSettings_model
   - ExperimentMetric_model
@@ -1278,25 +2813,30 @@ x-tagGroups:
   - FactTable_model
   - FactTableColumn_model
   - FactTableFilter_model
-  - Feature_model
   - FeatureBaseRule_model
+  - FeatureContextualBanditRefRule_model
   - FeatureDefinition_model
-  - FeatureEnvironment_model
+  - FeatureEnvironmentV1_model
   - FeatureEnvironmentV2_model
   - FeatureExperimentRefRule_model
   - FeatureExperimentRule_model
   - FeatureForceRule_model
-  - FeatureRevision_model
+  - FeatureRevisionRef_model
+  - FeatureRevisionSummary_model
+  - FeatureRevisionV1_model
   - FeatureRevisionV2_model
   - FeatureRolloutRule_model
-  - FeatureRule_model
+  - FeatureRuleV1_model
   - FeatureRuleV2_model
   - FeatureSafeRolloutRule_model
+  - FeatureV1_model
   - FeatureV2_model
-  - FeatureWithRevisions_model
+  - FeatureWithRevisionsV1_model
   - FeatureWithRevisionsV2_model
+  - Holdout_model
   - InformationSchema_model
   - InformationSchemaTable_model
+  - Learning_model
   - LookbackOverride_model
   - Member_model
   - Metric_model
@@ -1307,15 +2847,32 @@ x-tagGroups:
   - NamespaceExperimentMember_model
   - Organization_model
   - PaginationFields_model
+  - Population_model
   - Project_model
   - Query_model
   - RampSchedule_model
   - RampScheduleTemplate_model
+  - Report_model
+  - RequireReviewRule_model
+  - RequireReviewRuleInput_model
+  - RevisionIdRef_model
+  - Safe Rollout Rule_model
   - SavedGroup_model
+  - SavedGroupApprovalRule_model
+  - SavedGroupReferenceResource_model
+  - SavedGroupReferences_model
+  - SavedGroupRevision_model
+  - SavedGroupRevisionActivityLogEntry_model
+  - SavedGroupRevisionRef_model
+  - SavedGroupRevisionReview_model
   - ScheduleRule_model
+  - ScheduledStopPlan_model
   - SdkConnection_model
   - Segment_model
   - Settings_model
+  - Targeting Rule_model
+  - TargetingReviewRule_model
   - Team_model
   - VisualChange_model
   - VisualChangeset_model
+  - VisualEditorCbExperimentStub_model

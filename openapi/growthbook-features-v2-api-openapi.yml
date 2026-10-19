@@ -1,20 +1,73 @@
 openapi: 3.2.0
 info:
-  version: 1.0.0
+  version: 5.1.0
   title: GrowthBook REST Features V2 API
-  description: GrowthBook offers a full REST API for interacting with the application.
+  description: 'GrowthBook offers a full REST API for interacting with the application. Request data can use either JSON or Form data encoding (with proper `Content-Type` headers). All response bodies are JSON-encoded. The API base URL for GrowthBook Cloud is `https://api.growthbook.io/api`. For self-hosted deployments, it is the same as your API_HOST environment variable (defaults to `http://localhost:3100/api`). The rest of these docs will assume you are using GrowthBook Cloud. ## Versioning
+
+
+    Endpoints are versioned by path prefix:
+
+
+    - `/v1/...` — stable, widely-supported endpoints
+
+    - `/v2/...` — updated endpoints with improved shapes (e.g. unified per-rule environment scope for feature flags)
+
+
+    New integrations should prefer v2 where available. Feature-flag and metric v1 routes are deprecated: they are tagged **LEGACY** in the sidebar and collapsed by default. Use the matching v2 group when both exist. ## Authentication
+
+
+    We support both the HTTP Basic and Bearer authentication schemes for convenience. You first need to generate a new API Key in GrowthBook. Different keys have different permissions:
+
+
+    - **Personal Access Tokens**: These are sensitive and provide the same level of access as the user has to an organization, or less if the token''s permissions are limited. These can be created by going to `Personal Access Tokens` under your user menu. Members with the API Keys **Manage members'' tokens** permission can disable a member''s token under `Settings -> Manage PATs`, and admins can require new tokens to expire within a maximum lifetime. - **Secret Keys**: These are sensitive and provide the level of access of the role they are given, which can be any built-in or custom role, with optional per-project role overrides and environment limits. Managing Secret Keys on behalf of an organization takes the API Keys permissions. These can be created by going to `Settings -> API Keys`, where Admins can also require new Secret Keys to expire within a maximum lifetime. If using HTTP Basic auth, pass the Secret Key as the username and leave the password blank (when using curl, add `:` at the end of the secret to indicate an empty password)
+
+
+    ```bash
+
+    curl https://api.growthbook.io/api/v1/features \
+
+    -u secret_abc123DEF456:
+
+    ```
+
+
+    If using Bearer auth, pass the Secret Key as the token:
+
+
+    ```bash
+
+    curl https://api.growthbook.io/api/v1/features \
+
+    -H "Authorization: Bearer secret_abc123DEF456"
+
+    ```
+
+
+    If a key has an expiration date, every response includes it in the `X-GrowthBook-Key-Expires-At` header (ISO 8601), so scripts can warn before the key stops working. Requests made with an expired key fail with a `401` that says where to create a replacement. See Expiration for choosing a key''s expiration, the warnings before it lapses, and the organization policies. ## Naming who asked
+
+
+    Requests made with a Secret Key may add an `X-GrowthBook-Requested-By` header naming the organization member who asked for the change, as a user id or an email address. History, revision logs and webhooks show that member next to the key. Each key''s settings under `Settings -> API Keys`:
+
+
+    - **Header**: **Optional** (the default) uses the header when it''s sent, **Required** rejects requests without it, and **Rejected** rejects requests that send it, each with a 400. - **Permissions**, when a member is named:
+
+    - **Assume member''s role** (the default): the request acts as that member, with only what both the key and the member can do, so the header can narrow a key but never widen it. Drafts, owners, `mine` filters and reviews are the member''s. The member''s rights over their own drafts, comments and verdicts apply only where the key''s own role allows the same action. - **Use key''s role**: the key acts as itself, with its own permissions, and the name is only recorded in history. Drafts, verdicts and ownership are the key''s, as when no member is named.'
 servers:
 - url: https://api.growthbook.io/api
   description: GrowthBook Cloud
 - url: https://{domain}/api
   description: Self-hosted GrowthBook
+  variables:
+    domain:
+      default: localhost:3100
+      description: Your self-hosted GrowthBook host (and port)
 security:
 - bearerAuth: []
 - basicAuth: []
 tags:
 - name: Features v2
   x-displayName: Feature Flags
-  description: 'Control your feature flags programatically.
+  description: 'Control your feature flags programmatically.
 
 
     Rules are returned as a unified top-level array; each rule carries `allEnvironments` / `environments` scope fields instead of being bucketed by environment.'
@@ -31,9 +84,11 @@ paths:
       - $ref: '#/components/parameters/offset'
       - $ref: '#/components/parameters/projectId'
       - $ref: '#/components/parameters/clientKey'
+      - $ref: '#/components/parameters/archived'
       - $ref: '#/components/parameters/skipPagination'
       responses:
         '200':
+          description: Successful response
           content:
             application/json:
               schema:
@@ -54,9 +109,57 @@ paths:
     post:
       operationId: postFeatureV2
       summary: Create a single feature
-      description: Creates a new feature. Rules are supplied as a top-level `rules` array; each rule includes `allEnvironments` / `environments` scope fields.
+      description: 'Creates a new Feature Flag. The caller needs Create access in its Project, plus Publish access for any environment the Feature Flag starts enabled in — one that starts disabled everywhere needs Create alone. Rules are supplied as a top-level `rules` array; each rule includes `allEnvironments` / `environments` scope fields.
+
+
+        ### Naming for human review
+
+
+        The `id` is the Feature Flag''s permanent name in the UI and code. Keep it short (`checkout-express-pay`) and put context in `description`. To create it disabled, list every environment in `environments` with `enabled: false`.
+
+
+        ### Config-backed features (Config mode)
+
+
+        A JSON feature can be backed by a shared **config** — the config supplies the base JSON value and schema, and the feature''s *rule* values become override *patches* merged on top (nested objects deep-merge; arrays and scalars replace). The default value is exactly a config with no overrides (see below). Config backing is set exclusively through dedicated fields — never a raw `$extends: ["@config:…"]` inside a value string (that is rejected). `@const:` references inside values still work.
+
+
+        - **Top-level (`baseConfig`):** set `valueType: "json"` and `baseConfig: ""` to put the Feature Flag in Config mode. The config must be live. This is the family root and the base the default value patches.
+
+        - **Default value:** unlike rules, the default is exactly a config with no overrides of its own — send `defaultValue: "{}"` to use `baseConfig`. To resolve the default to a *descendant* of `baseConfig` instead, set `defaultValueConfig` to that descendant''s key (it must be within `baseConfig`''s family); omit/null to use `baseConfig` directly.
+
+        - **Rules & experiment variations:** each carries its own `config` field naming the family config that value patches (omit/null to patch the base). `value` is the override patch.
+
+
+        Example:
+
+
+        ```json
+
+        {
+
+        "id": "checkout-config",
+
+        "valueType": "json",
+
+        "baseConfig": "purchase-flow",
+
+        "defaultValue": "{}",
+
+        "rules": [
+
+        { "type": "force", "config": "purchase-flow-vip", "value": "{\"maxItems\": 20}", "allEnvironments": true }
+
+        ]
+
+        }
+
+        ```'
       tags:
       - Features v2
+      parameters:
+      - $ref: '#/components/parameters/skipSchemaValidation'
+      - $ref: '#/components/parameters/ignoreWarnings'
       requestBody:
         required: true
         content:
@@ -65,20 +168,30 @@ paths:
               type: object
               properties:
                 id:
-                  description: A unique key name for the feature. Feature keys can only include letters, numbers, hyphens, and underscores.
+                  pattern: ^[a-zA-Z0-9_.:\|\-]+$
+                  description: Unique, permanent key, shown as the Feature Flag's name in the UI and used in code. Keep it short. If `featureRegexValidator` in `GET /api/v1/settings` is set, follow it (`featureKeyExample` shows the format); otherwise use kebab-case (e.g. `checkout-express-pay`). Put context in `description`.
                   type: string
                   minLength: 1
                 archived:
                   type: boolean
                 description:
-                  description: Description of the feature
+                  description: Markdown. What the Feature Flag gates and why, rollout plan, and links. Put context here, not in the key.
                   type: string
+                  maxLength: 10000
                 owner:
-                  description: The userId or email address of the owner. If an email address is provided, it will be used to look up the userId of the matching organization member. If an ID is provided, it will be validated as existing in the organization.
+                  description: 'The userId or email address of the owner. If an email address is provided, it will be used to look up the userId of the matching organization member. If an ID is provided, it will be validated as existing in the organization. When omitted, it defaults to the requesting member: a personal access token''s owner, or the member an organization API key assumes. An organization API key acting as itself must send it, or the request fails with a 400.'
                   type: string
                 project:
                   description: An associated project ID
                   type: string
+                targetingAllProjects:
+                  description: Make this feature discoverable in — and served to — every project, beyond its primary `project`. Requires the `targetFeatures` permission (FlagsTarget policy) unscoped to any project. Governance stays with `project`.
+                  type: boolean
+                targetingProjects:
+                  description: Secondary project IDs this feature is targeted in and served to, beyond its primary `project`. Adding a project requires the `targetFeatures` permission (FlagsTarget policy) in that project. Governance stays with `project`.
+                  type: array
+                  items:
+                    type: string
                 valueType:
                   description: The data type of the feature payload. Boolean by default.
                   type: string
@@ -88,10 +201,20 @@ paths:
                   - number
                   - json
                 defaultValue:
-                  description: Default value when feature is enabled. Type must match `valueType`.
+                  description: 'Default value when feature is enabled. Type must match `valueType`. In Config mode (`baseConfig` set) the default must be exactly a config with no overrides: send `"{}"` to use `baseConfig`, or set `defaultValueConfig` to point at a descendant.'
                   type: string
+                baseConfig:
+                  description: 'Key of the config backing this flag ("Config mode"). Requires `valueType: "json"` and a live config. The config supplies the base JSON and schema; `defaultValue` and rule values are override patches on top. null or omitted for a plain flag.'
+                  anyOf:
+                  - type: string
+                  - type: 'null'
+                defaultValueConfig:
+                  description: Optional. A config within `baseConfig`'s family that the default value resolves to instead of `baseConfig` itself. null or omitted means the default is `baseConfig`. The default is exactly this config and carries no overrides of its own.
+                  anyOf:
+                  - type: string
+                  - type: 'null'
                 tags:
-                  description: List of associated tags
+                  description: Tags for filtering and grouping. Use these instead of encoding groups in names.
                   type: array
                   items:
                     type: string
@@ -103,10 +226,33 @@ paths:
                     - type: object
                       properties:
                         description:
+                          description: Short note on why the rule exists (e.g. `Beta testers only`).
                           type: string
+                          maxLength: 10000
                         condition:
                           type: string
+                        savedGroups:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              match:
+                                type: string
+                                enum:
+                                - all
+                                - none
+                                - any
+                              ids:
+                                type: array
+                                items:
+                                  type: string
+                            required:
+                            - match
+                            - ids
+                            additionalProperties: false
                         savedGroupTargeting:
+                          description: Deprecated — use `savedGroups`. Accepted so a GET response can be posted back unchanged; `savedGroups` takes precedence if both are sent.
+                          deprecated: true
                           type: array
                           items:
                             type: object
@@ -125,6 +271,12 @@ paths:
                             - matchType
                             - savedGroups
                             additionalProperties: false
+                        pendingRamp:
+                          description: Read-only; ignored on write. Accepted so a GET response can be posted back unchanged.
+                        rampScheduleId:
+                          description: Read-only; ignored on write. Accepted so a GET response can be posted back unchanged.
+                        scheduleType:
+                          description: Read-only; ignored on write. Accepted so a GET response can be posted back unchanged.
                         prerequisites:
                           type: array
                           items:
@@ -145,8 +297,10 @@ paths:
                             type: object
                             properties:
                               timestamp:
+                                description: ISO 8601 date-time, e.g. "2025-06-01T00:00:00Z".
                                 anyOf:
                                 - type: string
+                                  format: date-time
                                 - type: 'null'
                               enabled:
                                 type: boolean
@@ -163,11 +317,27 @@ paths:
                           const: force
                         value:
                           type: string
+                        config:
+                          description: Key of a config to back this value. When set, `value` is a JSON override patch merged on top of the config; omit or null for a plain value.
+                          anyOf:
+                          - type: string
+                          - type: 'null'
+                        sparse:
+                          description: JSON features only. When true, the rule value is a partial object merged onto the feature's default value instead of replacing it.
+                          type: boolean
                         allEnvironments:
                           description: When true the rule applies to all environments (default).
                           type: boolean
                         environments:
-                          description: Specific environment IDs this rule applies to. Required when allEnvironments is false.
+                          description: Environment IDs the rule applies to. Ignored when allEnvironments is true; with allEnvironments false, an omitted or empty list scopes the rule to no environment.
+                          type: array
+                          items:
+                            type: string
+                        allProjects:
+                          description: When true (the default) the rule applies to every project the feature is delivered to. Set false and supply `projects` to scope the rule.
+                          type: boolean
+                        projects:
+                          description: Specific project IDs this rule applies to. Used when allProjects is false. An empty array scopes the rule to no project. When the organization requires registered attributes with project scoping, the rule's attributes are validated against these projects rather than the whole feature's.
                           type: array
                           items:
                             type: string
@@ -178,10 +348,33 @@ paths:
                     - type: object
                       properties:
                         description:
+                          description: Short note on why the rule exists (e.g. `Beta testers only`).
                           type: string
+                          maxLength: 10000
                         condition:
                           type: string
+                        savedGroups:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              match:
+                                type: string
+                                enum:
+                                - all
+                                - none
+                                - any
+                              ids:
+                                type: array
+                                items:
+                                  type: string
+                            required:
+                            - match
+                            - ids
+                            additionalProperties: false
                         savedGroupTargeting:
+                          description: Deprecated — use `savedGroups`. Accepted so a GET response can be posted back unchanged; `savedGroups` takes precedence if both are sent.
+                          deprecated: true
                           type: array
                           items:
                             type: object
@@ -200,6 +393,12 @@ paths:
                             - matchType
                             - savedGroups
                             additionalProperties: false
+                        pendingRamp:
+                          description: Read-only; ignored on write. Accepted so a GET response can be posted back unchanged.
+                        rampScheduleId:
+                          description: Read-only; ignored on write. Accepted so a GET response can be posted back unchanged.
+                        scheduleType:
+                          description: Read-only; ignored on write. Accepted so a GET response can be posted back unchanged.
                         prerequisites:
                           type: array
                           items:
@@ -220,8 +419,10 @@ paths:
                             type: object
                             properties:
                               timestamp:
+                                description: ISO 8601 date-time, e.g. "2025-06-01T00:00:00Z".
                                 anyOf:
                                 - type: string
+                                  format: date-time
                                 - type: 'null'
                               enabled:
                                 type: boolean
@@ -238,15 +439,40 @@ paths:
                           const: rollout
                         value:
                           type: string
+                        config:
+                          description: Key of a config to back this value. When set, `value` is a JSON override patch merged on top of the config; omit or null for a plain value.
+                          anyOf:
+                          - type: string
+                          - type: 'null'
+                        sparse:
+                          description: JSON features only. When true, the rule value is a partial object merged onto the feature's default value instead of replacing it.
+                          type: boolean
                         coverage:
                           type: number
                         hashAttribute:
                           type: string
+                        seed:
+                          description: Optional seed for the hash function; defaults to the rule id
+                          type: string
+                        hashVersion:
+                          anyOf:
+                          - type: number
+                            const: 1
+                          - type: number
+                            const: 2
                         allEnvironments:
                           description: When true the rule applies to all environments (default).
                           type: boolean
                         environments:
-                          description: Specific environment IDs this rule applies to. Required when allEnvironments is false.
+                          description: Environment IDs the rule applies to. Ignored when allEnvironments is true; with allEnvironments false, an omitted or empty list scopes the rule to no environment.
+                          type: array
+                          items:
+                            type: string
+                        allProjects:
+                          description: When true (the default) the rule applies to every project the feature is delivered to. Set false and supply `projects` to scope the rule.
+                          type: boolean
+                        projects:
+                          description: Specific project IDs this rule applies to. Used when allProjects is false. An empty array scopes the rule to no project. When the organization requires registered attributes with project scoping, the rule's attributes are validated against these projects rather than the whole feature's.
                           type: array
                           items:
                             type: string
@@ -259,7 +485,9 @@ paths:
                     - type: object
                       properties:
                         description:
+                          description: Short note on why the rule exists (e.g. `Beta testers only`).
                           type: string
+                          maxLength: 10000
                         id:
                           type: string
                         enabled:
@@ -269,7 +497,28 @@ paths:
                           const: experiment-ref
                         condition:
                           type: string
+                        savedGroups:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              match:
+                                type: string
+                                enum:
+                                - all
+                                - none
+                                - any
+                              ids:
+                                type: array
+                                items:
+                                  type: string
+                            required:
+                            - match
+                            - ids
+                            additionalProperties: false
                         savedGroupTargeting:
+                          description: Deprecated — use `savedGroups`. Accepted so a GET response can be posted back unchanged; `savedGroups` takes precedence if both are sent.
+                          deprecated: true
                           type: array
                           items:
                             type: object
@@ -288,6 +537,12 @@ paths:
                             - matchType
                             - savedGroups
                             additionalProperties: false
+                        pendingRamp:
+                          description: Read-only; ignored on write. Accepted so a GET response can be posted back unchanged.
+                        rampScheduleId:
+                          description: Read-only; ignored on write. Accepted so a GET response can be posted back unchanged.
+                        scheduleType:
+                          description: Read-only; ignored on write. Accepted so a GET response can be posted back unchanged.
                         prerequisites:
                           type: array
                           items:
@@ -308,8 +563,10 @@ paths:
                             type: object
                             properties:
                               timestamp:
+                                description: ISO 8601 date-time, e.g. "2025-06-01T00:00:00Z".
                                 anyOf:
                                 - type: string
+                                  format: date-time
                                 - type: 'null'
                               enabled:
                                 type: boolean
@@ -326,17 +583,33 @@ paths:
                                 type: string
                               variationId:
                                 type: string
+                              config:
+                                description: Key of a config to back this value. When set, `value` is a JSON override patch merged on top of the config; omit or null for a plain value.
+                                anyOf:
+                                - type: string
+                                - type: 'null'
                             required:
                             - value
                             - variationId
                             additionalProperties: false
                         experimentId:
                           type: string
+                        sparse:
+                          description: JSON features only. When true, the rule value is a partial object merged onto the feature's default value instead of replacing it.
+                          type: boolean
                         allEnvironments:
                           description: When true the rule applies to all environments (default).
                           type: boolean
                         environments:
-                          description: Specific environment IDs this rule applies to. Required when allEnvironments is false.
+                          description: Environment IDs the rule applies to. Ignored when allEnvironments is true; with allEnvironments false, an omitted or empty list scopes the rule to no environment.
+                          type: array
+                          items:
+                            type: string
+                        allProjects:
+                          description: When true (the default) the rule applies to every project the feature is delivered to. Set false and supply `projects` to scope the rule.
+                          type: boolean
+                        projects:
+                          description: Specific project IDs this rule applies to. Used when allProjects is false. An empty array scopes the rule to no project. When the organization requires registered attributes with project scoping, the rule's attributes are validated against these projects rather than the whole feature's.
                           type: array
                           items:
                             type: string
@@ -348,7 +621,9 @@ paths:
                     - type: object
                       properties:
                         description:
+                          description: Short note on why the rule exists (e.g. `Beta testers only`).
                           type: string
+                          maxLength: 10000
                         id:
                           type: string
                         enabled:
@@ -358,7 +633,28 @@ paths:
                           const: safe-rollout
                         condition:
                           type: string
+                        savedGroups:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              match:
+                                type: string
+                                enum:
+                                - all
+                                - none
+                                - any
+                              ids:
+                                type: array
+                                items:
+                                  type: string
+                            required:
+                            - match
+                            - ids
+                            additionalProperties: false
                         savedGroupTargeting:
+                          description: Deprecated — use `savedGroups`. Accepted so a GET response can be posted back unchanged; `savedGroups` takes precedence if both are sent.
+                          deprecated: true
                           type: array
                           items:
                             type: object
@@ -377,6 +673,12 @@ paths:
                             - matchType
                             - savedGroups
                             additionalProperties: false
+                        pendingRamp:
+                          description: Read-only; ignored on write. Accepted so a GET response can be posted back unchanged.
+                        rampScheduleId:
+                          description: Read-only; ignored on write. Accepted so a GET response can be posted back unchanged.
+                        scheduleType:
+                          description: Read-only; ignored on write. Accepted so a GET response can be posted back unchanged.
                         prerequisites:
                           type: array
                           items:
@@ -397,8 +699,10 @@ paths:
                             type: object
                             properties:
                               timestamp:
+                                description: ISO 8601 date-time, e.g. "2025-06-01T00:00:00Z".
                                 anyOf:
                                 - type: string
+                                  format: date-time
                                 - type: 'null'
                               enabled:
                                 type: boolean
@@ -430,7 +734,15 @@ paths:
                           description: When true the rule applies to all environments (default).
                           type: boolean
                         environments:
-                          description: Specific environment IDs this rule applies to. Required when allEnvironments is false.
+                          description: Environment IDs the rule applies to. Ignored when allEnvironments is true; with allEnvironments false, an omitted or empty list scopes the rule to no environment.
+                          type: array
+                          items:
+                            type: string
+                        allProjects:
+                          description: When true (the default) the rule applies to every project the feature is delivered to. Set false and supply `projects` to scope the rule.
+                          type: boolean
+                        projects:
+                          description: Specific project IDs this rule applies to. Used when allProjects is false. An empty array scopes the rule to no project. When the organization requires registered attributes with project scoping, the rule's attributes are validated against these projects rather than the whole feature's.
                           type: array
                           items:
                             type: string
@@ -442,7 +754,7 @@ paths:
                       - safeRolloutId
                       additionalProperties: false
                 environments:
-                  description: Per-environment enabled state. V2 rules are specified on the top-level `rules` field.
+                  description: 'Per-environment enabled state, keyed by environment ID. An environment you leave out uses its "Default state for new features" setting, which may be enabled. To create the Feature Flag disabled, list every environment with `enabled: false`. Rules go on the top-level `rules` field.'
                   type: object
                   propertyNames:
                     type: string
@@ -450,6 +762,7 @@ paths:
                     type: object
                     properties:
                       enabled:
+                        description: Whether the Feature Flag is enabled in this environment.
                         type: boolean
                     additionalProperties: false
                 prerequisites:
@@ -466,14 +779,26 @@ paths:
                     type: string
                   additionalProperties:
                     type: string
+                comment:
+                  description: Comment to record on the feature's initial revision. Defaults to an empty comment.
+                  type: string
+                ignoreWarnings:
+                  description: Set to true to acknowledge the warnings listed in a blocked response and continue. This covers experiment guards, locked dependents, and references affected by an archive. When the organization treats schema failures as warnings, it also covers schema and invariant warnings. It never bypasses a rejected Custom Hook. On revision publish endpoints, it can also force-publish an out-of-date draft when the caller has Bypass draft approvals access. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+                skipSchemaValidation:
+                  description: Set to true to publish despite schema validation errors, failed invariants, or schema changes that invalidate dependent resources. This does not bypass a rejected Custom Hook; use `skipHooks` for that. The caller must have Bypass draft approvals access for Feature Flags, Configs, and Constants in every Project. Otherwise, this field is ignored. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+                skipHooks:
+                  description: Set to true to publish despite a Custom Hook rejection. This does not bypass schema validation; use `skipSchemaValidation` for that. The caller must have Bypass draft approvals access for Feature Flags, Configs, and Constants in every Project. Otherwise, this field is ignored. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
               required:
               - id
-              - owner
               - valueType
               - defaultValue
               additionalProperties: false
       responses:
         '200':
+          description: Resource created
           content:
             application/json:
               schema:
@@ -484,6 +809,8 @@ paths:
                 required:
                 - feature
                 additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
       x-codeSamples:
       - lang: cURL
         source: "curl -X POST 'https://api.growthbook.io/api/v2/features' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
@@ -498,6 +825,7 @@ paths:
       - $ref: '#/components/parameters/withRevisions'
       responses:
         '200':
+          description: Successful response
           content:
             application/json:
               schema:
@@ -514,11 +842,16 @@ paths:
     post:
       operationId: updateFeatureV2
       summary: Partially update a feature
-      description: 'Updates any combination of a feature''s metadata, default value, environment state, and rules. Other top-level fields are patch-merged: omit a field to leave it unchanged. The `rules` field, when supplied, replaces the entire `rules` array atomically in a single revision (v1 PUT applied per-environment patches; v2 swaps the full flat array). To preserve existing rules during a partial edit, GET the feature first, mutate the returned `rules` array, and PUT the full array back. Safe-rollout rules round-trip via their `safeRolloutId`; use `POST /v2/features/:id/revisions/:version/rules` to create new ones. Returns 403 if approval rules are enabled for an affected environment and the bypass setting is off.'
+      description: 'Updates the Feature Flag and immediately publishes a new revision. The caller needs Edit access in the Feature Flag''s Project and Publish access for every affected environment. When approval is required, use the revision endpoints instead, unless the caller can bypass draft approvals.
+
+
+        Other top-level fields are patch-merged: omit a field to leave it unchanged. The `rules` field, when supplied, replaces the entire `rules` array in one operation. To preserve existing rules, fetch the Feature Flag, update the returned `rules` array, and send the complete array back. Safe-rollout rules round-trip through `safeRolloutId`; use `POST /v2/features/:id/revisions/:version/rules` to create new ones.'
       tags:
       - Features v2
       parameters:
       - $ref: '#/components/parameters/id'
+      - $ref: '#/components/parameters/skipSchemaValidation'
+      - $ref: '#/components/parameters/ignoreWarnings'
       requestBody:
         required: true
         content:
@@ -527,20 +860,39 @@ paths:
               type: object
               properties:
                 description:
-                  description: Description of the feature
+                  description: Markdown. What the Feature Flag gates and why, rollout plan, and links. Put context here, not in the key.
                   type: string
+                  maxLength: 10000
                 archived:
                   type: boolean
                 project:
                   description: An associated project ID
                   type: string
+                targetingAllProjects:
+                  description: Make this feature discoverable in — and served to — every project, beyond its primary `project`. Requires the `targetFeatures` permission (FlagsTarget policy) unscoped to any project. Governance stays with `project`.
+                  type: boolean
+                targetingProjects:
+                  description: Secondary project IDs this feature is targeted in and served to, beyond its primary `project`. Adding a project requires the `targetFeatures` permission (FlagsTarget policy) in that project. Governance stays with `project`.
+                  type: array
+                  items:
+                    type: string
                 owner:
                   description: The userId or email address of the owner. If an email address is provided, it will be used to look up the userId of the matching organization member. If an ID is provided, it will be validated as existing in the organization.
                   type: string
                 defaultValue:
                   type: string
+                baseConfig:
+                  description: The config backing this flag, fixed at creation. Cannot be changed by an update — resend the current value or omit it; a different value is rejected.
+                  anyOf:
+                  - type: string
+                  - type: 'null'
+                defaultValueConfig:
+                  description: Optional. A config within `baseConfig`'s family that the default value resolves to instead of `baseConfig` itself. null or omitted means the default is `baseConfig`. The default is exactly this config and carries no overrides of its own.
+                  anyOf:
+                  - type: string
+                  - type: 'null'
                 tags:
-                  description: List of associated tags. Will override tags completely with submitted list
+                  description: Tags for filtering and grouping. Use these instead of encoding groups in names. Replaces the existing tags completely.
                   type: array
                   items:
                     type: string
@@ -552,10 +904,33 @@ paths:
                     - type: object
                       properties:
                         description:
+                          description: Short note on why the rule exists (e.g. `Beta testers only`).
                           type: string
+                          maxLength: 10000
                         condition:
                           type: string
+                        savedGroups:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              match:
+                                type: string
+                                enum:
+                                - all
+                                - none
+                                - any
+                              ids:
+                                type: array
+                                items:
+                                  type: string
+                            required:
+                            - match
+                            - ids
+                            additionalProperties: false
                         savedGroupTargeting:
+                          description: Deprecated — use `savedGroups`. Accepted so a GET response can be posted back unchanged; `savedGroups` takes precedence if both are sent.
+                          deprecated: true
                           type: array
                           items:
                             type: object
@@ -574,6 +949,12 @@ paths:
                             - matchType
                             - savedGroups
                             additionalProperties: false
+                        pendingRamp:
+                          description: Read-only; ignored on write. Accepted so a GET response can be posted back unchanged.
+                        rampScheduleId:
+                          description: Read-only; ignored on write. Accepted so a GET response can be posted back unchanged.
+                        scheduleType:
+                          description: Read-only; ignored on write. Accepted so a GET response can be posted back unchanged.
                         prerequisites:
                           type: array
                           items:
@@ -594,8 +975,10 @@ paths:
                             type: object
                             properties:
                               timestamp:
+                                description: ISO 8601 date-time, e.g. "2025-06-01T00:00:00Z".
                                 anyOf:
                                 - type: string
+                                  format: date-time
                                 - type: 'null'
                               enabled:
                                 type: boolean
@@ -612,11 +995,27 @@ paths:
                           const: force
                         value:
                           type: string
+                        config:
+                          description: Key of a config to back this value. When set, `value` is a JSON override patch merged on top of the config; omit or null for a plain value.
+                          anyOf:
+                          - type: string
+                          - type: 'null'
+                        sparse:
+                          description: JSON features only. When true, the rule value is a partial object merged onto the feature's default value instead of replacing it.
+                          type: boolean
                         allEnvironments:
                           description: When true the rule applies to all environments (default).
                           type: boolean
                         environments:
-                          description: Specific environment IDs this rule applies to. Required when allEnvironments is false.
+                          description: Environment IDs the rule applies to. Ignored when allEnvironments is true; with allEnvironments false, an omitted or empty list scopes the rule to no environment.
+                          type: array
+                          items:
+                            type: string
+                        allProjects:
+                          description: When true (the default) the rule applies to every project the feature is delivered to. Set false and supply `projects` to scope the rule.
+                          type: boolean
+                        projects:
+                          description: Specific project IDs this rule applies to. Used when allProjects is false. An empty array scopes the rule to no project. When the organization requires registered attributes with project scoping, the rule's attributes are validated against these projects rather than the whole feature's.
                           type: array
                           items:
                             type: string
@@ -627,10 +1026,33 @@ paths:
                     - type: object
                       properties:
                         description:
+                          description: Short note on why the rule exists (e.g. `Beta testers only`).
                           type: string
+                          maxLength: 10000
                         condition:
                           type: string
+                        savedGroups:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              match:
+                                type: string
+                                enum:
+                                - all
+                                - none
+                                - any
+                              ids:
+                                type: array
+                                items:
+                                  type: string
+                            required:
+                            - match
+                            - ids
+                            additionalProperties: false
                         savedGroupTargeting:
+                          description: Deprecated — use `savedGroups`. Accepted so a GET response can be posted back unchanged; `savedGroups` takes precedence if both are sent.
+                          deprecated: true
                           type: array
                           items:
                             type: object
@@ -649,6 +1071,12 @@ paths:
                             - matchType
                             - savedGroups
                             additionalProperties: false
+                        pendingRamp:
+                          description: Read-only; ignored on write. Accepted so a GET response can be posted back unchanged.
+                        rampScheduleId:
+                          description: Read-only; ignored on write. Accepted so a GET response can be posted back unchanged.
+                        scheduleType:
+                          description: Read-only; ignored on write. Accepted so a GET response can be posted back unchanged.
                         prerequisites:
                           type: array
                           items:
@@ -669,8 +1097,10 @@ paths:
                             type: object
                             properties:
                               timestamp:
+                                description: ISO 8601 date-time, e.g. "2025-06-01T00:00:00Z".
                                 anyOf:
                                 - type: string
+                                  format: date-time
                                 - type: 'null'
                               enabled:
                                 type: boolean
@@ -687,15 +1117,40 @@ paths:
                           const: rollout
                         value:
                           type: string
+                        config:
+                          description: Key of a config to back this value. When set, `value` is a JSON override patch merged on top of the config; omit or null for a plain value.
+                          anyOf:
+                          - type: string
+                          - type: 'null'
+                        sparse:
+                          description: JSON features only. When true, the rule value is a partial object merged onto the feature's default value instead of replacing it.
+                          type: boolean
                         coverage:
                           type: number
                         hashAttribute:
                           type: string
+                        seed:
+                          description: Optional seed for the hash function; defaults to the rule id
+                          type: string
+                        hashVersion:
+                          anyOf:
+                          - type: number
+                            const: 1
+                          - type: number
+                            const: 2
                         allEnvironments:
                           description: When true the rule applies to all environments (default).
                           type: boolean
                         environments:
-                          description: Specific environment IDs this rule applies to. Required when allEnvironments is false.
+                          description: Environment IDs the rule applies to. Ignored when allEnvironments is true; with allEnvironments false, an omitted or empty list scopes the rule to no environment.
+                          type: array
+                          items:
+                            type: string
+                        allProjects:
+                          description: When true (the default) the rule applies to every project the feature is delivered to. Set false and supply `projects` to scope the rule.
+                          type: boolean
+                        projects:
+                          description: Specific project IDs this rule applies to. Used when allProjects is false. An empty array scopes the rule to no project. When the organization requires registered attributes with project scoping, the rule's attributes are validated against these projects rather than the whole feature's.
                           type: array
                           items:
                             type: string
@@ -708,7 +1163,9 @@ paths:
                     - type: object
                       properties:
                         description:
+                          description: Short note on why the rule exists (e.g. `Beta testers only`).
                           type: string
+                          maxLength: 10000
                         id:
                           type: string
                         enabled:
@@ -718,7 +1175,28 @@ paths:
                           const: experiment-ref
                         condition:
                           type: string
+                        savedGroups:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              match:
+                                type: string
+                                enum:
+                                - all
+                                - none
+                                - any
+                              ids:
+                                type: array
+                                items:
+                                  type: string
+                            required:
+                            - match
+                            - ids
+                            additionalProperties: false
                         savedGroupTargeting:
+                          description: Deprecated — use `savedGroups`. Accepted so a GET response can be posted back unchanged; `savedGroups` takes precedence if both are sent.
+                          deprecated: true
                           type: array
                           items:
                             type: object
@@ -737,6 +1215,12 @@ paths:
                             - matchType
                             - savedGroups
                             additionalProperties: false
+                        pendingRamp:
+                          description: Read-only; ignored on write. Accepted so a GET response can be posted back unchanged.
+                        rampScheduleId:
+                          description: Read-only; ignored on write. Accepted so a GET response can be posted back unchanged.
+                        scheduleType:
+                          description: Read-only; ignored on write. Accepted so a GET response can be posted back unchanged.
                         prerequisites:
                           type: array
                           items:
@@ -757,8 +1241,10 @@ paths:
                             type: object
                             properties:
                               timestamp:
+                                description: ISO 8601 date-time, e.g. "2025-06-01T00:00:00Z".
                                 anyOf:
                                 - type: string
+                                  format: date-time
                                 - type: 'null'
                               enabled:
                                 type: boolean
@@ -775,17 +1261,33 @@ paths:
                                 type: string
                               variationId:
                                 type: string
+                              config:
+                                description: Key of a config to back this value. When set, `value` is a JSON override patch merged on top of the config; omit or null for a plain value.
+                                anyOf:
+                                - type: string
+                                - type: 'null'
                             required:
                             - value
                             - variationId
                             additionalProperties: false
                         experimentId:
                           type: string
+                        sparse:
+                          description: JSON features only. When true, the rule value is a partial object merged onto the feature's default value instead of replacing it.
+                          type: boolean
                         allEnvironments:
                           description: When true the rule applies to all environments (default).
                           type: boolean
                         environments:
-                          description: Specific environment IDs this rule applies to. Required when allEnvironments is false.
+                          description: Environment IDs the rule applies to. Ignored when allEnvironments is true; with allEnvironments false, an omitted or empty list scopes the rule to no environment.
+                          type: array
+                          items:
+                            type: string
+                        allProjects:
+                          description: When true (the default) the rule applies to every project the feature is delivered to. Set false and supply `projects` to scope the rule.
+                          type: boolean
+                        projects:
+                          description: Specific project IDs this rule applies to. Used when allProjects is false. An empty array scopes the rule to no project. When the organization requires registered attributes with project scoping, the rule's attributes are validated against these projects rather than the whole feature's.
                           type: array
                           items:
                             type: string
@@ -797,7 +1299,9 @@ paths:
                     - type: object
                       properties:
                         description:
+                          description: Short note on why the rule exists (e.g. `Beta testers only`).
                           type: string
+                          maxLength: 10000
                         id:
                           type: string
                         enabled:
@@ -807,7 +1311,28 @@ paths:
                           const: safe-rollout
                         condition:
                           type: string
+                        savedGroups:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              match:
+                                type: string
+                                enum:
+                                - all
+                                - none
+                                - any
+                              ids:
+                                type: array
+                                items:
+                                  type: string
+                            required:
+                            - match
+                            - ids
+                            additionalProperties: false
                         savedGroupTargeting:
+                          description: Deprecated — use `savedGroups`. Accepted so a GET response can be posted back unchanged; `savedGroups` takes precedence if both are sent.
+                          deprecated: true
                           type: array
                           items:
                             type: object
@@ -826,6 +1351,12 @@ paths:
                             - matchType
                             - savedGroups
                             additionalProperties: false
+                        pendingRamp:
+                          description: Read-only; ignored on write. Accepted so a GET response can be posted back unchanged.
+                        rampScheduleId:
+                          description: Read-only; ignored on write. Accepted so a GET response can be posted back unchanged.
+                        scheduleType:
+                          description: Read-only; ignored on write. Accepted so a GET response can be posted back unchanged.
                         prerequisites:
                           type: array
                           items:
@@ -846,8 +1377,10 @@ paths:
                             type: object
                             properties:
                               timestamp:
+                                description: ISO 8601 date-time, e.g. "2025-06-01T00:00:00Z".
                                 anyOf:
                                 - type: string
+                                  format: date-time
                                 - type: 'null'
                               enabled:
                                 type: boolean
@@ -879,7 +1412,15 @@ paths:
                           description: When true the rule applies to all environments (default).
                           type: boolean
                         environments:
-                          description: Specific environment IDs this rule applies to. Required when allEnvironments is false.
+                          description: Environment IDs the rule applies to. Ignored when allEnvironments is true; with allEnvironments false, an omitted or empty list scopes the rule to no environment.
+                          type: array
+                          items:
+                            type: string
+                        allProjects:
+                          description: When true (the default) the rule applies to every project the feature is delivered to. Set false and supply `projects` to scope the rule.
+                          type: boolean
+                        projects:
+                          description: Specific project IDs this rule applies to. Used when allProjects is false. An empty array scopes the rule to no project. When the organization requires registered attributes with project scoping, the rule's attributes are validated against these projects rather than the whole feature's.
                           type: array
                           items:
                             type: string
@@ -899,6 +1440,7 @@ paths:
                     type: object
                     properties:
                       enabled:
+                        description: Whether the Feature Flag is enabled in this environment.
                         type: boolean
                     additionalProperties: false
                 prerequisites:
@@ -933,9 +1475,22 @@ paths:
                     - value
                     additionalProperties: false
                   - type: 'null'
+                comment:
+                  description: Comment to record on the revision this update publishes, when it publishes one. Defaults to "Created via REST API".
+                  type: string
+                ignoreWarnings:
+                  description: Set to true to acknowledge the warnings listed in a blocked response and continue. This covers experiment guards, locked dependents, and references affected by an archive. When the organization treats schema failures as warnings, it also covers schema and invariant warnings. It never bypasses a rejected Custom Hook. On revision publish endpoints, it can also force-publish an out-of-date draft when the caller has Bypass draft approvals access. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+                skipSchemaValidation:
+                  description: Set to true to publish despite schema validation errors, failed invariants, or schema changes that invalidate dependent resources. This does not bypass a rejected Custom Hook; use `skipHooks` for that. The caller must have Bypass draft approvals access for Feature Flags, Configs, and Constants in every Project. Otherwise, this field is ignored. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+                skipHooks:
+                  description: Set to true to publish despite a Custom Hook rejection. This does not bypass schema validation; use `skipSchemaValidation` for that. The caller must have Bypass draft approvals access for Feature Flags, Configs, and Constants in every Project. Otherwise, this field is ignored. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
               additionalProperties: false
       responses:
         '200':
+          description: Resource created
           content:
             application/json:
               schema:
@@ -943,25 +1498,30 @@ paths:
                 properties:
                   feature:
                     $ref: '#/components/schemas/FeatureV2'
+                  bypassedGates:
+                    description: Gates that would have blocked this publish but were bypassed by the caller's authority. Present only when at least one gate was bypassed.
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/bypassedGates'
                 required:
                 - feature
                 additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
       x-codeSamples:
       - lang: cURL
         source: "curl -X POST 'https://api.growthbook.io/api/v2/features/{id}' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
     delete:
       operationId: deleteFeatureV2
       summary: Deletes a single feature
-      description: 'Permanently deletes a feature and all of its revisions.
-
-
-        Archived features can be deleted freely. Deleting a live (non-archived) feature returns 403 unless the org setting "REST API always bypasses approval requirements" is enabled.'
+      description: Permanently deletes a Feature Flag and all of its revisions. The caller needs Archive & delete access. Deleting a live Feature Flag also requires Publish access for every environment where it is enabled and the organization setting "REST API always bypasses approval requirements". Otherwise, archive the Feature Flag before deleting it.
       tags:
       - Features v2
       parameters:
       - $ref: '#/components/parameters/id'
       responses:
         '200':
+          description: Resource deleted
           content:
             application/json:
               schema:
@@ -974,6 +1534,8 @@ paths:
                 required:
                 - deletedId
                 additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
       x-codeSamples:
       - lang: cURL
         source: "curl -X DELETE 'https://api.growthbook.io/api/v2/features/abc123' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
@@ -981,7 +1543,7 @@ paths:
     post:
       operationId: toggleFeatureV2
       summary: Toggle a feature in one or more environments
-      description: Enables or disables a feature in one or more environments simultaneously. Accepts a map of environment name → boolean.
+      description: Enables or disables a Feature Flag in one or more environments and immediately publishes the change. The caller needs Publish access for every environment in the request. When approval is required, use a draft revision instead, unless the caller can bypass draft approvals.
       tags:
       - Features v2
       parameters:
@@ -994,6 +1556,9 @@ paths:
               type: object
               properties:
                 reason:
+                  type: string
+                comment:
+                  description: Comment to record on the revision this toggle publishes, when it changes any environment. Defaults to "Created via REST API". (`reason` is recorded in the audit log only.)
                   type: string
                 environments:
                   type: object
@@ -1024,6 +1589,7 @@ paths:
               additionalProperties: false
       responses:
         '200':
+          description: Resource created
           content:
             application/json:
               schema:
@@ -1031,9 +1597,16 @@ paths:
                 properties:
                   feature:
                     $ref: '#/components/schemas/FeatureV2'
+                  bypassedGates:
+                    description: Gates that would have blocked this publish but were bypassed by the caller's authority. Present only when at least one gate was bypassed.
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/bypassedGates'
                 required:
                 - feature
                 additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
       x-codeSamples:
       - lang: cURL
         source: "curl -X POST 'https://api.growthbook.io/api/v2/features/{id}/toggle' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
@@ -1041,6 +1614,10 @@ paths:
     post:
       operationId: revertFeatureV2
       summary: Revert a feature to a specific revision
+      description: 'Restores a previously published revision and immediately publishes the result as a new revision. The caller needs Revert access for every affected environment. When approval is required, the request is allowed only if the caller holds the `FlagsBypassApprovals` policy, or the organization enables either "REST API always bypasses approval requirements" or "Allow reverts without approval".
+
+
+        If the restored values no longer match the Feature Flag''s current value type or JSON schema, or restoring an archived state would archive a flag that live flags or experiments still depend on, the API returns 422 with `warnings`. Send `"ignoreWarnings": true` to acknowledge those warnings and continue.'
       tags:
       - Features v2
       parameters:
@@ -1056,11 +1633,21 @@ paths:
                   type: number
                 comment:
                   type: string
+                ignoreWarnings:
+                  description: Set to true to acknowledge the warnings listed in a blocked response and continue. This covers experiment guards, locked dependents, and references affected by an archive. When the organization treats schema failures as warnings, it also covers schema and invariant warnings. It never bypasses a rejected Custom Hook. On revision publish endpoints, it can also force-publish an out-of-date draft when the caller has Bypass draft approvals access. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+                skipSchemaValidation:
+                  description: Set to true to publish despite schema validation errors, failed invariants, or schema changes that invalidate dependent resources. This does not bypass a rejected Custom Hook; use `skipHooks` for that. The caller must have Bypass draft approvals access for Feature Flags, Configs, and Constants in every Project. Otherwise, this field is ignored. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+                skipHooks:
+                  description: Set to true to publish despite a Custom Hook rejection. This does not bypass schema validation; use `skipSchemaValidation` for that. The caller must have Bypass draft approvals access for Feature Flags, Configs, and Constants in every Project. Otherwise, this field is ignored. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
               required:
               - revision
               additionalProperties: false
       responses:
         '200':
+          description: Resource created
           content:
             application/json:
               schema:
@@ -1068,9 +1655,16 @@ paths:
                 properties:
                   feature:
                     $ref: '#/components/schemas/FeatureV2'
+                  bypassedGates:
+                    description: Gates that would have blocked this publish but were bypassed by the caller's authority. Present only when at least one gate was bypassed.
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/bypassedGates'
                 required:
                 - feature
                 additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
       x-codeSamples:
       - lang: cURL
         source: "curl -X POST 'https://api.growthbook.io/api/v2/features/{id}/revert' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
@@ -1084,6 +1678,7 @@ paths:
       - $ref: '#/components/parameters/projectId'
       responses:
         '200':
+          description: Successful response
           content:
             application/json:
               schema:
@@ -1103,6 +1698,7 @@ paths:
       - $ref: '#/components/parameters/ids'
       responses:
         '200':
+          description: Successful response
           content:
             application/json:
               schema:
@@ -1133,6 +1729,8 @@ paths:
                             - abandoned-draft
                             - toggled-off
                             - active-experiment
+                            - temp-rollout
+                            - old-temp-rollout
                             - has-rules
                           - type: 'null'
                         neverStale:
@@ -1155,6 +1753,8 @@ paths:
                                   - abandoned-draft
                                   - toggled-off
                                   - active-experiment
+                                  - temp-rollout
+                                  - old-temp-rollout
                                   - has-rules
                                   - recently-updated
                                   - active-draft
@@ -1162,6 +1762,11 @@ paths:
                                 - type: 'null'
                               evaluatesTo:
                                 type: string
+                              tempRollout:
+                                type: string
+                                enum:
+                                - temp-rollout
+                                - old-temp-rollout
                             required:
                             - isStale
                             - reason
@@ -1179,231 +1784,256 @@ paths:
       - lang: cURL
         source: "curl -X GET 'https://api.growthbook.io/api/v2/stale-features' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
 components:
-  parameters:
-    clientKey:
-      name: clientKey
-      in: query
-      description: Filter by a SDK connection's client key
-      schema:
-        description: Filter by a SDK connection's client key
-        type: string
-    withRevisions:
-      name: withRevisions
-      in: query
-      description: Also return feature revisions (all, draft, or published statuses)
-      schema:
-        description: Also return feature revisions (all, draft, or published statuses)
-        type: string
-        enum:
-        - all
-        - drafts
-        - published
-        - none
-    skipPagination:
-      name: skipPagination
-      in: query
-      description: 'If true, return all matching items and ignore limit/offset.
-
-        Self-hosted only. Has no effect unless API_ALLOW_SKIP_PAGINATION is set to true or 1.'
-      schema:
-        description: 'If true, return all matching items and ignore limit/offset.
-
-          Self-hosted only. Has no effect unless API_ALLOW_SKIP_PAGINATION is set to true or 1.'
-        default: false
-        anyOf:
-        - type: string
-          const: 'true'
-        - type: string
-          const: 'false'
-        - type: string
-          const: '0'
-        - type: string
-          const: '1'
-        - type: boolean
-      x-selfHostedOnly: true
-      x-requiresEnv: API_ALLOW_SKIP_PAGINATION
-    ids:
-      name: ids
-      in: query
-      required: true
-      description: 'Comma-separated list of feature IDs (URL-encoded if needed). Example: `my_feature,another_feature`
-
-        '
-      schema:
-        description: 'Comma-separated list of feature IDs (URL-encoded if needed). Example: `my_feature,another_feature`
-
-          '
-        type: string
-    projectId:
-      name: projectId
-      in: query
-      description: Filter by project id
-      schema:
-        description: Filter by project id
-        type: string
-    id:
-      name: id
-      in: path
-      required: true
-      description: The id of the requested resource
-      schema:
-        description: The id of the requested resource
-        type: string
-    limit:
-      name: limit
-      in: query
-      description: The number of items to return
-      schema:
-        default: 10
-        description: The number of items to return
-        type: integer
-        minimum: 1
-        maximum: 100
-    offset:
-      name: offset
-      in: query
-      description: How many items to skip (use in conjunction with limit for pagination)
-      schema:
-        default: 0
-        description: How many items to skip (use in conjunction with limit for pagination)
-        type: integer
-        minimum: 0
   schemas:
-    ScheduleRule:
+    bypassedGates:
       type: object
       properties:
-        enabled:
-          description: Whether the rule should be enabled or disabled at the specified timestamp.
-          type: boolean
-        timestamp:
-          description: ISO timestamp when the rule should activate.
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
+        type:
+          description: The gate that was bypassed (e.g. "approval-required", "stale-base", "schema-break").
+          type: string
+        outcome:
+          type: string
+          const: bypassed
+        via:
+          description: How the gate was bypassed. The value identifies a request field (`ignoreWarnings`, `skipSchemaValidation`, or `skipHooks`), the caller's permission (`bypassApprovalPermission`), or an organization setting (`restApiBypassesReviews`, or `revertsBypassApproval` on a revert).
+          type: string
+          enum:
+          - ignoreWarnings
+          - skipSchemaValidation
+          - skipHooks
+          - bypassApprovalPermission
+          - restApiBypassesReviews
+          - revertsBypassApproval
       required:
-      - enabled
-      - timestamp
+      - type
+      - outcome
+      - via
       additionalProperties: false
-    FeatureV2:
+    FeatureRevisionSummary:
       type: object
       properties:
         id:
+          description: Stable id of the feature's live revision.
           type: string
-        dateCreated:
+        version:
+          type: integer
+        comment:
+          type: string
+        date:
           format: date-time
           type: string
-        dateUpdated:
-          format: date-time
-          type: string
-        archived:
-          type: boolean
+        createdBy:
+          $ref: '#/components/schemas/EventUser'
+        publishedBy:
+          $ref: '#/components/schemas/EventUser'
+      required:
+      - version
+      - comment
+      - date
+      additionalProperties: false
+    FeatureSafeRolloutRule:
+      allOf:
+      - description: 'Common fields shared by all feature rule types. Specific rule types extend
+
+          this base with their own required properties (value, coverage, etc.).
+
+          '
+        type: object
+        properties:
+          description:
+            type: string
+            maxLength: 10000
+          condition:
+            type: string
+          id:
+            type: string
+          enabled:
+            type: boolean
+          scheduleRules:
+            description: Simple time-based on/off schedule for this rule
+            type: array
+            items:
+              $ref: '#/components/schemas/ScheduleRule'
+          scheduleType:
+            description: 'UI hint for which scheduling mode is active:
+
+              - `none` – no schedule
+
+              - `schedule` – simple time-based enable/disable via `scheduleRules`
+
+              - `ramp` – multi-step ramp-up controlled by an associated RampSchedule document
+
+              '
+            type: string
+            enum:
+            - none
+            - schedule
+            - ramp
+          rampScheduleId:
+            description: ID of the active RampSchedule document controlling this rule. Present when `scheduleType` is `ramp` and a live schedule exists.
+            type: string
+          savedGroupTargeting:
+            type: array
+            items:
+              type: object
+              properties:
+                matchType:
+                  type: string
+                  enum:
+                  - all
+                  - any
+                  - none
+                savedGroups:
+                  type: array
+                  items:
+                    type: string
+              required:
+              - matchType
+              - savedGroups
+              additionalProperties: false
+          prerequisites:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  description: Feature ID of the prerequisite
+                  type: string
+                condition:
+                  type: string
+              required:
+              - id
+              - condition
+              additionalProperties: false
+          allProjects:
+            description: When true (the default) the rule applies to every project the feature is delivered to. When false the rule is limited to `projects`.
+            type: boolean
+          projects:
+            description: Project IDs this rule is scoped to when `allProjects` is false. An empty array scopes the rule to no project.
+            type: array
+            items:
+              type: string
+        required:
+        - description
+        - id
+        - enabled
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            const: safe-rollout
+          controlValue:
+            type: string
+          variationValue:
+            type: string
+          seed:
+            type: string
+          hashAttribute:
+            type: string
+          trackingKey:
+            type: string
+          safeRolloutId:
+            type: string
+          status:
+            type: string
+            enum:
+            - running
+            - released
+            - rolled-back
+            - stopped
+        required:
+        - type
+        - controlValue
+        - variationValue
+        additionalProperties: false
+    FeatureBaseRule:
+      type: object
+      properties:
         description:
           type: string
-        owner:
-          description: The userId or email address of the owner. If an email address is provided, it will be used to look up the userId of the matching organization member. If an ID is provided, it will be validated as existing in the organization.
+          maxLength: 10000
+        condition:
           type: string
-        project:
+        id:
           type: string
-        valueType:
+        enabled:
+          type: boolean
+        scheduleRules:
+          description: Simple time-based on/off schedule for this rule
+          type: array
+          items:
+            $ref: '#/components/schemas/ScheduleRule'
+        scheduleType:
+          description: 'UI hint for which scheduling mode is active:
+
+            - `none` – no schedule
+
+            - `schedule` – simple time-based enable/disable via `scheduleRules`
+
+            - `ramp` – multi-step ramp-up controlled by an associated RampSchedule document
+
+            '
           type: string
           enum:
-          - boolean
-          - string
-          - number
-          - json
-        defaultValue:
+          - none
+          - schedule
+          - ramp
+        rampScheduleId:
+          description: ID of the active RampSchedule document controlling this rule. Present when `scheduleType` is `ramp` and a live schedule exists.
           type: string
-        tags:
+        savedGroupTargeting:
           type: array
           items:
-            type: string
-        rules:
-          description: Unified rules array. Each rule carries its own environment scope via `allEnvironments` / `environments`.
-          type: array
-          items:
-            $ref: '#/components/schemas/FeatureRuleV2'
-        environments:
-          description: Per-environment enabled state and SDK payload. Rules are on the top-level `rules` field.
-          type: object
-          propertyNames:
-            type: string
-          additionalProperties:
-            $ref: '#/components/schemas/FeatureEnvironmentV2'
+            type: object
+            properties:
+              matchType:
+                type: string
+                enum:
+                - all
+                - any
+                - none
+              savedGroups:
+                type: array
+                items:
+                  type: string
+            required:
+            - matchType
+            - savedGroups
+            additionalProperties: false
         prerequisites:
-          description: Feature IDs. Each feature must evaluate to `true`
           type: array
           items:
-            type: string
-        revision:
-          type: object
-          properties:
-            version:
-              type: integer
-            comment:
-              type: string
-            date:
-              format: date-time
-              type: string
-            createdBy:
-              type: string
-            publishedBy:
-              type: string
-          required:
-          - version
-          - comment
-          - date
-          - createdBy
-          - publishedBy
-          additionalProperties: false
-        customFields:
-          type: object
-          propertyNames:
-            type: string
-          additionalProperties: {}
-        holdout:
-          anyOf:
-          - type: object
+            type: object
             properties:
               id:
-                description: Holdout ID
+                description: Feature ID of the prerequisite
                 type: string
-              value:
-                description: The feature value assigned to users in the holdout treatment group
+              condition:
                 type: string
             required:
             - id
-            - value
+            - condition
             additionalProperties: false
-          - type: 'null'
+        allProjects:
+          description: When true (the default) the rule applies to every project the feature is delivered to. When false the rule is limited to `projects`.
+          type: boolean
+        projects:
+          description: Project IDs this rule is scoped to when `allProjects` is false. An empty array scopes the rule to no project.
+          type: array
+          items:
+            type: string
       required:
-      - id
-      - dateCreated
-      - dateUpdated
-      - archived
       - description
-      - owner
-      - project
-      - valueType
-      - defaultValue
-      - tags
-      - rules
-      - environments
-      - revision
+      - id
+      - enabled
       additionalProperties: false
-    FeatureWithRevisionsV2:
-      allOf:
-      - $ref: '#/components/schemas/FeatureV2'
-      - type: object
-        properties:
-          revisions:
-            type: array
-            items:
-              $ref: '#/components/schemas/FeatureRevisionV2'
-        additionalProperties: false
     FeatureRevisionV2:
       type: object
       properties:
+        id:
+          description: Stable revision id. Newer revisions carry opaque ids; older ones a derived `frev_<version>_<featureId>` form. Both work wherever revision ids are accepted.
+          type: string
         featureId:
           description: The feature this revision belongs to
           type: string
@@ -1419,12 +2049,17 @@ components:
         status:
           type: string
         createdBy:
-          type: string
+          $ref: '#/components/schemas/EventUser'
         publishedBy:
-          type: string
+          $ref: '#/components/schemas/EventUser'
         defaultValue:
-          description: The default value at the time this revision was created
+          description: The default value at the time this revision was created. When the feature is in Config mode, this is the JSON override patch merged on top of the config (its own keys win); otherwise it is the full value.
           type: string
+        defaultValueConfig:
+          description: Optional. A config within `baseConfig`'s family that the default value resolves to instead of `baseConfig` itself. null or omitted means the default is `baseConfig`. The default is exactly this config and carries no overrides of its own.
+          anyOf:
+          - type: string
+          - type: 'null'
         rules:
           description: Unified rules array. Each rule carries its own environment scope via `allEnvironments` / `environments`.
           type: array
@@ -1455,28 +2090,22 @@ components:
               type: object
               properties:
                 id:
-                  description: Feature ID
-                  type: string
-                condition:
+                  description: Feature ID of the prerequisite boolean flag
                   type: string
               required:
               - id
-              - condition
               additionalProperties: false
         prerequisites:
-          description: Feature-level prerequisites captured in this revision (only present when prerequisite gating is enabled)
+          description: Feature-level prerequisites captured in this revision. Each entry is a boolean flag ID that must evaluate to true for this flag to be active for a given user.
           type: array
           items:
             type: object
             properties:
               id:
-                description: Feature ID
-                type: string
-              condition:
+                description: Feature ID of the prerequisite boolean flag
                 type: string
             required:
             - id
-            - condition
             additionalProperties: false
         metadata:
           description: Metadata fields captured in this revision (only present when metadata gating is enabled)
@@ -1484,6 +2113,7 @@ components:
           properties:
             description:
               type: string
+              maxLength: 10000
             owner:
               description: The userId of the owner (or raw owner name/email for legacy records)
               type: string
@@ -1523,8 +2153,927 @@ components:
               propertyNames:
                 type: string
               additionalProperties: {}
+            baseConfig:
+              anyOf:
+              - type: string
+              - type: 'null'
           additionalProperties: false
+        rampActions:
+          description: Pending ramp schedule actions that will be applied when this draft is published
+          type: array
+          items:
+            anyOf:
+            - type: object
+              properties:
+                mode:
+                  type: string
+                  const: create
+                name:
+                  type: string
+                environment:
+                  anyOf:
+                  - type: string
+                  - type: 'null'
+                templateId:
+                  type: string
+                startActions:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      targetType:
+                        type: string
+                        const: feature-rule
+                      targetId:
+                        type: string
+                      patch:
+                        type: object
+                        properties:
+                          ruleId:
+                            type: string
+                          coverage:
+                            description: 'Traffic fraction (0–1). For monitored steps the rollout rule is promoted to an experiment: treatment = [0, coverage), control = [0.5, 0.5+coverage). Both arms are equal-sized and non-adjacent, so a step-up only adds new users to each arm — no existing user changes group. The REST API enforces coverage ≤ 0.5 on monitored steps so control end never exceeds 1.0. The SDK uses explicit hash ranges on bucketingV2 clients to keep bucketing stable across monitored/unmonitored transitions.'
+                            anyOf:
+                            - type: number
+                              minimum: 0
+                              maximum: 1
+                            - type: 'null'
+                          condition:
+                            anyOf:
+                            - type: string
+                            - type: 'null'
+                          savedGroups:
+                            anyOf:
+                            - type: array
+                              items:
+                                type: object
+                                properties:
+                                  match:
+                                    type: string
+                                    enum:
+                                    - all
+                                    - none
+                                    - any
+                                  ids:
+                                    type: array
+                                    items:
+                                      type: string
+                                required:
+                                - match
+                                - ids
+                                additionalProperties: false
+                            - type: 'null'
+                          prerequisites:
+                            anyOf:
+                            - type: array
+                              items:
+                                type: object
+                                properties:
+                                  id:
+                                    type: string
+                                  condition:
+                                    type: string
+                                required:
+                                - id
+                                - condition
+                                additionalProperties: false
+                            - type: 'null'
+                          allEnvironments:
+                            anyOf:
+                            - type: boolean
+                            - type: 'null'
+                          environments:
+                            anyOf:
+                            - type: array
+                              items:
+                                type: string
+                            - type: 'null'
+                          force:
+                            description: 'Value to serve, in the string form rule values use ("false", "10", ''{"limit": 5}''). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature''s value type.'
+                          enabled:
+                            anyOf:
+                            - type: boolean
+                            - type: 'null'
+                          hashAttribute:
+                            description: Attribute the rule buckets on. Required (here or on the rule) when a step sets partial coverage on a force rule, which becomes a rollout.
+                            anyOf:
+                            - type: string
+                            - type: 'null'
+                          seed:
+                            description: Hash seed for a promoted force rule. Defaults to the rule id.
+                            anyOf:
+                            - type: string
+                            - type: 'null'
+                          hashVersion:
+                            description: Hash algorithm version for a promoted force rule. Defaults to 2.
+                            anyOf:
+                            - anyOf:
+                              - type: number
+                                const: 1
+                              - type: number
+                                const: 2
+                            - type: 'null'
+                        additionalProperties: false
+                    required:
+                    - patch
+                    additionalProperties: false
+                steps:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      interval:
+                        anyOf:
+                        - type: number
+                          exclusiveMinimum: 0
+                        - type: 'null'
+                      actions:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            targetType:
+                              type: string
+                              const: feature-rule
+                            targetId:
+                              type: string
+                            patch:
+                              type: object
+                              properties:
+                                ruleId:
+                                  type: string
+                                coverage:
+                                  description: 'Traffic fraction (0–1). For monitored steps the rollout rule is promoted to an experiment: treatment = [0, coverage), control = [0.5, 0.5+coverage). Both arms are equal-sized and non-adjacent, so a step-up only adds new users to each arm — no existing user changes group. The REST API enforces coverage ≤ 0.5 on monitored steps so control end never exceeds 1.0. The SDK uses explicit hash ranges on bucketingV2 clients to keep bucketing stable across monitored/unmonitored transitions.'
+                                  anyOf:
+                                  - type: number
+                                    minimum: 0
+                                    maximum: 1
+                                  - type: 'null'
+                                condition:
+                                  anyOf:
+                                  - type: string
+                                  - type: 'null'
+                                savedGroups:
+                                  anyOf:
+                                  - type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        match:
+                                          type: string
+                                          enum:
+                                          - all
+                                          - none
+                                          - any
+                                        ids:
+                                          type: array
+                                          items:
+                                            type: string
+                                      required:
+                                      - match
+                                      - ids
+                                      additionalProperties: false
+                                  - type: 'null'
+                                prerequisites:
+                                  anyOf:
+                                  - type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        id:
+                                          type: string
+                                        condition:
+                                          type: string
+                                      required:
+                                      - id
+                                      - condition
+                                      additionalProperties: false
+                                  - type: 'null'
+                                allEnvironments:
+                                  anyOf:
+                                  - type: boolean
+                                  - type: 'null'
+                                environments:
+                                  anyOf:
+                                  - type: array
+                                    items:
+                                      type: string
+                                  - type: 'null'
+                                force:
+                                  description: 'Value to serve, in the string form rule values use ("false", "10", ''{"limit": 5}''). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature''s value type.'
+                                enabled:
+                                  anyOf:
+                                  - type: boolean
+                                  - type: 'null'
+                              additionalProperties: false
+                          required:
+                          - patch
+                          additionalProperties: false
+                      approvalNotes:
+                        anyOf:
+                        - type: string
+                        - type: 'null'
+                      monitored:
+                        type: boolean
+                      holdConditions:
+                        type: object
+                        properties:
+                          minSampleSize:
+                            type: integer
+                            exclusiveMinimum: 0
+                          requiresApproval:
+                            type: boolean
+                        additionalProperties: false
+                    required:
+                    - interval
+                    additionalProperties: false
+                endActions:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      targetType:
+                        type: string
+                        const: feature-rule
+                      targetId:
+                        type: string
+                      patch:
+                        type: object
+                        properties:
+                          ruleId:
+                            type: string
+                          coverage:
+                            description: 'Traffic fraction (0–1). For monitored steps the rollout rule is promoted to an experiment: treatment = [0, coverage), control = [0.5, 0.5+coverage). Both arms are equal-sized and non-adjacent, so a step-up only adds new users to each arm — no existing user changes group. The REST API enforces coverage ≤ 0.5 on monitored steps so control end never exceeds 1.0. The SDK uses explicit hash ranges on bucketingV2 clients to keep bucketing stable across monitored/unmonitored transitions.'
+                            anyOf:
+                            - type: number
+                              minimum: 0
+                              maximum: 1
+                            - type: 'null'
+                          condition:
+                            anyOf:
+                            - type: string
+                            - type: 'null'
+                          savedGroups:
+                            anyOf:
+                            - type: array
+                              items:
+                                type: object
+                                properties:
+                                  match:
+                                    type: string
+                                    enum:
+                                    - all
+                                    - none
+                                    - any
+                                  ids:
+                                    type: array
+                                    items:
+                                      type: string
+                                required:
+                                - match
+                                - ids
+                                additionalProperties: false
+                            - type: 'null'
+                          prerequisites:
+                            anyOf:
+                            - type: array
+                              items:
+                                type: object
+                                properties:
+                                  id:
+                                    type: string
+                                  condition:
+                                    type: string
+                                required:
+                                - id
+                                - condition
+                                additionalProperties: false
+                            - type: 'null'
+                          allEnvironments:
+                            anyOf:
+                            - type: boolean
+                            - type: 'null'
+                          environments:
+                            anyOf:
+                            - type: array
+                              items:
+                                type: string
+                            - type: 'null'
+                          force:
+                            description: 'Value to serve, in the string form rule values use ("false", "10", ''{"limit": 5}''). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature''s value type.'
+                          enabled:
+                            anyOf:
+                            - type: boolean
+                            - type: 'null'
+                        additionalProperties: false
+                    required:
+                    - patch
+                    additionalProperties: false
+                startDate:
+                  description: ISO 8601 date-time, e.g. "2025-06-01T00:00:00Z". Absent or null means start immediately on publish.
+                  anyOf:
+                  - type: string
+                    format: date-time
+                  - type: 'null'
+                cutoffDate:
+                  description: ISO 8601 date-time, e.g. "2025-07-01T00:00:00Z". The ramp ends at this time.
+                  anyOf:
+                  - type: string
+                    format: date-time
+                  - type: 'null'
+                ruleId:
+                  type: string
+                monitoringConfig:
+                  type: object
+                  properties:
+                    datasourceId:
+                      type: string
+                    guardrailMetricIds:
+                      minItems: 1
+                      type: array
+                      items:
+                        type: string
+                    signalMetricIds:
+                      type: array
+                      items:
+                        type: string
+                    updateScheduleMinutes:
+                      anyOf:
+                      - type: number
+                        minimum: 10
+                      - type: 'null'
+                    monitoringMode:
+                      type: string
+                      enum:
+                      - auto
+                      - manual
+                    autoUpdate:
+                      type: boolean
+                    srmAction:
+                      type: string
+                      enum:
+                      - rollback
+                      - hold
+                      - warn
+                    noTrafficAction:
+                      type: string
+                      enum:
+                      - rollback
+                      - hold
+                      - warn
+                    noTrafficGracePeriodHours:
+                      description: How long to wait for traffic before applying `noTrafficAction`. Defaults to 24 hours when null or not set.
+                      anyOf:
+                      - type: number
+                        exclusiveMinimum: 0
+                      - type: 'null'
+                    multipleExposureAction:
+                      type: string
+                      enum:
+                      - rollback
+                      - hold
+                      - warn
+                    exposureQuery:
+                      description: The assignment query, grouping its ID with the identifier type analyzed on.
+                      type: object
+                      properties:
+                        id:
+                          description: The ID of one of the data source's assignment queries.
+                          type: string
+                        identifierType:
+                          description: 'The identifier type analyzed on. Null when none can be resolved: no assignment query is selected, or a record saved before identifier types were stored points at a query that no longer exists.'
+                          anyOf:
+                          - type: string
+                          - type: 'null'
+                      required:
+                      - id
+                      - identifierType
+                      additionalProperties: false
+                    exposureQueryId:
+                      description: 'Deprecated: use `exposureQuery`.'
+                      deprecated: true
+                      type: string
+                  required:
+                  - datasourceId
+                  - guardrailMetricIds
+                  - exposureQuery
+                  - exposureQueryId
+                  additionalProperties: false
+                lockdownConfig:
+                  type: object
+                  properties:
+                    mode:
+                      type: string
+                      enum:
+                      - none
+                      - locked
+                  required:
+                  - mode
+                  additionalProperties: false
+                requiresStartApproval:
+                  anyOf:
+                  - type: boolean
+                  - type: 'null'
+              required:
+              - mode
+              - ruleId
+              additionalProperties: false
+            - type: object
+              properties:
+                name:
+                  type: string
+                environment:
+                  anyOf:
+                  - type: string
+                  - type: 'null'
+                templateId:
+                  type: string
+                startActions:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      targetType:
+                        type: string
+                        const: feature-rule
+                      targetId:
+                        type: string
+                      patch:
+                        type: object
+                        properties:
+                          ruleId:
+                            type: string
+                          coverage:
+                            description: 'Traffic fraction (0–1). For monitored steps the rollout rule is promoted to an experiment: treatment = [0, coverage), control = [0.5, 0.5+coverage). Both arms are equal-sized and non-adjacent, so a step-up only adds new users to each arm — no existing user changes group. The REST API enforces coverage ≤ 0.5 on monitored steps so control end never exceeds 1.0. The SDK uses explicit hash ranges on bucketingV2 clients to keep bucketing stable across monitored/unmonitored transitions.'
+                            anyOf:
+                            - type: number
+                              minimum: 0
+                              maximum: 1
+                            - type: 'null'
+                          condition:
+                            anyOf:
+                            - type: string
+                            - type: 'null'
+                          savedGroups:
+                            anyOf:
+                            - type: array
+                              items:
+                                type: object
+                                properties:
+                                  match:
+                                    type: string
+                                    enum:
+                                    - all
+                                    - none
+                                    - any
+                                  ids:
+                                    type: array
+                                    items:
+                                      type: string
+                                required:
+                                - match
+                                - ids
+                                additionalProperties: false
+                            - type: 'null'
+                          prerequisites:
+                            anyOf:
+                            - type: array
+                              items:
+                                type: object
+                                properties:
+                                  id:
+                                    type: string
+                                  condition:
+                                    type: string
+                                required:
+                                - id
+                                - condition
+                                additionalProperties: false
+                            - type: 'null'
+                          allEnvironments:
+                            anyOf:
+                            - type: boolean
+                            - type: 'null'
+                          environments:
+                            anyOf:
+                            - type: array
+                              items:
+                                type: string
+                            - type: 'null'
+                          force:
+                            description: 'Value to serve, in the string form rule values use ("false", "10", ''{"limit": 5}''). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature''s value type.'
+                          enabled:
+                            anyOf:
+                            - type: boolean
+                            - type: 'null'
+                          hashAttribute:
+                            description: Attribute the rule buckets on. Required (here or on the rule) when a step sets partial coverage on a force rule, which becomes a rollout.
+                            anyOf:
+                            - type: string
+                            - type: 'null'
+                          seed:
+                            description: Hash seed for a promoted force rule. Defaults to the rule id.
+                            anyOf:
+                            - type: string
+                            - type: 'null'
+                          hashVersion:
+                            description: Hash algorithm version for a promoted force rule. Defaults to 2.
+                            anyOf:
+                            - anyOf:
+                              - type: number
+                                const: 1
+                              - type: number
+                                const: 2
+                            - type: 'null'
+                        additionalProperties: false
+                    required:
+                    - patch
+                    additionalProperties: false
+                steps:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      interval:
+                        anyOf:
+                        - type: number
+                          exclusiveMinimum: 0
+                        - type: 'null'
+                      actions:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            targetType:
+                              type: string
+                              const: feature-rule
+                            targetId:
+                              type: string
+                            patch:
+                              type: object
+                              properties:
+                                ruleId:
+                                  type: string
+                                coverage:
+                                  description: 'Traffic fraction (0–1). For monitored steps the rollout rule is promoted to an experiment: treatment = [0, coverage), control = [0.5, 0.5+coverage). Both arms are equal-sized and non-adjacent, so a step-up only adds new users to each arm — no existing user changes group. The REST API enforces coverage ≤ 0.5 on monitored steps so control end never exceeds 1.0. The SDK uses explicit hash ranges on bucketingV2 clients to keep bucketing stable across monitored/unmonitored transitions.'
+                                  anyOf:
+                                  - type: number
+                                    minimum: 0
+                                    maximum: 1
+                                  - type: 'null'
+                                condition:
+                                  anyOf:
+                                  - type: string
+                                  - type: 'null'
+                                savedGroups:
+                                  anyOf:
+                                  - type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        match:
+                                          type: string
+                                          enum:
+                                          - all
+                                          - none
+                                          - any
+                                        ids:
+                                          type: array
+                                          items:
+                                            type: string
+                                      required:
+                                      - match
+                                      - ids
+                                      additionalProperties: false
+                                  - type: 'null'
+                                prerequisites:
+                                  anyOf:
+                                  - type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        id:
+                                          type: string
+                                        condition:
+                                          type: string
+                                      required:
+                                      - id
+                                      - condition
+                                      additionalProperties: false
+                                  - type: 'null'
+                                allEnvironments:
+                                  anyOf:
+                                  - type: boolean
+                                  - type: 'null'
+                                environments:
+                                  anyOf:
+                                  - type: array
+                                    items:
+                                      type: string
+                                  - type: 'null'
+                                force:
+                                  description: 'Value to serve, in the string form rule values use ("false", "10", ''{"limit": 5}''). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature''s value type.'
+                                enabled:
+                                  anyOf:
+                                  - type: boolean
+                                  - type: 'null'
+                              additionalProperties: false
+                          required:
+                          - patch
+                          additionalProperties: false
+                      approvalNotes:
+                        anyOf:
+                        - type: string
+                        - type: 'null'
+                      monitored:
+                        type: boolean
+                      holdConditions:
+                        type: object
+                        properties:
+                          minSampleSize:
+                            type: integer
+                            exclusiveMinimum: 0
+                          requiresApproval:
+                            type: boolean
+                        additionalProperties: false
+                    required:
+                    - interval
+                    additionalProperties: false
+                endActions:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      targetType:
+                        type: string
+                        const: feature-rule
+                      targetId:
+                        type: string
+                      patch:
+                        type: object
+                        properties:
+                          ruleId:
+                            type: string
+                          coverage:
+                            description: 'Traffic fraction (0–1). For monitored steps the rollout rule is promoted to an experiment: treatment = [0, coverage), control = [0.5, 0.5+coverage). Both arms are equal-sized and non-adjacent, so a step-up only adds new users to each arm — no existing user changes group. The REST API enforces coverage ≤ 0.5 on monitored steps so control end never exceeds 1.0. The SDK uses explicit hash ranges on bucketingV2 clients to keep bucketing stable across monitored/unmonitored transitions.'
+                            anyOf:
+                            - type: number
+                              minimum: 0
+                              maximum: 1
+                            - type: 'null'
+                          condition:
+                            anyOf:
+                            - type: string
+                            - type: 'null'
+                          savedGroups:
+                            anyOf:
+                            - type: array
+                              items:
+                                type: object
+                                properties:
+                                  match:
+                                    type: string
+                                    enum:
+                                    - all
+                                    - none
+                                    - any
+                                  ids:
+                                    type: array
+                                    items:
+                                      type: string
+                                required:
+                                - match
+                                - ids
+                                additionalProperties: false
+                            - type: 'null'
+                          prerequisites:
+                            anyOf:
+                            - type: array
+                              items:
+                                type: object
+                                properties:
+                                  id:
+                                    type: string
+                                  condition:
+                                    type: string
+                                required:
+                                - id
+                                - condition
+                                additionalProperties: false
+                            - type: 'null'
+                          allEnvironments:
+                            anyOf:
+                            - type: boolean
+                            - type: 'null'
+                          environments:
+                            anyOf:
+                            - type: array
+                              items:
+                                type: string
+                            - type: 'null'
+                          force:
+                            description: 'Value to serve, in the string form rule values use ("false", "10", ''{"limit": 5}''). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature''s value type.'
+                          enabled:
+                            anyOf:
+                            - type: boolean
+                            - type: 'null'
+                        additionalProperties: false
+                    required:
+                    - patch
+                    additionalProperties: false
+                startDate:
+                  description: ISO 8601 date-time, e.g. "2025-06-01T00:00:00Z". Absent or null means start immediately on publish.
+                  anyOf:
+                  - type: string
+                    format: date-time
+                  - type: 'null'
+                cutoffDate:
+                  description: ISO 8601 date-time, e.g. "2025-07-01T00:00:00Z". The ramp ends at this time.
+                  anyOf:
+                  - type: string
+                    format: date-time
+                  - type: 'null'
+                ruleId:
+                  type: string
+                monitoringConfig:
+                  type: object
+                  properties:
+                    datasourceId:
+                      type: string
+                    guardrailMetricIds:
+                      minItems: 1
+                      type: array
+                      items:
+                        type: string
+                    signalMetricIds:
+                      type: array
+                      items:
+                        type: string
+                    updateScheduleMinutes:
+                      anyOf:
+                      - type: number
+                        minimum: 10
+                      - type: 'null'
+                    monitoringMode:
+                      type: string
+                      enum:
+                      - auto
+                      - manual
+                    autoUpdate:
+                      type: boolean
+                    srmAction:
+                      type: string
+                      enum:
+                      - rollback
+                      - hold
+                      - warn
+                    noTrafficAction:
+                      type: string
+                      enum:
+                      - rollback
+                      - hold
+                      - warn
+                    noTrafficGracePeriodHours:
+                      description: How long to wait for traffic before applying `noTrafficAction`. Defaults to 24 hours when null or not set.
+                      anyOf:
+                      - type: number
+                        exclusiveMinimum: 0
+                      - type: 'null'
+                    multipleExposureAction:
+                      type: string
+                      enum:
+                      - rollback
+                      - hold
+                      - warn
+                    exposureQuery:
+                      description: The assignment query, grouping its ID with the identifier type analyzed on.
+                      type: object
+                      properties:
+                        id:
+                          description: The ID of one of the data source's assignment queries.
+                          type: string
+                        identifierType:
+                          description: 'The identifier type analyzed on. Null when none can be resolved: no assignment query is selected, or a record saved before identifier types were stored points at a query that no longer exists.'
+                          anyOf:
+                          - type: string
+                          - type: 'null'
+                      required:
+                      - id
+                      - identifierType
+                      additionalProperties: false
+                    exposureQueryId:
+                      description: 'Deprecated: use `exposureQuery`.'
+                      deprecated: true
+                      type: string
+                  required:
+                  - datasourceId
+                  - guardrailMetricIds
+                  - exposureQuery
+                  - exposureQueryId
+                  additionalProperties: false
+                lockdownConfig:
+                  type: object
+                  properties:
+                    mode:
+                      type: string
+                      enum:
+                      - none
+                      - locked
+                  required:
+                  - mode
+                  additionalProperties: false
+                requiresStartApproval:
+                  anyOf:
+                  - type: boolean
+                  - type: 'null'
+                mode:
+                  type: string
+                  const: update
+                rampScheduleId:
+                  type: string
+              required:
+              - ruleId
+              - mode
+              - rampScheduleId
+              additionalProperties: false
+            - type: object
+              properties:
+                mode:
+                  type: string
+                  const: detach
+                rampScheduleId:
+                  type: string
+                ruleId:
+                  type: string
+                deleteScheduleWhenEmpty:
+                  type: boolean
+              required:
+              - mode
+              - rampScheduleId
+              - ruleId
+              additionalProperties: false
+        autoPublishOnApproval:
+          description: When true, the revision is armed to publish automatically once governance allows (immediately on approval, or on `scheduledPublishAt` if set).
+          type: boolean
+        scheduledPublishAt:
+          description: Target date for a deferred (scheduled) publish. Null/absent means publish as soon as approved.
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+        scheduledPublishLockEdits:
+          description: When true, content edits to this draft are frozen while the schedule is pending (rebasing is still allowed).
+          type: boolean
+        scheduledPublishLockOthers:
+          description: When true, publishing other drafts of this feature is blocked while the schedule is pending.
+          type: boolean
+        scheduledPublishBypassApproval:
+          description: Whether the schedule was created for an unapproved draft by a caller with Bypass draft approvals access. This kind of schedule cannot be edited; cancel it and create a new schedule instead. Anyone with Publish access can cancel it.
+          type: boolean
+        scheduledPublishLastError:
+          description: Set when a due scheduled publish keeps failing (e.g. still awaiting approval, merge conflict). Indicates the schedule is stuck and retrying.
+          type: string
+        autoPublishEnabledBy:
+          description: User or API key the deferred publish runs as, re-checked when it fires. A key that assumed a member's role is recorded as `<keyId>:<memberId>`.
+          type: string
+        autoPublishEnabledByUser:
+          description: Who armed the deferred publish, with an API key's name
+          $ref: '#/components/schemas/EventUser'
+        scheduledPublishAttempts:
+          description: How many times the poller has tried to publish this revision. Read with `scheduledPublishGaveUpAt` to tell a schedule that is still retrying from one that has been parked.
+          type: integer
+        scheduledPublishGaveUpAt:
+          format: date-time
+          description: When the poller stopped retrying. Giving up CLEARS the schedule and disarms auto-publish, so nothing fires again until the revision is re-armed. The draft is left open, with `scheduledPublishLastError` preserved for context.
+          type: string
+        reviews:
+          description: Reviewer verdicts for the current review cycle (one entry per reviewer). Verdicts flip to their -stale variants when draft content changes after submission; the list is cleared when a new review cycle starts. Absent on revisions that predate this field.
+          type: array
+          items:
+            type: object
+            properties:
+              userId:
+                description: 'Who reviewed: a member''s user ID, or an API key''s ID when it reviewed as itself'
+                type: string
+              user:
+                $ref: '#/components/schemas/EventUser'
+              status:
+                type: string
+                enum:
+                - approved
+                - changes-requested
+                - approved-stale
+                - changes-requested-stale
+              timestamp:
+                format: date-time
+                type: string
+            required:
+            - userId
+            - status
+            - timestamp
+            additionalProperties: false
       required:
+      - id
       - featureId
       - baseVersion
       - version
@@ -1533,7 +3082,111 @@ components:
       - status
       - rules
       additionalProperties: false
-    FeatureSafeRolloutRule:
+    FeatureV2:
+      type: object
+      properties:
+        id:
+          type: string
+        dateCreated:
+          format: date-time
+          type: string
+        dateUpdated:
+          format: date-time
+          type: string
+        archived:
+          type: boolean
+        description:
+          type: string
+          maxLength: 10000
+        owner:
+          description: The userId or email address of the owner. If an email address is provided, it will be used to look up the userId of the matching organization member. If an ID is provided, it will be validated as existing in the organization.
+          type: string
+        project:
+          type: string
+        targetingAllProjects:
+          type: boolean
+        targetingProjects:
+          type: array
+          items:
+            type: string
+        valueType:
+          type: string
+          enum:
+          - boolean
+          - string
+          - number
+          - json
+        defaultValue:
+          type: string
+        baseConfig:
+          description: 'Key of the config backing this flag ("Config mode"). Requires `valueType: "json"` and a live config. The config supplies the base JSON and schema; `defaultValue` and rule values are override patches on top. null or omitted for a plain flag.'
+          anyOf:
+          - type: string
+          - type: 'null'
+        defaultValueConfig:
+          description: Optional. A config within `baseConfig`'s family that the default value resolves to instead of `baseConfig` itself. null or omitted means the default is `baseConfig`. The default is exactly this config and carries no overrides of its own.
+          anyOf:
+          - type: string
+          - type: 'null'
+        tags:
+          type: array
+          items:
+            type: string
+        rules:
+          description: Unified rules array. Each rule carries its own environment scope via `allEnvironments` / `environments`.
+          type: array
+          items:
+            $ref: '#/components/schemas/FeatureRuleV2'
+        environments:
+          description: Per-environment enabled state and SDK payload. Rules are on the top-level `rules` field.
+          type: object
+          propertyNames:
+            type: string
+          additionalProperties:
+            $ref: '#/components/schemas/FeatureEnvironmentV2'
+        prerequisites:
+          description: Feature IDs. Each feature must evaluate to `true`
+          type: array
+          items:
+            type: string
+        revision:
+          $ref: '#/components/schemas/FeatureRevisionSummary'
+        customFields:
+          type: object
+          propertyNames:
+            type: string
+          additionalProperties: {}
+        holdout:
+          anyOf:
+          - type: object
+            properties:
+              id:
+                description: Holdout ID
+                type: string
+              value:
+                description: The feature value assigned to users in the holdout treatment group
+                type: string
+            required:
+            - id
+            - value
+            additionalProperties: false
+          - type: 'null'
+      required:
+      - id
+      - dateCreated
+      - dateUpdated
+      - archived
+      - description
+      - owner
+      - project
+      - valueType
+      - defaultValue
+      - tags
+      - rules
+      - environments
+      - revision
+      additionalProperties: false
+    FeatureRolloutRule:
       allOf:
       - description: 'Common fields shared by all feature rule types. Specific rule types extend
 
@@ -1544,6 +3197,7 @@ components:
         properties:
           description:
             type: string
+            maxLength: 10000
           condition:
             type: string
           id:
@@ -1570,6 +3224,9 @@ components:
             - none
             - schedule
             - ramp
+          rampScheduleId:
+            description: ID of the active RampSchedule document controlling this rule. Present when `scheduleType` is `ramp` and a live schedule exists.
+            type: string
           savedGroupTargeting:
             type: array
             items:
@@ -1603,6 +3260,14 @@ components:
               - id
               - condition
               additionalProperties: false
+          allProjects:
+            description: When true (the default) the rule applies to every project the feature is delivered to. When false the rule is limited to `projects`.
+            type: boolean
+          projects:
+            description: Project IDs this rule is scoped to when `allProjects` is false. An empty array scopes the rule to no project.
+            type: array
+            items:
+              type: string
         required:
         - description
         - id
@@ -1612,31 +3277,668 @@ components:
         properties:
           type:
             type: string
-            const: safe-rollout
-          controlValue:
+            const: rollout
+          value:
             type: string
-          variationValue:
-            type: string
-          seed:
-            type: string
+          sparse:
+            description: JSON features only. When true, `value` is a partial object merged onto the feature's default value instead of replacing it.
+            type: boolean
+          coverage:
+            type: number
+            minimum: 0
+            maximum: 1
           hashAttribute:
             type: string
-          trackingKey:
+          seed:
+            description: Optional seed for the hash function; defaults to the rule id
             type: string
-          safeRolloutId:
-            type: string
-          status:
-            type: string
-            enum:
-            - running
-            - released
-            - rolled-back
-            - stopped
+          hashVersion:
+            description: Hash algorithm version for bucketing. Defaults to 2 (preferred) when not specified.
+            anyOf:
+            - type: number
+              const: 1
+            - type: number
+              const: 2
         required:
         - type
-        - controlValue
-        - variationValue
+        - value
+        - coverage
+        - hashAttribute
         additionalProperties: false
+    PaginationFields:
+      type: object
+      properties:
+        limit:
+          type: integer
+        offset:
+          type: integer
+        count:
+          type: integer
+        total:
+          type: integer
+        hasMore:
+          type: boolean
+        nextOffset:
+          anyOf:
+          - type: integer
+          - type: 'null'
+      required:
+      - limit
+      - offset
+      - count
+      - total
+      - hasMore
+      - nextOffset
+      additionalProperties: false
+    EventUser:
+      description: Who performed an action
+      type: object
+      properties:
+        type:
+          description: '`dashboard` (signed-in member), `api_key` (API key or personal access token) or `system`'
+          type: string
+          enum:
+          - dashboard
+          - api_key
+          - system
+        id:
+          description: The member's user ID. Absent for an organization API key
+          type: string
+        apiKey:
+          description: The API key's ID, when the action came through one
+          type: string
+        name:
+          description: The member's name, or the organization API key's name
+          type: string
+        email:
+          description: The member's email. Absent for an organization API key
+          type: string
+        requestedBy:
+          description: The member named with `X-GrowthBook-Requested-By`
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            email:
+              type: string
+          required:
+          - id
+          - name
+          - email
+          additionalProperties: false
+        assumedRole:
+          description: Whether the key assumed the named member's role
+          type: boolean
+      required:
+      - type
+      additionalProperties: false
+    ScheduleRule:
+      type: object
+      properties:
+        enabled:
+          description: Whether the rule should be enabled or disabled at the specified timestamp.
+          type: boolean
+        timestamp:
+          description: ISO timestamp when the rule should activate.
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+      required:
+      - enabled
+      - timestamp
+      additionalProperties: false
+    Confirmation:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+          enum:
+          - pending
+          - running
+          - completed
+          - rejected
+          - expired
+        actions:
+          type: array
+          items:
+            type: object
+            properties:
+              action:
+                type: string
+                enum:
+                - feature.create
+                - feature.draft
+                - feature.review
+                - feature.publish
+                - feature.archive
+                - feature.delete
+                - feature.other
+                - experiment.create
+                - experiment.draft
+                - experiment.start
+                - experiment.stop
+                - experiment.targeting
+                - experiment.traffic
+                - experiment.phases
+                - experiment.visualEditor
+                - experiment.other
+                - savedGroup.create
+                - savedGroup.draft
+                - savedGroup.review
+                - savedGroup.publish
+                - savedGroup.archive
+                - savedGroup.delete
+                - savedGroup.other
+                - constant.create
+                - constant.draft
+                - constant.review
+                - constant.publish
+                - constant.archive
+                - constant.delete
+                - constant.other
+                - config.create
+                - config.draft
+                - config.review
+                - config.publish
+                - config.archive
+                - config.delete
+                - config.other
+                - rampSchedule.create
+                - rampSchedule.start
+                - rampSchedule.pause
+                - rampSchedule.progression
+                - rampSchedule.approve
+                - rampSchedule.edit
+                - rampSchedule.delete
+                - rampSchedule.other
+                - settings.approvals
+                - settings.other
+                - access.members
+                - access.teams
+                - customHook.create
+                - customHook.edit
+                - customHook.delete
+                - environment.create
+                - environment.edit
+                - environment.delete
+                - project.create
+                - project.edit
+                - project.delete
+                - attribute.create
+                - attribute.edit
+                - attribute.delete
+                - customField.create
+                - customField.edit
+                - customField.delete
+                - sdkConnection.create
+                - sdkConnection.edit
+                - sdkConnection.delete
+                - metric.create
+                - metric.edit
+                - metric.delete
+                - factTable.create
+                - factTable.edit
+                - factTable.delete
+                - segment.create
+                - segment.edit
+                - segment.delete
+                - dimension.create
+                - dimension.edit
+                - dimension.delete
+                - override.ignoreWarnings
+                - override.skipSchemaValidation
+                - override.skipHooks
+                - override.bypassApproval
+                - override.restBypassesReviews
+                - override.draftLimit
+                - override.skipChecklist
+                - override.bypassDuplicateKeyCheck
+                - other.write
+              environments:
+                type: array
+                items:
+                  type: string
+            required:
+            - action
+            - environments
+            additionalProperties: false
+        summary:
+          type: string
+        url:
+          type: string
+        expiresAt:
+          type: string
+        response:
+          anyOf:
+          - type: object
+            properties:
+              status:
+                type: number
+              body: {}
+            required:
+            - status
+            - body
+            additionalProperties: false
+          - type: 'null'
+        note:
+          anyOf:
+          - type: string
+          - type: 'null'
+      required:
+      - id
+      - status
+      - actions
+      - summary
+      - url
+      - expiresAt
+      - response
+      - note
+      additionalProperties: false
+    FeatureRuleV2:
+      allOf:
+      - anyOf:
+        - allOf:
+          - $ref: '#/components/schemas/FeatureForceRule'
+          - type: object
+            properties:
+              config:
+                description: Key of the config backing this value, or null when the value is not config-backed. The config supplies the base JSON (and its schema); the value is an override patch merged on top.
+                anyOf:
+                - type: string
+                - type: 'null'
+            additionalProperties: false
+        - allOf:
+          - $ref: '#/components/schemas/FeatureRolloutRule'
+          - type: object
+            properties:
+              config:
+                description: Key of the config backing this value, or null when the value is not config-backed. The config supplies the base JSON (and its schema); the value is an override patch merged on top.
+                anyOf:
+                - type: string
+                - type: 'null'
+            additionalProperties: false
+        - title: Feature Experiment Rule
+          $ref: '#/components/schemas/FeatureExperimentRule'
+        - allOf:
+          - $ref: '#/components/schemas/FeatureBaseRule'
+          - type: object
+            properties:
+              type:
+                type: string
+                const: experiment-ref
+              variations:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    value:
+                      type: string
+                    variationId:
+                      type: string
+                    config:
+                      description: Key of the config backing this value, or null when the value is not config-backed. The config supplies the base JSON (and its schema); the value is an override patch merged on top.
+                      anyOf:
+                      - type: string
+                      - type: 'null'
+                  required:
+                  - value
+                  - variationId
+                  additionalProperties: false
+              experimentId:
+                type: string
+              sparse:
+                description: JSON features only. When true, each variation `value` is a partial object merged onto the feature's default value instead of replacing it.
+                type: boolean
+            required:
+            - type
+            - variations
+            - experimentId
+            additionalProperties: false
+        - allOf:
+          - $ref: '#/components/schemas/FeatureBaseRule'
+          - type: object
+            properties:
+              type:
+                type: string
+                const: contextual-bandit-ref
+              variations:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    value:
+                      type: string
+                    variationId:
+                      type: string
+                    config:
+                      description: Key of the config backing this value, or null when the value is not config-backed. The config supplies the base JSON (and its schema); the value is an override patch merged on top.
+                      anyOf:
+                      - type: string
+                      - type: 'null'
+                  required:
+                  - value
+                  - variationId
+                  additionalProperties: false
+              contextualBanditId:
+                type: string
+            required:
+            - type
+            - variations
+            - contextualBanditId
+            additionalProperties: false
+        - title: Feature Safe Rollout Rule
+          $ref: '#/components/schemas/FeatureSafeRolloutRule'
+      - type: object
+        properties:
+          allEnvironments:
+            description: When true the rule applies to all environments. When false only the environments listed in `environments` receive the rule.
+            type: boolean
+          environments:
+            description: The environment IDs this rule is active in. Populated when `allEnvironments` is false.
+            type: array
+            items:
+              type: string
+          pendingRamp:
+            description: Present on draft revisions only. "create" means a ramp schedule will be created for this rule on publish. "detach" means an existing live ramp schedule will be removed on publish. Use PUT/DELETE .../rules/{ruleId}/ramp-schedule to modify.
+            type: string
+            enum:
+            - create
+            - detach
+        required:
+        - allEnvironments
+        additionalProperties: false
+    FeatureForceRule:
+      allOf:
+      - description: 'Common fields shared by all feature rule types. Specific rule types extend
+
+          this base with their own required properties (value, coverage, etc.).
+
+          '
+        type: object
+        properties:
+          description:
+            type: string
+            maxLength: 10000
+          condition:
+            type: string
+          id:
+            type: string
+          enabled:
+            type: boolean
+          scheduleRules:
+            description: Simple time-based on/off schedule for this rule
+            type: array
+            items:
+              $ref: '#/components/schemas/ScheduleRule'
+          scheduleType:
+            description: 'UI hint for which scheduling mode is active:
+
+              - `none` – no schedule
+
+              - `schedule` – simple time-based enable/disable via `scheduleRules`
+
+              - `ramp` – multi-step ramp-up controlled by an associated RampSchedule document
+
+              '
+            type: string
+            enum:
+            - none
+            - schedule
+            - ramp
+          rampScheduleId:
+            description: ID of the active RampSchedule document controlling this rule. Present when `scheduleType` is `ramp` and a live schedule exists.
+            type: string
+          savedGroupTargeting:
+            type: array
+            items:
+              type: object
+              properties:
+                matchType:
+                  type: string
+                  enum:
+                  - all
+                  - any
+                  - none
+                savedGroups:
+                  type: array
+                  items:
+                    type: string
+              required:
+              - matchType
+              - savedGroups
+              additionalProperties: false
+          prerequisites:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  description: Feature ID of the prerequisite
+                  type: string
+                condition:
+                  type: string
+              required:
+              - id
+              - condition
+              additionalProperties: false
+          allProjects:
+            description: When true (the default) the rule applies to every project the feature is delivered to. When false the rule is limited to `projects`.
+            type: boolean
+          projects:
+            description: Project IDs this rule is scoped to when `allProjects` is false. An empty array scopes the rule to no project.
+            type: array
+            items:
+              type: string
+        required:
+        - description
+        - id
+        - enabled
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            const: force
+          value:
+            type: string
+          sparse:
+            description: JSON features only. When true, `value` is a partial object merged onto the feature's default value instead of replacing it.
+            type: boolean
+        required:
+        - type
+        - value
+        additionalProperties: false
+    ConfirmationHeld:
+      type: object
+      properties:
+        confirmation:
+          $ref: '#/components/schemas/Confirmation'
+        message:
+          type: string
+      required:
+      - confirmation
+      - message
+      additionalProperties: false
+      $defs:
+        Confirmation:
+          id: Confirmation
+          type: object
+          properties:
+            id:
+              type: string
+            status:
+              type: string
+              enum:
+              - pending
+              - running
+              - completed
+              - rejected
+              - expired
+            actions:
+              type: array
+              items:
+                type: object
+                properties:
+                  action:
+                    type: string
+                    enum:
+                    - feature.create
+                    - feature.draft
+                    - feature.review
+                    - feature.publish
+                    - feature.archive
+                    - feature.delete
+                    - feature.other
+                    - experiment.create
+                    - experiment.draft
+                    - experiment.start
+                    - experiment.stop
+                    - experiment.targeting
+                    - experiment.traffic
+                    - experiment.phases
+                    - experiment.visualEditor
+                    - experiment.other
+                    - savedGroup.create
+                    - savedGroup.draft
+                    - savedGroup.review
+                    - savedGroup.publish
+                    - savedGroup.archive
+                    - savedGroup.delete
+                    - savedGroup.other
+                    - constant.create
+                    - constant.draft
+                    - constant.review
+                    - constant.publish
+                    - constant.archive
+                    - constant.delete
+                    - constant.other
+                    - config.create
+                    - config.draft
+                    - config.review
+                    - config.publish
+                    - config.archive
+                    - config.delete
+                    - config.other
+                    - rampSchedule.create
+                    - rampSchedule.start
+                    - rampSchedule.pause
+                    - rampSchedule.progression
+                    - rampSchedule.approve
+                    - rampSchedule.edit
+                    - rampSchedule.delete
+                    - rampSchedule.other
+                    - settings.approvals
+                    - settings.other
+                    - access.members
+                    - access.teams
+                    - customHook.create
+                    - customHook.edit
+                    - customHook.delete
+                    - environment.create
+                    - environment.edit
+                    - environment.delete
+                    - project.create
+                    - project.edit
+                    - project.delete
+                    - attribute.create
+                    - attribute.edit
+                    - attribute.delete
+                    - customField.create
+                    - customField.edit
+                    - customField.delete
+                    - sdkConnection.create
+                    - sdkConnection.edit
+                    - sdkConnection.delete
+                    - metric.create
+                    - metric.edit
+                    - metric.delete
+                    - factTable.create
+                    - factTable.edit
+                    - factTable.delete
+                    - segment.create
+                    - segment.edit
+                    - segment.delete
+                    - dimension.create
+                    - dimension.edit
+                    - dimension.delete
+                    - override.ignoreWarnings
+                    - override.skipSchemaValidation
+                    - override.skipHooks
+                    - override.bypassApproval
+                    - override.restBypassesReviews
+                    - override.draftLimit
+                    - override.skipChecklist
+                    - override.bypassDuplicateKeyCheck
+                    - other.write
+                  environments:
+                    type: array
+                    items:
+                      type: string
+                required:
+                - action
+                - environments
+                additionalProperties: false
+            summary:
+              type: string
+            url:
+              type: string
+            expiresAt:
+              type: string
+            response:
+              anyOf:
+              - type: object
+                properties:
+                  status:
+                    type: number
+                  body: {}
+                required:
+                - status
+                - body
+                additionalProperties: false
+              - type: 'null'
+            note:
+              anyOf:
+              - type: string
+              - type: 'null'
+          required:
+          - id
+          - status
+          - actions
+          - summary
+          - url
+          - expiresAt
+          - response
+          - note
+          additionalProperties: false
+    FeatureWithRevisionsV2:
+      allOf:
+      - $ref: '#/components/schemas/FeatureV2'
+      - type: object
+        properties:
+          revisions:
+            type: array
+            items:
+              $ref: '#/components/schemas/FeatureRevisionV2'
+        additionalProperties: false
+    FeatureEnvironmentV2:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        defaultValue:
+          type: string
+        definition:
+          description: A JSON stringified [FeatureDefinition](#tag/FeatureDefinition_model)
+          type: string
+      required:
+      - enabled
+      - defaultValue
+      additionalProperties: false
     FeatureExperimentRule:
       allOf:
       - description: 'Common fields shared by all feature rule types. Specific rule types extend
@@ -1648,6 +3950,7 @@ components:
         properties:
           description:
             type: string
+            maxLength: 10000
           condition:
             type: string
           id:
@@ -1674,6 +3977,9 @@ components:
             - none
             - schedule
             - ramp
+          rampScheduleId:
+            description: ID of the active RampSchedule document controlling this rule. Present when `scheduleType` is `ramp` and a live schedule exists.
+            type: string
           savedGroupTargeting:
             type: array
             items:
@@ -1707,6 +4013,14 @@ components:
               - id
               - condition
               additionalProperties: false
+          allProjects:
+            description: When true (the default) the rule applies to every project the feature is delivered to. When false the rule is limited to `projects`.
+            type: boolean
+          projects:
+            description: Project IDs this rule is scoped to when `allProjects` is false. An empty array scopes the rule to no project.
+            type: array
+            items:
+              type: string
         required:
         - description
         - id
@@ -1770,351 +4084,161 @@ components:
         required:
         - type
         additionalProperties: false
-    FeatureRuleV2:
-      allOf:
-      - $ref: '#/components/schemas/FeatureRule'
-      - type: object
-        properties:
-          allEnvironments:
-            description: When true the rule applies to all environments. When false only the environments listed in `environments` receive the rule.
-            type: boolean
-          environments:
-            description: The environment IDs this rule is active in. Populated when `allEnvironments` is false.
-            type: array
-            items:
-              type: string
-        required:
-        - allEnvironments
-        additionalProperties: false
-    FeatureRule:
-      anyOf:
-      - $ref: '#/components/schemas/FeatureForceRule'
-      - $ref: '#/components/schemas/FeatureRolloutRule'
-      - $ref: '#/components/schemas/FeatureExperimentRule'
-      - $ref: '#/components/schemas/FeatureExperimentRefRule'
-      - $ref: '#/components/schemas/FeatureSafeRolloutRule'
-    PaginationFields:
-      type: object
-      properties:
-        limit:
-          type: integer
-        offset:
-          type: integer
-        count:
-          type: integer
-        total:
-          type: integer
-        hasMore:
-          type: boolean
-        nextOffset:
-          anyOf:
-          - type: integer
-          - type: 'null'
-      required:
-      - limit
-      - offset
-      - count
-      - total
-      - hasMore
-      - nextOffset
-      additionalProperties: false
-    FeatureEnvironmentV2:
-      type: object
-      properties:
-        enabled:
-          type: boolean
-        defaultValue:
-          type: string
-        definition:
-          description: A JSON stringified [FeatureDefinition](#tag/FeatureDefinition_model)
-          type: string
-      required:
-      - enabled
-      - defaultValue
-      additionalProperties: false
-    FeatureExperimentRefRule:
-      allOf:
-      - description: 'Common fields shared by all feature rule types. Specific rule types extend
+  parameters:
+    offset:
+      name: offset
+      in: query
+      description: How many items to skip (use in conjunction with limit for pagination)
+      schema:
+        default: 0
+        description: How many items to skip (use in conjunction with limit for pagination)
+        type: integer
+        minimum: 0
+    id:
+      name: id
+      in: path
+      required: true
+      description: The id of the requested resource
+      schema:
+        description: The id of the requested resource
+        type: string
+    ignoreWarnings:
+      name: ignoreWarnings
+      in: query
+      description: Deprecated — pass `ignoreWarnings` in the request body instead.
+      schema:
+        description: Deprecated — pass `ignoreWarnings` in the request body instead.
+        deprecated: true
+        anyOf:
+        - type: string
+          const: 'true'
+        - type: string
+          const: 'false'
+        - type: string
+          const: '0'
+        - type: string
+          const: '1'
+        - type: boolean
+    ids:
+      name: ids
+      in: query
+      required: true
+      description: 'Comma-separated list of feature IDs (URL-encoded if needed). Example: `my_feature,another_feature`
 
-          this base with their own required properties (value, coverage, etc.).
+        '
+      schema:
+        description: 'Comma-separated list of feature IDs (URL-encoded if needed). Example: `my_feature,another_feature`
 
           '
-        type: object
-        properties:
-          description:
-            type: string
-          condition:
-            type: string
-          id:
-            type: string
-          enabled:
-            type: boolean
-          scheduleRules:
-            description: Simple time-based on/off schedule for this rule
-            type: array
-            items:
-              $ref: '#/components/schemas/ScheduleRule'
-          scheduleType:
-            description: 'UI hint for which scheduling mode is active:
+        type: string
+    projectId:
+      name: projectId
+      in: query
+      description: Filter by project id
+      schema:
+        description: Filter by project id
+        type: string
+    skipPagination:
+      name: skipPagination
+      in: query
+      description: 'If true, return all matching items and ignore limit/offset.
 
-              - `none` – no schedule
+        Self-hosted only. Has no effect unless API_ALLOW_SKIP_PAGINATION is set to true or 1.'
+      schema:
+        description: 'If true, return all matching items and ignore limit/offset.
 
-              - `schedule` – simple time-based enable/disable via `scheduleRules`
-
-              - `ramp` – multi-step ramp-up controlled by an associated RampSchedule document
-
-              '
+          Self-hosted only. Has no effect unless API_ALLOW_SKIP_PAGINATION is set to true or 1.'
+        default: false
+        anyOf:
+        - type: string
+          const: 'true'
+        - type: string
+          const: 'false'
+        - type: string
+          const: '0'
+        - type: string
+          const: '1'
+        - type: boolean
+      x-selfHostedOnly: true
+      x-requiresEnv: API_ALLOW_SKIP_PAGINATION
+    skipSchemaValidation:
+      name: skipSchemaValidation
+      in: query
+      description: Deprecated — pass `skipSchemaValidation` in the request body instead.
+      schema:
+        description: Deprecated — pass `skipSchemaValidation` in the request body instead.
+        deprecated: true
+        anyOf:
+        - type: string
+          const: 'true'
+        - type: string
+          const: 'false'
+        - type: string
+          const: '0'
+        - type: string
+          const: '1'
+        - type: boolean
+    limit:
+      name: limit
+      in: query
+      description: The number of items to return
+      schema:
+        default: 10
+        description: The number of items to return
+        type: integer
+        minimum: 1
+        maximum: 100
+    clientKey:
+      name: clientKey
+      in: query
+      description: Filter by a SDK connection's client key
+      schema:
+        description: Filter by a SDK connection's client key
+        type: string
+    withRevisions:
+      name: withRevisions
+      in: query
+      description: Also return feature revisions (all, draft, or published statuses)
+      schema:
+        description: Also return feature revisions (all, draft, or published statuses)
+        type: string
+        enum:
+        - all
+        - drafts
+        - published
+        - none
+    archived:
+      name: archived
+      in: query
+      description: Whether to include archived features. Defaults to `false` (non-archived only). Pass `true` to include archived features alongside non-archived ones.
+      schema:
+        description: Whether to include archived features. Defaults to `false` (non-archived only). Pass `true` to include archived features alongside non-archived ones.
+        anyOf:
+        - type: string
+          const: 'true'
+        - type: string
+          const: 'false'
+        - type: string
+          const: '0'
+        - type: string
+          const: '1'
+        - type: boolean
+  responses:
+    ConfirmationHeld:
+      description: Held until a person confirms it in GrowthBook. Poll the Location until the confirmation completes.
+      headers:
+        Location:
+          description: The confirmation to poll
+          schema:
             type: string
-            enum:
-            - none
-            - schedule
-            - ramp
-          savedGroupTargeting:
-            type: array
-            items:
-              type: object
-              properties:
-                matchType:
-                  type: string
-                  enum:
-                  - all
-                  - any
-                  - none
-                savedGroups:
-                  type: array
-                  items:
-                    type: string
-              required:
-              - matchType
-              - savedGroups
-              additionalProperties: false
-          prerequisites:
-            type: array
-            items:
-              type: object
-              properties:
-                id:
-                  description: Feature ID of the prerequisite
-                  type: string
-                condition:
-                  type: string
-              required:
-              - id
-              - condition
-              additionalProperties: false
-        required:
-        - description
-        - id
-        - enabled
-        additionalProperties: false
-      - type: object
-        properties:
-          type:
-            type: string
-            const: experiment-ref
-          variations:
-            type: array
-            items:
-              type: object
-              properties:
-                value:
-                  type: string
-                variationId:
-                  type: string
-              required:
-              - value
-              - variationId
-              additionalProperties: false
-          experimentId:
-            type: string
-        required:
-        - type
-        - variations
-        - experimentId
-        additionalProperties: false
-    FeatureRolloutRule:
-      allOf:
-      - description: 'Common fields shared by all feature rule types. Specific rule types extend
-
-          this base with their own required properties (value, coverage, etc.).
-
-          '
-        type: object
-        properties:
-          description:
-            type: string
-          condition:
-            type: string
-          id:
-            type: string
-          enabled:
-            type: boolean
-          scheduleRules:
-            description: Simple time-based on/off schedule for this rule
-            type: array
-            items:
-              $ref: '#/components/schemas/ScheduleRule'
-          scheduleType:
-            description: 'UI hint for which scheduling mode is active:
-
-              - `none` – no schedule
-
-              - `schedule` – simple time-based enable/disable via `scheduleRules`
-
-              - `ramp` – multi-step ramp-up controlled by an associated RampSchedule document
-
-              '
-            type: string
-            enum:
-            - none
-            - schedule
-            - ramp
-          savedGroupTargeting:
-            type: array
-            items:
-              type: object
-              properties:
-                matchType:
-                  type: string
-                  enum:
-                  - all
-                  - any
-                  - none
-                savedGroups:
-                  type: array
-                  items:
-                    type: string
-              required:
-              - matchType
-              - savedGroups
-              additionalProperties: false
-          prerequisites:
-            type: array
-            items:
-              type: object
-              properties:
-                id:
-                  description: Feature ID of the prerequisite
-                  type: string
-                condition:
-                  type: string
-              required:
-              - id
-              - condition
-              additionalProperties: false
-        required:
-        - description
-        - id
-        - enabled
-        additionalProperties: false
-      - type: object
-        properties:
-          type:
-            type: string
-            const: rollout
-          value:
-            type: string
-          coverage:
-            type: number
-            minimum: 0
-            maximum: 1
-          hashAttribute:
-            type: string
-          seed:
-            description: Optional seed for the hash function; defaults to the rule id
-            type: string
-        required:
-        - type
-        - value
-        - coverage
-        - hashAttribute
-        additionalProperties: false
-    FeatureForceRule:
-      allOf:
-      - description: 'Common fields shared by all feature rule types. Specific rule types extend
-
-          this base with their own required properties (value, coverage, etc.).
-
-          '
-        type: object
-        properties:
-          description:
-            type: string
-          condition:
-            type: string
-          id:
-            type: string
-          enabled:
-            type: boolean
-          scheduleRules:
-            description: Simple time-based on/off schedule for this rule
-            type: array
-            items:
-              $ref: '#/components/schemas/ScheduleRule'
-          scheduleType:
-            description: 'UI hint for which scheduling mode is active:
-
-              - `none` – no schedule
-
-              - `schedule` – simple time-based enable/disable via `scheduleRules`
-
-              - `ramp` – multi-step ramp-up controlled by an associated RampSchedule document
-
-              '
-            type: string
-            enum:
-            - none
-            - schedule
-            - ramp
-          savedGroupTargeting:
-            type: array
-            items:
-              type: object
-              properties:
-                matchType:
-                  type: string
-                  enum:
-                  - all
-                  - any
-                  - none
-                savedGroups:
-                  type: array
-                  items:
-                    type: string
-              required:
-              - matchType
-              - savedGroups
-              additionalProperties: false
-          prerequisites:
-            type: array
-            items:
-              type: object
-              properties:
-                id:
-                  description: Feature ID of the prerequisite
-                  type: string
-                condition:
-                  type: string
-              required:
-              - id
-              - condition
-              additionalProperties: false
-        required:
-        - description
-        - id
-        - enabled
-        additionalProperties: false
-      - type: object
-        properties:
-          type:
-            type: string
-            const: force
-          value:
-            type: string
-        required:
-        - type
-        - value
-        additionalProperties: false
+        Retry-After:
+          description: Seconds to wait before polling
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ConfirmationHeld'
   securitySchemes:
     bearerAuth:
       type: http
@@ -2161,9 +4285,17 @@ x-tagGroups:
   - snapshots
   - dimensions
   - segments
+  - reports
   - sdk-connections
   - visual-changesets
   - saved-groups
+  - saved-group-revisions
+  - constants
+  - constant-revisions
+  - configs
+  - config-revisions
+  - releases
+  - custom-hooks
   - organizations
   - members
   - code-references
@@ -2172,25 +4304,59 @@ x-tagGroups:
   - settings
   - attributes
   - usage
+  - meta
+  - ContextualBandits
   - Dashboards
+  - ContextualBanditQueries
   - CustomFields
   - MetricGroups
   - Teams
   - ExperimentTemplates
   - AnalyticsExplorations
   - RampScheduleTemplates
+  - Learnings
+  - Holdouts
+  - AutoRuns
+  - Populations
 - name: Models
   tags:
+  - AggregatedFactTable_model
   - AnalyticsExploration_model
   - Archetype_model
   - Attribute_model
+  - AutoRun_model
   - CodeRef_model
+  - Config_model
+  - ConfigKeyUsage_model
+  - ConfigLineage_model
+  - ConfigReferences_model
+  - ConfigRevision_model
+  - ConfigRevisionActivityLogEntry_model
+  - ConfigRevisionRef_model
+  - ConfigRevisionReview_model
+  - ConfigSchemaExport_model
+  - ConfigSchemaSource_model
+  - ConfigSchemaVerify_model
+  - ConfigSchemaWarning_model
+  - Confirmation_model
+  - ConfirmationHeld_model
+  - Constant_model
+  - ConstantReferences_model
+  - ConstantRevision_model
+  - ConstantRevisionActivityLogEntry_model
+  - ConstantRevisionRef_model
+  - ConstantRevisionReview_model
+  - ContextualBandit_model
+  - ContextualBanditQuery_model
   - CustomField_model
+  - CustomHook_model
   - Dashboard_model
   - DataSource_model
   - Dimension_model
   - Environment_model
+  - EventUser_model
   - Experiment_model
+  - Experiment Rule_model
   - ExperimentAnalysisSettings_model
   - ExperimentDecisionFrameworkSettings_model
   - ExperimentMetric_model
@@ -2203,25 +4369,30 @@ x-tagGroups:
   - FactTable_model
   - FactTableColumn_model
   - FactTableFilter_model
-  - Feature_model
   - FeatureBaseRule_model
+  - FeatureContextualBanditRefRule_model
   - FeatureDefinition_model
-  - FeatureEnvironment_model
+  - FeatureEnvironmentV1_model
   - FeatureEnvironmentV2_model
   - FeatureExperimentRefRule_model
   - FeatureExperimentRule_model
   - FeatureForceRule_model
-  - FeatureRevision_model
+  - FeatureRevisionRef_model
+  - FeatureRevisionSummary_model
+  - FeatureRevisionV1_model
   - FeatureRevisionV2_model
   - FeatureRolloutRule_model
-  - FeatureRule_model
+  - FeatureRuleV1_model
   - FeatureRuleV2_model
   - FeatureSafeRolloutRule_model
+  - FeatureV1_model
   - FeatureV2_model
-  - FeatureWithRevisions_model
+  - FeatureWithRevisionsV1_model
   - FeatureWithRevisionsV2_model
+  - Holdout_model
   - InformationSchema_model
   - InformationSchemaTable_model
+  - Learning_model
   - LookbackOverride_model
   - Member_model
   - Metric_model
@@ -2232,15 +4403,32 @@ x-tagGroups:
   - NamespaceExperimentMember_model
   - Organization_model
   - PaginationFields_model
+  - Population_model
   - Project_model
   - Query_model
   - RampSchedule_model
   - RampScheduleTemplate_model
+  - Report_model
+  - RequireReviewRule_model
+  - RequireReviewRuleInput_model
+  - RevisionIdRef_model
+  - Safe Rollout Rule_model
   - SavedGroup_model
+  - SavedGroupApprovalRule_model
+  - SavedGroupReferenceResource_model
+  - SavedGroupReferences_model
+  - SavedGroupRevision_model
+  - SavedGroupRevisionActivityLogEntry_model
+  - SavedGroupRevisionRef_model
+  - SavedGroupRevisionReview_model
   - ScheduleRule_model
+  - ScheduledStopPlan_model
   - SdkConnection_model
   - Segment_model
   - Settings_model
+  - Targeting Rule_model
+  - TargetingReviewRule_model
   - Team_model
   - VisualChange_model
   - VisualChangeset_model
+  - VisualEditorCbExperimentStub_model

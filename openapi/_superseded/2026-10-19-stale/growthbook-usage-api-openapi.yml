@@ -1,0 +1,234 @@
+openapi: 3.2.0
+info:
+  version: 1.0.0
+  title: GrowthBook REST Usage API
+  description: GrowthBook offers a full REST API for interacting with the application.
+servers:
+- url: https://api.growthbook.io/api
+  description: GrowthBook Cloud
+- url: https://{domain}/api
+  description: Self-hosted GrowthBook
+security:
+- bearerAuth: []
+- basicAuth: []
+tags:
+- name: Usage
+  x-displayName: Usage
+  description: Usage information for metrics in experiments.
+paths:
+  /v1/usage/metrics:
+    get:
+      operationId: getMetricUsage
+      summary: Get metric usage across experiments
+      description: 'Returns usage information for one or more legacy or fact metrics, showing which experiments use each metric
+
+        and some usage statistics. If a metric is part of a metric group, then usage of that metric group counts as
+
+        usage of all metrics in the group. Warning: only includes experiments that you have access to! If you do not have admin
+
+        access or read access to experiments across all projects, this endpoint may not return the latest usage data across
+
+        all experiments.'
+      tags:
+      - Usage
+      parameters:
+      - name: ids
+        in: query
+        required: true
+        description: List of comma-separated metric IDs (both fact and legacy) to get usage for, e.g. ids=met_123,fact_456
+        schema:
+          description: List of comma-separated metric IDs (both fact and legacy) to get usage for, e.g. ids=met_123,fact_456
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  metricUsage:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MetricUsage'
+                required:
+                - metricUsage
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/usage/metrics' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+components:
+  schemas:
+    MetricUsage:
+      type: object
+      properties:
+        metricId:
+          description: The metric ID
+          type: string
+        error:
+          description: Set when the metric does not exist or the caller has no permission to read it.
+          type: string
+        experiments:
+          description: List of experiments using this metric
+          type: array
+          items:
+            type: object
+            properties:
+              experimentId:
+                description: The experiment ID
+                type: string
+              experimentStatus:
+                description: The current status of the experiment
+                type: string
+                enum:
+                - draft
+                - running
+                - stopped
+              lastSnapshotAttempt:
+                description: The last time a snapshot was attempted for this experiment
+                anyOf:
+                - format: date-time
+                  type: string
+                - type: 'null'
+            required:
+            - experimentId
+            - experimentStatus
+            - lastSnapshotAttempt
+            additionalProperties: false
+        lastSnapshotAttempt:
+          description: The most recent snapshot attempt across all experiments using this metric
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+      required:
+      - metricId
+      additionalProperties: false
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: 'If using Bearer auth, pass the Secret Key as the token:
+
+        ```bash
+
+        curl https://api.growthbook.io/api/v1/features   -H "Authorization: Bearer secret_abc123DEF456"
+
+        ```
+
+        '
+    basicAuth:
+      type: http
+      scheme: basic
+      description: 'If using HTTP Basic auth, pass the Secret Key as the username and leave the password blank:
+
+        ```bash
+
+        curl https://api.growthbook.io/api/v1/features   -u secret_abc123DEF456:
+
+        # The ":" at the end stops curl from asking for a password
+
+        ```
+
+        '
+x-tagGroups:
+- name: Endpoints
+  tags:
+  - projects
+  - environments
+  - features-v2
+  - feature-revisions-v2
+  - features
+  - feature-revisions
+  - ramp-schedules
+  - data-sources
+  - fact-tables
+  - fact-metrics
+  - metrics
+  - experiments
+  - namespaces
+  - snapshots
+  - dimensions
+  - segments
+  - sdk-connections
+  - visual-changesets
+  - saved-groups
+  - organizations
+  - members
+  - code-references
+  - archetypes
+  - queries
+  - settings
+  - attributes
+  - usage
+  - Dashboards
+  - CustomFields
+  - MetricGroups
+  - Teams
+  - ExperimentTemplates
+  - AnalyticsExplorations
+  - RampScheduleTemplates
+- name: Models
+  tags:
+  - AnalyticsExploration_model
+  - Archetype_model
+  - Attribute_model
+  - CodeRef_model
+  - CustomField_model
+  - Dashboard_model
+  - DataSource_model
+  - Dimension_model
+  - Environment_model
+  - Experiment_model
+  - ExperimentAnalysisSettings_model
+  - ExperimentDecisionFrameworkSettings_model
+  - ExperimentMetric_model
+  - ExperimentMetricOverrideEntry_model
+  - ExperimentResults_model
+  - ExperimentSnapshot_model
+  - ExperimentTemplate_model
+  - ExperimentWithEnhancedStatus_model
+  - FactMetric_model
+  - FactTable_model
+  - FactTableColumn_model
+  - FactTableFilter_model
+  - Feature_model
+  - FeatureBaseRule_model
+  - FeatureDefinition_model
+  - FeatureEnvironment_model
+  - FeatureEnvironmentV2_model
+  - FeatureExperimentRefRule_model
+  - FeatureExperimentRule_model
+  - FeatureForceRule_model
+  - FeatureRevision_model
+  - FeatureRevisionV2_model
+  - FeatureRolloutRule_model
+  - FeatureRule_model
+  - FeatureRuleV2_model
+  - FeatureSafeRolloutRule_model
+  - FeatureV2_model
+  - FeatureWithRevisions_model
+  - FeatureWithRevisionsV2_model
+  - InformationSchema_model
+  - InformationSchemaTable_model
+  - LookbackOverride_model
+  - Member_model
+  - Metric_model
+  - MetricAnalysis_model
+  - MetricGroup_model
+  - MetricUsage_model
+  - Namespace_model
+  - NamespaceExperimentMember_model
+  - Organization_model
+  - PaginationFields_model
+  - Project_model
+  - Query_model
+  - RampSchedule_model
+  - RampScheduleTemplate_model
+  - SavedGroup_model
+  - ScheduleRule_model
+  - SdkConnection_model
+  - Segment_model
+  - Settings_model
+  - Team_model
+  - VisualChange_model
+  - VisualChangeset_model

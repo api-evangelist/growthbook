@@ -1,0 +1,564 @@
+openapi: 3.2.0
+info:
+  version: 1.0.0
+  title: GrowthBook REST SDK Connections API
+  description: GrowthBook offers a full REST API for interacting with the application.
+servers:
+- url: https://api.growthbook.io/api
+  description: GrowthBook Cloud
+- url: https://{domain}/api
+  description: Self-hosted GrowthBook
+security:
+- bearerAuth: []
+- basicAuth: []
+tags:
+- name: sdk-connections
+  x-displayName: SDK Connections
+  description: Client keys and settings for connecting SDKs to a GrowthBook instance
+paths:
+  /v1/sdk-connections:
+    get:
+      operationId: listSdkConnections
+      summary: Get all sdk connections
+      tags:
+      - sdk-connections
+      parameters:
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/projectId'
+      - $ref: '#/components/parameters/withProxy'
+      - $ref: '#/components/parameters/multiOrg'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                allOf:
+                - type: object
+                  properties:
+                    connections:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/SdkConnection'
+                  required:
+                  - connections
+                  additionalProperties: false
+                - $ref: '#/components/schemas/PaginationFields'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/sdk-connections' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+    post:
+      operationId: postSdkConnection
+      summary: Create a single sdk connection
+      tags:
+      - sdk-connections
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                language:
+                  type: string
+                sdkVersion:
+                  type: string
+                environment:
+                  type: string
+                projects:
+                  type: array
+                  items:
+                    type: string
+                encryptPayload:
+                  type: boolean
+                includeVisualExperiments:
+                  type: boolean
+                includeDraftExperiments:
+                  type: boolean
+                includeExperimentNames:
+                  type: boolean
+                includeRedirectExperiments:
+                  type: boolean
+                includeRuleIds:
+                  type: boolean
+                includeProjectIdInMetadata:
+                  type: boolean
+                includeCustomFieldsInMetadata:
+                  type: boolean
+                allowedCustomFieldsInMetadata:
+                  type: array
+                  items:
+                    type: string
+                includeTagsInMetadata:
+                  type: boolean
+                proxyEnabled:
+                  type: boolean
+                proxyHost:
+                  type: string
+                hashSecureAttributes:
+                  type: boolean
+                remoteEvalEnabled:
+                  type: boolean
+                savedGroupReferencesEnabled:
+                  type: boolean
+              required:
+              - name
+              - language
+              - environment
+              additionalProperties: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sdkConnection:
+                    $ref: '#/components/schemas/SdkConnection'
+                required:
+                - sdkConnection
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/sdk-connections' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/sdk-connections/{id}:
+    get:
+      operationId: getSdkConnection
+      summary: Get a single sdk connection
+      tags:
+      - sdk-connections
+      parameters:
+      - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sdkConnection:
+                    $ref: '#/components/schemas/SdkConnection'
+                required:
+                - sdkConnection
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/sdk-connections/abc123' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+    put:
+      operationId: putSdkConnection
+      summary: Update a single sdk connection
+      tags:
+      - sdk-connections
+      parameters:
+      - $ref: '#/components/parameters/id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                language:
+                  type: string
+                sdkVersion:
+                  type: string
+                environment:
+                  type: string
+                projects:
+                  type: array
+                  items:
+                    type: string
+                encryptPayload:
+                  type: boolean
+                includeVisualExperiments:
+                  type: boolean
+                includeDraftExperiments:
+                  type: boolean
+                includeExperimentNames:
+                  type: boolean
+                includeRedirectExperiments:
+                  type: boolean
+                includeRuleIds:
+                  type: boolean
+                includeProjectIdInMetadata:
+                  type: boolean
+                includeCustomFieldsInMetadata:
+                  type: boolean
+                allowedCustomFieldsInMetadata:
+                  type: array
+                  items:
+                    type: string
+                includeTagsInMetadata:
+                  type: boolean
+                proxyEnabled:
+                  type: boolean
+                proxyHost:
+                  type: string
+                hashSecureAttributes:
+                  type: boolean
+                remoteEvalEnabled:
+                  type: boolean
+                savedGroupReferencesEnabled:
+                  type: boolean
+              additionalProperties: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sdkConnection:
+                    $ref: '#/components/schemas/SdkConnection'
+                required:
+                - sdkConnection
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X PUT 'https://api.growthbook.io/api/v1/sdk-connections/{id}' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+    delete:
+      operationId: deleteSdkConnection
+      summary: Deletes a single SDK connection
+      tags:
+      - sdk-connections
+      parameters:
+      - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deletedId:
+                    type: string
+                required:
+                - deletedId
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X DELETE 'https://api.growthbook.io/api/v1/sdk-connections/abc123' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/sdk-connections/lookup/{key}:
+    get:
+      operationId: lookupSdkConnectionByKey
+      summary: Find a single sdk connection by its key
+      tags:
+      - sdk-connections
+      parameters:
+      - $ref: '#/components/parameters/key'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sdkConnection:
+                    $ref: '#/components/schemas/SdkConnection'
+                required:
+                - sdkConnection
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/sdk-connections/lookup/abc123' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+components:
+  schemas:
+    PaginationFields:
+      type: object
+      properties:
+        limit:
+          type: integer
+        offset:
+          type: integer
+        count:
+          type: integer
+        total:
+          type: integer
+        hasMore:
+          type: boolean
+        nextOffset:
+          anyOf:
+          - type: integer
+          - type: 'null'
+      required:
+      - limit
+      - offset
+      - count
+      - total
+      - hasMore
+      - nextOffset
+      additionalProperties: false
+    SdkConnection:
+      type: object
+      properties:
+        id:
+          type: string
+        dateCreated:
+          format: date-time
+          type: string
+        dateUpdated:
+          format: date-time
+          type: string
+        name:
+          type: string
+        organization:
+          type: string
+        languages:
+          type: array
+          items:
+            type: string
+        sdkVersion:
+          type: string
+        environment:
+          type: string
+        project:
+          description: Use 'projects' instead. This is only for backwards compatibility and contains the first project only.
+          type: string
+        projects:
+          type: array
+          items:
+            type: string
+        encryptPayload:
+          type: boolean
+        encryptionKey:
+          type: string
+        includeVisualExperiments:
+          type: boolean
+        includeDraftExperiments:
+          type: boolean
+        includeExperimentNames:
+          type: boolean
+        includeRedirectExperiments:
+          type: boolean
+        includeRuleIds:
+          type: boolean
+        includeProjectIdInMetadata:
+          type: boolean
+        includeCustomFieldsInMetadata:
+          type: boolean
+        allowedCustomFieldsInMetadata:
+          type: array
+          items:
+            type: string
+        includeTagsInMetadata:
+          type: boolean
+        key:
+          type: string
+        proxyEnabled:
+          type: boolean
+        proxyHost:
+          type: string
+        proxySigningKey:
+          type: string
+        sseEnabled:
+          type: boolean
+        hashSecureAttributes:
+          type: boolean
+        remoteEvalEnabled:
+          type: boolean
+        savedGroupReferencesEnabled:
+          type: boolean
+      required:
+      - id
+      - dateCreated
+      - dateUpdated
+      - name
+      - organization
+      - languages
+      - environment
+      - project
+      - encryptPayload
+      - encryptionKey
+      - key
+      - proxyEnabled
+      - proxyHost
+      - proxySigningKey
+      additionalProperties: false
+  parameters:
+    withProxy:
+      name: withProxy
+      in: query
+      description: ''
+      schema:
+        type: string
+    projectId:
+      name: projectId
+      in: query
+      description: Filter by project id
+      schema:
+        description: Filter by project id
+        type: string
+    offset:
+      name: offset
+      in: query
+      description: How many items to skip (use in conjunction with limit for pagination)
+      schema:
+        default: 0
+        description: How many items to skip (use in conjunction with limit for pagination)
+        type: integer
+        minimum: 0
+    id:
+      name: id
+      in: path
+      required: true
+      description: The id of the requested resource
+      schema:
+        description: The id of the requested resource
+        type: string
+    limit:
+      name: limit
+      in: query
+      description: The number of items to return
+      schema:
+        default: 10
+        description: The number of items to return
+        type: integer
+        minimum: 1
+        maximum: 100
+    multiOrg:
+      name: multiOrg
+      in: query
+      description: ''
+      schema:
+        type: string
+    key:
+      name: key
+      in: path
+      required: true
+      description: The key of the requested sdkConnection
+      schema:
+        description: The key of the requested sdkConnection
+        type: string
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: 'If using Bearer auth, pass the Secret Key as the token:
+
+        ```bash
+
+        curl https://api.growthbook.io/api/v1/features   -H "Authorization: Bearer secret_abc123DEF456"
+
+        ```
+
+        '
+    basicAuth:
+      type: http
+      scheme: basic
+      description: 'If using HTTP Basic auth, pass the Secret Key as the username and leave the password blank:
+
+        ```bash
+
+        curl https://api.growthbook.io/api/v1/features   -u secret_abc123DEF456:
+
+        # The ":" at the end stops curl from asking for a password
+
+        ```
+
+        '
+x-tagGroups:
+- name: Endpoints
+  tags:
+  - projects
+  - environments
+  - features-v2
+  - feature-revisions-v2
+  - features
+  - feature-revisions
+  - ramp-schedules
+  - data-sources
+  - fact-tables
+  - fact-metrics
+  - metrics
+  - experiments
+  - namespaces
+  - snapshots
+  - dimensions
+  - segments
+  - sdk-connections
+  - visual-changesets
+  - saved-groups
+  - organizations
+  - members
+  - code-references
+  - archetypes
+  - queries
+  - settings
+  - attributes
+  - usage
+  - Dashboards
+  - CustomFields
+  - MetricGroups
+  - Teams
+  - ExperimentTemplates
+  - AnalyticsExplorations
+  - RampScheduleTemplates
+- name: Models
+  tags:
+  - AnalyticsExploration_model
+  - Archetype_model
+  - Attribute_model
+  - CodeRef_model
+  - CustomField_model
+  - Dashboard_model
+  - DataSource_model
+  - Dimension_model
+  - Environment_model
+  - Experiment_model
+  - ExperimentAnalysisSettings_model
+  - ExperimentDecisionFrameworkSettings_model
+  - ExperimentMetric_model
+  - ExperimentMetricOverrideEntry_model
+  - ExperimentResults_model
+  - ExperimentSnapshot_model
+  - ExperimentTemplate_model
+  - ExperimentWithEnhancedStatus_model
+  - FactMetric_model
+  - FactTable_model
+  - FactTableColumn_model
+  - FactTableFilter_model
+  - Feature_model
+  - FeatureBaseRule_model
+  - FeatureDefinition_model
+  - FeatureEnvironment_model
+  - FeatureEnvironmentV2_model
+  - FeatureExperimentRefRule_model
+  - FeatureExperimentRule_model
+  - FeatureForceRule_model
+  - FeatureRevision_model
+  - FeatureRevisionV2_model
+  - FeatureRolloutRule_model
+  - FeatureRule_model
+  - FeatureRuleV2_model
+  - FeatureSafeRolloutRule_model
+  - FeatureV2_model
+  - FeatureWithRevisions_model
+  - FeatureWithRevisionsV2_model
+  - InformationSchema_model
+  - InformationSchemaTable_model
+  - LookbackOverride_model
+  - Member_model
+  - Metric_model
+  - MetricAnalysis_model
+  - MetricGroup_model
+  - MetricUsage_model
+  - Namespace_model
+  - NamespaceExperimentMember_model
+  - Organization_model
+  - PaginationFields_model
+  - Project_model
+  - Query_model
+  - RampSchedule_model
+  - RampScheduleTemplate_model
+  - SavedGroup_model
+  - ScheduleRule_model
+  - SdkConnection_model
+  - Segment_model
+  - Settings_model
+  - Team_model
+  - VisualChange_model
+  - VisualChangeset_model

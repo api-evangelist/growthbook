@@ -1,0 +1,2427 @@
+openapi: 3.2.0
+info:
+  version: 5.1.0
+  title: GrowthBook REST Contextual Bandits API
+  description: 'GrowthBook offers a full REST API for interacting with the application. Request data can use either JSON or Form data encoding (with proper `Content-Type` headers). All response bodies are JSON-encoded. The API base URL for GrowthBook Cloud is `https://api.growthbook.io/api`. For self-hosted deployments, it is the same as your API_HOST environment variable (defaults to `http://localhost:3100/api`). The rest of these docs will assume you are using GrowthBook Cloud. ## Versioning
+
+
+    Endpoints are versioned by path prefix:
+
+
+    - `/v1/...` — stable, widely-supported endpoints
+
+    - `/v2/...` — updated endpoints with improved shapes (e.g. unified per-rule environment scope for feature flags)
+
+
+    New integrations should prefer v2 where available. Feature-flag and metric v1 routes are deprecated: they are tagged **LEGACY** in the sidebar and collapsed by default. Use the matching v2 group when both exist. ## Authentication
+
+
+    We support both the HTTP Basic and Bearer authentication schemes for convenience. You first need to generate a new API Key in GrowthBook. Different keys have different permissions:
+
+
+    - **Personal Access Tokens**: These are sensitive and provide the same level of access as the user has to an organization, or less if the token''s permissions are limited. These can be created by going to `Personal Access Tokens` under your user menu. Members with the API Keys **Manage members'' tokens** permission can disable a member''s token under `Settings -> Manage PATs`, and admins can require new tokens to expire within a maximum lifetime. - **Secret Keys**: These are sensitive and provide the level of access of the role they are given, which can be any built-in or custom role, with optional per-project role overrides and environment limits. Managing Secret Keys on behalf of an organization takes the API Keys permissions. These can be created by going to `Settings -> API Keys`, where Admins can also require new Secret Keys to expire within a maximum lifetime. If using HTTP Basic auth, pass the Secret Key as the username and leave the password blank (when using curl, add `:` at the end of the secret to indicate an empty password)
+
+
+    ```bash
+
+    curl https://api.growthbook.io/api/v1/features \
+
+    -u secret_abc123DEF456:
+
+    ```
+
+
+    If using Bearer auth, pass the Secret Key as the token:
+
+
+    ```bash
+
+    curl https://api.growthbook.io/api/v1/features \
+
+    -H "Authorization: Bearer secret_abc123DEF456"
+
+    ```
+
+
+    If a key has an expiration date, every response includes it in the `X-GrowthBook-Key-Expires-At` header (ISO 8601), so scripts can warn before the key stops working. Requests made with an expired key fail with a `401` that says where to create a replacement. See Expiration for choosing a key''s expiration, the warnings before it lapses, and the organization policies. ## Naming who asked
+
+
+    Requests made with a Secret Key may add an `X-GrowthBook-Requested-By` header naming the organization member who asked for the change, as a user id or an email address. History, revision logs and webhooks show that member next to the key. Each key''s settings under `Settings -> API Keys`:
+
+
+    - **Header**: **Optional** (the default) uses the header when it''s sent, **Required** rejects requests without it, and **Rejected** rejects requests that send it, each with a 400. - **Permissions**, when a member is named:
+
+    - **Assume member''s role** (the default): the request acts as that member, with only what both the key and the member can do, so the header can narrow a key but never widen it. Drafts, owners, `mine` filters and reviews are the member''s. The member''s rights over their own drafts, comments and verdicts apply only where the key''s own role allows the same action. - **Use key''s role**: the key acts as itself, with its own permissions, and the name is only recorded in history. Drafts, verdicts and ownership are the key''s, as when no member is named.'
+servers:
+- url: https://api.growthbook.io/api
+  description: GrowthBook Cloud
+- url: https://{domain}/api
+  description: Self-hosted GrowthBook
+  variables:
+    domain:
+      default: localhost:3100
+      description: Your self-hosted GrowthBook host (and port)
+security:
+- bearerAuth: []
+- basicAuth: []
+tags:
+- name: ContextualBandits
+  x-displayName: Contextual Bandits
+  description: ''
+paths:
+  /v1/contextual-bandits/{id}/current:
+    get:
+      operationId: getContextualBanditCurrentWeights
+      summary: Get current Contextual Bandit leaf weights and latest event
+      tags:
+      - ContextualBandits
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: The Contextual Bandit id
+        schema:
+          description: The Contextual Bandit id
+          type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  currentLeafWeights:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/currentLeafWeights'
+                  latestEvent:
+                    anyOf:
+                    - type: object
+                      properties:
+                        id:
+                          type: string
+                        contextualBandit:
+                          type: string
+                        snapshotId:
+                          type: string
+                        weightsWereUpdated:
+                          type: boolean
+                        degreesOfFreedom:
+                          type: integer
+                          minimum: 0
+                        dateCreated:
+                          type: string
+                      required:
+                      - id
+                      - contextualBandit
+                      - snapshotId
+                      - weightsWereUpdated
+                      - dateCreated
+                      additionalProperties: false
+                    - type: 'null'
+                required:
+                - latestEvent
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/contextual-bandits/{id}/current' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/contextual-bandits/{id}/snapshots:
+    get:
+      operationId: listContextualBanditSnapshots
+      summary: List Contextual Bandit snapshots
+      tags:
+      - ContextualBandits
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: The Contextual Bandit id
+        schema:
+          description: The Contextual Bandit id
+          type: string
+      - name: limit
+        in: query
+        description: ''
+        schema:
+          type: integer
+          exclusiveMinimum: 0
+          maximum: 100
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  snapshots:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/snapshots'
+                required:
+                - snapshots
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/contextual-bandits/{id}/snapshots' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/contextual-bandits/{id}/snapshots/{snapshotId}:
+    get:
+      operationId: getContextualBanditSnapshot
+      summary: Get a single Contextual Bandit snapshot
+      tags:
+      - ContextualBandits
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: The Contextual Bandit id
+        schema:
+          description: The Contextual Bandit id
+          type: string
+      - $ref: '#/components/parameters/snapshotId'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  snapshot:
+                    $ref: '#/components/schemas/snapshots'
+                required:
+                - snapshot
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/contextual-bandits/{id}/snapshots/{snapshotId}' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/contextual-bandits/{id}/events:
+    get:
+      operationId: listContextualBanditEvents
+      summary: List Contextual Bandit weight-update events
+      tags:
+      - ContextualBandits
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: The Contextual Bandit id
+        schema:
+          description: The Contextual Bandit id
+          type: string
+      - name: limit
+        in: query
+        description: ''
+        schema:
+          type: integer
+          exclusiveMinimum: 0
+          maximum: 100
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  events:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/events'
+                required:
+                - events
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/contextual-bandits/{id}/events' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/contextual-bandits/{id}/events/{eventId}:
+    get:
+      operationId: getContextualBanditEvent
+      summary: Get a single Contextual Bandit weight-update event
+      tags:
+      - ContextualBandits
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: The Contextual Bandit id
+        schema:
+          description: The Contextual Bandit id
+          type: string
+      - $ref: '#/components/parameters/eventId'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  event:
+                    $ref: '#/components/schemas/events'
+                required:
+                - event
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/contextual-bandits/{id}/events/{eventId}' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/contextual-bandits/{id}/results:
+    get:
+      operationId: getContextualBanditResults
+      summary: Get latest Contextual Bandit results
+      description: Returns the latest contextual-bandit stats engine output (per-context responses tagged with their leaf, the per-leaf targeting conditions, and per-leaf aggregated stats), the overall (marginal) variation weights across all contexts, the SRM of the most recent run, and the status of the most recent snapshot run for the contextual bandit. Same payload the GrowthBook UI uses to render the contextual bandit results table.
+      tags:
+      - ContextualBandits
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: The Contextual Bandit id
+        schema:
+          description: The Contextual Bandit id
+          type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  contextualBanditSnapshot:
+                    anyOf:
+                    - type: object
+                      properties:
+                        attributes:
+                          type: array
+                          items:
+                            type: string
+                        responses:
+                          type: array
+                          items: {}
+                        leaf_map:
+                          type: array
+                          items: {}
+                        leaf_stats:
+                          type: array
+                          items: {}
+                        sse_trajectory:
+                          type: array
+                          items: {}
+                        bic_trajectory:
+                          type: array
+                          items: {}
+                      required:
+                      - attributes
+                      - responses
+                      additionalProperties: false
+                    - type: 'null'
+                  overallWeights:
+                    anyOf:
+                    - type: array
+                      items:
+                        type: object
+                        properties:
+                          variationId:
+                            type: string
+                          weight:
+                            anyOf:
+                            - type: number
+                            - type: 'null'
+                        required:
+                        - variationId
+                        - weight
+                        additionalProperties: false
+                    - type: 'null'
+                  results:
+                    anyOf:
+                    - type: object
+                      properties:
+                        attributes:
+                          type: array
+                          items:
+                            type: string
+                        sseTrajectory:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              numSplits:
+                                type: integer
+                                minimum: 0
+                              totalSse:
+                                type: number
+                              split:
+                                type: object
+                                properties:
+                                  leafClauses:
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        attribute:
+                                          type: string
+                                        levels:
+                                          type: array
+                                          items:
+                                            type: string
+                                        operator:
+                                          type: string
+                                          enum:
+                                          - in
+                                          - not in
+                                      required:
+                                      - attribute
+                                      - levels
+                                      - operator
+                                      additionalProperties: false
+                                  attribute:
+                                    type: string
+                                  leftLevels:
+                                    type: array
+                                    items:
+                                      type: string
+                                  rightLevels:
+                                    type: array
+                                    items:
+                                      type: string
+                                required:
+                                - leafClauses
+                                - attribute
+                                - leftLevels
+                                - rightLevels
+                                additionalProperties: false
+                            required:
+                            - numSplits
+                            - totalSse
+                            additionalProperties: false
+                        overall:
+                          type: object
+                          properties:
+                            variations:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  variationId:
+                                    type: string
+                                  variationName:
+                                    type: string
+                                  weight:
+                                    anyOf:
+                                    - type: number
+                                    - type: 'null'
+                                  mean:
+                                    anyOf:
+                                    - type: number
+                                    - type: 'null'
+                                  users:
+                                    anyOf:
+                                    - type: number
+                                    - type: 'null'
+                                required:
+                                - variationId
+                                - weight
+                                - mean
+                                - users
+                                additionalProperties: false
+                          required:
+                          - variations
+                          additionalProperties: false
+                        leaves:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              leafId:
+                                type: integer
+                              updateMessage:
+                                anyOf:
+                                - type: string
+                                - type: 'null'
+                              error:
+                                anyOf:
+                                - type: string
+                                - type: 'null'
+                              clauses:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    attribute:
+                                      type: string
+                                    levels:
+                                      type: array
+                                      items:
+                                        type: string
+                                    operator:
+                                      type: string
+                                      enum:
+                                      - in
+                                      - not in
+                                  required:
+                                  - attribute
+                                  - levels
+                                  - operator
+                                  additionalProperties: false
+                              variations:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    variationId:
+                                      type: string
+                                    variationName:
+                                      type: string
+                                    weight:
+                                      anyOf:
+                                      - type: number
+                                      - type: 'null'
+                                    bestArmProbability:
+                                      anyOf:
+                                      - type: number
+                                      - type: 'null'
+                                    users:
+                                      anyOf:
+                                      - type: number
+                                      - type: 'null'
+                                    mean:
+                                      anyOf:
+                                      - type: number
+                                      - type: 'null'
+                                    variance:
+                                      anyOf:
+                                      - type: number
+                                      - type: 'null'
+                                  required:
+                                  - variationId
+                                  - weight
+                                  - bestArmProbability
+                                  - users
+                                  - mean
+                                  - variance
+                                  additionalProperties: false
+                              contexts:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    attributes:
+                                      type: object
+                                      propertyNames:
+                                        type: string
+                                      additionalProperties:
+                                        type: string
+                                    variations:
+                                      type: array
+                                      items:
+                                        type: object
+                                        properties:
+                                          variationId:
+                                            type: string
+                                          variationName:
+                                            type: string
+                                          users:
+                                            anyOf:
+                                            - type: number
+                                            - type: 'null'
+                                          mean:
+                                            anyOf:
+                                            - type: number
+                                            - type: 'null'
+                                          variance:
+                                            anyOf:
+                                            - type: number
+                                            - type: 'null'
+                                        required:
+                                        - variationId
+                                        - users
+                                        - mean
+                                        - variance
+                                        additionalProperties: false
+                                  required:
+                                  - attributes
+                                  - variations
+                                  additionalProperties: false
+                            required:
+                            - leafId
+                            - updateMessage
+                            - error
+                            - clauses
+                            - variations
+                            - contexts
+                            additionalProperties: false
+                      required:
+                      - attributes
+                      - sseTrajectory
+                      - overall
+                      - leaves
+                      additionalProperties: false
+                    - type: 'null'
+                  latest:
+                    anyOf:
+                    - type: object
+                      properties:
+                        id:
+                          type: string
+                        status:
+                          type: string
+                          enum:
+                          - running
+                          - success
+                          - error
+                        error:
+                          type: string
+                        queries:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              query:
+                                type: string
+                              status:
+                                type: string
+                                enum:
+                                - queued
+                                - running
+                                - failed
+                                - partially-succeeded
+                                - succeeded
+                              name:
+                                type: string
+                            required:
+                            - query
+                            - status
+                            - name
+                            additionalProperties: false
+                        runStarted:
+                          anyOf:
+                          - type: string
+                          - type: 'null'
+                        dateCreated:
+                          type: string
+                        multipleExposures:
+                          type: number
+                        type:
+                          type: string
+                        triggeredBy:
+                          type: string
+                        srm:
+                          anyOf:
+                          - type: object
+                            properties:
+                              statistic:
+                                type: number
+                              pValue:
+                                type: number
+                              degreesOfFreedom:
+                                type: integer
+                                minimum: 0
+                            required:
+                            - statistic
+                            - pValue
+                            - degreesOfFreedom
+                            additionalProperties: false
+                          - type: 'null'
+                      required:
+                      - id
+                      - status
+                      - error
+                      - queries
+                      - runStarted
+                      - dateCreated
+                      - multipleExposures
+                      - type
+                      - triggeredBy
+                      - srm
+                      additionalProperties: false
+                    - type: 'null'
+                required:
+                - contextualBanditSnapshot
+                - overallWeights
+                - results
+                - latest
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/contextual-bandits/{id}/results' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/contextual-bandits/{id}/linked-features:
+    get:
+      operationId: getContextualBanditLinkedFeatures
+      summary: Get features linked to a Contextual Bandit
+      description: Returns the features that reference this contextual bandit via a `contextual-bandit-ref` rule, enriched with each feature's live/draft state, per-environment rule state, and variation values. Same payload the GrowthBook UI uses to render the Linked Features section.
+      tags:
+      - ContextualBandits
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: The Contextual Bandit id
+        schema:
+          description: The Contextual Bandit id
+          type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  linkedFeatures:
+                    type: array
+                    items: {}
+                  environments:
+                    type: array
+                    items:
+                      type: string
+                required:
+                - linkedFeatures
+                - environments
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/contextual-bandits/{id}/linked-features' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/contextual-bandits/{id}/linked-feature/{featureId}:
+    post:
+      operationId: addContextualBanditLinkedFeature
+      summary: Link a feature to a Contextual Bandit
+      description: Adds a `contextual-bandit-ref` rule to the bottom of the feature's rule list and links the feature to this contextual bandit. The rule lands in a draft revision that auto-publishes when the contextual bandit starts, unless `autoPublish` is set. Targeting (condition, Saved Groups, prerequisites, coverage) is inherited from the contextual bandit and cannot be set on the rule.
+      tags:
+      - ContextualBandits
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: The Contextual Bandit id
+        schema:
+          description: The Contextual Bandit id
+          type: string
+      - name: featureId
+        in: path
+        required: true
+        description: The linked feature id
+        schema:
+          description: The linked feature id
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                variations:
+                  description: One entry per Contextual Bandit variation. Every variation must be covered exactly once.
+                  minItems: 1
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      variationId:
+                        description: Id of the Contextual Bandit variation.
+                        type: string
+                      value:
+                        description: Feature value served for this variation.
+                        type: string
+                      config:
+                        description: Key of the config backing this value, or null when the value is not config-backed. The config supplies the base JSON (and its schema); the value is an override patch merged on top.
+                        anyOf:
+                        - type: string
+                        - type: 'null'
+                    required:
+                    - variationId
+                    - value
+                    additionalProperties: false
+                description:
+                  type: string
+                enabled:
+                  type: boolean
+                allEnvironments:
+                  description: Apply the rule in every environment. Defaults to true.
+                  type: boolean
+                environments:
+                  description: Environments to apply the rule in when not all.
+                  type: array
+                  items:
+                    type: string
+                allProjects:
+                  type: boolean
+                projects:
+                  type: array
+                  items:
+                    type: string
+                autoPublish:
+                  description: Publish the resulting revision immediately instead of leaving it as a draft.
+                  type: boolean
+                draftVersion:
+                  description: Add the rule to this existing draft revision instead of starting a new one.
+                  type: integer
+              required:
+              - variations
+              additionalProperties: false
+      responses:
+        '200':
+          description: Resource created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  featureId:
+                    type: string
+                  ruleId:
+                    type: string
+                  revisionVersion:
+                    type: number
+                  published:
+                    type: boolean
+                required:
+                - featureId
+                - ruleId
+                - revisionVersion
+                - published
+                additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/contextual-bandits/{id}/linked-feature/{featureId}' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+    put:
+      operationId: updateContextualBanditLinkedFeature
+      summary: Replace a Contextual Bandit's rule on a linked feature
+      description: Replaces every `contextual-bandit-ref` rule pointing at this contextual bandit on the feature, keeping each rule's id and position in the rule list. Every field is replaced, so omitted optional fields revert to their defaults. Returns a 400 when the feature has no such rule on the target revision, or when it has several that are not identical to each other. The change lands in a draft revision that auto-publishes when the contextual bandit starts, unless `autoPublish` is set. Targeting (condition, Saved Groups, prerequisites, coverage) is inherited from the contextual bandit and cannot be set on the rule.
+      tags:
+      - ContextualBandits
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: The Contextual Bandit id
+        schema:
+          description: The Contextual Bandit id
+          type: string
+      - name: featureId
+        in: path
+        required: true
+        description: The linked feature id
+        schema:
+          description: The linked feature id
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                variations:
+                  description: One entry per Contextual Bandit variation. Every variation must be covered exactly once.
+                  minItems: 1
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      variationId:
+                        description: Id of the Contextual Bandit variation.
+                        type: string
+                      value:
+                        description: Feature value served for this variation.
+                        type: string
+                      config:
+                        description: Key of the config backing this value, or null when the value is not config-backed. The config supplies the base JSON (and its schema); the value is an override patch merged on top.
+                        anyOf:
+                        - type: string
+                        - type: 'null'
+                    required:
+                    - variationId
+                    - value
+                    additionalProperties: false
+                description:
+                  type: string
+                enabled:
+                  type: boolean
+                allEnvironments:
+                  description: Apply the rule in every environment. Defaults to true.
+                  type: boolean
+                environments:
+                  description: Environments to apply the rule in when not all.
+                  type: array
+                  items:
+                    type: string
+                allProjects:
+                  type: boolean
+                projects:
+                  type: array
+                  items:
+                    type: string
+                autoPublish:
+                  description: Publish the resulting revision immediately instead of leaving it as a draft.
+                  type: boolean
+                draftVersion:
+                  description: Update the rule on this existing draft revision instead of starting a new one.
+                  type: integer
+              required:
+              - variations
+              additionalProperties: false
+      responses:
+        '200':
+          description: Resource updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  featureId:
+                    type: string
+                  ruleIds:
+                    type: array
+                    items:
+                      type: string
+                  revisionVersion:
+                    type: number
+                  published:
+                    type: boolean
+                required:
+                - featureId
+                - ruleIds
+                - revisionVersion
+                - published
+                additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X PUT 'https://api.growthbook.io/api/v1/contextual-bandits/{id}/linked-feature/{featureId}' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+    delete:
+      operationId: deleteContextualBanditLinkedFeature
+      summary: Unlink a feature from a Contextual Bandit
+      description: Removes every `contextual-bandit-ref` rule pointing at this contextual bandit from the feature and drops the feature from the bandit's linked-feature list. The rule removal lands in a draft revision unless `autoPublish` is set. When the feature has no such rule left, only the linkage is cleared.
+      tags:
+      - ContextualBandits
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: The Contextual Bandit id
+        schema:
+          description: The Contextual Bandit id
+          type: string
+      - name: featureId
+        in: path
+        required: true
+        description: The linked feature id
+        schema:
+          description: The linked feature id
+          type: string
+      - $ref: '#/components/parameters/autoPublish'
+      - $ref: '#/components/parameters/draftVersion'
+      responses:
+        '200':
+          description: Resource deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  featureId:
+                    type: string
+                  removedRuleIds:
+                    type: array
+                    items:
+                      type: string
+                  revisionVersion:
+                    anyOf:
+                    - type: number
+                    - type: 'null'
+                  published:
+                    type: boolean
+                required:
+                - featureId
+                - removedRuleIds
+                - revisionVersion
+                - published
+                additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X DELETE 'https://api.growthbook.io/api/v1/contextual-bandits/{id}/linked-feature/{featureId}' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/contextual-bandits/{id}:
+    get:
+      operationId: getContextualBandit
+      summary: Get a single contextualBandit
+      tags:
+      - ContextualBandits
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  contextualBandit:
+                    $ref: '#/components/schemas/ContextualBandit'
+                required:
+                - contextualBandit
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/contextual-bandits/{id}' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+    put:
+      operationId: updateContextualBandit
+      summary: Update a single contextualBandit
+      tags:
+      - ContextualBandits
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                project:
+                  type: string
+                owner:
+                  description: The userId or email address of the owner. If an email address is provided, it will be used to look up the userId of the matching organization member. If an ID is provided, it will be validated as existing in the organization.
+                  type: string
+                tags:
+                  type: array
+                  items:
+                    type: string
+                trackingKey:
+                  description: Key sent with exposure events. Keep it short, in kebab-case. Changing it after launch splits exposures across two keys.
+                  type: string
+                hashAttribute:
+                  type: string
+                datasource:
+                  type: string
+                contextualBanditQueryId:
+                  type: string
+                contextualAttributes:
+                  type: array
+                  items:
+                    type: string
+                decisionMetric:
+                  type: string
+                minUsersPerLeaf:
+                  type: integer
+                  exclusiveMinimum: 0
+                maxLeaves:
+                  type: integer
+                  exclusiveMinimum: 0
+                  maximum: 12
+                priorSampleSize:
+                  type: integer
+                  minimum: 0
+                scheduleValue:
+                  type: number
+                scheduleUnit:
+                  type: string
+                  enum:
+                  - days
+                  - hours
+                burnInValue:
+                  type: number
+                burnInUnit:
+                  type: string
+                  enum:
+                  - days
+                  - hours
+                conversionWindowValue:
+                  anyOf:
+                  - type: number
+                  - type: 'null'
+                conversionWindowUnit:
+                  anyOf:
+                  - type: string
+                    enum:
+                    - hours
+                    - days
+                  - type: 'null'
+                archived:
+                  type: boolean
+                status:
+                  type: string
+                  enum:
+                  - draft
+                  - running
+                  - stopped
+                coverage:
+                  type: number
+                  minimum: 0
+                  maximum: 1
+                condition:
+                  type: string
+                savedGroups:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      match:
+                        type: string
+                        enum:
+                        - all
+                        - none
+                        - any
+                      ids:
+                        type: array
+                        items:
+                          type: string
+                    required:
+                    - match
+                    - ids
+                    additionalProperties: false
+                prerequisites:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      condition:
+                        type: string
+                    required:
+                    - id
+                    - condition
+                    additionalProperties: false
+                seed:
+                  type: string
+              additionalProperties: false
+      responses:
+        '200':
+          description: Resource updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  contextualBandit:
+                    $ref: '#/components/schemas/ContextualBandit'
+                required:
+                - contextualBandit
+                additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X PUT 'https://api.growthbook.io/api/v1/contextual-bandits/{id}' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/contextual-bandits:
+    post:
+      operationId: createContextualBandit
+      summary: Create a single contextualBandit
+      tags:
+      - ContextualBandits
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  description: Short display name. Put details in `description`.
+                  type: string
+                description:
+                  description: Markdown. Put context here, not in the name.
+                  type: string
+                project:
+                  type: string
+                owner:
+                  description: The userId or email address of the owner. If an email address is provided, it will be used to look up the userId of the matching organization member. If an ID is provided, it will be validated as existing in the organization.
+                  type: string
+                tags:
+                  description: Tags for filtering and grouping. Use these instead of encoding groups in names.
+                  type: array
+                  items:
+                    type: string
+                trackingKey:
+                  description: Key sent with exposure events. Keep it short, in kebab-case. Changing it after launch splits exposures across two keys.
+                  type: string
+                hashAttribute:
+                  type: string
+                decisionMetric:
+                  type: string
+                variations:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      key:
+                        description: Key sent with exposure events (e.g. `0`, `1`). Changing it after launch splits exposures.
+                        type: string
+                      name:
+                        description: Short label shown in results (e.g. `Control`).
+                        type: string
+                      description:
+                        description: What this variation changes.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    additionalProperties: false
+                datasource:
+                  type: string
+                contextualBanditQueryId:
+                  type: string
+                contextualAttributes:
+                  type: array
+                  items:
+                    type: string
+                minUsersPerLeaf:
+                  type: integer
+                  exclusiveMinimum: 0
+                maxLeaves:
+                  type: integer
+                  exclusiveMinimum: 0
+                  maximum: 12
+                priorSampleSize:
+                  type: integer
+                  minimum: 0
+                scheduleValue:
+                  type: number
+                scheduleUnit:
+                  type: string
+                  enum:
+                  - days
+                  - hours
+                burnInValue:
+                  type: number
+                burnInUnit:
+                  type: string
+                  enum:
+                  - days
+                  - hours
+                conversionWindowValue:
+                  type: number
+                conversionWindowUnit:
+                  type: string
+                  enum:
+                  - hours
+                  - days
+              required:
+              - name
+              - trackingKey
+              - decisionMetric
+              - variations
+              - datasource
+              - contextualBanditQueryId
+              - contextualAttributes
+              additionalProperties: false
+      responses:
+        '200':
+          description: Resource created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  contextualBandit:
+                    $ref: '#/components/schemas/ContextualBandit'
+                required:
+                - contextualBandit
+                additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/contextual-bandits' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+    get:
+      operationId: listContextualBandits
+      summary: Get all contextualBandits
+      tags:
+      - ContextualBandits
+      parameters:
+      - name: projectId
+        in: query
+        description: ''
+        schema:
+          type: string
+      - name: datasourceId
+        in: query
+        description: ''
+        schema:
+          type: string
+      - name: trackingKey
+        in: query
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  contextualBandits:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ContextualBandit'
+                required:
+                - contextualBandits
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/contextual-bandits' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/contextual-bandits/{id}/start:
+    post:
+      operationId: startContextualBandit
+      summary: Start a Contextual Bandit
+      tags:
+      - ContextualBandits
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: The Contextual Bandit id
+        schema:
+          description: The Contextual Bandit id
+          type: string
+      responses:
+        '200':
+          description: Resource created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  contextualBandit:
+                    $ref: '#/components/schemas/ContextualBandit'
+                required:
+                - contextualBandit
+                additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/contextual-bandits/{id}/start' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/contextual-bandits/{id}/stop:
+    post:
+      operationId: stopContextualBandit
+      summary: Stop a Contextual Bandit
+      tags:
+      - ContextualBandits
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: The Contextual Bandit id
+        schema:
+          description: The Contextual Bandit id
+          type: string
+      responses:
+        '200':
+          description: Resource created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  contextualBandit:
+                    $ref: '#/components/schemas/ContextualBandit'
+                required:
+                - contextualBandit
+                additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/contextual-bandits/{id}/stop' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/contextual-bandits/{id}/refresh:
+    post:
+      operationId: refreshContextualBandit
+      summary: Trigger a Contextual Bandit snapshot refresh
+      tags:
+      - ContextualBandits
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: The Contextual Bandit id
+        schema:
+          description: The Contextual Bandit id
+          type: string
+      responses:
+        '200':
+          description: Resource created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  snapshotId:
+                    type: string
+                  cbeId:
+                    type: string
+                required:
+                - snapshotId
+                additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/contextual-bandits/{id}/refresh' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/contextual-bandits/{id}/variations:
+    post:
+      operationId: updateContextualBanditVariations
+      summary: Add or remove Contextual Bandit variations
+      description: Adds and/or removes variations on a Contextual Bandit. Send `addVariations` and `removeVariationIds` independently; both are optional. New arms must carry a `values` entry for each linked feature. Running CBs publish the linked-feature updates; draft CBs stage them until start. Under an approval flow, unapproved drafts leave the added arm `pending` (zero weight, filtered from the SDK) until every linked feature's draft is live. Removed arms are tombstoned; their ids can never be re-added. Weights are reconciled server-side.
+      tags:
+      - ContextualBandits
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                addVariations:
+                  description: New arms to add. Omit `id` to have the server generate one and `key` to have the server assign the next integer.
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      name:
+                        type: string
+                      description:
+                        type: string
+                        maxLength: 10000
+                      key:
+                        type: string
+                      screenshots:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            path:
+                              type: string
+                            width:
+                              type: number
+                            height:
+                              type: number
+                            description:
+                              type: string
+                              maxLength: 10000
+                          required:
+                          - path
+                          additionalProperties: false
+                      values:
+                        description: Value this new arm serves on each currently-linked feature, keyed by feature id. Required for every linked feature. Encode as a string for every `valueType` (`"true"`, `"5"`, `"{\"a\":1}"`), matching how `feature.defaultValue` is set.
+                        type: object
+                        propertyNames:
+                          type: string
+                        additionalProperties:
+                          type: string
+                    required:
+                    - name
+                    additionalProperties: false
+                removeVariationIds:
+                  description: Ids of active arms to remove. Removed arms are tombstoned in place and their ids can never be re-added.
+                  type: array
+                  items:
+                    type: string
+                updateVariations:
+                  description: Metadata edits to existing active arms. `name`, `description`, and `key` may be changed; values, weights, screenshots, and status are preserved.
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      name:
+                        type: string
+                      description:
+                        type: string
+                      key:
+                        description: New key for the arm. Must be unique across the contextual bandit's arms, including removed ones. The key is what SDKs report in exposure events, so renaming an arm on a running bandit orphans exposures already recorded under the old key.
+                        type: string
+                    required:
+                    - id
+                    additionalProperties: false
+              additionalProperties: false
+      responses:
+        '200':
+          description: Resource created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  contextualBandit:
+                    $ref: '#/components/schemas/ContextualBandit'
+                  featureDraftPublishFailures:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/featureDraftPublishFailures'
+                required:
+                - contextualBandit
+                additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/contextual-bandits/{id}/variations' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/contextual-bandits/{id}/cancel:
+    post:
+      operationId: cancelContextualBandit
+      summary: Cancel a running Contextual Bandit snapshot refresh
+      tags:
+      - ContextualBandits
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: The Contextual Bandit id
+        schema:
+          description: The Contextual Bandit id
+          type: string
+      responses:
+        '200':
+          description: Contextual Bandit snapshot refresh canceled
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                required:
+                - status
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/contextual-bandits/{id}/cancel' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+components:
+  schemas:
+    snapshots:
+      type: object
+      properties:
+        id:
+          type: string
+        contextualBandit:
+          type: string
+        status:
+          type: string
+          enum:
+          - pending
+          - running
+          - success
+          - error
+          - partial
+        weightsWereUpdated:
+          type: boolean
+        contextualBanditEventId:
+          anyOf:
+          - type: string
+          - type: 'null'
+        error:
+          type: string
+        dateCreated:
+          type: string
+      required:
+      - id
+      - contextualBandit
+      - status
+      - dateCreated
+      additionalProperties: false
+    featureDraftPublishFailures:
+      type: object
+      properties:
+        featureId:
+          type: string
+        revisionVersion:
+          type: number
+        reason:
+          type: string
+      required:
+      - featureId
+      - revisionVersion
+      - reason
+      additionalProperties: false
+    events:
+      type: object
+      properties:
+        id:
+          type: string
+        contextualBandit:
+          type: string
+        snapshotId:
+          type: string
+        weightsWereUpdated:
+          type: boolean
+        degreesOfFreedom:
+          type: integer
+          minimum: 0
+        dateCreated:
+          type: string
+      required:
+      - id
+      - contextualBandit
+      - snapshotId
+      - weightsWereUpdated
+      - dateCreated
+      additionalProperties: false
+    currentLeafWeights:
+      type: object
+      properties:
+        leafId:
+          type: integer
+        condition:
+          type: object
+          propertyNames:
+            type: string
+          additionalProperties: {}
+        weights:
+          type: array
+          items:
+            type: object
+            properties:
+              variationId:
+                type: string
+              weight:
+                type: number
+            required:
+            - variationId
+            - weight
+            additionalProperties: false
+      required:
+      - leafId
+      - condition
+      - weights
+      additionalProperties: false
+    Confirmation:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+          enum:
+          - pending
+          - running
+          - completed
+          - rejected
+          - expired
+        actions:
+          type: array
+          items:
+            type: object
+            properties:
+              action:
+                type: string
+                enum:
+                - feature.create
+                - feature.draft
+                - feature.review
+                - feature.publish
+                - feature.archive
+                - feature.delete
+                - feature.other
+                - experiment.create
+                - experiment.draft
+                - experiment.start
+                - experiment.stop
+                - experiment.targeting
+                - experiment.traffic
+                - experiment.phases
+                - experiment.visualEditor
+                - experiment.other
+                - savedGroup.create
+                - savedGroup.draft
+                - savedGroup.review
+                - savedGroup.publish
+                - savedGroup.archive
+                - savedGroup.delete
+                - savedGroup.other
+                - constant.create
+                - constant.draft
+                - constant.review
+                - constant.publish
+                - constant.archive
+                - constant.delete
+                - constant.other
+                - config.create
+                - config.draft
+                - config.review
+                - config.publish
+                - config.archive
+                - config.delete
+                - config.other
+                - rampSchedule.create
+                - rampSchedule.start
+                - rampSchedule.pause
+                - rampSchedule.progression
+                - rampSchedule.approve
+                - rampSchedule.edit
+                - rampSchedule.delete
+                - rampSchedule.other
+                - settings.approvals
+                - settings.other
+                - access.members
+                - access.teams
+                - customHook.create
+                - customHook.edit
+                - customHook.delete
+                - environment.create
+                - environment.edit
+                - environment.delete
+                - project.create
+                - project.edit
+                - project.delete
+                - attribute.create
+                - attribute.edit
+                - attribute.delete
+                - customField.create
+                - customField.edit
+                - customField.delete
+                - sdkConnection.create
+                - sdkConnection.edit
+                - sdkConnection.delete
+                - metric.create
+                - metric.edit
+                - metric.delete
+                - factTable.create
+                - factTable.edit
+                - factTable.delete
+                - segment.create
+                - segment.edit
+                - segment.delete
+                - dimension.create
+                - dimension.edit
+                - dimension.delete
+                - override.ignoreWarnings
+                - override.skipSchemaValidation
+                - override.skipHooks
+                - override.bypassApproval
+                - override.restBypassesReviews
+                - override.draftLimit
+                - override.skipChecklist
+                - override.bypassDuplicateKeyCheck
+                - other.write
+              environments:
+                type: array
+                items:
+                  type: string
+            required:
+            - action
+            - environments
+            additionalProperties: false
+        summary:
+          type: string
+        url:
+          type: string
+        expiresAt:
+          type: string
+        response:
+          anyOf:
+          - type: object
+            properties:
+              status:
+                type: number
+              body: {}
+            required:
+            - status
+            - body
+            additionalProperties: false
+          - type: 'null'
+        note:
+          anyOf:
+          - type: string
+          - type: 'null'
+      required:
+      - id
+      - status
+      - actions
+      - summary
+      - url
+      - expiresAt
+      - response
+      - note
+      additionalProperties: false
+    ContextualBandit:
+      type: object
+      properties:
+        id:
+          type: string
+        dateCreated:
+          type: string
+          format: date-time
+        dateUpdated:
+          type: string
+          format: date-time
+        name:
+          type: string
+        description:
+          type: string
+        project:
+          type: string
+        owner:
+          description: The userId of the owner (or raw owner name/email for legacy records)
+          type: string
+        ownerEmail:
+          description: The email address of the owner, when the owner can be resolved to a known user.
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        archived:
+          type: boolean
+        status:
+          type: string
+          enum:
+          - draft
+          - running
+          - stopped
+        dateStarted:
+          type: string
+          format: date-time
+        dateStopped:
+          type: string
+          format: date-time
+        trackingKey:
+          type: string
+        hashAttribute:
+          type: string
+        variations:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              key:
+                type: string
+              name:
+                type: string
+              description:
+                type: string
+              status:
+                type: string
+                enum:
+                - active
+                - pending
+            required:
+            - id
+            - key
+            - name
+            additionalProperties: false
+        datasource:
+          type: string
+        contextualBanditQueryId:
+          type: string
+        coverage:
+          type: number
+          minimum: 0
+          maximum: 1
+        condition:
+          type: string
+        savedGroups:
+          type: array
+          items:
+            type: object
+            properties:
+              match:
+                type: string
+                enum:
+                - all
+                - none
+                - any
+              ids:
+                type: array
+                items:
+                  type: string
+            required:
+            - match
+            - ids
+            additionalProperties: false
+        prerequisites:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              condition:
+                type: string
+            required:
+            - id
+            - condition
+            additionalProperties: false
+        seed:
+          type: string
+        variationWeights:
+          type: array
+          items:
+            type: object
+            properties:
+              variationId:
+                type: string
+              weight:
+                type: number
+            required:
+            - variationId
+            - weight
+            additionalProperties: false
+        currentLeafWeights:
+          type: array
+          items:
+            type: object
+            properties:
+              leafId:
+                type: integer
+              condition:
+                type: object
+                propertyNames:
+                  type: string
+                additionalProperties: {}
+              weights:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    variationId:
+                      type: string
+                    weight:
+                      type: number
+                  required:
+                  - variationId
+                  - weight
+                  additionalProperties: false
+            required:
+            - leafId
+            - condition
+            - weights
+            additionalProperties: false
+        banditVersion:
+          type: integer
+          minimum: 0
+        contextualAttributes:
+          type: array
+          items:
+            type: string
+        decisionMetric:
+          type: string
+        minUsersPerLeaf:
+          type: integer
+          exclusiveMinimum: 0
+        maxLeaves:
+          type: integer
+          exclusiveMinimum: 0
+        priorSampleSize:
+          type: integer
+          minimum: 0
+        holdoutPercent:
+          type: number
+          minimum: 0
+          maximum: 0.5
+        banditModelVersion:
+          type: integer
+          minimum: 0
+        scheduleValue:
+          type: number
+        scheduleUnit:
+          type: string
+          enum:
+          - days
+          - hours
+        burnInValue:
+          type: number
+        burnInUnit:
+          type: string
+          enum:
+          - days
+          - hours
+        conversionWindowValue:
+          anyOf:
+          - type: number
+          - type: 'null'
+        conversionWindowUnit:
+          anyOf:
+          - type: string
+            enum:
+            - hours
+            - days
+          - type: 'null'
+        stage:
+          type: string
+          enum:
+          - explore
+          - exploit
+          - paused
+        stageDateStarted:
+          type: string
+          format: date-time
+        autoSnapshots:
+          type: boolean
+        nextSnapshotAttempt:
+          type: string
+          format: date-time
+        hasVisualChangesets:
+          type: boolean
+      required:
+      - id
+      - dateCreated
+      - dateUpdated
+      - name
+      - owner
+      - tags
+      - archived
+      - status
+      - trackingKey
+      - hashAttribute
+      - variations
+      - datasource
+      - contextualBanditQueryId
+      - seed
+      - currentLeafWeights
+      - banditVersion
+      - contextualAttributes
+      - minUsersPerLeaf
+      - maxLeaves
+      - priorSampleSize
+      - holdoutPercent
+      - banditModelVersion
+      additionalProperties: false
+    ConfirmationHeld:
+      type: object
+      properties:
+        confirmation:
+          $ref: '#/components/schemas/Confirmation'
+        message:
+          type: string
+      required:
+      - confirmation
+      - message
+      additionalProperties: false
+      $defs:
+        Confirmation:
+          id: Confirmation
+          type: object
+          properties:
+            id:
+              type: string
+            status:
+              type: string
+              enum:
+              - pending
+              - running
+              - completed
+              - rejected
+              - expired
+            actions:
+              type: array
+              items:
+                type: object
+                properties:
+                  action:
+                    type: string
+                    enum:
+                    - feature.create
+                    - feature.draft
+                    - feature.review
+                    - feature.publish
+                    - feature.archive
+                    - feature.delete
+                    - feature.other
+                    - experiment.create
+                    - experiment.draft
+                    - experiment.start
+                    - experiment.stop
+                    - experiment.targeting
+                    - experiment.traffic
+                    - experiment.phases
+                    - experiment.visualEditor
+                    - experiment.other
+                    - savedGroup.create
+                    - savedGroup.draft
+                    - savedGroup.review
+                    - savedGroup.publish
+                    - savedGroup.archive
+                    - savedGroup.delete
+                    - savedGroup.other
+                    - constant.create
+                    - constant.draft
+                    - constant.review
+                    - constant.publish
+                    - constant.archive
+                    - constant.delete
+                    - constant.other
+                    - config.create
+                    - config.draft
+                    - config.review
+                    - config.publish
+                    - config.archive
+                    - config.delete
+                    - config.other
+                    - rampSchedule.create
+                    - rampSchedule.start
+                    - rampSchedule.pause
+                    - rampSchedule.progression
+                    - rampSchedule.approve
+                    - rampSchedule.edit
+                    - rampSchedule.delete
+                    - rampSchedule.other
+                    - settings.approvals
+                    - settings.other
+                    - access.members
+                    - access.teams
+                    - customHook.create
+                    - customHook.edit
+                    - customHook.delete
+                    - environment.create
+                    - environment.edit
+                    - environment.delete
+                    - project.create
+                    - project.edit
+                    - project.delete
+                    - attribute.create
+                    - attribute.edit
+                    - attribute.delete
+                    - customField.create
+                    - customField.edit
+                    - customField.delete
+                    - sdkConnection.create
+                    - sdkConnection.edit
+                    - sdkConnection.delete
+                    - metric.create
+                    - metric.edit
+                    - metric.delete
+                    - factTable.create
+                    - factTable.edit
+                    - factTable.delete
+                    - segment.create
+                    - segment.edit
+                    - segment.delete
+                    - dimension.create
+                    - dimension.edit
+                    - dimension.delete
+                    - override.ignoreWarnings
+                    - override.skipSchemaValidation
+                    - override.skipHooks
+                    - override.bypassApproval
+                    - override.restBypassesReviews
+                    - override.draftLimit
+                    - override.skipChecklist
+                    - override.bypassDuplicateKeyCheck
+                    - other.write
+                  environments:
+                    type: array
+                    items:
+                      type: string
+                required:
+                - action
+                - environments
+                additionalProperties: false
+            summary:
+              type: string
+            url:
+              type: string
+            expiresAt:
+              type: string
+            response:
+              anyOf:
+              - type: object
+                properties:
+                  status:
+                    type: number
+                  body: {}
+                required:
+                - status
+                - body
+                additionalProperties: false
+              - type: 'null'
+            note:
+              anyOf:
+              - type: string
+              - type: 'null'
+          required:
+          - id
+          - status
+          - actions
+          - summary
+          - url
+          - expiresAt
+          - response
+          - note
+          additionalProperties: false
+  parameters:
+    eventId:
+      name: eventId
+      in: path
+      required: true
+      description: The event id
+      schema:
+        description: The event id
+        type: string
+    snapshotId:
+      name: snapshotId
+      in: path
+      required: true
+      description: The snapshot id
+      schema:
+        description: The snapshot id
+        type: string
+    draftVersion:
+      name: draftVersion
+      in: query
+      description: Remove the rule from this existing draft revision instead of live. Required when the rule hasn't been published yet — omitting it targets the live revision, which has nothing to remove.
+      schema:
+        description: Remove the rule from this existing draft revision instead of live. Required when the rule hasn't been published yet — omitting it targets the live revision, which has nothing to remove.
+        type: integer
+    autoPublish:
+      name: autoPublish
+      in: query
+      description: Publish the resulting revision immediately instead of leaving it as a draft.
+      schema:
+        description: Publish the resulting revision immediately instead of leaving it as a draft.
+        anyOf:
+        - type: string
+          const: 'true'
+        - type: string
+          const: 'false'
+        - type: string
+          const: '0'
+        - type: string
+          const: '1'
+        - type: boolean
+  responses:
+    ConfirmationHeld:
+      description: Held until a person confirms it in GrowthBook. Poll the Location until the confirmation completes.
+      headers:
+        Location:
+          description: The confirmation to poll
+          schema:
+            type: string
+        Retry-After:
+          description: Seconds to wait before polling
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ConfirmationHeld'
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: 'If using Bearer auth, pass the Secret Key as the token:
+
+        ```bash
+
+        curl https://api.growthbook.io/api/v1/features   -H "Authorization: Bearer secret_abc123DEF456"
+
+        ```
+
+        '
+    basicAuth:
+      type: http
+      scheme: basic
+      description: 'If using HTTP Basic auth, pass the Secret Key as the username and leave the password blank:
+
+        ```bash
+
+        curl https://api.growthbook.io/api/v1/features   -u secret_abc123DEF456:
+
+        # The ":" at the end stops curl from asking for a password
+
+        ```
+
+        '
+x-tagGroups:
+- name: Endpoints
+  tags:
+  - projects
+  - environments
+  - features-v2
+  - feature-revisions-v2
+  - features
+  - feature-revisions
+  - ramp-schedules
+  - data-sources
+  - fact-tables
+  - fact-metrics
+  - metrics
+  - experiments
+  - namespaces
+  - snapshots
+  - dimensions
+  - segments
+  - reports
+  - sdk-connections
+  - visual-changesets
+  - saved-groups
+  - saved-group-revisions
+  - constants
+  - constant-revisions
+  - configs
+  - config-revisions
+  - releases
+  - custom-hooks
+  - organizations
+  - members
+  - code-references
+  - archetypes
+  - queries
+  - settings
+  - attributes
+  - usage
+  - meta
+  - ContextualBandits
+  - Dashboards
+  - ContextualBanditQueries
+  - CustomFields
+  - MetricGroups
+  - Teams
+  - ExperimentTemplates
+  - AnalyticsExplorations
+  - RampScheduleTemplates
+  - Learnings
+  - Holdouts
+  - AutoRuns
+  - Populations
+- name: Models
+  tags:
+  - AggregatedFactTable_model
+  - AnalyticsExploration_model
+  - Archetype_model
+  - Attribute_model
+  - AutoRun_model
+  - CodeRef_model
+  - Config_model
+  - ConfigKeyUsage_model
+  - ConfigLineage_model
+  - ConfigReferences_model
+  - ConfigRevision_model
+  - ConfigRevisionActivityLogEntry_model
+  - ConfigRevisionRef_model
+  - ConfigRevisionReview_model
+  - ConfigSchemaExport_model
+  - ConfigSchemaSource_model
+  - ConfigSchemaVerify_model
+  - ConfigSchemaWarning_model
+  - Confirmation_model
+  - ConfirmationHeld_model
+  - Constant_model
+  - ConstantReferences_model
+  - ConstantRevision_model
+  - ConstantRevisionActivityLogEntry_model
+  - ConstantRevisionRef_model
+  - ConstantRevisionReview_model
+  - ContextualBandit_model
+  - ContextualBanditQuery_model
+  - CustomField_model
+  - CustomHook_model
+  - Dashboard_model
+  - DataSource_model
+  - Dimension_model
+  - Environment_model
+  - EventUser_model
+  - Experiment_model
+  - Experiment Rule_model
+  - ExperimentAnalysisSettings_model
+  - ExperimentDecisionFrameworkSettings_model
+  - ExperimentMetric_model
+  - ExperimentMetricOverrideEntry_model
+  - ExperimentResults_model
+  - ExperimentSnapshot_model
+  - ExperimentTemplate_model
+  - ExperimentWithEnhancedStatus_model
+  - FactMetric_model
+  - FactTable_model
+  - FactTableColumn_model
+  - FactTableFilter_model
+  - FeatureBaseRule_model
+  - FeatureContextualBanditRefRule_model
+  - FeatureDefinition_model
+  - FeatureEnvironmentV1_model
+  - FeatureEnvironmentV2_model
+  - FeatureExperimentRefRule_model
+  - FeatureExperimentRule_model
+  - FeatureForceRule_model
+  - FeatureRevisionRef_model
+  - FeatureRevisionSummary_model
+  - FeatureRevisionV1_model
+  - FeatureRevisionV2_model
+  - FeatureRolloutRule_model
+  - FeatureRuleV1_model
+  - FeatureRuleV2_model
+  - FeatureSafeRolloutRule_model
+  - FeatureV1_model
+  - FeatureV2_model
+  - FeatureWithRevisionsV1_model
+  - FeatureWithRevisionsV2_model
+  - Holdout_model
+  - InformationSchema_model
+  - InformationSchemaTable_model
+  - Learning_model
+  - LookbackOverride_model
+  - Member_model
+  - Metric_model
+  - MetricAnalysis_model
+  - MetricGroup_model
+  - MetricUsage_model
+  - Namespace_model
+  - NamespaceExperimentMember_model
+  - Organization_model
+  - PaginationFields_model
+  - Population_model
+  - Project_model
+  - Query_model
+  - RampSchedule_model
+  - RampScheduleTemplate_model
+  - Report_model
+  - RequireReviewRule_model
+  - RequireReviewRuleInput_model
+  - RevisionIdRef_model
+  - Safe Rollout Rule_model
+  - SavedGroup_model
+  - SavedGroupApprovalRule_model
+  - SavedGroupReferenceResource_model
+  - SavedGroupReferences_model
+  - SavedGroupRevision_model
+  - SavedGroupRevisionActivityLogEntry_model
+  - SavedGroupRevisionRef_model
+  - SavedGroupRevisionReview_model
+  - ScheduleRule_model
+  - ScheduledStopPlan_model
+  - SdkConnection_model
+  - Segment_model
+  - Settings_model
+  - Targeting Rule_model
+  - TargetingReviewRule_model
+  - Team_model
+  - VisualChange_model
+  - VisualChangeset_model
+  - VisualEditorCbExperimentStub_model

@@ -1,0 +1,383 @@
+openapi: 3.2.0
+info:
+  version: 1.0.0
+  title: GrowthBook REST Code References API
+  description: GrowthBook offers a full REST API for interacting with the application.
+servers:
+- url: https://api.growthbook.io/api
+  description: GrowthBook Cloud
+- url: https://{domain}/api
+  description: Self-hosted GrowthBook
+security:
+- bearerAuth: []
+- basicAuth: []
+tags:
+- name: Code References
+  x-displayName: Code References
+  description: Intended for use with our code reference CI utility, `gb-find-code-refs`.
+paths:
+  /v1/code-refs:
+    post:
+      operationId: postCodeRefs
+      summary: Submit list of code references
+      tags:
+      - Code References
+      parameters:
+      - $ref: '#/components/parameters/deleteMissing'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                branch:
+                  type: string
+                repoName:
+                  type: string
+                refs:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      filePath:
+                        type: string
+                      startingLineNumber:
+                        type: integer
+                      lines:
+                        type: string
+                      flagKey:
+                        type: string
+                      contentHash:
+                        type: string
+                    required:
+                    - filePath
+                    - startingLineNumber
+                    - lines
+                    - flagKey
+                    - contentHash
+                    additionalProperties: false
+              required:
+              - branch
+              - repoName
+              - refs
+              additionalProperties: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  featuresUpdated:
+                    type: array
+                    items:
+                      type: string
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/code-refs' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"branch\":\"main\",\"repoName\":\"my-repo\",\"refs\":[{\"filePath\":\"src/app.ts\",\"startingLineNumber\":16,\"lines\":\"...\",\"flagKey\":\"my-feature\",\"contentHash\":\"abc123\"}]}'"
+    get:
+      operationId: listCodeRefs
+      summary: Get list of all code references for the current organization
+      tags:
+      - Code References
+      parameters:
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                allOf:
+                - type: object
+                  properties:
+                    codeRefs:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/CodeRef'
+                  required:
+                  - codeRefs
+                  additionalProperties: false
+                - $ref: '#/components/schemas/PaginationFields'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/code-refs' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/code-refs/{id}:
+    get:
+      operationId: getCodeRefs
+      summary: Get list of code references for a single feature id
+      tags:
+      - Code References
+      parameters:
+      - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  codeRefs:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CodeRef'
+                required:
+                - codeRefs
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/code-refs/abc123' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+components:
+  schemas:
+    PaginationFields:
+      type: object
+      properties:
+        limit:
+          type: integer
+        offset:
+          type: integer
+        count:
+          type: integer
+        total:
+          type: integer
+        hasMore:
+          type: boolean
+        nextOffset:
+          anyOf:
+          - type: integer
+          - type: 'null'
+      required:
+      - limit
+      - offset
+      - count
+      - total
+      - hasMore
+      - nextOffset
+      additionalProperties: false
+    CodeRef:
+      type: object
+      properties:
+        organization:
+          description: The organization name
+          type: string
+        dateUpdated:
+          format: date-time
+          description: When the code references were last updated
+          type: string
+        feature:
+          description: Feature identifier
+          type: string
+        repo:
+          description: Repository name
+          type: string
+        branch:
+          description: Branch name
+          type: string
+        platform:
+          description: Source control platform
+          type: string
+          enum:
+          - github
+          - gitlab
+          - bitbucket
+        refs:
+          type: array
+          items:
+            type: object
+            properties:
+              filePath:
+                description: Path to the file containing the reference
+                type: string
+              startingLineNumber:
+                description: Line number where the reference starts
+                type: integer
+              lines:
+                description: The code lines containing the reference
+                type: string
+              flagKey:
+                description: The feature flag key referenced
+                type: string
+            required:
+            - filePath
+            - startingLineNumber
+            - lines
+            - flagKey
+            additionalProperties: false
+      required:
+      - organization
+      - dateUpdated
+      - feature
+      - repo
+      - branch
+      - refs
+      additionalProperties: false
+  parameters:
+    offset:
+      name: offset
+      in: query
+      description: How many items to skip (use in conjunction with limit for pagination)
+      schema:
+        default: 0
+        description: How many items to skip (use in conjunction with limit for pagination)
+        type: integer
+        minimum: 0
+    id:
+      name: id
+      in: path
+      required: true
+      description: The id of the requested resource
+      schema:
+        description: The id of the requested resource
+        type: string
+    limit:
+      name: limit
+      in: query
+      description: The number of items to return
+      schema:
+        default: 10
+        description: The number of items to return
+        type: integer
+        minimum: 1
+        maximum: 100
+    deleteMissing:
+      name: deleteMissing
+      in: query
+      description: Whether to delete code references that are no longer present in the submitted data
+      schema:
+        description: Whether to delete code references that are no longer present in the submitted data
+        default: 'false'
+        type: string
+        enum:
+        - 'true'
+        - 'false'
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: 'If using Bearer auth, pass the Secret Key as the token:
+
+        ```bash
+
+        curl https://api.growthbook.io/api/v1/features   -H "Authorization: Bearer secret_abc123DEF456"
+
+        ```
+
+        '
+    basicAuth:
+      type: http
+      scheme: basic
+      description: 'If using HTTP Basic auth, pass the Secret Key as the username and leave the password blank:
+
+        ```bash
+
+        curl https://api.growthbook.io/api/v1/features   -u secret_abc123DEF456:
+
+        # The ":" at the end stops curl from asking for a password
+
+        ```
+
+        '
+x-tagGroups:
+- name: Endpoints
+  tags:
+  - projects
+  - environments
+  - features-v2
+  - feature-revisions-v2
+  - features
+  - feature-revisions
+  - ramp-schedules
+  - data-sources
+  - fact-tables
+  - fact-metrics
+  - metrics
+  - experiments
+  - namespaces
+  - snapshots
+  - dimensions
+  - segments
+  - sdk-connections
+  - visual-changesets
+  - saved-groups
+  - organizations
+  - members
+  - code-references
+  - archetypes
+  - queries
+  - settings
+  - attributes
+  - usage
+  - Dashboards
+  - CustomFields
+  - MetricGroups
+  - Teams
+  - ExperimentTemplates
+  - AnalyticsExplorations
+  - RampScheduleTemplates
+- name: Models
+  tags:
+  - AnalyticsExploration_model
+  - Archetype_model
+  - Attribute_model
+  - CodeRef_model
+  - CustomField_model
+  - Dashboard_model
+  - DataSource_model
+  - Dimension_model
+  - Environment_model
+  - Experiment_model
+  - ExperimentAnalysisSettings_model
+  - ExperimentDecisionFrameworkSettings_model
+  - ExperimentMetric_model
+  - ExperimentMetricOverrideEntry_model
+  - ExperimentResults_model
+  - ExperimentSnapshot_model
+  - ExperimentTemplate_model
+  - ExperimentWithEnhancedStatus_model
+  - FactMetric_model
+  - FactTable_model
+  - FactTableColumn_model
+  - FactTableFilter_model
+  - Feature_model
+  - FeatureBaseRule_model
+  - FeatureDefinition_model
+  - FeatureEnvironment_model
+  - FeatureEnvironmentV2_model
+  - FeatureExperimentRefRule_model
+  - FeatureExperimentRule_model
+  - FeatureForceRule_model
+  - FeatureRevision_model
+  - FeatureRevisionV2_model
+  - FeatureRolloutRule_model
+  - FeatureRule_model
+  - FeatureRuleV2_model
+  - FeatureSafeRolloutRule_model
+  - FeatureV2_model
+  - FeatureWithRevisions_model
+  - FeatureWithRevisionsV2_model
+  - InformationSchema_model
+  - InformationSchemaTable_model
+  - LookbackOverride_model
+  - Member_model
+  - Metric_model
+  - MetricAnalysis_model
+  - MetricGroup_model
+  - MetricUsage_model
+  - Namespace_model
+  - NamespaceExperimentMember_model
+  - Organization_model
+  - PaginationFields_model
+  - Project_model
+  - Query_model
+  - RampSchedule_model
+  - RampScheduleTemplate_model
+  - SavedGroup_model
+  - ScheduleRule_model
+  - SdkConnection_model
+  - Segment_model
+  - Settings_model
+  - Team_model
+  - VisualChange_model
+  - VisualChangeset_model

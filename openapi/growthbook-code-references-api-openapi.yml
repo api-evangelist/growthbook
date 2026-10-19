@@ -1,13 +1,66 @@
 openapi: 3.2.0
 info:
-  version: 1.0.0
+  version: 5.1.0
   title: GrowthBook REST Code References API
-  description: GrowthBook offers a full REST API for interacting with the application.
+  description: 'GrowthBook offers a full REST API for interacting with the application. Request data can use either JSON or Form data encoding (with proper `Content-Type` headers). All response bodies are JSON-encoded. The API base URL for GrowthBook Cloud is `https://api.growthbook.io/api`. For self-hosted deployments, it is the same as your API_HOST environment variable (defaults to `http://localhost:3100/api`). The rest of these docs will assume you are using GrowthBook Cloud. ## Versioning
+
+
+    Endpoints are versioned by path prefix:
+
+
+    - `/v1/...` — stable, widely-supported endpoints
+
+    - `/v2/...` — updated endpoints with improved shapes (e.g. unified per-rule environment scope for feature flags)
+
+
+    New integrations should prefer v2 where available. Feature-flag and metric v1 routes are deprecated: they are tagged **LEGACY** in the sidebar and collapsed by default. Use the matching v2 group when both exist. ## Authentication
+
+
+    We support both the HTTP Basic and Bearer authentication schemes for convenience. You first need to generate a new API Key in GrowthBook. Different keys have different permissions:
+
+
+    - **Personal Access Tokens**: These are sensitive and provide the same level of access as the user has to an organization, or less if the token''s permissions are limited. These can be created by going to `Personal Access Tokens` under your user menu. Members with the API Keys **Manage members'' tokens** permission can disable a member''s token under `Settings -> Manage PATs`, and admins can require new tokens to expire within a maximum lifetime. - **Secret Keys**: These are sensitive and provide the level of access of the role they are given, which can be any built-in or custom role, with optional per-project role overrides and environment limits. Managing Secret Keys on behalf of an organization takes the API Keys permissions. These can be created by going to `Settings -> API Keys`, where Admins can also require new Secret Keys to expire within a maximum lifetime. If using HTTP Basic auth, pass the Secret Key as the username and leave the password blank (when using curl, add `:` at the end of the secret to indicate an empty password)
+
+
+    ```bash
+
+    curl https://api.growthbook.io/api/v1/features \
+
+    -u secret_abc123DEF456:
+
+    ```
+
+
+    If using Bearer auth, pass the Secret Key as the token:
+
+
+    ```bash
+
+    curl https://api.growthbook.io/api/v1/features \
+
+    -H "Authorization: Bearer secret_abc123DEF456"
+
+    ```
+
+
+    If a key has an expiration date, every response includes it in the `X-GrowthBook-Key-Expires-At` header (ISO 8601), so scripts can warn before the key stops working. Requests made with an expired key fail with a `401` that says where to create a replacement. See Expiration for choosing a key''s expiration, the warnings before it lapses, and the organization policies. ## Naming who asked
+
+
+    Requests made with a Secret Key may add an `X-GrowthBook-Requested-By` header naming the organization member who asked for the change, as a user id or an email address. History, revision logs and webhooks show that member next to the key. Each key''s settings under `Settings -> API Keys`:
+
+
+    - **Header**: **Optional** (the default) uses the header when it''s sent, **Required** rejects requests without it, and **Rejected** rejects requests that send it, each with a 400. - **Permissions**, when a member is named:
+
+    - **Assume member''s role** (the default): the request acts as that member, with only what both the key and the member can do, so the header can narrow a key but never widen it. Drafts, owners, `mine` filters and reviews are the member''s. The member''s rights over their own drafts, comments and verdicts apply only where the key''s own role allows the same action. - **Use key''s role**: the key acts as itself, with its own permissions, and the name is only recorded in history. Drafts, verdicts and ownership are the key''s, as when no member is named.'
 servers:
 - url: https://api.growthbook.io/api
   description: GrowthBook Cloud
 - url: https://{domain}/api
   description: Self-hosted GrowthBook
+  variables:
+    domain:
+      default: localhost:3100
+      description: Your self-hosted GrowthBook host (and port)
 security:
 - bearerAuth: []
 - basicAuth: []
@@ -64,6 +117,7 @@ paths:
               additionalProperties: false
       responses:
         '200':
+          description: Resource created
           content:
             application/json:
               schema:
@@ -74,6 +128,8 @@ paths:
                     items:
                       type: string
                 additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
       x-codeSamples:
       - lang: cURL
         source: "curl -X POST 'https://api.growthbook.io/api/v1/code-refs' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"branch\":\"main\",\"repoName\":\"my-repo\",\"refs\":[{\"filePath\":\"src/app.ts\",\"startingLineNumber\":16,\"lines\":\"...\",\"flagKey\":\"my-feature\",\"contentHash\":\"abc123\"}]}'"
@@ -87,6 +143,7 @@ paths:
       - $ref: '#/components/parameters/offset'
       responses:
         '200':
+          description: Successful response
           content:
             application/json:
               schema:
@@ -114,6 +171,7 @@ paths:
       - $ref: '#/components/parameters/id'
       responses:
         '200':
+          description: Successful response
           content:
             application/json:
               schema:
@@ -213,7 +271,328 @@ components:
       - branch
       - refs
       additionalProperties: false
+    Confirmation:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+          enum:
+          - pending
+          - running
+          - completed
+          - rejected
+          - expired
+        actions:
+          type: array
+          items:
+            type: object
+            properties:
+              action:
+                type: string
+                enum:
+                - feature.create
+                - feature.draft
+                - feature.review
+                - feature.publish
+                - feature.archive
+                - feature.delete
+                - feature.other
+                - experiment.create
+                - experiment.draft
+                - experiment.start
+                - experiment.stop
+                - experiment.targeting
+                - experiment.traffic
+                - experiment.phases
+                - experiment.visualEditor
+                - experiment.other
+                - savedGroup.create
+                - savedGroup.draft
+                - savedGroup.review
+                - savedGroup.publish
+                - savedGroup.archive
+                - savedGroup.delete
+                - savedGroup.other
+                - constant.create
+                - constant.draft
+                - constant.review
+                - constant.publish
+                - constant.archive
+                - constant.delete
+                - constant.other
+                - config.create
+                - config.draft
+                - config.review
+                - config.publish
+                - config.archive
+                - config.delete
+                - config.other
+                - rampSchedule.create
+                - rampSchedule.start
+                - rampSchedule.pause
+                - rampSchedule.progression
+                - rampSchedule.approve
+                - rampSchedule.edit
+                - rampSchedule.delete
+                - rampSchedule.other
+                - settings.approvals
+                - settings.other
+                - access.members
+                - access.teams
+                - customHook.create
+                - customHook.edit
+                - customHook.delete
+                - environment.create
+                - environment.edit
+                - environment.delete
+                - project.create
+                - project.edit
+                - project.delete
+                - attribute.create
+                - attribute.edit
+                - attribute.delete
+                - customField.create
+                - customField.edit
+                - customField.delete
+                - sdkConnection.create
+                - sdkConnection.edit
+                - sdkConnection.delete
+                - metric.create
+                - metric.edit
+                - metric.delete
+                - factTable.create
+                - factTable.edit
+                - factTable.delete
+                - segment.create
+                - segment.edit
+                - segment.delete
+                - dimension.create
+                - dimension.edit
+                - dimension.delete
+                - override.ignoreWarnings
+                - override.skipSchemaValidation
+                - override.skipHooks
+                - override.bypassApproval
+                - override.restBypassesReviews
+                - override.draftLimit
+                - override.skipChecklist
+                - override.bypassDuplicateKeyCheck
+                - other.write
+              environments:
+                type: array
+                items:
+                  type: string
+            required:
+            - action
+            - environments
+            additionalProperties: false
+        summary:
+          type: string
+        url:
+          type: string
+        expiresAt:
+          type: string
+        response:
+          anyOf:
+          - type: object
+            properties:
+              status:
+                type: number
+              body: {}
+            required:
+            - status
+            - body
+            additionalProperties: false
+          - type: 'null'
+        note:
+          anyOf:
+          - type: string
+          - type: 'null'
+      required:
+      - id
+      - status
+      - actions
+      - summary
+      - url
+      - expiresAt
+      - response
+      - note
+      additionalProperties: false
+    ConfirmationHeld:
+      type: object
+      properties:
+        confirmation:
+          $ref: '#/components/schemas/Confirmation'
+        message:
+          type: string
+      required:
+      - confirmation
+      - message
+      additionalProperties: false
+      $defs:
+        Confirmation:
+          id: Confirmation
+          type: object
+          properties:
+            id:
+              type: string
+            status:
+              type: string
+              enum:
+              - pending
+              - running
+              - completed
+              - rejected
+              - expired
+            actions:
+              type: array
+              items:
+                type: object
+                properties:
+                  action:
+                    type: string
+                    enum:
+                    - feature.create
+                    - feature.draft
+                    - feature.review
+                    - feature.publish
+                    - feature.archive
+                    - feature.delete
+                    - feature.other
+                    - experiment.create
+                    - experiment.draft
+                    - experiment.start
+                    - experiment.stop
+                    - experiment.targeting
+                    - experiment.traffic
+                    - experiment.phases
+                    - experiment.visualEditor
+                    - experiment.other
+                    - savedGroup.create
+                    - savedGroup.draft
+                    - savedGroup.review
+                    - savedGroup.publish
+                    - savedGroup.archive
+                    - savedGroup.delete
+                    - savedGroup.other
+                    - constant.create
+                    - constant.draft
+                    - constant.review
+                    - constant.publish
+                    - constant.archive
+                    - constant.delete
+                    - constant.other
+                    - config.create
+                    - config.draft
+                    - config.review
+                    - config.publish
+                    - config.archive
+                    - config.delete
+                    - config.other
+                    - rampSchedule.create
+                    - rampSchedule.start
+                    - rampSchedule.pause
+                    - rampSchedule.progression
+                    - rampSchedule.approve
+                    - rampSchedule.edit
+                    - rampSchedule.delete
+                    - rampSchedule.other
+                    - settings.approvals
+                    - settings.other
+                    - access.members
+                    - access.teams
+                    - customHook.create
+                    - customHook.edit
+                    - customHook.delete
+                    - environment.create
+                    - environment.edit
+                    - environment.delete
+                    - project.create
+                    - project.edit
+                    - project.delete
+                    - attribute.create
+                    - attribute.edit
+                    - attribute.delete
+                    - customField.create
+                    - customField.edit
+                    - customField.delete
+                    - sdkConnection.create
+                    - sdkConnection.edit
+                    - sdkConnection.delete
+                    - metric.create
+                    - metric.edit
+                    - metric.delete
+                    - factTable.create
+                    - factTable.edit
+                    - factTable.delete
+                    - segment.create
+                    - segment.edit
+                    - segment.delete
+                    - dimension.create
+                    - dimension.edit
+                    - dimension.delete
+                    - override.ignoreWarnings
+                    - override.skipSchemaValidation
+                    - override.skipHooks
+                    - override.bypassApproval
+                    - override.restBypassesReviews
+                    - override.draftLimit
+                    - override.skipChecklist
+                    - override.bypassDuplicateKeyCheck
+                    - other.write
+                  environments:
+                    type: array
+                    items:
+                      type: string
+                required:
+                - action
+                - environments
+                additionalProperties: false
+            summary:
+              type: string
+            url:
+              type: string
+            expiresAt:
+              type: string
+            response:
+              anyOf:
+              - type: object
+                properties:
+                  status:
+                    type: number
+                  body: {}
+                required:
+                - status
+                - body
+                additionalProperties: false
+              - type: 'null'
+            note:
+              anyOf:
+              - type: string
+              - type: 'null'
+          required:
+          - id
+          - status
+          - actions
+          - summary
+          - url
+          - expiresAt
+          - response
+          - note
+          additionalProperties: false
   parameters:
+    limit:
+      name: limit
+      in: query
+      description: The number of items to return
+      schema:
+        default: 10
+        description: The number of items to return
+        type: integer
+        minimum: 1
+        maximum: 100
     offset:
       name: offset
       in: query
@@ -231,16 +610,6 @@ components:
       schema:
         description: The id of the requested resource
         type: string
-    limit:
-      name: limit
-      in: query
-      description: The number of items to return
-      schema:
-        default: 10
-        description: The number of items to return
-        type: integer
-        minimum: 1
-        maximum: 100
     deleteMissing:
       name: deleteMissing
       in: query
@@ -252,6 +621,22 @@ components:
         enum:
         - 'true'
         - 'false'
+  responses:
+    ConfirmationHeld:
+      description: Held until a person confirms it in GrowthBook. Poll the Location until the confirmation completes.
+      headers:
+        Location:
+          description: The confirmation to poll
+          schema:
+            type: string
+        Retry-After:
+          description: Seconds to wait before polling
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ConfirmationHeld'
   securitySchemes:
     bearerAuth:
       type: http
@@ -298,9 +683,17 @@ x-tagGroups:
   - snapshots
   - dimensions
   - segments
+  - reports
   - sdk-connections
   - visual-changesets
   - saved-groups
+  - saved-group-revisions
+  - constants
+  - constant-revisions
+  - configs
+  - config-revisions
+  - releases
+  - custom-hooks
   - organizations
   - members
   - code-references
@@ -309,25 +702,59 @@ x-tagGroups:
   - settings
   - attributes
   - usage
+  - meta
+  - ContextualBandits
   - Dashboards
+  - ContextualBanditQueries
   - CustomFields
   - MetricGroups
   - Teams
   - ExperimentTemplates
   - AnalyticsExplorations
   - RampScheduleTemplates
+  - Learnings
+  - Holdouts
+  - AutoRuns
+  - Populations
 - name: Models
   tags:
+  - AggregatedFactTable_model
   - AnalyticsExploration_model
   - Archetype_model
   - Attribute_model
+  - AutoRun_model
   - CodeRef_model
+  - Config_model
+  - ConfigKeyUsage_model
+  - ConfigLineage_model
+  - ConfigReferences_model
+  - ConfigRevision_model
+  - ConfigRevisionActivityLogEntry_model
+  - ConfigRevisionRef_model
+  - ConfigRevisionReview_model
+  - ConfigSchemaExport_model
+  - ConfigSchemaSource_model
+  - ConfigSchemaVerify_model
+  - ConfigSchemaWarning_model
+  - Confirmation_model
+  - ConfirmationHeld_model
+  - Constant_model
+  - ConstantReferences_model
+  - ConstantRevision_model
+  - ConstantRevisionActivityLogEntry_model
+  - ConstantRevisionRef_model
+  - ConstantRevisionReview_model
+  - ContextualBandit_model
+  - ContextualBanditQuery_model
   - CustomField_model
+  - CustomHook_model
   - Dashboard_model
   - DataSource_model
   - Dimension_model
   - Environment_model
+  - EventUser_model
   - Experiment_model
+  - Experiment Rule_model
   - ExperimentAnalysisSettings_model
   - ExperimentDecisionFrameworkSettings_model
   - ExperimentMetric_model
@@ -340,25 +767,30 @@ x-tagGroups:
   - FactTable_model
   - FactTableColumn_model
   - FactTableFilter_model
-  - Feature_model
   - FeatureBaseRule_model
+  - FeatureContextualBanditRefRule_model
   - FeatureDefinition_model
-  - FeatureEnvironment_model
+  - FeatureEnvironmentV1_model
   - FeatureEnvironmentV2_model
   - FeatureExperimentRefRule_model
   - FeatureExperimentRule_model
   - FeatureForceRule_model
-  - FeatureRevision_model
+  - FeatureRevisionRef_model
+  - FeatureRevisionSummary_model
+  - FeatureRevisionV1_model
   - FeatureRevisionV2_model
   - FeatureRolloutRule_model
-  - FeatureRule_model
+  - FeatureRuleV1_model
   - FeatureRuleV2_model
   - FeatureSafeRolloutRule_model
+  - FeatureV1_model
   - FeatureV2_model
-  - FeatureWithRevisions_model
+  - FeatureWithRevisionsV1_model
   - FeatureWithRevisionsV2_model
+  - Holdout_model
   - InformationSchema_model
   - InformationSchemaTable_model
+  - Learning_model
   - LookbackOverride_model
   - Member_model
   - Metric_model
@@ -369,15 +801,32 @@ x-tagGroups:
   - NamespaceExperimentMember_model
   - Organization_model
   - PaginationFields_model
+  - Population_model
   - Project_model
   - Query_model
   - RampSchedule_model
   - RampScheduleTemplate_model
+  - Report_model
+  - RequireReviewRule_model
+  - RequireReviewRuleInput_model
+  - RevisionIdRef_model
+  - Safe Rollout Rule_model
   - SavedGroup_model
+  - SavedGroupApprovalRule_model
+  - SavedGroupReferenceResource_model
+  - SavedGroupReferences_model
+  - SavedGroupRevision_model
+  - SavedGroupRevisionActivityLogEntry_model
+  - SavedGroupRevisionRef_model
+  - SavedGroupRevisionReview_model
   - ScheduleRule_model
+  - ScheduledStopPlan_model
   - SdkConnection_model
   - Segment_model
   - Settings_model
+  - Targeting Rule_model
+  - TargetingReviewRule_model
   - Team_model
   - VisualChange_model
   - VisualChangeset_model
+  - VisualEditorCbExperimentStub_model

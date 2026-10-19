@@ -521,6 +521,245 @@ apis:
     url: openapi/growthbook-visual-changesets-api-openapi.yml
   - type: Documentation
     url: https://docs.growthbook.io/api
+- aid: growthbook:growthbook-autoruns-api
+  name: GrowthBook Auto Runs API
+  description: The AutoRuns API from GrowthBook — 3 operation(s) for autoruns.
+  humanURL: https://docs.growthbook.io/api
+  baseURL: https://api.growthbook.io/api
+  tags:
+  - AutoRuns
+  properties:
+  - type: OpenAPI
+    url: openapi/growthbook-autoruns-api-openapi.yml
+  - type: Documentation
+    url: https://docs.growthbook.io/api
+- aid: growthbook:growthbook-config-revisions-api
+  name: GrowthBook Config Revisions API
+  description: >-
+    **Beta** — these endpoints are new and may change in backwards-incompatible ways.
+
+
+    Draft revisions for configs, including value and schema edits, schema import (JSON Schema / TypeScript
+    / inferred), approvals, and lifecycle (publish, discard, revert). Publishing a schema change cascades
+    the "base wins" normalization to descendant configs; a publish that removes or retypes fields descendants
+    still use soft-blocks with a 422 unless the request body sets `ignoreWarnings: true`. Pass `version:
+    "new"` on edit endpoints to auto-create a draft.
+  humanURL: https://docs.growthbook.io/api
+  baseURL: https://api.growthbook.io/api
+  tags:
+  - config-revisions
+  properties:
+  - type: OpenAPI
+    url: openapi/growthbook-config-revisions-api-openapi.yml
+  - type: Documentation
+    url: https://docs.growthbook.io/api
+- aid: growthbook:growthbook-configs-api
+  name: GrowthBook Configs API
+  description: >-
+    **Beta** — these endpoints are new and may change in backwards-incompatible ways.
+
+
+    Reusable, typed, inheritable JSON objects referenced from feature flag values as `@config:key`. A
+    config carries a field `schema` (with TypeScript/JSON Schema import-export) and a lineage `parent`.
+    Inheritance is expressed via `parent`, never an in-value `@config:` entry. Values layer as a **deep,
+    targeted patch**: a child (or a config-backed feature value) restates only the leaves it changes and
+    inherits the rest — unlike a constant's `$extends`, whose own keys replace wholesale. Schema fields
+    colliding with a published ancestor's key follow 'base wins': identical re-declarations are stripped
+    with a warning, differing ones are rejected.
+  humanURL: https://docs.growthbook.io/api
+  baseURL: https://api.growthbook.io/api
+  tags:
+  - configs
+  properties:
+  - type: OpenAPI
+    url: openapi/growthbook-configs-api-openapi.yml
+  - type: Documentation
+    url: https://docs.growthbook.io/api
+- aid: growthbook:growthbook-constant-revisions-api
+  name: GrowthBook Constant Revisions API
+  description: >-
+    **Beta** — these endpoints are new and may change in backwards-incompatible ways.
+
+
+    Draft revisions for constants, including pending changes, approvals, and lifecycle (publish, discard,
+    revert). Pass `version: "new"` on edit endpoints to auto-create a draft.
+  humanURL: https://docs.growthbook.io/api
+  baseURL: https://api.growthbook.io/api
+  tags:
+  - constant-revisions
+  properties:
+  - type: OpenAPI
+    url: openapi/growthbook-constant-revisions-api-openapi.yml
+  - type: Documentation
+    url: https://docs.growthbook.io/api
+- aid: growthbook:growthbook-constants-api
+  name: GrowthBook Constants API
+  description: >-
+    **Beta** — these endpoints are new and may change in backwards-incompatible ways.
+
+
+    Reusable named values referenced from feature flag values as `@const:key` and resolved into the SDK
+    payload at build time. String constants are interpolated via `{{ @const:key }}`; JSON (object) constants
+    are composed via an `$extends` array. A constant's own keys **replace** what its `$extends` bases
+    provide, wholesale — constants are atomic building blocks. (Config and feature values compose as deep,
+    targeted patches instead.)
+  humanURL: https://docs.growthbook.io/api
+  baseURL: https://api.growthbook.io/api
+  tags:
+  - constants
+  properties:
+  - type: OpenAPI
+    url: openapi/growthbook-constants-api-openapi.yml
+  - type: Documentation
+    url: https://docs.growthbook.io/api
+- aid: growthbook:growthbook-contextualbanditqueries-api
+  name: GrowthBook Contextual Bandit Queries API
+  description: >-
+    The ContextualBanditQueries API from GrowthBook — 2 operation(s) for contextualbanditqueries.
+  humanURL: https://docs.growthbook.io/api
+  baseURL: https://api.growthbook.io/api
+  tags:
+  - ContextualBanditQueries
+  properties:
+  - type: OpenAPI
+    url: openapi/growthbook-contextualbanditqueries-api-openapi.yml
+  - type: Documentation
+    url: https://docs.growthbook.io/api
+- aid: growthbook:growthbook-contextualbandits-api
+  name: GrowthBook Contextual Bandits API
+  description: The ContextualBandits API from GrowthBook — 15 operation(s) for contextualbandits.
+  humanURL: https://docs.growthbook.io/api
+  baseURL: https://api.growthbook.io/api
+  tags:
+  - ContextualBandits
+  properties:
+  - type: OpenAPI
+    url: openapi/growthbook-contextualbandits-api-openapi.yml
+  - type: Documentation
+    url: https://docs.growthbook.io/api
+- aid: growthbook:growthbook-custom-hooks-api
+  name: GrowthBook Custom Hooks API
+  description: >-
+    Sandboxed JavaScript validation hooks that run when features, configs, or their revisions are saved
+    or published. Throwing an Error blocks the save; `addWarning(msg)` raises a soft warning. Hooks are
+    scoped by projects, or pinned to a single feature/config via `entityType`/`entityId`; a config-scoped
+    hook also runs for every config inheriting from it (its whole descendant lineage). Scope can be retargeted
+    on update (or cleared with nulls). Requires an enterprise plan; not available on GrowthBook Cloud.
+  humanURL: https://docs.growthbook.io/api
+  baseURL: https://api.growthbook.io/api
+  tags:
+  - custom-hooks
+  properties:
+  - type: OpenAPI
+    url: openapi/growthbook-custom-hooks-api-openapi.yml
+  - type: Documentation
+    url: https://docs.growthbook.io/api
+- aid: growthbook:growthbook-holdouts-api
+  name: GrowthBook Holdouts API
+  description: Hold a share of traffic out of all experiments to measure their combined effect.
+  humanURL: https://docs.growthbook.io/api
+  baseURL: https://api.growthbook.io/api
+  tags:
+  - Holdouts
+  properties:
+  - type: OpenAPI
+    url: openapi/growthbook-holdouts-api-openapi.yml
+  - type: Documentation
+    url: https://docs.growthbook.io/api
+- aid: growthbook:growthbook-learnings-api
+  name: GrowthBook Learnings API
+  description: Saved learnings captured across experiments, including AI-discovered patterns.
+  humanURL: https://docs.growthbook.io/api
+  baseURL: https://api.growthbook.io/api
+  tags:
+  - Learnings
+  properties:
+  - type: OpenAPI
+    url: openapi/growthbook-learnings-api-openapi.yml
+  - type: Documentation
+    url: https://docs.growthbook.io/api
+- aid: growthbook:growthbook-meta-api
+  name: GrowthBook Meta API
+  description: >-
+    Server metadata, including the running build's version and commit for version-skew checks.
+  humanURL: https://docs.growthbook.io/api
+  baseURL: https://api.growthbook.io/api
+  tags:
+  - meta
+  properties:
+  - type: OpenAPI
+    url: openapi/growthbook-meta-api-openapi.yml
+  - type: Documentation
+    url: https://docs.growthbook.io/api
+- aid: growthbook:growthbook-populations-api
+  name: GrowthBook Populations API
+  description: >-
+    **Beta** — these endpoints are new and may change in backwards-incompatible ways.
+
+
+    Populations define a set of units by the steps they must complete, such as appearing in a fact table.
+    Populations are not yet used in analysis.
+  humanURL: https://docs.growthbook.io/api
+  baseURL: https://api.growthbook.io/api
+  tags:
+  - Populations
+  properties:
+  - type: OpenAPI
+    url: openapi/growthbook-populations-api-openapi.yml
+  - type: Documentation
+    url: https://docs.growthbook.io/api
+- aid: growthbook:growthbook-releases-api
+  name: GrowthBook Releases API
+  description: >-
+    **Beta** — these endpoints are new and may change in backwards-incompatible ways.
+
+
+    Coordinated multi-entity publishing: publish a set of revisions across Feature Flags, Saved Groups,
+    configs, and constants as one all-or-nothing operation, validated against the combined end-state instead
+    of each in-between state. Requires the `releases` commercial feature.
+  humanURL: https://docs.growthbook.io/api
+  baseURL: https://api.growthbook.io/api
+  tags:
+  - releases
+  properties:
+  - type: OpenAPI
+    url: openapi/growthbook-releases-api-openapi.yml
+  - type: Documentation
+    url: https://docs.growthbook.io/api
+- aid: growthbook:growthbook-reports-api
+  name: GrowthBook Reports API
+  description: >-
+    Custom analysis reports built on top of experiment snapshots. Reports let you re-run analysis with
+    different metrics, date ranges, stats engines, and other settings without modifying the underlying
+    experiment.
+  humanURL: https://docs.growthbook.io/api
+  baseURL: https://api.growthbook.io/api
+  tags:
+  - reports
+  properties:
+  - type: OpenAPI
+    url: openapi/growthbook-reports-api-openapi.yml
+  - type: Documentation
+    url: https://docs.growthbook.io/api
+- aid: growthbook:growthbook-saved-group-revisions-api
+  name: GrowthBook Saved Group Revisions API
+  description: >-
+    Draft revisions for saved groups, including pending changes, approvals, and lifecycle (publish, discard,
+    revert).
+
+
+    Most callers can interact with these endpoints via shorthand actions (`/items/add`, `/items/remove`,
+    single-field PUTs) instead of authoring JSON Patch ops directly. Pass `version: "new"` on edit endpoints
+    to auto-create a draft.
+  humanURL: https://docs.growthbook.io/api
+  baseURL: https://api.growthbook.io/api
+  tags:
+  - saved-group-revisions
+  properties:
+  - type: OpenAPI
+    url: openapi/growthbook-saved-group-revisions-api-openapi.yml
+  - type: Documentation
+    url: https://docs.growthbook.io/api
 - aid: growthbook:growthbook-custom-fields-api
   name: GrowthBook Custom Fields API
   description: The Custom Fields API from GrowthBook — 2 operation(s) for custom fields.

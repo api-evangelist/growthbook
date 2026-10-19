@@ -1,0 +1,585 @@
+openapi: 3.2.0
+info:
+  version: 1.0.0
+  title: GrowthBook REST Teams API
+  description: GrowthBook offers a full REST API for interacting with the application.
+servers:
+- url: https://api.growthbook.io/api
+  description: GrowthBook Cloud
+- url: https://{domain}/api
+  description: Self-hosted GrowthBook
+security:
+- bearerAuth: []
+- basicAuth: []
+tags:
+- name: Teams
+  x-displayName: Teams
+  description: ''
+paths:
+  /v1/teams/{id}:
+    get:
+      operationId: getTeam
+      summary: Get a single team
+      tags:
+      - Teams
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  team:
+                    $ref: '#/components/schemas/Team'
+                required:
+                - team
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/teams/{id}' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+    put:
+      operationId: updateTeam
+      summary: Update a single team
+      tags:
+      - Teams
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                createdBy:
+                  type: string
+                description:
+                  type: string
+                role:
+                  description: The global role for members of this team
+                  type: string
+                limitAccessByEnvironment:
+                  type: boolean
+                environments:
+                  description: An empty array means 'all environments'
+                  type: array
+                  items:
+                    type: string
+                projectRoles:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      role:
+                        type: string
+                      limitAccessByEnvironment:
+                        type: boolean
+                      environments:
+                        type: array
+                        items:
+                          type: string
+                      teams:
+                        type: array
+                        items:
+                          type: string
+                      project:
+                        type: string
+                    required:
+                    - role
+                    - limitAccessByEnvironment
+                    - environments
+                    - project
+                    additionalProperties: false
+                managedBy:
+                  anyOf:
+                  - type: object
+                    properties:
+                      type:
+                        type: string
+                        const: vercel
+                      resourceId:
+                        type: string
+                    required:
+                    - type
+                    - resourceId
+                    additionalProperties: false
+                defaultProject:
+                  type: string
+              additionalProperties: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  team:
+                    $ref: '#/components/schemas/Team'
+                required:
+                - team
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X PUT 'https://api.growthbook.io/api/v1/teams/{id}' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+    delete:
+      operationId: deleteTeam
+      summary: Delete a single team
+      tags:
+      - Teams
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - $ref: '#/components/parameters/deleteMembers'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deletedId:
+                    type: string
+                required:
+                - deletedId
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X DELETE 'https://api.growthbook.io/api/v1/teams/{id}' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/teams:
+    post:
+      operationId: createTeam
+      summary: Create a single team
+      tags:
+      - Teams
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                createdBy:
+                  type: string
+                description:
+                  type: string
+                role:
+                  description: The global role for members of this team
+                  type: string
+                limitAccessByEnvironment:
+                  type: boolean
+                environments:
+                  description: An empty array means 'all environments'
+                  type: array
+                  items:
+                    type: string
+                projectRoles:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      role:
+                        type: string
+                      limitAccessByEnvironment:
+                        type: boolean
+                      environments:
+                        type: array
+                        items:
+                          type: string
+                      teams:
+                        type: array
+                        items:
+                          type: string
+                      project:
+                        type: string
+                    required:
+                    - role
+                    - limitAccessByEnvironment
+                    - environments
+                    - project
+                    additionalProperties: false
+                managedBy:
+                  anyOf:
+                  - type: object
+                    properties:
+                      type:
+                        type: string
+                        const: vercel
+                      resourceId:
+                        type: string
+                    required:
+                    - type
+                    - resourceId
+                    additionalProperties: false
+                defaultProject:
+                  type: string
+              required:
+              - name
+              - description
+              - role
+              additionalProperties: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  team:
+                    $ref: '#/components/schemas/Team'
+                required:
+                - team
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/teams' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+    get:
+      operationId: listTeams
+      summary: Get all teams
+      tags:
+      - Teams
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  teams:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Team'
+                required:
+                - teams
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/teams' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/teams/{id}/members:
+    post:
+      operationId: addTeamMembers
+      summary: Add members to team
+      tags:
+      - Teams
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                members:
+                  type: array
+                  items:
+                    type: string
+              required:
+              - members
+              additionalProperties: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                required:
+                - status
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/teams/{id}/members' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+    delete:
+      operationId: removeTeamMember
+      summary: Remove members from team
+      tags:
+      - Teams
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                members:
+                  type: array
+                  items:
+                    type: string
+              required:
+              - members
+              additionalProperties: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                required:
+                - status
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X DELETE 'https://api.growthbook.io/api/v1/teams/{id}/members' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+components:
+  parameters:
+    deleteMembers:
+      name: deleteMembers
+      in: query
+      description: When 'true', enables deleting a team that contains members
+      schema:
+        description: When 'true', enables deleting a team that contains members
+        type: string
+  schemas:
+    Team:
+      type: object
+      properties:
+        id:
+          type: string
+        dateCreated:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+        dateUpdated:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+        name:
+          type: string
+        createdBy:
+          type: string
+        description:
+          type: string
+        role:
+          type: string
+        limitAccessByEnvironment:
+          type: boolean
+        environments:
+          type: array
+          items:
+            type: string
+        projectRoles:
+          type: array
+          items:
+            type: object
+            properties:
+              role:
+                type: string
+              limitAccessByEnvironment:
+                type: boolean
+              environments:
+                type: array
+                items:
+                  type: string
+              teams:
+                type: array
+                items:
+                  type: string
+              project:
+                type: string
+            required:
+            - role
+            - limitAccessByEnvironment
+            - environments
+            - project
+            additionalProperties: false
+        members:
+          readOnly: true
+          type: array
+          items:
+            type: string
+        managedByIdp:
+          type: boolean
+        managedBy:
+          anyOf:
+          - type: object
+            properties:
+              type:
+                type: string
+                const: vercel
+              resourceId:
+                type: string
+            required:
+            - type
+            - resourceId
+            additionalProperties: false
+        defaultProject:
+          type: string
+      required:
+      - id
+      - dateCreated
+      - dateUpdated
+      - name
+      - createdBy
+      - description
+      - role
+      - limitAccessByEnvironment
+      - environments
+      - members
+      - managedByIdp
+      additionalProperties: false
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: 'If using Bearer auth, pass the Secret Key as the token:
+
+        ```bash
+
+        curl https://api.growthbook.io/api/v1/features   -H "Authorization: Bearer secret_abc123DEF456"
+
+        ```
+
+        '
+    basicAuth:
+      type: http
+      scheme: basic
+      description: 'If using HTTP Basic auth, pass the Secret Key as the username and leave the password blank:
+
+        ```bash
+
+        curl https://api.growthbook.io/api/v1/features   -u secret_abc123DEF456:
+
+        # The ":" at the end stops curl from asking for a password
+
+        ```
+
+        '
+x-tagGroups:
+- name: Endpoints
+  tags:
+  - projects
+  - environments
+  - features-v2
+  - feature-revisions-v2
+  - features
+  - feature-revisions
+  - ramp-schedules
+  - data-sources
+  - fact-tables
+  - fact-metrics
+  - metrics
+  - experiments
+  - namespaces
+  - snapshots
+  - dimensions
+  - segments
+  - sdk-connections
+  - visual-changesets
+  - saved-groups
+  - organizations
+  - members
+  - code-references
+  - archetypes
+  - queries
+  - settings
+  - attributes
+  - usage
+  - Dashboards
+  - CustomFields
+  - MetricGroups
+  - Teams
+  - ExperimentTemplates
+  - AnalyticsExplorations
+  - RampScheduleTemplates
+- name: Models
+  tags:
+  - AnalyticsExploration_model
+  - Archetype_model
+  - Attribute_model
+  - CodeRef_model
+  - CustomField_model
+  - Dashboard_model
+  - DataSource_model
+  - Dimension_model
+  - Environment_model
+  - Experiment_model
+  - ExperimentAnalysisSettings_model
+  - ExperimentDecisionFrameworkSettings_model
+  - ExperimentMetric_model
+  - ExperimentMetricOverrideEntry_model
+  - ExperimentResults_model
+  - ExperimentSnapshot_model
+  - ExperimentTemplate_model
+  - ExperimentWithEnhancedStatus_model
+  - FactMetric_model
+  - FactTable_model
+  - FactTableColumn_model
+  - FactTableFilter_model
+  - Feature_model
+  - FeatureBaseRule_model
+  - FeatureDefinition_model
+  - FeatureEnvironment_model
+  - FeatureEnvironmentV2_model
+  - FeatureExperimentRefRule_model
+  - FeatureExperimentRule_model
+  - FeatureForceRule_model
+  - FeatureRevision_model
+  - FeatureRevisionV2_model
+  - FeatureRolloutRule_model
+  - FeatureRule_model
+  - FeatureRuleV2_model
+  - FeatureSafeRolloutRule_model
+  - FeatureV2_model
+  - FeatureWithRevisions_model
+  - FeatureWithRevisionsV2_model
+  - InformationSchema_model
+  - InformationSchemaTable_model
+  - LookbackOverride_model
+  - Member_model
+  - Metric_model
+  - MetricAnalysis_model
+  - MetricGroup_model
+  - MetricUsage_model
+  - Namespace_model
+  - NamespaceExperimentMember_model
+  - Organization_model
+  - PaginationFields_model
+  - Project_model
+  - Query_model
+  - RampSchedule_model
+  - RampScheduleTemplate_model
+  - SavedGroup_model
+  - ScheduleRule_model
+  - SdkConnection_model
+  - Segment_model
+  - Settings_model
+  - Team_model
+  - VisualChange_model
+  - VisualChangeset_model

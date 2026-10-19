@@ -1,0 +1,1979 @@
+openapi: 3.2.0
+info:
+  version: 5.1.0
+  title: GrowthBook REST Configs API
+  description: 'GrowthBook offers a full REST API for interacting with the application. Request data can use either JSON or Form data encoding (with proper `Content-Type` headers). All response bodies are JSON-encoded. The API base URL for GrowthBook Cloud is `https://api.growthbook.io/api`. For self-hosted deployments, it is the same as your API_HOST environment variable (defaults to `http://localhost:3100/api`). The rest of these docs will assume you are using GrowthBook Cloud. ## Versioning
+
+
+    Endpoints are versioned by path prefix:
+
+
+    - `/v1/...` — stable, widely-supported endpoints
+
+    - `/v2/...` — updated endpoints with improved shapes (e.g. unified per-rule environment scope for feature flags)
+
+
+    New integrations should prefer v2 where available. Feature-flag and metric v1 routes are deprecated: they are tagged **LEGACY** in the sidebar and collapsed by default. Use the matching v2 group when both exist. ## Authentication
+
+
+    We support both the HTTP Basic and Bearer authentication schemes for convenience. You first need to generate a new API Key in GrowthBook. Different keys have different permissions:
+
+
+    - **Personal Access Tokens**: These are sensitive and provide the same level of access as the user has to an organization, or less if the token''s permissions are limited. These can be created by going to `Personal Access Tokens` under your user menu. Members with the API Keys **Manage members'' tokens** permission can disable a member''s token under `Settings -> Manage PATs`, and admins can require new tokens to expire within a maximum lifetime. - **Secret Keys**: These are sensitive and provide the level of access of the role they are given, which can be any built-in or custom role, with optional per-project role overrides and environment limits. Managing Secret Keys on behalf of an organization takes the API Keys permissions. These can be created by going to `Settings -> API Keys`, where Admins can also require new Secret Keys to expire within a maximum lifetime. If using HTTP Basic auth, pass the Secret Key as the username and leave the password blank (when using curl, add `:` at the end of the secret to indicate an empty password)
+
+
+    ```bash
+
+    curl https://api.growthbook.io/api/v1/features \
+
+    -u secret_abc123DEF456:
+
+    ```
+
+
+    If using Bearer auth, pass the Secret Key as the token:
+
+
+    ```bash
+
+    curl https://api.growthbook.io/api/v1/features \
+
+    -H "Authorization: Bearer secret_abc123DEF456"
+
+    ```
+
+
+    If a key has an expiration date, every response includes it in the `X-GrowthBook-Key-Expires-At` header (ISO 8601), so scripts can warn before the key stops working. Requests made with an expired key fail with a `401` that says where to create a replacement. See Expiration for choosing a key''s expiration, the warnings before it lapses, and the organization policies. ## Naming who asked
+
+
+    Requests made with a Secret Key may add an `X-GrowthBook-Requested-By` header naming the organization member who asked for the change, as a user id or an email address. History, revision logs and webhooks show that member next to the key. Each key''s settings under `Settings -> API Keys`:
+
+
+    - **Header**: **Optional** (the default) uses the header when it''s sent, **Required** rejects requests without it, and **Rejected** rejects requests that send it, each with a 400. - **Permissions**, when a member is named:
+
+    - **Assume member''s role** (the default): the request acts as that member, with only what both the key and the member can do, so the header can narrow a key but never widen it. Drafts, owners, `mine` filters and reviews are the member''s. The member''s rights over their own drafts, comments and verdicts apply only where the key''s own role allows the same action. - **Use key''s role**: the key acts as itself, with its own permissions, and the name is only recorded in history. Drafts, verdicts and ownership are the key''s, as when no member is named.'
+servers:
+- url: https://api.growthbook.io/api
+  description: GrowthBook Cloud
+- url: https://{domain}/api
+  description: Self-hosted GrowthBook
+  variables:
+    domain:
+      default: localhost:3100
+      description: Your self-hosted GrowthBook host (and port)
+security:
+- bearerAuth: []
+- basicAuth: []
+tags:
+- name: Configs
+  x-displayName: Configs
+  description: '**Beta** — these endpoints are new and may change in backwards-incompatible ways.
+
+
+    Reusable, typed, inheritable JSON objects referenced from feature flag values as `@config:key`. A config carries a field `schema` (with TypeScript/JSON Schema import-export) and a lineage `parent`. Inheritance is expressed via `parent`, never an in-value `@config:` entry. Values layer as a **deep, targeted patch**: a child (or a config-backed feature value) restates only the leaves it changes and inherits the rest — unlike a constant''s `$extends`, whose own keys replace wholesale. Schema fields colliding with a published ancestor''s key follow ''base wins'': identical re-declarations are stripped with a warning, differing ones are rejected.'
+paths:
+  /v1/configs:
+    get:
+      operationId: listConfigs
+      summary: Get all configs
+      tags:
+      - Configs
+      parameters:
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                - type: object
+                  properties:
+                    configs:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/Config'
+                  required:
+                  - configs
+                  additionalProperties: false
+                - $ref: '#/components/schemas/PaginationFields'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/configs' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+    post:
+      operationId: postConfig
+      summary: Create a single config
+      tags:
+      - Configs
+      parameters:
+      - $ref: '#/components/parameters/skipSchemaValidation'
+      - $ref: '#/components/parameters/ignoreWarnings'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                key:
+                  description: Stable reference handle (lowercase slug, unique per org), referenced as `@config:key`
+                  type: string
+                  pattern: ^[a-z0-9][a-z0-9\-_]*$
+                name:
+                  description: The display name of the config
+                  type: string
+                parent:
+                  description: The `key` of the config to inherit from (the primary lineage spine). Express inheritance via `parent`/`extends`, NEVER via a `@config:` entry in `value` (which is rejected).
+                  type: string
+                extends:
+                  description: Additional composition bases (config `key`s) layered on top of `parent`, in precedence order (later overrides earlier; all override `parent`; own keys win last). Set inheritance here, never via a `@config:` entry in `value`.
+                  type: array
+                  items:
+                    type: string
+                value:
+                  description: This config's base value as a JSON object. Per-environment/project variants are expressed via `scopedOverrides`.
+                  type: object
+                  propertyNames:
+                    type: string
+                  additionalProperties: {}
+                scopedOverrides:
+                  description: 'Ordered, first-match-wins environment/project-scoped variant selection. Each entry points at a flavor config (a child config, by `key`) whose value is deep-merged onto this config''s resolved value when the (environment, project) scope matches — resolved at build time, per layer. This is how you create an environment-scoped override (as opposed to a plain child config): make a child config for the override value, then add it here with its scope. Send the complete list to replace it; an empty array clears all overrides. Entries must reference existing configs, may not reference this config itself, and may not be unreachable (fully subsumed by an earlier entry).'
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      config:
+                        description: The `key` of the flavor config (a child config) whose value patches this config when the scope matches.
+                        type: string
+                      environments:
+                        description: Environment ids this entry applies to. Empty/omitted = any environment.
+                        type: array
+                        items:
+                          type: string
+                      projects:
+                        description: Project ids this entry applies to. Empty/omitted = any project.
+                        type: array
+                        items:
+                          type: string
+                    required:
+                    - config
+                    additionalProperties: false
+                description:
+                  description: Markdown. Put context here, not in the name.
+                  type: string
+                  maxLength: 10000
+                project:
+                  type: string
+                owner:
+                  description: 'The userId or email address of the owner. If an email address is provided, it will be used to look up the userId of the matching organization member. If an ID is provided, it will be validated as existing in the organization. When omitted, it defaults to the requesting member: a personal access token''s owner, or the member an organization API key assumes. An organization API key acting as itself leaves it empty.'
+                  type: string
+                schema:
+                  description: 'Field definitions for this config, as a JSON Schema document (`{ type: "json-schema", value }`) or typed-code source (`{ type: "typescript" | "protobuf" | "python" | "go" | "rust", value }`) — converted server-side in one call. Fields whose key an ancestor (via `parent`/`extends`) already owns follow "base wins": an identical re-declaration is stripped with a `redundant-declaration` warning; one with a differing definition is rejected. A field owned by two sibling bases is a conflict and is rejected. Omit to leave the config schema-less. Conversion warnings are returned in `warnings`.'
+                  $ref: '#/components/schemas/ConfigSchemaSource'
+                source:
+                  description: Optional identifier of the consuming codebase/service. When a typed-code schema (`typescript`/`protobuf`/`python`/`go`/`rust`) is supplied, its named-type structure is captured under this source so `GET /configs/:key/schema?source=<id>&format=<lang>` can reproduce those names.
+                  type: string
+                extensible:
+                  type: boolean
+                experimentGuard:
+                  description: 'Enable the experiment guard on this config: publishing a change served to a running experiment soft-blocks unless overridden. Omit to inherit the org default.'
+                  type: boolean
+                invariants:
+                  description: Cross-field validation rules. Each rule's expression is a mongo condition (mongrule). Stored on the config schema and enforced at publish.
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        maxLength: 128
+                      rule:
+                        description: 'The rule expression, as a mongo condition (mongrule) — the same condition syntax as feature targeting, extended with `{ "$ref": "otherField" }` to compare against another field, e.g. `{ "min_replicas": { "$lte": { "$ref": "max_replicas" } } }`.'
+                        type: object
+                        propertyNames:
+                          type: string
+                        additionalProperties: {}
+                      message:
+                        description: Shown to editors when the rule is violated. Optional — defaults to a generic message naming the rule.
+                        type: string
+                        maxLength: 10000
+                    required:
+                    - name
+                    - rule
+                    additionalProperties: false
+                ignoreWarnings:
+                  description: Set to true to acknowledge the warnings listed in a blocked response and continue. This covers experiment guards, locked dependents, and references affected by an archive. When the organization treats schema failures as warnings, it also covers schema and invariant warnings. It never bypasses a rejected Custom Hook. On revision publish endpoints, it can also force-publish an out-of-date draft when the caller has Bypass draft approvals access. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+                skipSchemaValidation:
+                  description: Set to true to publish despite schema validation errors, failed invariants, or schema changes that invalidate dependent resources. This does not bypass a rejected Custom Hook; use `skipHooks` for that. The caller must have Bypass draft approvals access for Feature Flags, Configs, and Constants in every Project. Otherwise, this field is ignored. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+                skipHooks:
+                  description: Set to true to publish despite a Custom Hook rejection. This does not bypass schema validation; use `skipSchemaValidation` for that. The caller must have Bypass draft approvals access for Feature Flags, Configs, and Constants in every Project. Otherwise, this field is ignored. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+              required:
+              - key
+              - name
+              additionalProperties: false
+      responses:
+        '200':
+          description: Resource created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  config:
+                    $ref: '#/components/schemas/Config'
+                  warnings:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ConfigSchemaWarning'
+                  postPublishWarnings:
+                    description: Steps that failed AFTER the value publish committed (e.g. an experiment-guard toggle in the same request). The publish stands; retry only the named step.
+                    type: array
+                    items:
+                      type: string
+                required:
+                - config
+                additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/configs' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"key\":\"checkout-flow\",\"name\":\"Checkout Flow\",\"value\":{\"timeout\":30,\"retries\":3}}'"
+  /v1/configs/{key}/references:
+    get:
+      operationId: getConfigReferences
+      summary: Get features and configs that reference this config
+      tags:
+      - Configs
+      parameters:
+      - name: key
+        in: path
+        required: true
+        description: The key of the config
+        schema:
+          description: The key of the config
+          type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                id: ConfigReferences
+                type: object
+                properties:
+                  features:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        name:
+                          type: string
+                        project:
+                          type: string
+                      required:
+                      - id
+                      additionalProperties: false
+                  constants:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        key:
+                          type: string
+                        name:
+                          type: string
+                        project:
+                          type: string
+                        isConfig:
+                          type: boolean
+                      required:
+                      - id
+                      - key
+                      - name
+                      additionalProperties: false
+                required:
+                - features
+                - constants
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/configs/checkout-flow/references' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/configs/{key}/key-usage:
+    get:
+      operationId: getConfigKeyUsage
+      summary: Get the feature rules and default values implementing each key
+      description: Lists every feature rule and default value that overrides a key of this config's lineage family, so you can see which keys are implemented and where.
+      tags:
+      - Configs
+      parameters:
+      - name: key
+        in: path
+        required: true
+        description: The key of the config
+        schema:
+          description: The key of the config
+          type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                id: ConfigKeyUsage
+                type: object
+                properties:
+                  familyKeys:
+                    type: array
+                    items:
+                      type: string
+                  implementations:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/implementations'
+                required:
+                - familyKeys
+                - implementations
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/configs/checkout-flow/key-usage' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/configs/{key}/lineage:
+    get:
+      operationId: getConfigLineage
+      summary: Get the full lineage (family tree) for a config
+      tags:
+      - Configs
+      parameters:
+      - name: key
+        in: path
+        required: true
+        description: The key of the config
+        schema:
+          description: The key of the config
+          type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                id: ConfigLineage
+                type: object
+                properties:
+                  root:
+                    description: The key of the family root (the topmost ancestor).
+                    type: string
+                  target:
+                    description: The requested config's key.
+                    type: string
+                  ancestors:
+                    description: The target's ancestor keys, root-first, ending at its immediate parent.
+                    type: array
+                    items:
+                      type: string
+                  descendants:
+                    description: Keys of every config that descends from the target.
+                    type: array
+                    items:
+                      type: string
+                  nodes:
+                    description: Every config in the family (root plus all descendants), breadth-first.
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/nodes'
+                required:
+                - root
+                - target
+                - ancestors
+                - descendants
+                - nodes
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/configs/checkout-flow/lineage' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/configs/{key}/schema/verify:
+    post:
+      operationId: verifyConfigSchema
+      summary: Verify a config's schema against a source (drift check)
+      tags:
+      - Configs
+      parameters:
+      - name: key
+        in: path
+        required: true
+        description: The key of the config
+        schema:
+          description: The key of the config
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                schema:
+                  description: 'The schema to check against the config''s stored schema — a JSON Schema document or typed-code source (`typescript`/`protobuf`/`python`/`go`/`rust`). Read-only: nothing is mutated.'
+                  $ref: '#/components/schemas/ConfigSchemaSource'
+              required:
+              - schema
+              additionalProperties: false
+      responses:
+        '200':
+          description: Resource created
+          content:
+            application/json:
+              schema:
+                id: ConfigSchemaVerify
+                type: object
+                properties:
+                  inSync:
+                    description: True when the supplied schema is canonically identical to the config's stored schema.
+                    type: boolean
+                  fingerprint:
+                    description: Canonical fingerprint of the config's stored schema.
+                    type: string
+                  incomingFingerprint:
+                    description: Canonical fingerprint of the supplied schema.
+                    type: string
+                  drift:
+                    $ref: '#/components/schemas/drift'
+                  ancestorOwnedFields:
+                    description: Supplied fields an ancestor config already owns ("base wins"). Subtract these from `drift.contract` adds when round-tripping a full effective schema.
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ancestorOwnedFields'
+                  warnings:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ConfigSchemaWarning'
+                required:
+                - inSync
+                - fingerprint
+                - incomingFingerprint
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/configs/checkout-flow/schema/verify' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"schema\":{\"type\":\"typescript\",\"value\":\"interface CheckoutFlow { timeout: number; retries: number }\"}}'"
+  /v1/configs/{key}/schema:
+    get:
+      operationId: getConfigSchema
+      summary: Export a config's schema
+      tags:
+      - Configs
+      parameters:
+      - name: key
+        in: path
+        required: true
+        description: The key of the config
+        schema:
+          description: The key of the config
+          type: string
+      - name: format
+        in: query
+        description: Output format. `json-schema` (default) returns a JSON Schema document; `typescript`, `protobuf`, `python` (Pydantic), `go`, and `rust` (serde) render the schema as source in that language.
+        schema:
+          description: Output format. `json-schema` (default) returns a JSON Schema document; `typescript`, `protobuf`, `python` (Pydantic), `go`, and `rust` (serde) render the schema as source in that language.
+          type: string
+          enum:
+          - json-schema
+          - typescript
+          - protobuf
+          - python
+          - go
+          - rust
+      - $ref: '#/components/parameters/effective'
+      - $ref: '#/components/parameters/source'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                id: ConfigSchemaExport
+                type: object
+                properties:
+                  schema:
+                    description: 'The config''s schema in the requested format: a JSON Schema document (`{ type: "json-schema", value }`) or rendered TypeScript source (`{ type: "typescript", value }`).'
+                    $ref: '#/components/schemas/ConfigSchemaSource'
+                  effective:
+                    description: True when the schema includes inherited fields accumulated across the lineage; false when it is only this config's own fields.
+                    type: boolean
+                  additionalProperties:
+                    description: Whether the config family permits extra keys.
+                    type: boolean
+                required:
+                - schema
+                - effective
+                - additionalProperties
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/configs/checkout-flow/schema' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/configs/{key}:
+    get:
+      operationId: getConfig
+      summary: Get a single config
+      tags:
+      - Configs
+      parameters:
+      - name: key
+        in: path
+        required: true
+        description: The key of the config
+        schema:
+          description: The key of the config
+          type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  config:
+                    $ref: '#/components/schemas/Config'
+                required:
+                - config
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/configs/checkout-flow' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+    post:
+      operationId: updateConfig
+      summary: Partially update a single config
+      description: Applies the change immediately and records it as a published revision, so it appears in history and fires revision webhooks. When the organization requires approvals, open a draft instead or pass `bypassApproval` with the bypass permission.
+      tags:
+      - Configs
+      parameters:
+      - name: key
+        in: path
+        required: true
+        description: The key of the config
+        schema:
+          description: The key of the config
+          type: string
+      - $ref: '#/components/parameters/skipSchemaValidation'
+      - $ref: '#/components/parameters/ignoreWarnings'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  description: Short display name. Put details in `description`.
+                  type: string
+                parent:
+                  description: Change the lineage parent (the `key` of the config to inherit from). Set to an empty string to detach from the parent and make this a root config.
+                  type: string
+                extends:
+                  description: Replace the composition bases (mixins) layered on top of `parent`, in precedence order (later overrides earlier; all override `parent`; own keys win last). Send the complete set; an empty array clears all mixins. Set inheritance here, never via a `@config:` entry in `value`.
+                  type: array
+                  items:
+                    type: string
+                value:
+                  description: This config's base value as a JSON object. Per-environment/project variants are expressed via `scopedOverrides`.
+                  type: object
+                  propertyNames:
+                    type: string
+                  additionalProperties: {}
+                scopedOverrides:
+                  description: Replace the ordered, first-match-wins environment/project-scoped variant selection. Each entry points at a flavor config (a child config, by `key`) whose value is deep-merged onto this config's resolved value when the (environment, project) scope matches. Send the complete list; an empty array clears all overrides; omit to leave unchanged. Entries must reference existing configs, may not reference this config itself, and may not be unreachable.
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      config:
+                        description: The `key` of the flavor config (a child config) whose value patches this config when the scope matches.
+                        type: string
+                      environments:
+                        description: Environment ids this entry applies to. Empty/omitted = any environment.
+                        type: array
+                        items:
+                          type: string
+                      projects:
+                        description: Project ids this entry applies to. Empty/omitted = any project.
+                        type: array
+                        items:
+                          type: string
+                    required:
+                    - config
+                    additionalProperties: false
+                description:
+                  description: Markdown. Put context here, not in the name.
+                  type: string
+                  maxLength: 10000
+                project:
+                  type: string
+                owner:
+                  description: The userId or email address of the owner. If an email address is provided, it will be used to look up the userId of the matching organization member. If an ID is provided, it will be validated as existing in the organization.
+                  type: string
+                schema:
+                  description: 'Replace this config''s field definitions, as a JSON Schema document (`{ type: "json-schema", value }`) or typed-code source (`{ type: "typescript" | "protobuf" | "python" | "go" | "rust", value }`). Fields whose key a published ancestor already owns follow "base wins": an identical re-declaration is stripped with a `redundant-declaration` warning; one with a differing definition is rejected. A schema change cascades the ''base wins'' normalization to descendants when published; a change that removes or retypes fields descendants still use soft-blocks with a 422 unless the request body sets `ignoreWarnings: true`. Conversion warnings are returned in `warnings`.'
+                  $ref: '#/components/schemas/ConfigSchemaSource'
+                source:
+                  description: Optional identifier of the consuming codebase/service. When a `typescript` or `protobuf` schema is supplied, its named-type structure is captured under this source for reproduction on export.
+                  type: string
+                extensible:
+                  type: boolean
+                experimentGuard:
+                  description: Enable or disable the experiment guard for this Config. Disabling it requires Bypass draft approvals access.
+                  type: boolean
+                invariants:
+                  description: Replace the config's cross-field validation rules. Each rule's expression is a mongo condition (mongrule). Send the complete set; an empty array clears all rules. Omit to leave them unchanged.
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        maxLength: 128
+                      rule:
+                        description: 'The rule expression, as a mongo condition (mongrule) — the same condition syntax as feature targeting, extended with `{ "$ref": "otherField" }` to compare against another field, e.g. `{ "min_replicas": { "$lte": { "$ref": "max_replicas" } } }`.'
+                        type: object
+                        propertyNames:
+                          type: string
+                        additionalProperties: {}
+                      message:
+                        description: Shown to editors when the rule is violated. Optional — defaults to a generic message naming the rule.
+                        type: string
+                        maxLength: 10000
+                    required:
+                    - name
+                    - rule
+                    additionalProperties: false
+                bypassApproval:
+                  description: Set to true to write directly to the live Config without approval. The caller must have Bypass draft approvals access in the Config's Project, unless the organization enables the REST API approval bypass. This field has no effect when approval is not required.
+                  type: boolean
+                ignoreWarnings:
+                  description: Set to true to acknowledge the warnings listed in a blocked response and continue. This covers experiment guards, locked dependents, and references affected by an archive. When the organization treats schema failures as warnings, it also covers schema and invariant warnings. It never bypasses a rejected Custom Hook. On revision publish endpoints, it can also force-publish an out-of-date draft when the caller has Bypass draft approvals access. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+                skipSchemaValidation:
+                  description: Set to true to publish despite schema validation errors, failed invariants, or schema changes that invalidate dependent resources. This does not bypass a rejected Custom Hook; use `skipHooks` for that. The caller must have Bypass draft approvals access for Feature Flags, Configs, and Constants in every Project. Otherwise, this field is ignored. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+                skipHooks:
+                  description: Set to true to publish despite a Custom Hook rejection. This does not bypass schema validation; use `skipSchemaValidation` for that. The caller must have Bypass draft approvals access for Feature Flags, Configs, and Constants in every Project. Otherwise, this field is ignored. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+              additionalProperties: false
+      responses:
+        '200':
+          description: Resource created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  config:
+                    $ref: '#/components/schemas/Config'
+                  warnings:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ConfigSchemaWarning'
+                  postPublishWarnings:
+                    description: Steps that failed AFTER the value publish committed (e.g. an experiment-guard toggle in the same request). The publish stands; retry only the named step.
+                    type: array
+                    items:
+                      type: string
+                  bypassedGates:
+                    description: Gates that would have blocked this publish but were bypassed by the caller's authority. Present only when at least one gate was bypassed.
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/bypassedGates'
+                required:
+                - config
+                additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/configs/checkout-flow' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"value\":{\"timeout\":60,\"retries\":3}}'"
+    delete:
+      operationId: deleteConfig
+      summary: Delete a single config
+      tags:
+      - Configs
+      parameters:
+      - name: key
+        in: path
+        required: true
+        description: The key of the config
+        schema:
+          description: The key of the config
+          type: string
+      responses:
+        '200':
+          description: Resource deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deletedId:
+                    type: string
+                required:
+                - deletedId
+                additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X DELETE 'https://api.growthbook.io/api/v1/configs/checkout-flow' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/configs/{key}/archive:
+    post:
+      operationId: archiveConfig
+      summary: Archive a single config
+      description: 'Archives a config. A child config (including an environment/project override) is archived outright when its live value is an empty patch or nothing serves it. When archiving would strip a value that live features or other configs still consume, the request returns a 422 listing the blocking gates — re-submit with `"ignoreWarnings": true` in the request body to acknowledge and proceed. A locked config, or one whose org requires approval, returns its own gate (unlock or route the change through a draft revision).'
+      tags:
+      - Configs
+      parameters:
+      - name: key
+        in: path
+        required: true
+        description: The key of the config
+        schema:
+          description: The key of the config
+          type: string
+      - $ref: '#/components/parameters/ignoreWarnings'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ignoreWarnings:
+                  description: Set to true to acknowledge the warnings listed in a blocked response and continue. This covers experiment guards, locked dependents, and references affected by an archive. When the organization treats schema failures as warnings, it also covers schema and invariant warnings. It never bypasses a rejected Custom Hook. On revision publish endpoints, it can also force-publish an out-of-date draft when the caller has Bypass draft approvals access. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+                skipSchemaValidation:
+                  description: Set to true to publish despite schema validation errors, failed invariants, or schema changes that invalidate dependent resources. This does not bypass a rejected Custom Hook; use `skipHooks` for that. The caller must have Bypass draft approvals access for Feature Flags, Configs, and Constants in every Project. Otherwise, this field is ignored. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+                skipHooks:
+                  description: Set to true to publish despite a Custom Hook rejection. This does not bypass schema validation; use `skipSchemaValidation` for that. The caller must have Bypass draft approvals access for Feature Flags, Configs, and Constants in every Project. Otherwise, this field is ignored. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+              additionalProperties: false
+      responses:
+        '200':
+          description: Resource created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  config:
+                    $ref: '#/components/schemas/Config'
+                  bypassedGates:
+                    description: Gates that would have blocked this publish but were bypassed by the caller's authority. Present only when at least one gate was bypassed.
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/bypassedGates'
+                required:
+                - config
+                additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/configs/checkout-flow/archive' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/configs/{key}/unarchive:
+    post:
+      operationId: unarchiveConfig
+      summary: Unarchive a single config
+      tags:
+      - Configs
+      parameters:
+      - name: key
+        in: path
+        required: true
+        description: The key of the config
+        schema:
+          description: The key of the config
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ignoreWarnings:
+                  description: Set to true to acknowledge the warnings listed in a blocked response and continue. This covers experiment guards, locked dependents, and references affected by an archive. When the organization treats schema failures as warnings, it also covers schema and invariant warnings. It never bypasses a rejected Custom Hook. On revision publish endpoints, it can also force-publish an out-of-date draft when the caller has Bypass draft approvals access. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+                skipSchemaValidation:
+                  description: Set to true to publish despite schema validation errors, failed invariants, or schema changes that invalidate dependent resources. This does not bypass a rejected Custom Hook; use `skipHooks` for that. The caller must have Bypass draft approvals access for Feature Flags, Configs, and Constants in every Project. Otherwise, this field is ignored. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+                skipHooks:
+                  description: Set to true to publish despite a Custom Hook rejection. This does not bypass schema validation; use `skipSchemaValidation` for that. The caller must have Bypass draft approvals access for Feature Flags, Configs, and Constants in every Project. Otherwise, this field is ignored. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+              additionalProperties: false
+      responses:
+        '200':
+          description: Resource created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  config:
+                    $ref: '#/components/schemas/Config'
+                  bypassedGates:
+                    description: Gates that would have blocked this publish but were bypassed by the caller's authority. Present only when at least one gate was bypassed.
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/bypassedGates'
+                required:
+                - config
+                additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/configs/checkout-flow/unarchive' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/configs/{key}/lock:
+    post:
+      operationId: lockConfig
+      summary: Lock a config at its current published revision
+      description: Locks the Config to its current published revision. Drafts can still be created and edited, but direct updates, publishes, scheduled publishes, reverts, and archives are blocked. The response returns the pinned revision in `lockedRevision`. Unlocking requires Bypass draft approvals access.
+      tags:
+      - Configs
+      parameters:
+      - name: key
+        in: path
+        required: true
+        description: The key of the config
+        schema:
+          description: The key of the config
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  description: Optional note explaining why the config was locked.
+                  type: string
+                  maxLength: 10000
+              additionalProperties: false
+      responses:
+        '200':
+          description: Resource created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  config:
+                    $ref: '#/components/schemas/Config'
+                required:
+                - config
+                additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/configs/checkout-flow/lock' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/configs/{key}/unlock:
+    post:
+      operationId: unlockConfig
+      summary: Unlock a config
+      description: Removes the Config lock so changes can be published again. The caller must have Bypass draft approvals access in the Config's Project.
+      tags:
+      - Configs
+      parameters:
+      - name: key
+        in: path
+        required: true
+        description: The key of the config
+        schema:
+          description: The key of the config
+          type: string
+      responses:
+        '200':
+          description: Resource created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  config:
+                    $ref: '#/components/schemas/Config'
+                required:
+                - config
+                additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/configs/checkout-flow/unlock' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+components:
+  schemas:
+    Config:
+      type: object
+      properties:
+        id:
+          type: string
+        key:
+          description: Stable reference handle; used as `@config:key` in values
+          type: string
+        name:
+          type: string
+        owner:
+          description: The userId of the owner (or raw owner name/email for legacy records)
+          type: string
+        ownerEmail:
+          description: The email address of the owner, when the owner can be resolved to a known user.
+          type: string
+        parent:
+          description: The `key` of the config this one inherits from (lineage parent — the primary spine). Synthesized into `$extends` at resolution time and never stored in `value`.
+          type: string
+        extends:
+          description: Additional composition bases (config `key`s) layered on top of `parent`, in precedence order (later overrides earlier; all override `parent`; this config's own keys win last). Like `parent`, set via this field — never via a `@config:` entry in `value`.
+          type: array
+          items:
+            type: string
+        value:
+          description: This config's own base value as a JSON object (its declared fields only — inherited fields are layered in at resolution time, not stored here). Per-environment/project variants are expressed via `scopedOverrides`, not here.
+          type: object
+          propertyNames:
+            type: string
+          additionalProperties: {}
+        scopedOverrides:
+          description: 'Ordered, first-match-wins environment/project-scoped variant selection. Each entry points at a flavor config (a child config, by `key`) whose value is deep-merged onto this config''s resolved value when the (environment, project) scope matches — resolved at build time, per layer. This is how you create an environment-scoped override (as opposed to a plain child config): make a child config for the override value, then add it here with its scope. Send the complete list to replace it; an empty array clears all overrides. Entries must reference existing configs, may not reference this config itself, and may not be unreachable (fully subsumed by an earlier entry).'
+          type: array
+          items:
+            type: object
+            properties:
+              config:
+                description: The `key` of the flavor config (a child config) whose value patches this config when the scope matches.
+                type: string
+              environments:
+                description: Environment ids this entry applies to. Empty/omitted = any environment.
+                type: array
+                items:
+                  type: string
+              projects:
+                description: Project ids this entry applies to. Empty/omitted = any project.
+                type: array
+                items:
+                  type: string
+            required:
+            - config
+            additionalProperties: false
+        scopedConfig:
+          description: 'Present ONLY when this config is an environment/project-scoped override (a "flavor") of another config. Its value is a patch that applies solely within the listed environments/projects, layered onto `parent` at resolution — it is NOT a standalone config. A plain config (including an ordinary child that just inherits from a `parent`) omits this field entirely. Read-only: create/change the relationship via the parent config''s `scopedOverrides`, never by setting this directly.'
+          type: object
+          properties:
+            parent:
+              description: The base config this one is a scoped override of.
+              type: string
+            environments:
+              description: Environments this override applies to (empty/absent = every environment).
+              type: array
+              items:
+                type: string
+            projects:
+              description: Projects this override applies to (empty/absent = every project).
+              type: array
+              items:
+                type: string
+          required:
+          - parent
+          additionalProperties: false
+        description:
+          type: string
+          maxLength: 10000
+        project:
+          description: The project this config belongs to (empty = all projects)
+          type: string
+        archived:
+          type: boolean
+        schema:
+          description: This config's own field definitions as a JSON Schema document (its contribution to the family's effective schema). Inherited fields are owned by ancestors and are not repeated here.
+          type: object
+          properties:
+            type:
+              type: string
+              const: json-schema
+            value:
+              description: A JSON Schema document (an object).
+              type: object
+              propertyNames:
+                type: string
+              additionalProperties: {}
+          required:
+          - type
+          - value
+          additionalProperties: false
+        extensible:
+          description: Whether this config family permits extra keys beyond the declared fields (child configs, feature rules, ad-hoc overrides). Only the root config's flag applies. Absent = inherit the org default.
+          type: boolean
+        invariants:
+          description: Cross-field validation rules (relational checks JSON Schema can't express, e.g. implications or comparing two fields), evaluated against the resolved value at publish.
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                description: Unique name for the rule.
+                type: string
+                maxLength: 128
+              rule:
+                description: A mongo condition (mongrule) boolean expression over the config's fields.
+                type: object
+                propertyNames:
+                  type: string
+                additionalProperties: {}
+              message:
+                description: Human-readable error shown when the rule is violated.
+                type: string
+                maxLength: 10000
+            required:
+            - name
+            - rule
+            - message
+            additionalProperties: false
+        locked:
+          description: Whether this Config is locked to a published revision. Drafts can still be created and edited while locked, but no change can be published until a user with Bypass draft approvals access unlocks it.
+          type: boolean
+        experimentGuard:
+          description: 'Whether the experiment guard is enabled. When enabled, publishing a value used by a running experiment returns a warning that must be acknowledged with `ignoreWarnings: true`. Disabling the guard requires Bypass draft approvals access.'
+          type: boolean
+        lockedRevision:
+          description: The pinned published revision (present only when `locked`). Fetch it via `GET /configs-revisions/:key/:version` for a value guaranteed not to disappear or mutate — use it to pin reproducible builds.
+          type: object
+          properties:
+            id:
+              type: string
+            version:
+              type: number
+          required:
+          - id
+          - version
+          additionalProperties: false
+        lockedBy:
+          description: 'Who locked the config: a member''s user ID, or an API key''s ID when it acted as itself'
+          type: string
+        dateLocked:
+          format: date-time
+          description: When the config was locked (when `locked`).
+          type: string
+        dateCreated:
+          format: date-time
+          type: string
+        dateUpdated:
+          format: date-time
+          type: string
+      required:
+      - id
+      - key
+      - name
+      - dateCreated
+      - dateUpdated
+      additionalProperties: false
+    PaginationFields:
+      type: object
+      properties:
+        limit:
+          type: integer
+        offset:
+          type: integer
+        count:
+          type: integer
+        total:
+          type: integer
+        hasMore:
+          type: boolean
+        nextOffset:
+          anyOf:
+          - type: integer
+          - type: 'null'
+      required:
+      - limit
+      - offset
+      - count
+      - total
+      - hasMore
+      - nextOffset
+      additionalProperties: false
+    ConfigSchemaSource:
+      anyOf:
+      - type: object
+        properties:
+          type:
+            type: string
+            const: json-schema
+          value:
+            description: A JSON Schema document (an object).
+            type: object
+            propertyNames:
+              type: string
+            additionalProperties: {}
+        required:
+        - type
+        - value
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            const: typescript
+          value:
+            description: TypeScript source — an interface or object type.
+            type: string
+        required:
+        - type
+        - value
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            const: protobuf
+          value:
+            description: Protobuf (proto3) source — a `message` definition.
+            type: string
+        required:
+        - type
+        - value
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            const: python
+          value:
+            description: Python source — a Pydantic `BaseModel` class.
+            type: string
+        required:
+        - type
+        - value
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            const: go
+          value:
+            description: Go source — a `struct` definition.
+            type: string
+        required:
+        - type
+        - value
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            const: rust
+          value:
+            description: Rust source — a serde `struct` definition.
+            type: string
+        required:
+        - type
+        - value
+        additionalProperties: false
+    bypassedGates:
+      type: object
+      properties:
+        type:
+          description: The gate that was bypassed (e.g. "approval-required", "stale-base", "schema-break").
+          type: string
+        outcome:
+          type: string
+          const: bypassed
+        via:
+          description: How the gate was bypassed. The value identifies a request field (`ignoreWarnings`, `skipSchemaValidation`, or `skipHooks`), the caller's permission (`bypassApprovalPermission`), or an organization setting (`restApiBypassesReviews`, or `revertsBypassApproval` on a revert).
+          type: string
+          enum:
+          - ignoreWarnings
+          - skipSchemaValidation
+          - skipHooks
+          - bypassApprovalPermission
+          - restApiBypassesReviews
+          - revertsBypassApproval
+      required:
+      - type
+      - outcome
+      - via
+      additionalProperties: false
+    implementations:
+      type: object
+      properties:
+        featureId:
+          type: string
+        project:
+          type: string
+        location:
+          type: string
+          enum:
+          - defaultValue
+          - rule
+        ruleType:
+          type: string
+        ruleId:
+          type: string
+        experimentId:
+          type: string
+        experimentName:
+          type: string
+        experimentStatus:
+          type: string
+        variationId:
+          type: string
+        configKey:
+          type: string
+        relation:
+          type: string
+          enum:
+          - self
+          - ancestor
+          - descendant
+          - other
+        keys:
+          type: array
+          items:
+            type: string
+        state:
+          type: string
+          enum:
+          - live
+          - draft
+        revisionVersion:
+          type: number
+      required:
+      - featureId
+      - location
+      - configKey
+      - keys
+      - state
+      additionalProperties: false
+    drift:
+      description: Present only when `inSync` is false.
+      type: object
+      properties:
+        contract:
+          description: Changes that alter what validates (type/enum/required/nullable/bounds/structure, or an added/removed field).
+          type: array
+          items:
+            type: object
+            properties:
+              key:
+                type: string
+              change:
+                type: string
+                enum:
+                - added
+                - removed
+                - changed
+            required:
+            - key
+            - change
+            additionalProperties: false
+        docs:
+          description: Description-only changes (no effect on validation).
+          type: array
+          items:
+            type: object
+            properties:
+              key:
+                type: string
+              change:
+                type: string
+                enum:
+                - added
+                - removed
+                - changed
+            required:
+            - key
+            - change
+            additionalProperties: false
+      required:
+      - contract
+      - docs
+      additionalProperties: false
+    ConfigSchemaWarning:
+      type: object
+      properties:
+        code:
+          type: string
+          enum:
+          - dropped-declaration
+          - non-object-root
+          - unresolved-type
+          - unsupported-member
+          - redundant-declaration
+          - undeclared-rule-field
+        message:
+          type: string
+        path:
+          type: string
+      required:
+      - code
+      - message
+      additionalProperties: false
+    Confirmation:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+          enum:
+          - pending
+          - running
+          - completed
+          - rejected
+          - expired
+        actions:
+          type: array
+          items:
+            type: object
+            properties:
+              action:
+                type: string
+                enum:
+                - feature.create
+                - feature.draft
+                - feature.review
+                - feature.publish
+                - feature.archive
+                - feature.delete
+                - feature.other
+                - experiment.create
+                - experiment.draft
+                - experiment.start
+                - experiment.stop
+                - experiment.targeting
+                - experiment.traffic
+                - experiment.phases
+                - experiment.visualEditor
+                - experiment.other
+                - savedGroup.create
+                - savedGroup.draft
+                - savedGroup.review
+                - savedGroup.publish
+                - savedGroup.archive
+                - savedGroup.delete
+                - savedGroup.other
+                - constant.create
+                - constant.draft
+                - constant.review
+                - constant.publish
+                - constant.archive
+                - constant.delete
+                - constant.other
+                - config.create
+                - config.draft
+                - config.review
+                - config.publish
+                - config.archive
+                - config.delete
+                - config.other
+                - rampSchedule.create
+                - rampSchedule.start
+                - rampSchedule.pause
+                - rampSchedule.progression
+                - rampSchedule.approve
+                - rampSchedule.edit
+                - rampSchedule.delete
+                - rampSchedule.other
+                - settings.approvals
+                - settings.other
+                - access.members
+                - access.teams
+                - customHook.create
+                - customHook.edit
+                - customHook.delete
+                - environment.create
+                - environment.edit
+                - environment.delete
+                - project.create
+                - project.edit
+                - project.delete
+                - attribute.create
+                - attribute.edit
+                - attribute.delete
+                - customField.create
+                - customField.edit
+                - customField.delete
+                - sdkConnection.create
+                - sdkConnection.edit
+                - sdkConnection.delete
+                - metric.create
+                - metric.edit
+                - metric.delete
+                - factTable.create
+                - factTable.edit
+                - factTable.delete
+                - segment.create
+                - segment.edit
+                - segment.delete
+                - dimension.create
+                - dimension.edit
+                - dimension.delete
+                - override.ignoreWarnings
+                - override.skipSchemaValidation
+                - override.skipHooks
+                - override.bypassApproval
+                - override.restBypassesReviews
+                - override.draftLimit
+                - override.skipChecklist
+                - override.bypassDuplicateKeyCheck
+                - other.write
+              environments:
+                type: array
+                items:
+                  type: string
+            required:
+            - action
+            - environments
+            additionalProperties: false
+        summary:
+          type: string
+        url:
+          type: string
+        expiresAt:
+          type: string
+        response:
+          anyOf:
+          - type: object
+            properties:
+              status:
+                type: number
+              body: {}
+            required:
+            - status
+            - body
+            additionalProperties: false
+          - type: 'null'
+        note:
+          anyOf:
+          - type: string
+          - type: 'null'
+      required:
+      - id
+      - status
+      - actions
+      - summary
+      - url
+      - expiresAt
+      - response
+      - note
+      additionalProperties: false
+    nodes:
+      type: object
+      properties:
+        key:
+          type: string
+        name:
+          type: string
+        parent:
+          description: The lineage parent's key (tree spine), or null for the family root.
+          anyOf:
+          - type: string
+          - type: 'null'
+        extends:
+          description: Additional composition bases (mixin config keys) layered on top of `parent`. The tree shape follows `parent`/`depth`; these express composition beyond the parent/child spine.
+          type: array
+          items:
+            type: string
+        project:
+          type: string
+        archived:
+          type: boolean
+        depth:
+          description: Distance from the family root along the `parent` spine (root is 0).
+          type: integer
+        isTarget:
+          description: True for the requested config.
+          type: boolean
+        incompatibleFields:
+          description: Own value keys whose value no longer conforms to the effective (inherited) field type and must be fixed. Empty when all conform.
+          type: array
+          items:
+            type: string
+        orphanedFields:
+          description: Own value keys the effective schema no longer declares (e.g. an ancestor removed the field). They still resolve and are served, but nothing validates them and validation rules read them as null; a non-extensible family rejects them on the next changing publish.
+          type: array
+          items:
+            type: string
+      required:
+      - key
+      - name
+      - parent
+      - archived
+      - depth
+      - isTarget
+      additionalProperties: false
+    ConfirmationHeld:
+      type: object
+      properties:
+        confirmation:
+          $ref: '#/components/schemas/Confirmation'
+        message:
+          type: string
+      required:
+      - confirmation
+      - message
+      additionalProperties: false
+      $defs:
+        Confirmation:
+          id: Confirmation
+          type: object
+          properties:
+            id:
+              type: string
+            status:
+              type: string
+              enum:
+              - pending
+              - running
+              - completed
+              - rejected
+              - expired
+            actions:
+              type: array
+              items:
+                type: object
+                properties:
+                  action:
+                    type: string
+                    enum:
+                    - feature.create
+                    - feature.draft
+                    - feature.review
+                    - feature.publish
+                    - feature.archive
+                    - feature.delete
+                    - feature.other
+                    - experiment.create
+                    - experiment.draft
+                    - experiment.start
+                    - experiment.stop
+                    - experiment.targeting
+                    - experiment.traffic
+                    - experiment.phases
+                    - experiment.visualEditor
+                    - experiment.other
+                    - savedGroup.create
+                    - savedGroup.draft
+                    - savedGroup.review
+                    - savedGroup.publish
+                    - savedGroup.archive
+                    - savedGroup.delete
+                    - savedGroup.other
+                    - constant.create
+                    - constant.draft
+                    - constant.review
+                    - constant.publish
+                    - constant.archive
+                    - constant.delete
+                    - constant.other
+                    - config.create
+                    - config.draft
+                    - config.review
+                    - config.publish
+                    - config.archive
+                    - config.delete
+                    - config.other
+                    - rampSchedule.create
+                    - rampSchedule.start
+                    - rampSchedule.pause
+                    - rampSchedule.progression
+                    - rampSchedule.approve
+                    - rampSchedule.edit
+                    - rampSchedule.delete
+                    - rampSchedule.other
+                    - settings.approvals
+                    - settings.other
+                    - access.members
+                    - access.teams
+                    - customHook.create
+                    - customHook.edit
+                    - customHook.delete
+                    - environment.create
+                    - environment.edit
+                    - environment.delete
+                    - project.create
+                    - project.edit
+                    - project.delete
+                    - attribute.create
+                    - attribute.edit
+                    - attribute.delete
+                    - customField.create
+                    - customField.edit
+                    - customField.delete
+                    - sdkConnection.create
+                    - sdkConnection.edit
+                    - sdkConnection.delete
+                    - metric.create
+                    - metric.edit
+                    - metric.delete
+                    - factTable.create
+                    - factTable.edit
+                    - factTable.delete
+                    - segment.create
+                    - segment.edit
+                    - segment.delete
+                    - dimension.create
+                    - dimension.edit
+                    - dimension.delete
+                    - override.ignoreWarnings
+                    - override.skipSchemaValidation
+                    - override.skipHooks
+                    - override.bypassApproval
+                    - override.restBypassesReviews
+                    - override.draftLimit
+                    - override.skipChecklist
+                    - override.bypassDuplicateKeyCheck
+                    - other.write
+                  environments:
+                    type: array
+                    items:
+                      type: string
+                required:
+                - action
+                - environments
+                additionalProperties: false
+            summary:
+              type: string
+            url:
+              type: string
+            expiresAt:
+              type: string
+            response:
+              anyOf:
+              - type: object
+                properties:
+                  status:
+                    type: number
+                  body: {}
+                required:
+                - status
+                - body
+                additionalProperties: false
+              - type: 'null'
+            note:
+              anyOf:
+              - type: string
+              - type: 'null'
+          required:
+          - id
+          - status
+          - actions
+          - summary
+          - url
+          - expiresAt
+          - response
+          - note
+          additionalProperties: false
+    ancestorOwnedFields:
+      type: object
+      properties:
+        key:
+          type: string
+        ownedBy:
+          description: Key of the ancestor config that owns the field.
+          type: string
+        identical:
+          description: True when the supplied definition matches the ancestor's contract — a save would strip it harmlessly (with a warning). False means a save would be rejected.
+          type: boolean
+      required:
+      - key
+      - ownedBy
+      - identical
+      additionalProperties: false
+  parameters:
+    skipSchemaValidation:
+      name: skipSchemaValidation
+      in: query
+      description: Deprecated — pass `skipSchemaValidation` in the request body instead.
+      schema:
+        description: Deprecated — pass `skipSchemaValidation` in the request body instead.
+        deprecated: true
+        anyOf:
+        - type: string
+          const: 'true'
+        - type: string
+          const: 'false'
+        - type: string
+          const: '0'
+        - type: string
+          const: '1'
+        - type: boolean
+    limit:
+      name: limit
+      in: query
+      description: The number of items to return
+      schema:
+        default: 10
+        description: The number of items to return
+        type: integer
+        minimum: 1
+        maximum: 100
+    offset:
+      name: offset
+      in: query
+      description: How many items to skip (use in conjunction with limit for pagination)
+      schema:
+        default: 0
+        description: How many items to skip (use in conjunction with limit for pagination)
+        type: integer
+        minimum: 0
+    effective:
+      name: effective
+      in: query
+      description: When true, includes fields inherited across the lineage (the family's accumulated schema). When false (default), returns only this config's own fields.
+      schema:
+        description: When true, includes fields inherited across the lineage (the family's accumulated schema). When false (default), returns only this config's own fields.
+        anyOf:
+        - type: string
+          const: 'true'
+        - type: string
+          const: 'false'
+        - type: boolean
+    source:
+      name: source
+      in: query
+      description: Render using a previously-captured source projection (its named types). Only affects the typed-code formats (`typescript`/`protobuf`/`python`/`go`/`rust`); ignored if the source has no projection.
+      schema:
+        description: Render using a previously-captured source projection (its named types). Only affects the typed-code formats (`typescript`/`protobuf`/`python`/`go`/`rust`); ignored if the source has no projection.
+        type: string
+    ignoreWarnings:
+      name: ignoreWarnings
+      in: query
+      description: Deprecated — pass `ignoreWarnings` in the request body instead.
+      schema:
+        description: Deprecated — pass `ignoreWarnings` in the request body instead.
+        deprecated: true
+        anyOf:
+        - type: string
+          const: 'true'
+        - type: string
+          const: 'false'
+        - type: string
+          const: '0'
+        - type: string
+          const: '1'
+        - type: boolean
+  responses:
+    ConfirmationHeld:
+      description: Held until a person confirms it in GrowthBook. Poll the Location until the confirmation completes.
+      headers:
+        Location:
+          description: The confirmation to poll
+          schema:
+            type: string
+        Retry-After:
+          description: Seconds to wait before polling
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ConfirmationHeld'
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: 'If using Bearer auth, pass the Secret Key as the token:
+
+        ```bash
+
+        curl https://api.growthbook.io/api/v1/features   -H "Authorization: Bearer secret_abc123DEF456"
+
+        ```
+
+        '
+    basicAuth:
+      type: http
+      scheme: basic
+      description: 'If using HTTP Basic auth, pass the Secret Key as the username and leave the password blank:
+
+        ```bash
+
+        curl https://api.growthbook.io/api/v1/features   -u secret_abc123DEF456:
+
+        # The ":" at the end stops curl from asking for a password
+
+        ```
+
+        '
+x-tagGroups:
+- name: Endpoints
+  tags:
+  - projects
+  - environments
+  - features-v2
+  - feature-revisions-v2
+  - features
+  - feature-revisions
+  - ramp-schedules
+  - data-sources
+  - fact-tables
+  - fact-metrics
+  - metrics
+  - experiments
+  - namespaces
+  - snapshots
+  - dimensions
+  - segments
+  - reports
+  - sdk-connections
+  - visual-changesets
+  - saved-groups
+  - saved-group-revisions
+  - constants
+  - constant-revisions
+  - configs
+  - config-revisions
+  - releases
+  - custom-hooks
+  - organizations
+  - members
+  - code-references
+  - archetypes
+  - queries
+  - settings
+  - attributes
+  - usage
+  - meta
+  - ContextualBandits
+  - Dashboards
+  - ContextualBanditQueries
+  - CustomFields
+  - MetricGroups
+  - Teams
+  - ExperimentTemplates
+  - AnalyticsExplorations
+  - RampScheduleTemplates
+  - Learnings
+  - Holdouts
+  - AutoRuns
+  - Populations
+- name: Models
+  tags:
+  - AggregatedFactTable_model
+  - AnalyticsExploration_model
+  - Archetype_model
+  - Attribute_model
+  - AutoRun_model
+  - CodeRef_model
+  - Config_model
+  - ConfigKeyUsage_model
+  - ConfigLineage_model
+  - ConfigReferences_model
+  - ConfigRevision_model
+  - ConfigRevisionActivityLogEntry_model
+  - ConfigRevisionRef_model
+  - ConfigRevisionReview_model
+  - ConfigSchemaExport_model
+  - ConfigSchemaSource_model
+  - ConfigSchemaVerify_model
+  - ConfigSchemaWarning_model
+  - Confirmation_model
+  - ConfirmationHeld_model
+  - Constant_model
+  - ConstantReferences_model
+  - ConstantRevision_model
+  - ConstantRevisionActivityLogEntry_model
+  - ConstantRevisionRef_model
+  - ConstantRevisionReview_model
+  - ContextualBandit_model
+  - ContextualBanditQuery_model
+  - CustomField_model
+  - CustomHook_model
+  - Dashboard_model
+  - DataSource_model
+  - Dimension_model
+  - Environment_model
+  - EventUser_model
+  - Experiment_model
+  - Experiment Rule_model
+  - ExperimentAnalysisSettings_model
+  - ExperimentDecisionFrameworkSettings_model
+  - ExperimentMetric_model
+  - ExperimentMetricOverrideEntry_model
+  - ExperimentResults_model
+  - ExperimentSnapshot_model
+  - ExperimentTemplate_model
+  - ExperimentWithEnhancedStatus_model
+  - FactMetric_model
+  - FactTable_model
+  - FactTableColumn_model
+  - FactTableFilter_model
+  - FeatureBaseRule_model
+  - FeatureContextualBanditRefRule_model
+  - FeatureDefinition_model
+  - FeatureEnvironmentV1_model
+  - FeatureEnvironmentV2_model
+  - FeatureExperimentRefRule_model
+  - FeatureExperimentRule_model
+  - FeatureForceRule_model
+  - FeatureRevisionRef_model
+  - FeatureRevisionSummary_model
+  - FeatureRevisionV1_model
+  - FeatureRevisionV2_model
+  - FeatureRolloutRule_model
+  - FeatureRuleV1_model
+  - FeatureRuleV2_model
+  - FeatureSafeRolloutRule_model
+  - FeatureV1_model
+  - FeatureV2_model
+  - FeatureWithRevisionsV1_model
+  - FeatureWithRevisionsV2_model
+  - Holdout_model
+  - InformationSchema_model
+  - InformationSchemaTable_model
+  - Learning_model
+  - LookbackOverride_model
+  - Member_model
+  - Metric_model
+  - MetricAnalysis_model
+  - MetricGroup_model
+  - MetricUsage_model
+  - Namespace_model
+  - NamespaceExperimentMember_model
+  - Organization_model
+  - PaginationFields_model
+  - Population_model
+  - Project_model
+  - Query_model
+  - RampSchedule_model
+  - RampScheduleTemplate_model
+  - Report_model
+  - RequireReviewRule_model
+  - RequireReviewRuleInput_model
+  - RevisionIdRef_model
+  - Safe Rollout Rule_model
+  - SavedGroup_model
+  - SavedGroupApprovalRule_model
+  - SavedGroupReferenceResource_model
+  - SavedGroupReferences_model
+  - SavedGroupRevision_model
+  - SavedGroupRevisionActivityLogEntry_model
+  - SavedGroupRevisionRef_model
+  - SavedGroupRevisionReview_model
+  - ScheduleRule_model
+  - ScheduledStopPlan_model
+  - SdkConnection_model
+  - Segment_model
+  - Settings_model
+  - Targeting Rule_model
+  - TargetingReviewRule_model
+  - Team_model
+  - VisualChange_model
+  - VisualChangeset_model
+  - VisualEditorCbExperimentStub_model

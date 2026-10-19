@@ -1,0 +1,906 @@
+openapi: 3.2.0
+info:
+  version: 1.0.0
+  title: GrowthBook REST Experiment Templates API
+  description: GrowthBook offers a full REST API for interacting with the application.
+servers:
+- url: https://api.growthbook.io/api
+  description: GrowthBook Cloud
+- url: https://{domain}/api
+  description: Self-hosted GrowthBook
+security:
+- bearerAuth: []
+- basicAuth: []
+tags:
+- name: Experiment Templates
+  x-displayName: Experiment Templates
+  description: ''
+paths:
+  /v1/experiment-templates/{id}:
+    get:
+      operationId: getExperimentTemplate
+      summary: Get a single experimentTemplate
+      tags:
+      - Experiment Templates
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  experimentTemplate:
+                    $ref: '#/components/schemas/ExperimentTemplate'
+                required:
+                - experimentTemplate
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/experiment-templates/{id}' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+    delete:
+      operationId: deleteExperimentTemplate
+      summary: Delete a single experimentTemplate
+      tags:
+      - Experiment Templates
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deletedId:
+                    type: string
+                required:
+                - deletedId
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X DELETE 'https://api.growthbook.io/api/v1/experiment-templates/{id}' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+    put:
+      operationId: updateExperimentTemplate
+      summary: Update a single experimentTemplate
+      tags:
+      - Experiment Templates
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                project:
+                  type: string
+                templateMetadata:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    description:
+                      type: string
+                  required:
+                  - name
+                  additionalProperties: false
+                type:
+                  type: string
+                  enum:
+                  - standard
+                hypothesis:
+                  type: string
+                description:
+                  type: string
+                tags:
+                  type: array
+                  items:
+                    type: string
+                customFields:
+                  type: object
+                  propertyNames:
+                    type: string
+                  additionalProperties:
+                    type: string
+                datasource:
+                  type: string
+                exposureQueryId:
+                  type: string
+                hashAttribute:
+                  type: string
+                fallbackAttribute:
+                  type: string
+                disableStickyBucketing:
+                  type: boolean
+                goalMetrics:
+                  type: array
+                  items:
+                    type: string
+                secondaryMetrics:
+                  type: array
+                  items:
+                    type: string
+                guardrailMetrics:
+                  type: array
+                  items:
+                    type: string
+                activationMetric:
+                  type: string
+                statsEngine:
+                  type: string
+                  enum:
+                  - bayesian
+                  - frequentist
+                segment:
+                  type: string
+                skipPartialData:
+                  type: boolean
+                targeting:
+                  type: object
+                  properties:
+                    coverage:
+                      type: number
+                    savedGroups:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          match:
+                            type: string
+                            enum:
+                            - all
+                            - none
+                            - any
+                          ids:
+                            type: array
+                            items:
+                              type: string
+                        required:
+                        - match
+                        - ids
+                        additionalProperties: false
+                    prerequisites:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                          condition:
+                            type: string
+                        required:
+                        - id
+                        - condition
+                        additionalProperties: false
+                    condition:
+                      type: string
+                  required:
+                  - coverage
+                  - condition
+                  additionalProperties: false
+                customMetricSlices:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      slices:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            column:
+                              type: string
+                            levels:
+                              type: array
+                              items:
+                                type: string
+                          required:
+                          - column
+                          - levels
+                          additionalProperties: false
+                    required:
+                    - slices
+                    additionalProperties: false
+              additionalProperties: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  experimentTemplate:
+                    $ref: '#/components/schemas/ExperimentTemplate'
+                required:
+                - experimentTemplate
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X PUT 'https://api.growthbook.io/api/v1/experiment-templates/{id}' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/experiment-templates:
+    post:
+      operationId: createExperimentTemplate
+      summary: Create a single experimentTemplate
+      tags:
+      - Experiment Templates
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                project:
+                  type: string
+                templateMetadata:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    description:
+                      type: string
+                  required:
+                  - name
+                  additionalProperties: false
+                type:
+                  type: string
+                  enum:
+                  - standard
+                hypothesis:
+                  type: string
+                description:
+                  type: string
+                tags:
+                  type: array
+                  items:
+                    type: string
+                customFields:
+                  type: object
+                  propertyNames:
+                    type: string
+                  additionalProperties:
+                    type: string
+                datasource:
+                  type: string
+                exposureQueryId:
+                  type: string
+                hashAttribute:
+                  type: string
+                fallbackAttribute:
+                  type: string
+                disableStickyBucketing:
+                  type: boolean
+                goalMetrics:
+                  type: array
+                  items:
+                    type: string
+                secondaryMetrics:
+                  type: array
+                  items:
+                    type: string
+                guardrailMetrics:
+                  type: array
+                  items:
+                    type: string
+                activationMetric:
+                  type: string
+                statsEngine:
+                  type: string
+                  enum:
+                  - bayesian
+                  - frequentist
+                segment:
+                  type: string
+                skipPartialData:
+                  type: boolean
+                targeting:
+                  type: object
+                  properties:
+                    coverage:
+                      type: number
+                    savedGroups:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          match:
+                            type: string
+                            enum:
+                            - all
+                            - none
+                            - any
+                          ids:
+                            type: array
+                            items:
+                              type: string
+                        required:
+                        - match
+                        - ids
+                        additionalProperties: false
+                    prerequisites:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                          condition:
+                            type: string
+                        required:
+                        - id
+                        - condition
+                        additionalProperties: false
+                    condition:
+                      type: string
+                  required:
+                  - coverage
+                  - condition
+                  additionalProperties: false
+                customMetricSlices:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      slices:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            column:
+                              type: string
+                            levels:
+                              type: array
+                              items:
+                                type: string
+                          required:
+                          - column
+                          - levels
+                          additionalProperties: false
+                    required:
+                    - slices
+                    additionalProperties: false
+              required:
+              - templateMetadata
+              - type
+              - datasource
+              - exposureQueryId
+              - statsEngine
+              - targeting
+              additionalProperties: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  experimentTemplate:
+                    $ref: '#/components/schemas/ExperimentTemplate'
+                required:
+                - experimentTemplate
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/experiment-templates' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+    get:
+      operationId: listExperimentTemplates
+      summary: Get all experimentTemplates
+      tags:
+      - Experiment Templates
+      parameters:
+      - name: projectId
+        in: query
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  experimentTemplates:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ExperimentTemplate'
+                required:
+                - experimentTemplates
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/experiment-templates' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/experiment-templates/bulk-import:
+    post:
+      operationId: bulkImportExperimentTemplates
+      summary: Bulk create or update experiment templates
+      tags:
+      - Experiment Templates
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                templates:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      data:
+                        type: object
+                        properties:
+                          project:
+                            type: string
+                          templateMetadata:
+                            type: object
+                            properties:
+                              name:
+                                type: string
+                              description:
+                                type: string
+                            required:
+                            - name
+                            additionalProperties: false
+                          type:
+                            type: string
+                            enum:
+                            - standard
+                          hypothesis:
+                            type: string
+                          description:
+                            type: string
+                          tags:
+                            type: array
+                            items:
+                              type: string
+                          customFields:
+                            type: object
+                            propertyNames:
+                              type: string
+                            additionalProperties:
+                              type: string
+                          datasource:
+                            type: string
+                          exposureQueryId:
+                            type: string
+                          hashAttribute:
+                            type: string
+                          fallbackAttribute:
+                            type: string
+                          disableStickyBucketing:
+                            type: boolean
+                          goalMetrics:
+                            type: array
+                            items:
+                              type: string
+                          secondaryMetrics:
+                            type: array
+                            items:
+                              type: string
+                          guardrailMetrics:
+                            type: array
+                            items:
+                              type: string
+                          activationMetric:
+                            type: string
+                          statsEngine:
+                            type: string
+                            enum:
+                            - bayesian
+                            - frequentist
+                          segment:
+                            type: string
+                          skipPartialData:
+                            type: boolean
+                          targeting:
+                            type: object
+                            properties:
+                              coverage:
+                                type: number
+                              savedGroups:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    match:
+                                      type: string
+                                      enum:
+                                      - all
+                                      - none
+                                      - any
+                                    ids:
+                                      type: array
+                                      items:
+                                        type: string
+                                  required:
+                                  - match
+                                  - ids
+                                  additionalProperties: false
+                              prerequisites:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    id:
+                                      type: string
+                                    condition:
+                                      type: string
+                                  required:
+                                  - id
+                                  - condition
+                                  additionalProperties: false
+                              condition:
+                                type: string
+                            required:
+                            - coverage
+                            - condition
+                            additionalProperties: false
+                          customMetricSlices:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                slices:
+                                  type: array
+                                  items:
+                                    type: object
+                                    properties:
+                                      column:
+                                        type: string
+                                      levels:
+                                        type: array
+                                        items:
+                                          type: string
+                                    required:
+                                    - column
+                                    - levels
+                                    additionalProperties: false
+                              required:
+                              - slices
+                              additionalProperties: false
+                        required:
+                        - templateMetadata
+                        - type
+                        - datasource
+                        - exposureQueryId
+                        - statsEngine
+                        - targeting
+                        additionalProperties: false
+                    required:
+                    - id
+                    - data
+                    additionalProperties: false
+              required:
+              - templates
+              additionalProperties: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  added:
+                    type: integer
+                  updated:
+                    type: integer
+                required:
+                - added
+                - updated
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/experiment-templates/bulk-import' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+components:
+  schemas:
+    ExperimentTemplate:
+      type: object
+      properties:
+        id:
+          type: string
+        dateCreated:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+        dateUpdated:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+        project:
+          type: string
+        owner:
+          description: The userId of the owner (or raw owner name/email for legacy records)
+          type: string
+        ownerEmail:
+          description: The email address of the owner, when the owner can be resolved to a known user.
+          type: string
+        templateMetadata:
+          type: object
+          properties:
+            name:
+              type: string
+            description:
+              type: string
+          required:
+          - name
+          additionalProperties: false
+        type:
+          type: string
+          enum:
+          - standard
+        hypothesis:
+          type: string
+        description:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        customFields:
+          type: object
+          propertyNames:
+            type: string
+          additionalProperties:
+            type: string
+        datasource:
+          type: string
+        exposureQueryId:
+          type: string
+        hashAttribute:
+          type: string
+        fallbackAttribute:
+          type: string
+        disableStickyBucketing:
+          type: boolean
+        goalMetrics:
+          type: array
+          items:
+            type: string
+        secondaryMetrics:
+          type: array
+          items:
+            type: string
+        guardrailMetrics:
+          type: array
+          items:
+            type: string
+        activationMetric:
+          type: string
+        statsEngine:
+          type: string
+          enum:
+          - bayesian
+          - frequentist
+        segment:
+          type: string
+        skipPartialData:
+          type: boolean
+        targeting:
+          type: object
+          properties:
+            coverage:
+              type: number
+            savedGroups:
+              type: array
+              items:
+                type: object
+                properties:
+                  match:
+                    type: string
+                    enum:
+                    - all
+                    - none
+                    - any
+                  ids:
+                    type: array
+                    items:
+                      type: string
+                required:
+                - match
+                - ids
+                additionalProperties: false
+            prerequisites:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  condition:
+                    type: string
+                required:
+                - id
+                - condition
+                additionalProperties: false
+            condition:
+              type: string
+          required:
+          - coverage
+          - condition
+          additionalProperties: false
+        customMetricSlices:
+          type: array
+          items:
+            type: object
+            properties:
+              slices:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    column:
+                      type: string
+                    levels:
+                      type: array
+                      items:
+                        type: string
+                  required:
+                  - column
+                  - levels
+                  additionalProperties: false
+            required:
+            - slices
+            additionalProperties: false
+      required:
+      - id
+      - dateCreated
+      - dateUpdated
+      - owner
+      - templateMetadata
+      - type
+      - datasource
+      - exposureQueryId
+      - statsEngine
+      - targeting
+      additionalProperties: false
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: 'If using Bearer auth, pass the Secret Key as the token:
+
+        ```bash
+
+        curl https://api.growthbook.io/api/v1/features   -H "Authorization: Bearer secret_abc123DEF456"
+
+        ```
+
+        '
+    basicAuth:
+      type: http
+      scheme: basic
+      description: 'If using HTTP Basic auth, pass the Secret Key as the username and leave the password blank:
+
+        ```bash
+
+        curl https://api.growthbook.io/api/v1/features   -u secret_abc123DEF456:
+
+        # The ":" at the end stops curl from asking for a password
+
+        ```
+
+        '
+x-tagGroups:
+- name: Endpoints
+  tags:
+  - projects
+  - environments
+  - features-v2
+  - feature-revisions-v2
+  - features
+  - feature-revisions
+  - ramp-schedules
+  - data-sources
+  - fact-tables
+  - fact-metrics
+  - metrics
+  - experiments
+  - namespaces
+  - snapshots
+  - dimensions
+  - segments
+  - sdk-connections
+  - visual-changesets
+  - saved-groups
+  - organizations
+  - members
+  - code-references
+  - archetypes
+  - queries
+  - settings
+  - attributes
+  - usage
+  - Dashboards
+  - CustomFields
+  - MetricGroups
+  - Teams
+  - ExperimentTemplates
+  - AnalyticsExplorations
+  - RampScheduleTemplates
+- name: Models
+  tags:
+  - AnalyticsExploration_model
+  - Archetype_model
+  - Attribute_model
+  - CodeRef_model
+  - CustomField_model
+  - Dashboard_model
+  - DataSource_model
+  - Dimension_model
+  - Environment_model
+  - Experiment_model
+  - ExperimentAnalysisSettings_model
+  - ExperimentDecisionFrameworkSettings_model
+  - ExperimentMetric_model
+  - ExperimentMetricOverrideEntry_model
+  - ExperimentResults_model
+  - ExperimentSnapshot_model
+  - ExperimentTemplate_model
+  - ExperimentWithEnhancedStatus_model
+  - FactMetric_model
+  - FactTable_model
+  - FactTableColumn_model
+  - FactTableFilter_model
+  - Feature_model
+  - FeatureBaseRule_model
+  - FeatureDefinition_model
+  - FeatureEnvironment_model
+  - FeatureEnvironmentV2_model
+  - FeatureExperimentRefRule_model
+  - FeatureExperimentRule_model
+  - FeatureForceRule_model
+  - FeatureRevision_model
+  - FeatureRevisionV2_model
+  - FeatureRolloutRule_model
+  - FeatureRule_model
+  - FeatureRuleV2_model
+  - FeatureSafeRolloutRule_model
+  - FeatureV2_model
+  - FeatureWithRevisions_model
+  - FeatureWithRevisionsV2_model
+  - InformationSchema_model
+  - InformationSchemaTable_model
+  - LookbackOverride_model
+  - Member_model
+  - Metric_model
+  - MetricAnalysis_model
+  - MetricGroup_model
+  - MetricUsage_model
+  - Namespace_model
+  - NamespaceExperimentMember_model
+  - Organization_model
+  - PaginationFields_model
+  - Project_model
+  - Query_model
+  - RampSchedule_model
+  - RampScheduleTemplate_model
+  - SavedGroup_model
+  - ScheduleRule_model
+  - SdkConnection_model
+  - Segment_model
+  - Settings_model
+  - Team_model
+  - VisualChange_model
+  - VisualChangeset_model

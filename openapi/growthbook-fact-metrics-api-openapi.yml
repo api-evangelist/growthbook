@@ -1,13 +1,66 @@
 openapi: 3.2.0
 info:
-  version: 1.0.0
+  version: 5.1.0
   title: GrowthBook REST Fact Metrics API
-  description: GrowthBook offers a full REST API for interacting with the application.
+  description: 'GrowthBook offers a full REST API for interacting with the application. Request data can use either JSON or Form data encoding (with proper `Content-Type` headers). All response bodies are JSON-encoded. The API base URL for GrowthBook Cloud is `https://api.growthbook.io/api`. For self-hosted deployments, it is the same as your API_HOST environment variable (defaults to `http://localhost:3100/api`). The rest of these docs will assume you are using GrowthBook Cloud. ## Versioning
+
+
+    Endpoints are versioned by path prefix:
+
+
+    - `/v1/...` — stable, widely-supported endpoints
+
+    - `/v2/...` — updated endpoints with improved shapes (e.g. unified per-rule environment scope for feature flags)
+
+
+    New integrations should prefer v2 where available. Feature-flag and metric v1 routes are deprecated: they are tagged **LEGACY** in the sidebar and collapsed by default. Use the matching v2 group when both exist. ## Authentication
+
+
+    We support both the HTTP Basic and Bearer authentication schemes for convenience. You first need to generate a new API Key in GrowthBook. Different keys have different permissions:
+
+
+    - **Personal Access Tokens**: These are sensitive and provide the same level of access as the user has to an organization, or less if the token''s permissions are limited. These can be created by going to `Personal Access Tokens` under your user menu. Members with the API Keys **Manage members'' tokens** permission can disable a member''s token under `Settings -> Manage PATs`, and admins can require new tokens to expire within a maximum lifetime. - **Secret Keys**: These are sensitive and provide the level of access of the role they are given, which can be any built-in or custom role, with optional per-project role overrides and environment limits. Managing Secret Keys on behalf of an organization takes the API Keys permissions. These can be created by going to `Settings -> API Keys`, where Admins can also require new Secret Keys to expire within a maximum lifetime. If using HTTP Basic auth, pass the Secret Key as the username and leave the password blank (when using curl, add `:` at the end of the secret to indicate an empty password)
+
+
+    ```bash
+
+    curl https://api.growthbook.io/api/v1/features \
+
+    -u secret_abc123DEF456:
+
+    ```
+
+
+    If using Bearer auth, pass the Secret Key as the token:
+
+
+    ```bash
+
+    curl https://api.growthbook.io/api/v1/features \
+
+    -H "Authorization: Bearer secret_abc123DEF456"
+
+    ```
+
+
+    If a key has an expiration date, every response includes it in the `X-GrowthBook-Key-Expires-At` header (ISO 8601), so scripts can warn before the key stops working. Requests made with an expired key fail with a `401` that says where to create a replacement. See Expiration for choosing a key''s expiration, the warnings before it lapses, and the organization policies. ## Naming who asked
+
+
+    Requests made with a Secret Key may add an `X-GrowthBook-Requested-By` header naming the organization member who asked for the change, as a user id or an email address. History, revision logs and webhooks show that member next to the key. Each key''s settings under `Settings -> API Keys`:
+
+
+    - **Header**: **Optional** (the default) uses the header when it''s sent, **Required** rejects requests without it, and **Rejected** rejects requests that send it, each with a 400. - **Permissions**, when a member is named:
+
+    - **Assume member''s role** (the default): the request acts as that member, with only what both the key and the member can do, so the header can narrow a key but never widen it. Drafts, owners, `mine` filters and reviews are the member''s. The member''s rights over their own drafts, comments and verdicts apply only where the key''s own role allows the same action. - **Use key''s role**: the key acts as itself, with its own permissions, and the name is only recorded in history. Drafts, verdicts and ownership are the key''s, as when no member is named.'
 servers:
 - url: https://api.growthbook.io/api
   description: GrowthBook Cloud
 - url: https://{domain}/api
   description: Self-hosted GrowthBook
+  variables:
+    domain:
+      default: localhost:3100
+      description: Your self-hosted GrowthBook host (and port)
 security:
 - bearerAuth: []
 - basicAuth: []
@@ -29,12 +82,13 @@ paths:
       - $ref: '#/components/parameters/projectId'
       - name: factTableId
         in: query
-        description: Filter by Fact Table Id (for ratio metrics, we only look at the numerator)
+        description: Filter by Fact Table Id (for ratio metrics, only the numerator is considered)
         schema:
-          description: Filter by Fact Table Id (for ratio metrics, we only look at the numerator)
+          description: Filter by Fact Table Id (for ratio metrics, only the numerator is considered)
           type: string
       responses:
         '200':
+          description: Successful response
           content:
             application/json:
               schema:
@@ -65,9 +119,12 @@ paths:
               type: object
               properties:
                 name:
+                  description: Short display name (e.g. `Purchases per user`). Put the definition in `description`.
                   type: string
                 description:
+                  description: Markdown. Put context here, not in the name.
                   type: string
+                  maxLength: 10000
                 owner:
                   description: The userId or email address of the owner. If an email address is provided, it will be used to look up the userId of the matching organization member. If an ID is provided, it will be validated as existing in the organization.
                   type: string
@@ -76,6 +133,7 @@ paths:
                   items:
                     type: string
                 tags:
+                  description: Tags for filtering and grouping. Use these instead of encoding groups in names.
                   type: array
                   items:
                     type: string
@@ -88,86 +146,93 @@ paths:
                   - quantile
                   - ratio
                   - dailyParticipation
+                  - funnel
                 numerator:
-                  type: object
-                  properties:
-                    factTableId:
-                      type: string
-                    column:
-                      description: 'Must be empty for proportion metrics and dailyParticipation metrics. Otherwise, the column name or one of the special values: ''$$distinctUsers'' or ''$$count'' (or ''$$distinctDates'' if metricType is ''mean'' or ''ratio'' or ''quantile'' and quantileSettings.type is ''unit'')'
-                      type: string
-                    aggregation:
-                      description: 'User aggregation of selected column. Either sum or max for numeric columns; count distinct for string columns; hll merge / kll merge for pre-built sketch columns (requires data-source support); ignored for special columns. Default: sum. If you specify a string column you must explicitly specify count distinct. Not used for proportion metrics; for event quantile metrics only kll merge is applicable.'
-                      type: string
-                      enum:
-                      - sum
-                      - max
-                      - count distinct
-                      - hll merge
-                      - kll merge
-                    filters:
-                      deprecated: true
-                      description: Array of Fact Table Filter Ids. Deprecated, use rowFilters instead.
-                      type: array
-                      items:
+                  anyOf:
+                  - type: object
+                    properties:
+                      factTableId:
                         type: string
-                    inlineFilters:
-                      deprecated: true
-                      description: Inline filters to apply to the fact table. Keys are column names, values are arrays of values to filter by. Deprecated, use rowFilters instead.
-                      type: object
-                      propertyNames:
+                      column:
+                        description: 'Must be empty for proportion metrics and dailyParticipation metrics. Otherwise, the column name or one of the special values: ''$$distinctUsers'' or ''$$count'' (or ''$$distinctDates'' if metricType is ''mean'' or ''ratio'' or ''quantile'' and quantileSettings.type is ''unit'')'
                         type: string
-                      additionalProperties:
+                      aggregation:
+                        description: 'User aggregation of selected column. Either sum or max for numeric columns; count distinct for string columns; hll merge / kll merge for pre-built sketch columns (requires data-source support); ignored for special columns. Default: sum. If you specify a string column you must explicitly specify count distinct. Not used for proportion metrics; for event quantile metrics only kll merge is applicable.'
+                        type: string
+                        enum:
+                        - sum
+                        - max
+                        - count distinct
+                        - hll merge
+                        - kll merge
+                      filters:
+                        deprecated: true
+                        description: Array of Fact Table Filter Ids. Deprecated, use rowFilters instead.
                         type: array
                         items:
                           type: string
-                    rowFilters:
-                      description: Filters to apply to the rows of the fact table before aggregation.
-                      type: array
-                      items:
+                      inlineFilters:
+                        deprecated: true
+                        description: Inline filters to apply to the fact table. Keys are column names, values are arrays of values to filter by. Deprecated, use rowFilters instead.
                         type: object
-                        properties:
-                          operator:
+                        propertyNames:
+                          type: string
+                        additionalProperties:
+                          type: array
+                          items:
                             type: string
-                            enum:
-                            - '='
-                            - '!='
-                            - '>'
-                            - <
-                            - '>='
-                            - <=
-                            - in
-                            - not_in
-                            - is_null
-                            - not_null
-                            - is_true
-                            - is_false
-                            - contains
-                            - not_contains
-                            - starts_with
-                            - ends_with
-                            - sql_expr
-                            - saved_filter
-                          values:
-                            description: Not required for is_null, not_null, is_true, is_false operators.
-                            type: array
-                            items:
+                      rowFilters:
+                        description: Filters to apply to the rows of the fact table before aggregation.
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            operator:
                               type: string
-                          column:
-                            description: Required for all operators except sql_expr and saved_filter.
-                            type: string
-                        required:
-                        - operator
-                        additionalProperties: false
-                    aggregateFilterColumn:
-                      description: Column to use to filter users after aggregation. Either '$$count' of rows or the name of a numeric column that will be summed by user. Must specify `aggregateFilter` if using this. Only can be used with 'retention' and 'proportion' metrics.
-                      type: string
-                    aggregateFilter:
-                      description: Simple comparison operator and value to apply after aggregation (e.g. '= 10' or '>= 1'). Requires `aggregateFilterColumn`.
-                      type: string
-                  required:
-                  - factTableId
-                  additionalProperties: false
+                              enum:
+                              - '='
+                              - '!='
+                              - '>'
+                              - <
+                              - '>='
+                              - <=
+                              - between
+                              - not_between
+                              - in
+                              - not_in
+                              - is_null
+                              - not_null
+                              - is_true
+                              - is_false
+                              - contains
+                              - not_contains
+                              - matches_pattern
+                              - not_matches_pattern
+                              - starts_with
+                              - ends_with
+                              - sql_expr
+                              - saved_filter
+                            values:
+                              description: Not required for is_null, not_null, is_true, is_false operators. The between and not_between operators take at most two values, a lower and an upper bound in that order; leave a bound as an empty string for an open-ended range.
+                              type: array
+                              items:
+                                type: string
+                            column:
+                              description: Required for all operators except sql_expr and saved_filter.
+                              type: string
+                          required:
+                          - operator
+                          additionalProperties: false
+                      aggregateFilterColumn:
+                        description: Column to use to filter users after aggregation. Either '$$count' of rows or the name of a numeric column that will be summed by user. Must specify `aggregateFilter` if using this. Only can be used with 'retention' and 'proportion' metrics.
+                        type: string
+                      aggregateFilter:
+                        description: Simple comparison operator and value to apply after aggregation (e.g. '= 10' or '>= 1'). Requires `aggregateFilterColumn`.
+                        type: string
+                    required:
+                    - factTableId
+                    additionalProperties: false
+                  - type: 'null'
                 denominator:
                   description: Only when metricType is 'ratio'
                   type: object
@@ -217,6 +282,8 @@ paths:
                             - <
                             - '>='
                             - <=
+                            - between
+                            - not_between
                             - in
                             - not_in
                             - is_null
@@ -225,12 +292,14 @@ paths:
                             - is_false
                             - contains
                             - not_contains
+                            - matches_pattern
+                            - not_matches_pattern
                             - starts_with
                             - ends_with
                             - sql_expr
                             - saved_filter
                           values:
-                            description: Not required for is_null, not_null, is_true, is_false operators.
+                            description: Not required for is_null, not_null, is_true, is_false operators. The between and not_between operators take at most two values, a lower and an upper bound in that order; leave a bound as an empty string for an open-ended range.
                             type: array
                             items:
                               type: string
@@ -274,8 +343,109 @@ paths:
                   - ignoreZeros
                   - quantile
                   additionalProperties: false
+                funnelSettings:
+                  description: Funnel metric settings (required when metricType is "funnel")
+                  type: object
+                  properties:
+                    steps:
+                      description: Ordered list of funnel steps. Minimum 2 steps required.
+                      minItems: 2
+                      maxItems: 20
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          name:
+                            description: Display name for the funnel step
+                            type: string
+                          factTableId:
+                            description: The fact table this step draws events from
+                            type: string
+                          rowFilters:
+                            description: Filters that decide whether an event row counts as this step
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                operator:
+                                  type: string
+                                  enum:
+                                  - '='
+                                  - '!='
+                                  - '>'
+                                  - <
+                                  - '>='
+                                  - <=
+                                  - between
+                                  - not_between
+                                  - in
+                                  - not_in
+                                  - is_null
+                                  - not_null
+                                  - is_true
+                                  - is_false
+                                  - contains
+                                  - not_contains
+                                  - matches_pattern
+                                  - not_matches_pattern
+                                  - starts_with
+                                  - ends_with
+                                  - sql_expr
+                                  - saved_filter
+                                values:
+                                  description: Not required for is_null, not_null, is_true, is_false operators. The between and not_between operators take at most two values, a lower and an upper bound in that order; leave a bound as an empty string for an open-ended range.
+                                  type: array
+                                  items:
+                                    type: string
+                                column:
+                                  description: Required for all operators except sql_expr and saved_filter.
+                                  type: string
+                              required:
+                              - operator
+                              additionalProperties: false
+                          optional:
+                            description: When true, this step still counts for its own conversion but does not anchor later steps. Later steps window off the nearest prior required step (or exposure, for experiment funnel metrics, when every prior step is optional).
+                            type: boolean
+                          conversionWindow:
+                            anyOf:
+                            - description: Bounds how long after the nearest prior required step (or exposure, for the first step / after only-optional priors of an experiment funnel metric) this step's event can occur.
+                              type: object
+                              properties:
+                                unit:
+                                  type: string
+                                  enum:
+                                  - weeks
+                                  - days
+                                  - hours
+                                  - minutes
+                                value:
+                                  type: number
+                                  exclusiveMinimum: 0
+                              required:
+                              - unit
+                              - value
+                              additionalProperties: false
+                            - type: 'null'
+                        required:
+                        - name
+                        - factTableId
+                        - rowFilters
+                        - optional
+                        additionalProperties: false
+                    ordering:
+                      description: Step ordering mode. Only 'sequential' is supported in v1.
+                      type: string
+                      enum:
+                      - sequential
+                    concurrencyWindowSeconds:
+                      description: Out-of-order tolerance between adjacent steps in seconds. Defaults to 0.
+                      type: integer
+                      minimum: 0
+                  required:
+                  - steps
+                  additionalProperties: false
                 cappingSettings:
-                  description: Controls how outliers are handled
+                  description: 'Upper cap. Omit on update to preserve it. Use type: none to disable it explicitly. Invalid values are rejected.'
                   type: object
                   properties:
                     type:
@@ -285,7 +455,7 @@ paths:
                       - absolute
                       - percentile
                     value:
-                      description: When type is absolute, this is the absolute value. When type is percentile, this is the percentile value (from 0.0 to 1.0).
+                      description: When type is absolute, this must be a finite number greater than zero. When type is percentile, this must be strictly between 0 and 1. Required when enabling capping or changing type; omitted values are preserved only for same-type updates.
                       type: number
                     ignoreZeros:
                       description: If true and capping is `percentile`, zeros will be ignored when calculating the percentile.
@@ -293,6 +463,28 @@ paths:
                   required:
                   - type
                   additionalProperties: false
+                lowerCappingSettings:
+                  description: 'Independent lower cap. Omit on update to preserve it. Use null or type: none to disable it explicitly. Invalid values are rejected. For mixed cap types, the absolute bound takes precedence if thresholds cross.'
+                  anyOf:
+                  - description: Independent lower-tail capping settings. Configured separately from the upper tail, so the type can differ.
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - none
+                        - absolute
+                        - percentile
+                      value:
+                        description: When type is absolute, this is a finite lower bound, including zero or negative values. When type is percentile, this must be strictly between 0 and 1. Required when enabling capping or changing type; omitted values are preserved only for same-type updates.
+                        type: number
+                      ignoreZeros:
+                        description: If true and capping is `percentile`, zeros will be ignored when calculating the percentile.
+                        type: boolean
+                    required:
+                    - type
+                    additionalProperties: false
+                  - type: 'null'
                 windowSettings:
                   description: Controls the conversion window for the metric
                   type: object
@@ -410,13 +602,18 @@ paths:
                   type: array
                   items:
                     type: string
+                replaces:
+                  description: Ids of older metrics (legacy or fact) that this metric supersedes, for example the legacy metric it was migrated from. Cannot include this metric's own id. Informational only - GrowthBook uses it to link the old and new definitions in the UI and to keep showing results from a snapshot that was created before an experiment switched to this metric. This field can only be set through the API.
+                  type: array
+                  items:
+                    type: string
               required:
               - name
               - metricType
-              - numerator
               additionalProperties: false
       responses:
         '200':
+          description: Resource created
           content:
             application/json:
               schema:
@@ -427,6 +624,8 @@ paths:
                 required:
                 - factMetric
                 additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
       x-codeSamples:
       - lang: cURL
         source: "curl -X POST 'https://api.growthbook.io/api/v1/fact-metrics' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"name\":\"Purchased\",\"metricType\":\"proportion\",\"numerator\":{\"factTableId\":\"ftb_abc123\",\"column\":\"$$distinctUsers\",\"filters\":[]},\"priorSettings\":{\"override\":false,\"proper\":false,\"mean\":0,\"stddev\":0.3}}'"
@@ -440,6 +639,7 @@ paths:
       - $ref: '#/components/parameters/id'
       responses:
         '200':
+          description: Successful response
           content:
             application/json:
               schema:
@@ -468,9 +668,12 @@ paths:
               type: object
               properties:
                 name:
+                  description: Short display name (e.g. `Purchases per user`). Put the definition in `description`.
                   type: string
                 description:
+                  description: Markdown. Put context here, not in the name.
                   type: string
+                  maxLength: 10000
                 owner:
                   description: The userId or email address of the owner. If an email address is provided, it will be used to look up the userId of the matching organization member. If an ID is provided, it will be validated as existing in the organization.
                   type: string
@@ -479,6 +682,7 @@ paths:
                   items:
                     type: string
                 tags:
+                  description: Tags for filtering and grouping. Use these instead of encoding groups in names.
                   type: array
                   items:
                     type: string
@@ -491,86 +695,93 @@ paths:
                   - quantile
                   - ratio
                   - dailyParticipation
+                  - funnel
                 numerator:
-                  type: object
-                  properties:
-                    factTableId:
-                      type: string
-                    column:
-                      description: 'Must be empty for proportion metrics and dailyParticipation metrics. Otherwise, the column name or one of the special values: ''$$distinctUsers'' or ''$$count'' (or ''$$distinctDates'' if metricType is ''mean'' or ''ratio'' or ''quantile'' and quantileSettings.type is ''unit'')'
-                      type: string
-                    aggregation:
-                      description: 'User aggregation of selected column. Either sum or max for numeric columns; count distinct for string columns; hll merge / kll merge for pre-built sketch columns (requires data-source support); ignored for special columns. Default: sum. If you specify a string column you must explicitly specify count distinct. Not used for proportion metrics; for event quantile metrics only kll merge is applicable.'
-                      type: string
-                      enum:
-                      - sum
-                      - max
-                      - count distinct
-                      - hll merge
-                      - kll merge
-                    filters:
-                      deprecated: true
-                      description: Array of Fact Table Filter Ids. Deprecated, use rowFilters instead.
-                      type: array
-                      items:
+                  anyOf:
+                  - type: object
+                    properties:
+                      factTableId:
                         type: string
-                    inlineFilters:
-                      deprecated: true
-                      description: Inline filters to apply to the fact table. Keys are column names, values are arrays of values to filter by. Deprecated, use rowFilters instead.
-                      type: object
-                      propertyNames:
+                      column:
+                        description: 'Must be empty for proportion metrics and dailyParticipation metrics. Otherwise, the column name or one of the special values: ''$$distinctUsers'' or ''$$count'' (or ''$$distinctDates'' if metricType is ''mean'' or ''ratio'' or ''quantile'' and quantileSettings.type is ''unit'')'
                         type: string
-                      additionalProperties:
+                      aggregation:
+                        description: 'User aggregation of selected column. Either sum or max for numeric columns; count distinct for string columns; hll merge / kll merge for pre-built sketch columns (requires data-source support); ignored for special columns. Default: sum. If you specify a string column you must explicitly specify count distinct. Not used for proportion metrics; for event quantile metrics only kll merge is applicable.'
+                        type: string
+                        enum:
+                        - sum
+                        - max
+                        - count distinct
+                        - hll merge
+                        - kll merge
+                      filters:
+                        deprecated: true
+                        description: Array of Fact Table Filter Ids. Deprecated, use rowFilters instead.
                         type: array
                         items:
                           type: string
-                    rowFilters:
-                      description: Filters to apply to the rows of the fact table before aggregation.
-                      type: array
-                      items:
+                      inlineFilters:
+                        deprecated: true
+                        description: Inline filters to apply to the fact table. Keys are column names, values are arrays of values to filter by. Deprecated, use rowFilters instead.
                         type: object
-                        properties:
-                          operator:
+                        propertyNames:
+                          type: string
+                        additionalProperties:
+                          type: array
+                          items:
                             type: string
-                            enum:
-                            - '='
-                            - '!='
-                            - '>'
-                            - <
-                            - '>='
-                            - <=
-                            - in
-                            - not_in
-                            - is_null
-                            - not_null
-                            - is_true
-                            - is_false
-                            - contains
-                            - not_contains
-                            - starts_with
-                            - ends_with
-                            - sql_expr
-                            - saved_filter
-                          values:
-                            description: Not required for is_null, not_null, is_true, is_false operators.
-                            type: array
-                            items:
+                      rowFilters:
+                        description: Filters to apply to the rows of the fact table before aggregation.
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            operator:
                               type: string
-                          column:
-                            description: Required for all operators except sql_expr and saved_filter.
-                            type: string
-                        required:
-                        - operator
-                        additionalProperties: false
-                    aggregateFilterColumn:
-                      description: Column to use to filter users after aggregation. Either '$$count' of rows or the name of a numeric column that will be summed by user. Must specify `aggregateFilter` if using this. Only can be used with 'retention' and 'proportion' metrics.
-                      type: string
-                    aggregateFilter:
-                      description: Simple comparison operator and value to apply after aggregation (e.g. '= 10' or '>= 1'). Requires `aggregateFilterColumn`.
-                      type: string
-                  required:
-                  - factTableId
-                  additionalProperties: false
+                              enum:
+                              - '='
+                              - '!='
+                              - '>'
+                              - <
+                              - '>='
+                              - <=
+                              - between
+                              - not_between
+                              - in
+                              - not_in
+                              - is_null
+                              - not_null
+                              - is_true
+                              - is_false
+                              - contains
+                              - not_contains
+                              - matches_pattern
+                              - not_matches_pattern
+                              - starts_with
+                              - ends_with
+                              - sql_expr
+                              - saved_filter
+                            values:
+                              description: Not required for is_null, not_null, is_true, is_false operators. The between and not_between operators take at most two values, a lower and an upper bound in that order; leave a bound as an empty string for an open-ended range.
+                              type: array
+                              items:
+                                type: string
+                            column:
+                              description: Required for all operators except sql_expr and saved_filter.
+                              type: string
+                          required:
+                          - operator
+                          additionalProperties: false
+                      aggregateFilterColumn:
+                        description: Column to use to filter users after aggregation. Either '$$count' of rows or the name of a numeric column that will be summed by user. Must specify `aggregateFilter` if using this. Only can be used with 'retention' and 'proportion' metrics.
+                        type: string
+                      aggregateFilter:
+                        description: Simple comparison operator and value to apply after aggregation (e.g. '= 10' or '>= 1'). Requires `aggregateFilterColumn`.
+                        type: string
+                    required:
+                    - factTableId
+                    additionalProperties: false
+                  - type: 'null'
                 denominator:
                   description: Only when metricType is 'ratio'
                   type: object
@@ -620,6 +831,8 @@ paths:
                             - <
                             - '>='
                             - <=
+                            - between
+                            - not_between
                             - in
                             - not_in
                             - is_null
@@ -628,12 +841,14 @@ paths:
                             - is_false
                             - contains
                             - not_contains
+                            - matches_pattern
+                            - not_matches_pattern
                             - starts_with
                             - ends_with
                             - sql_expr
                             - saved_filter
                           values:
-                            description: Not required for is_null, not_null, is_true, is_false operators.
+                            description: Not required for is_null, not_null, is_true, is_false operators. The between and not_between operators take at most two values, a lower and an upper bound in that order; leave a bound as an empty string for an open-ended range.
                             type: array
                             items:
                               type: string
@@ -677,8 +892,109 @@ paths:
                   - ignoreZeros
                   - quantile
                   additionalProperties: false
+                funnelSettings:
+                  description: Funnel metric settings (required when metricType is "funnel")
+                  type: object
+                  properties:
+                    steps:
+                      description: Ordered list of funnel steps. Minimum 2 steps required.
+                      minItems: 2
+                      maxItems: 20
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          name:
+                            description: Display name for the funnel step
+                            type: string
+                          factTableId:
+                            description: The fact table this step draws events from
+                            type: string
+                          rowFilters:
+                            description: Filters that decide whether an event row counts as this step
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                operator:
+                                  type: string
+                                  enum:
+                                  - '='
+                                  - '!='
+                                  - '>'
+                                  - <
+                                  - '>='
+                                  - <=
+                                  - between
+                                  - not_between
+                                  - in
+                                  - not_in
+                                  - is_null
+                                  - not_null
+                                  - is_true
+                                  - is_false
+                                  - contains
+                                  - not_contains
+                                  - matches_pattern
+                                  - not_matches_pattern
+                                  - starts_with
+                                  - ends_with
+                                  - sql_expr
+                                  - saved_filter
+                                values:
+                                  description: Not required for is_null, not_null, is_true, is_false operators. The between and not_between operators take at most two values, a lower and an upper bound in that order; leave a bound as an empty string for an open-ended range.
+                                  type: array
+                                  items:
+                                    type: string
+                                column:
+                                  description: Required for all operators except sql_expr and saved_filter.
+                                  type: string
+                              required:
+                              - operator
+                              additionalProperties: false
+                          optional:
+                            description: When true, this step still counts for its own conversion but does not anchor later steps. Later steps window off the nearest prior required step (or exposure, for experiment funnel metrics, when every prior step is optional).
+                            type: boolean
+                          conversionWindow:
+                            anyOf:
+                            - description: Bounds how long after the nearest prior required step (or exposure, for the first step / after only-optional priors of an experiment funnel metric) this step's event can occur.
+                              type: object
+                              properties:
+                                unit:
+                                  type: string
+                                  enum:
+                                  - weeks
+                                  - days
+                                  - hours
+                                  - minutes
+                                value:
+                                  type: number
+                                  exclusiveMinimum: 0
+                              required:
+                              - unit
+                              - value
+                              additionalProperties: false
+                            - type: 'null'
+                        required:
+                        - name
+                        - factTableId
+                        - rowFilters
+                        - optional
+                        additionalProperties: false
+                    ordering:
+                      description: Step ordering mode. Only 'sequential' is supported in v1.
+                      type: string
+                      enum:
+                      - sequential
+                    concurrencyWindowSeconds:
+                      description: Out-of-order tolerance between adjacent steps in seconds. Defaults to 0.
+                      type: integer
+                      minimum: 0
+                  required:
+                  - steps
+                  additionalProperties: false
                 cappingSettings:
-                  description: Controls how outliers are handled
+                  description: 'Upper cap. Omit on update to preserve it. Use type: none to disable it explicitly. Invalid values are rejected.'
                   type: object
                   properties:
                     type:
@@ -688,7 +1004,7 @@ paths:
                       - absolute
                       - percentile
                     value:
-                      description: When type is absolute, this is the absolute value. When type is percentile, this is the percentile value (from 0.0 to 1.0).
+                      description: When type is absolute, this must be a finite number greater than zero. When type is percentile, this must be strictly between 0 and 1. Required when enabling capping or changing type; omitted values are preserved only for same-type updates.
                       type: number
                     ignoreZeros:
                       description: If true and capping is `percentile`, zeros will be ignored when calculating the percentile.
@@ -696,6 +1012,28 @@ paths:
                   required:
                   - type
                   additionalProperties: false
+                lowerCappingSettings:
+                  description: 'Independent lower cap. Omit on update to preserve it. Use null or type: none to disable it explicitly. Invalid values are rejected. For mixed cap types, the absolute bound takes precedence if thresholds cross.'
+                  anyOf:
+                  - description: Independent lower-tail capping settings. Configured separately from the upper tail, so the type can differ.
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                        - none
+                        - absolute
+                        - percentile
+                      value:
+                        description: When type is absolute, this is a finite lower bound, including zero or negative values. When type is percentile, this must be strictly between 0 and 1. Required when enabling capping or changing type; omitted values are preserved only for same-type updates.
+                        type: number
+                      ignoreZeros:
+                        description: If true and capping is `percentile`, zeros will be ignored when calculating the percentile.
+                        type: boolean
+                    required:
+                    - type
+                    additionalProperties: false
+                  - type: 'null'
                 windowSettings:
                   description: Controls the conversion window for the metric
                   type: object
@@ -798,6 +1136,7 @@ paths:
                   type: number
                   minimum: 0
                 targetMDE:
+                  description: The percentage change that you want to reliably detect before ending an experiment, as a proportion (e.g. put 0.1 for 10%). This is used to estimate the "Days Left" for running experiments.
                   type: number
                   minimum: 0
                 managedBy:
@@ -807,16 +1146,23 @@ paths:
                   - ''
                   - api
                   - admin
-                archived:
-                  type: boolean
                 metricAutoSlices:
                   description: Array of slice column names that will be automatically included in metric analysis. This is an enterprise feature.
                   type: array
                   items:
                     type: string
+                replaces:
+                  description: Ids of older metrics (legacy or fact) that this metric supersedes, for example the legacy metric it was migrated from. Cannot include this metric's own id. Informational only - GrowthBook uses it to link the old and new definitions in the UI and to keep showing results from a snapshot that was created before an experiment switched to this metric. This field can only be set through the API.
+                  type: array
+                  items:
+                    type: string
+                archived:
+                  description: Set to true to archive the metric. Archived metrics are hidden by default in the UI and excluded from new experiments.
+                  type: boolean
               additionalProperties: false
       responses:
         '200':
+          description: Resource created
           content:
             application/json:
               schema:
@@ -827,6 +1173,8 @@ paths:
                 required:
                 - factMetric
                 additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
       x-codeSamples:
       - lang: cURL
         source: "curl -X POST 'https://api.growthbook.io/api/v1/fact-metrics/abc123' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"name\":\"Updated Metric Name\"}'"
@@ -839,6 +1187,7 @@ paths:
       - $ref: '#/components/parameters/id'
       responses:
         '200':
+          description: Resource deleted
           content:
             application/json:
               schema:
@@ -851,6 +1200,8 @@ paths:
                 required:
                 - deletedId
                 additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
       x-codeSamples:
       - lang: cURL
         source: "curl -X DELETE 'https://api.growthbook.io/api/v1/fact-metrics/abc123' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
@@ -910,6 +1261,7 @@ paths:
               additionalProperties: false
       responses:
         '200':
+          description: Resource created
           content:
             application/json:
               schema:
@@ -925,6 +1277,24 @@ paths:
         source: "curl -X POST 'https://api.growthbook.io/api/v1/fact-metrics/{id}/analysis' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"lookbackDays\":90}'"
 components:
   schemas:
+    MetricAnalysis:
+      type: object
+      properties:
+        id:
+          description: The ID of the created metric analysis
+          type: string
+        status:
+          description: The status of the analysis (e.g., "running", "completed", "error")
+          type: string
+        settings:
+          type: object
+          propertyNames:
+            type: string
+          additionalProperties: {}
+      required:
+      - id
+      - status
+      additionalProperties: false
     PaginationFields:
       type: object
       properties:
@@ -950,24 +1320,6 @@ components:
       - hasMore
       - nextOffset
       additionalProperties: false
-    MetricAnalysis:
-      type: object
-      properties:
-        id:
-          description: The ID of the created metric analysis
-          type: string
-        status:
-          description: The status of the analysis (e.g., "running", "completed", "error")
-          type: string
-        settings:
-          type: object
-          propertyNames:
-            type: string
-          additionalProperties: {}
-      required:
-      - id
-      - status
-      additionalProperties: false
     FactMetric:
       type: object
       properties:
@@ -977,6 +1329,7 @@ components:
           type: string
         description:
           type: string
+          maxLength: 10000
         owner:
           description: The userId of the owner (or raw owner name/email for legacy records)
           type: string
@@ -1002,6 +1355,7 @@ components:
           - quantile
           - ratio
           - dailyParticipation
+          - funnel
         numerator:
           type: object
           properties:
@@ -1048,6 +1402,8 @@ components:
                     - <
                     - '>='
                     - <=
+                    - between
+                    - not_between
                     - in
                     - not_in
                     - is_null
@@ -1056,12 +1412,14 @@ components:
                     - is_false
                     - contains
                     - not_contains
+                    - matches_pattern
+                    - not_matches_pattern
                     - starts_with
                     - ends_with
                     - sql_expr
                     - saved_filter
                   values:
-                    description: Not required for is_null, not_null, is_true, is_false operators.
+                    description: Not required for is_null, not_null, is_true, is_false operators. The between and not_between operators take at most two values, a lower and an upper bound in that order; leave a bound as an empty string for an open-ended range.
                     type: array
                     items:
                       type: string
@@ -1119,6 +1477,8 @@ components:
                     - <
                     - '>='
                     - <=
+                    - between
+                    - not_between
                     - in
                     - not_in
                     - is_null
@@ -1127,12 +1487,14 @@ components:
                     - is_false
                     - contains
                     - not_contains
+                    - matches_pattern
+                    - not_matches_pattern
                     - starts_with
                     - ends_with
                     - sql_expr
                     - saved_filter
                   values:
-                    description: Not required for is_null, not_null, is_true, is_false operators.
+                    description: Not required for is_null, not_null, is_true, is_false operators. The between and not_between operators take at most two values, a lower and an upper bound in that order; leave a bound as an empty string for an open-ended range.
                     type: array
                     items:
                       type: string
@@ -1176,6 +1538,109 @@ components:
           - ignoreZeros
           - quantile
           additionalProperties: false
+        funnelSettings:
+          description: Funnel metric settings (required when metricType is "funnel")
+          type: object
+          properties:
+            steps:
+              description: Ordered list of funnel steps. Minimum 2 steps required.
+              minItems: 2
+              maxItems: 20
+              type: array
+              items:
+                type: object
+                properties:
+                  name:
+                    description: Display name for the funnel step
+                    type: string
+                  factTableId:
+                    description: The fact table this step draws events from
+                    type: string
+                  rowFilters:
+                    description: Filters that decide whether an event row counts as this step
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        operator:
+                          type: string
+                          enum:
+                          - '='
+                          - '!='
+                          - '>'
+                          - <
+                          - '>='
+                          - <=
+                          - between
+                          - not_between
+                          - in
+                          - not_in
+                          - is_null
+                          - not_null
+                          - is_true
+                          - is_false
+                          - contains
+                          - not_contains
+                          - matches_pattern
+                          - not_matches_pattern
+                          - starts_with
+                          - ends_with
+                          - sql_expr
+                          - saved_filter
+                        values:
+                          description: Not required for is_null, not_null, is_true, is_false operators. The between and not_between operators take at most two values, a lower and an upper bound in that order; leave a bound as an empty string for an open-ended range.
+                          type: array
+                          items:
+                            type: string
+                        column:
+                          description: Required for all operators except sql_expr and saved_filter.
+                          type: string
+                      required:
+                      - operator
+                      additionalProperties: false
+                  optional:
+                    description: When true, this step still counts for its own conversion but does not anchor later steps. Later steps window off the nearest prior required step (or exposure, for experiment funnel metrics, when every prior step is optional).
+                    type: boolean
+                  conversionWindow:
+                    anyOf:
+                    - description: Bounds how long after the nearest prior required step (or exposure, for the first step / after only-optional priors of an experiment funnel metric) this step's event can occur.
+                      type: object
+                      properties:
+                        unit:
+                          type: string
+                          enum:
+                          - weeks
+                          - days
+                          - hours
+                          - minutes
+                        value:
+                          type: number
+                          exclusiveMinimum: 0
+                      required:
+                      - unit
+                      - value
+                      additionalProperties: false
+                    - type: 'null'
+                required:
+                - name
+                - factTableId
+                - rowFilters
+                - optional
+                additionalProperties: false
+            ordering:
+              description: Step ordering mode. Only 'sequential' is supported in v1.
+              type: string
+              enum:
+              - sequential
+              - strict
+              - unordered
+            concurrencyWindowSeconds:
+              description: Out-of-order tolerance between adjacent steps in seconds. Defaults to 0.
+              type: integer
+              minimum: 0
+          required:
+          - steps
+          additionalProperties: false
         cappingSettings:
           description: Controls how outliers are handled
           type: object
@@ -1195,6 +1660,27 @@ components:
           required:
           - type
           additionalProperties: false
+        lowerCappingSettings:
+          anyOf:
+          - description: Independent lower-tail capping settings. Configured separately from the upper tail, so the type can differ.
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - none
+                - absolute
+                - percentile
+              value:
+                description: When type is absolute, this is the lower bound. When type is percentile, this is the lower percentile (from 0.0 to 1.0).
+                type: number
+              ignoreZeros:
+                description: If true and capping is `percentile`, zeros will be ignored when calculating the percentile.
+                type: boolean
+            required:
+            - type
+            additionalProperties: false
+          - type: 'null'
         windowSettings:
           description: Controls the conversion window for the metric
           type: object
@@ -1257,7 +1743,7 @@ components:
               description: If false, the organization default settings will be used
               type: boolean
             enabled:
-              description: Controls whether or not regresion adjustment is applied to the metric
+              description: Controls whether or not regression adjustment is applied to the metric
               type: boolean
             days:
               description: Number of pre-exposure days to use for the regression adjustment
@@ -1300,6 +1786,11 @@ components:
           type: array
           items:
             type: string
+        replaces:
+          description: Ids of older metrics (legacy or fact) that this metric supersedes, for example the legacy metric it was migrated from. Informational only - GrowthBook uses it to link the old and new definitions in the UI and to keep showing results from a snapshot that was created before an experiment switched to this metric.
+          type: array
+          items:
+            type: string
       required:
       - id
       - name
@@ -1309,7 +1800,6 @@ components:
       - tags
       - datasource
       - metricType
-      - numerator
       - inverse
       - cappingSettings
       - windowSettings
@@ -1325,14 +1815,328 @@ components:
       - dateCreated
       - dateUpdated
       additionalProperties: false
+    Confirmation:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+          enum:
+          - pending
+          - running
+          - completed
+          - rejected
+          - expired
+        actions:
+          type: array
+          items:
+            type: object
+            properties:
+              action:
+                type: string
+                enum:
+                - feature.create
+                - feature.draft
+                - feature.review
+                - feature.publish
+                - feature.archive
+                - feature.delete
+                - feature.other
+                - experiment.create
+                - experiment.draft
+                - experiment.start
+                - experiment.stop
+                - experiment.targeting
+                - experiment.traffic
+                - experiment.phases
+                - experiment.visualEditor
+                - experiment.other
+                - savedGroup.create
+                - savedGroup.draft
+                - savedGroup.review
+                - savedGroup.publish
+                - savedGroup.archive
+                - savedGroup.delete
+                - savedGroup.other
+                - constant.create
+                - constant.draft
+                - constant.review
+                - constant.publish
+                - constant.archive
+                - constant.delete
+                - constant.other
+                - config.create
+                - config.draft
+                - config.review
+                - config.publish
+                - config.archive
+                - config.delete
+                - config.other
+                - rampSchedule.create
+                - rampSchedule.start
+                - rampSchedule.pause
+                - rampSchedule.progression
+                - rampSchedule.approve
+                - rampSchedule.edit
+                - rampSchedule.delete
+                - rampSchedule.other
+                - settings.approvals
+                - settings.other
+                - access.members
+                - access.teams
+                - customHook.create
+                - customHook.edit
+                - customHook.delete
+                - environment.create
+                - environment.edit
+                - environment.delete
+                - project.create
+                - project.edit
+                - project.delete
+                - attribute.create
+                - attribute.edit
+                - attribute.delete
+                - customField.create
+                - customField.edit
+                - customField.delete
+                - sdkConnection.create
+                - sdkConnection.edit
+                - sdkConnection.delete
+                - metric.create
+                - metric.edit
+                - metric.delete
+                - factTable.create
+                - factTable.edit
+                - factTable.delete
+                - segment.create
+                - segment.edit
+                - segment.delete
+                - dimension.create
+                - dimension.edit
+                - dimension.delete
+                - override.ignoreWarnings
+                - override.skipSchemaValidation
+                - override.skipHooks
+                - override.bypassApproval
+                - override.restBypassesReviews
+                - override.draftLimit
+                - override.skipChecklist
+                - override.bypassDuplicateKeyCheck
+                - other.write
+              environments:
+                type: array
+                items:
+                  type: string
+            required:
+            - action
+            - environments
+            additionalProperties: false
+        summary:
+          type: string
+        url:
+          type: string
+        expiresAt:
+          type: string
+        response:
+          anyOf:
+          - type: object
+            properties:
+              status:
+                type: number
+              body: {}
+            required:
+            - status
+            - body
+            additionalProperties: false
+          - type: 'null'
+        note:
+          anyOf:
+          - type: string
+          - type: 'null'
+      required:
+      - id
+      - status
+      - actions
+      - summary
+      - url
+      - expiresAt
+      - response
+      - note
+      additionalProperties: false
+    ConfirmationHeld:
+      type: object
+      properties:
+        confirmation:
+          $ref: '#/components/schemas/Confirmation'
+        message:
+          type: string
+      required:
+      - confirmation
+      - message
+      additionalProperties: false
+      $defs:
+        Confirmation:
+          id: Confirmation
+          type: object
+          properties:
+            id:
+              type: string
+            status:
+              type: string
+              enum:
+              - pending
+              - running
+              - completed
+              - rejected
+              - expired
+            actions:
+              type: array
+              items:
+                type: object
+                properties:
+                  action:
+                    type: string
+                    enum:
+                    - feature.create
+                    - feature.draft
+                    - feature.review
+                    - feature.publish
+                    - feature.archive
+                    - feature.delete
+                    - feature.other
+                    - experiment.create
+                    - experiment.draft
+                    - experiment.start
+                    - experiment.stop
+                    - experiment.targeting
+                    - experiment.traffic
+                    - experiment.phases
+                    - experiment.visualEditor
+                    - experiment.other
+                    - savedGroup.create
+                    - savedGroup.draft
+                    - savedGroup.review
+                    - savedGroup.publish
+                    - savedGroup.archive
+                    - savedGroup.delete
+                    - savedGroup.other
+                    - constant.create
+                    - constant.draft
+                    - constant.review
+                    - constant.publish
+                    - constant.archive
+                    - constant.delete
+                    - constant.other
+                    - config.create
+                    - config.draft
+                    - config.review
+                    - config.publish
+                    - config.archive
+                    - config.delete
+                    - config.other
+                    - rampSchedule.create
+                    - rampSchedule.start
+                    - rampSchedule.pause
+                    - rampSchedule.progression
+                    - rampSchedule.approve
+                    - rampSchedule.edit
+                    - rampSchedule.delete
+                    - rampSchedule.other
+                    - settings.approvals
+                    - settings.other
+                    - access.members
+                    - access.teams
+                    - customHook.create
+                    - customHook.edit
+                    - customHook.delete
+                    - environment.create
+                    - environment.edit
+                    - environment.delete
+                    - project.create
+                    - project.edit
+                    - project.delete
+                    - attribute.create
+                    - attribute.edit
+                    - attribute.delete
+                    - customField.create
+                    - customField.edit
+                    - customField.delete
+                    - sdkConnection.create
+                    - sdkConnection.edit
+                    - sdkConnection.delete
+                    - metric.create
+                    - metric.edit
+                    - metric.delete
+                    - factTable.create
+                    - factTable.edit
+                    - factTable.delete
+                    - segment.create
+                    - segment.edit
+                    - segment.delete
+                    - dimension.create
+                    - dimension.edit
+                    - dimension.delete
+                    - override.ignoreWarnings
+                    - override.skipSchemaValidation
+                    - override.skipHooks
+                    - override.bypassApproval
+                    - override.restBypassesReviews
+                    - override.draftLimit
+                    - override.skipChecklist
+                    - override.bypassDuplicateKeyCheck
+                    - other.write
+                  environments:
+                    type: array
+                    items:
+                      type: string
+                required:
+                - action
+                - environments
+                additionalProperties: false
+            summary:
+              type: string
+            url:
+              type: string
+            expiresAt:
+              type: string
+            response:
+              anyOf:
+              - type: object
+                properties:
+                  status:
+                    type: number
+                  body: {}
+                required:
+                - status
+                - body
+                additionalProperties: false
+              - type: 'null'
+            note:
+              anyOf:
+              - type: string
+              - type: 'null'
+          required:
+          - id
+          - status
+          - actions
+          - summary
+          - url
+          - expiresAt
+          - response
+          - note
+          additionalProperties: false
   parameters:
-    datasourceId:
-      name: datasourceId
+    limit:
+      name: limit
       in: query
-      description: Filter by Data Source
+      description: The number of items to return
       schema:
-        description: Filter by Data Source
-        type: string
+        default: 10
+        description: The number of items to return
+        type: integer
+        minimum: 1
+        maximum: 100
     projectId:
       name: projectId
       in: query
@@ -1357,16 +2161,29 @@ components:
       schema:
         description: The id of the requested resource
         type: string
-    limit:
-      name: limit
+    datasourceId:
+      name: datasourceId
       in: query
-      description: The number of items to return
+      description: Filter by Data Source
       schema:
-        default: 10
-        description: The number of items to return
-        type: integer
-        minimum: 1
-        maximum: 100
+        description: Filter by Data Source
+        type: string
+  responses:
+    ConfirmationHeld:
+      description: Held until a person confirms it in GrowthBook. Poll the Location until the confirmation completes.
+      headers:
+        Location:
+          description: The confirmation to poll
+          schema:
+            type: string
+        Retry-After:
+          description: Seconds to wait before polling
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ConfirmationHeld'
   securitySchemes:
     bearerAuth:
       type: http
@@ -1413,9 +2230,17 @@ x-tagGroups:
   - snapshots
   - dimensions
   - segments
+  - reports
   - sdk-connections
   - visual-changesets
   - saved-groups
+  - saved-group-revisions
+  - constants
+  - constant-revisions
+  - configs
+  - config-revisions
+  - releases
+  - custom-hooks
   - organizations
   - members
   - code-references
@@ -1424,25 +2249,59 @@ x-tagGroups:
   - settings
   - attributes
   - usage
+  - meta
+  - ContextualBandits
   - Dashboards
+  - ContextualBanditQueries
   - CustomFields
   - MetricGroups
   - Teams
   - ExperimentTemplates
   - AnalyticsExplorations
   - RampScheduleTemplates
+  - Learnings
+  - Holdouts
+  - AutoRuns
+  - Populations
 - name: Models
   tags:
+  - AggregatedFactTable_model
   - AnalyticsExploration_model
   - Archetype_model
   - Attribute_model
+  - AutoRun_model
   - CodeRef_model
+  - Config_model
+  - ConfigKeyUsage_model
+  - ConfigLineage_model
+  - ConfigReferences_model
+  - ConfigRevision_model
+  - ConfigRevisionActivityLogEntry_model
+  - ConfigRevisionRef_model
+  - ConfigRevisionReview_model
+  - ConfigSchemaExport_model
+  - ConfigSchemaSource_model
+  - ConfigSchemaVerify_model
+  - ConfigSchemaWarning_model
+  - Confirmation_model
+  - ConfirmationHeld_model
+  - Constant_model
+  - ConstantReferences_model
+  - ConstantRevision_model
+  - ConstantRevisionActivityLogEntry_model
+  - ConstantRevisionRef_model
+  - ConstantRevisionReview_model
+  - ContextualBandit_model
+  - ContextualBanditQuery_model
   - CustomField_model
+  - CustomHook_model
   - Dashboard_model
   - DataSource_model
   - Dimension_model
   - Environment_model
+  - EventUser_model
   - Experiment_model
+  - Experiment Rule_model
   - ExperimentAnalysisSettings_model
   - ExperimentDecisionFrameworkSettings_model
   - ExperimentMetric_model
@@ -1455,25 +2314,30 @@ x-tagGroups:
   - FactTable_model
   - FactTableColumn_model
   - FactTableFilter_model
-  - Feature_model
   - FeatureBaseRule_model
+  - FeatureContextualBanditRefRule_model
   - FeatureDefinition_model
-  - FeatureEnvironment_model
+  - FeatureEnvironmentV1_model
   - FeatureEnvironmentV2_model
   - FeatureExperimentRefRule_model
   - FeatureExperimentRule_model
   - FeatureForceRule_model
-  - FeatureRevision_model
+  - FeatureRevisionRef_model
+  - FeatureRevisionSummary_model
+  - FeatureRevisionV1_model
   - FeatureRevisionV2_model
   - FeatureRolloutRule_model
-  - FeatureRule_model
+  - FeatureRuleV1_model
   - FeatureRuleV2_model
   - FeatureSafeRolloutRule_model
+  - FeatureV1_model
   - FeatureV2_model
-  - FeatureWithRevisions_model
+  - FeatureWithRevisionsV1_model
   - FeatureWithRevisionsV2_model
+  - Holdout_model
   - InformationSchema_model
   - InformationSchemaTable_model
+  - Learning_model
   - LookbackOverride_model
   - Member_model
   - Metric_model
@@ -1484,15 +2348,32 @@ x-tagGroups:
   - NamespaceExperimentMember_model
   - Organization_model
   - PaginationFields_model
+  - Population_model
   - Project_model
   - Query_model
   - RampSchedule_model
   - RampScheduleTemplate_model
+  - Report_model
+  - RequireReviewRule_model
+  - RequireReviewRuleInput_model
+  - RevisionIdRef_model
+  - Safe Rollout Rule_model
   - SavedGroup_model
+  - SavedGroupApprovalRule_model
+  - SavedGroupReferenceResource_model
+  - SavedGroupReferences_model
+  - SavedGroupRevision_model
+  - SavedGroupRevisionActivityLogEntry_model
+  - SavedGroupRevisionRef_model
+  - SavedGroupRevisionReview_model
   - ScheduleRule_model
+  - ScheduledStopPlan_model
   - SdkConnection_model
   - Segment_model
   - Settings_model
+  - Targeting Rule_model
+  - TargetingReviewRule_model
   - Team_model
   - VisualChange_model
   - VisualChangeset_model
+  - VisualEditorCbExperimentStub_model

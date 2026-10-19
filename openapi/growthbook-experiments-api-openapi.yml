@@ -1,13 +1,66 @@
 openapi: 3.2.0
 info:
-  version: 1.0.0
+  version: 5.1.0
   title: GrowthBook REST Experiments API
-  description: GrowthBook offers a full REST API for interacting with the application.
+  description: 'GrowthBook offers a full REST API for interacting with the application. Request data can use either JSON or Form data encoding (with proper `Content-Type` headers). All response bodies are JSON-encoded. The API base URL for GrowthBook Cloud is `https://api.growthbook.io/api`. For self-hosted deployments, it is the same as your API_HOST environment variable (defaults to `http://localhost:3100/api`). The rest of these docs will assume you are using GrowthBook Cloud. ## Versioning
+
+
+    Endpoints are versioned by path prefix:
+
+
+    - `/v1/...` — stable, widely-supported endpoints
+
+    - `/v2/...` — updated endpoints with improved shapes (e.g. unified per-rule environment scope for feature flags)
+
+
+    New integrations should prefer v2 where available. Feature-flag and metric v1 routes are deprecated: they are tagged **LEGACY** in the sidebar and collapsed by default. Use the matching v2 group when both exist. ## Authentication
+
+
+    We support both the HTTP Basic and Bearer authentication schemes for convenience. You first need to generate a new API Key in GrowthBook. Different keys have different permissions:
+
+
+    - **Personal Access Tokens**: These are sensitive and provide the same level of access as the user has to an organization, or less if the token''s permissions are limited. These can be created by going to `Personal Access Tokens` under your user menu. Members with the API Keys **Manage members'' tokens** permission can disable a member''s token under `Settings -> Manage PATs`, and admins can require new tokens to expire within a maximum lifetime. - **Secret Keys**: These are sensitive and provide the level of access of the role they are given, which can be any built-in or custom role, with optional per-project role overrides and environment limits. Managing Secret Keys on behalf of an organization takes the API Keys permissions. These can be created by going to `Settings -> API Keys`, where Admins can also require new Secret Keys to expire within a maximum lifetime. If using HTTP Basic auth, pass the Secret Key as the username and leave the password blank (when using curl, add `:` at the end of the secret to indicate an empty password)
+
+
+    ```bash
+
+    curl https://api.growthbook.io/api/v1/features \
+
+    -u secret_abc123DEF456:
+
+    ```
+
+
+    If using Bearer auth, pass the Secret Key as the token:
+
+
+    ```bash
+
+    curl https://api.growthbook.io/api/v1/features \
+
+    -H "Authorization: Bearer secret_abc123DEF456"
+
+    ```
+
+
+    If a key has an expiration date, every response includes it in the `X-GrowthBook-Key-Expires-At` header (ISO 8601), so scripts can warn before the key stops working. Requests made with an expired key fail with a `401` that says where to create a replacement. See Expiration for choosing a key''s expiration, the warnings before it lapses, and the organization policies. ## Naming who asked
+
+
+    Requests made with a Secret Key may add an `X-GrowthBook-Requested-By` header naming the organization member who asked for the change, as a user id or an email address. History, revision logs and webhooks show that member next to the key. Each key''s settings under `Settings -> API Keys`:
+
+
+    - **Header**: **Optional** (the default) uses the header when it''s sent, **Required** rejects requests without it, and **Rejected** rejects requests that send it, each with a 400. - **Permissions**, when a member is named:
+
+    - **Assume member''s role** (the default): the request acts as that member, with only what both the key and the member can do, so the header can narrow a key but never widen it. Drafts, owners, `mine` filters and reviews are the member''s. The member''s rights over their own drafts, comments and verdicts apply only where the key''s own role allows the same action. - **Use key''s role**: the key acts as itself, with its own permissions, and the name is only recorded in history. Drafts, verdicts and ownership are the key''s, as when no member is named.'
 servers:
 - url: https://api.growthbook.io/api
   description: GrowthBook Cloud
 - url: https://{domain}/api
   description: Self-hosted GrowthBook
+  variables:
+    domain:
+      default: localhost:3100
+      description: Your self-hosted GrowthBook host (and port)
 security:
 - bearerAuth: []
 - basicAuth: []
@@ -38,8 +91,33 @@ paths:
           - draft
           - running
           - stopped
+      - $ref: '#/components/parameters/q'
+      - $ref: '#/components/parameters/owner'
+      - $ref: '#/components/parameters/result'
+      - $ref: '#/components/parameters/tag'
+      - $ref: '#/components/parameters/implementationType'
+      - $ref: '#/components/parameters/metricId'
+      - $ref: '#/components/parameters/bandits'
+      - name: archived
+        in: query
+        description: Filter by archived status. Set to `true` to return only archived experiments, `false` to exclude them. If omitted, both archived and non-archived experiments are returned.
+        schema:
+          description: Filter by archived status. Set to `true` to return only archived experiments, `false` to exclude them. If omitted, both archived and non-archived experiments are returned.
+          anyOf:
+          - type: string
+            const: 'true'
+          - type: string
+            const: 'false'
+          - type: string
+            const: '0'
+          - type: string
+            const: '1'
+          - type: boolean
+      - $ref: '#/components/parameters/sortBy'
+      - $ref: '#/components/parameters/sortOrder'
       responses:
         '200':
+          description: Successful response
           content:
             application/json:
               schema:
@@ -60,6 +138,13 @@ paths:
     post:
       operationId: postExperiment
       summary: Create a single experiment
+      description: 'Creates a new experiment.
+
+
+        ### Naming for human review
+
+
+        Keep `name` short; put reasoning in `hypothesis` and context in `description`. `trackingKey` is sent with exposure events, so keep it short and stable.'
       tags:
       - Experiments
       requestBody:
@@ -72,16 +157,33 @@ paths:
                 datasourceId:
                   description: ID for the [DataSource](#tag/DataSource_model). Can only be set if a templateId is not provided.
                   type: string
+                assignmentQuery:
+                  description: The assignment query, grouping its ID with the identifier type analyzed on. Mutually exclusive with the deprecated `assignmentQueryId`. Can only be set if a templateId is not provided.
+                  type: object
+                  properties:
+                    id:
+                      description: The ID of one of the data source's assignment queries.
+                      type: string
+                    identifierType:
+                      description: The identifier type to analyze on, which the query must declare. Required when selecting a different assignment query that declares several. Otherwise defaults to the current identifier type, or the query's only one. Null is treated as omitted, so a response's value can be sent back.
+                      anyOf:
+                      - type: string
+                      - type: 'null'
+                  required:
+                  - id
+                  additionalProperties: false
                 assignmentQueryId:
-                  description: The ID property of one of the assignment query objects associated with the datasource. Can only be set if a templateId is not provided.
+                  deprecated: true
+                  description: 'Deprecated: use `assignmentQuery`. Rejected when selecting a different assignment query that declares several identifier types; set `assignmentQuery.identifierType` instead. Can only be set if a templateId is not provided.'
                   type: string
                 trackingKey:
+                  description: Key sent with exposure events. Keep it short, in kebab-case (usually the Feature Flag key). If your organization requires a tracking key format, a key that doesn't match is rejected with `invalid_tracking_key`. Changing it after launch splits exposures across two keys.
                   type: string
                 bypassDuplicateKeyCheck:
-                  description: If true, allow creating an experiment even if another experiment with the same tracking key already exists. This is ignored if the organization requires unique tracking keys as a rule.
+                  description: If true, allow creating an experiment even if another experiment with the same tracking key already exists. This is ignored if the organization requires unique tracking keys as a rule. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
                   type: boolean
                 name:
-                  description: Name of the experiment
+                  description: Short display name (e.g. `Express checkout button`). Put reasoning in `hypothesis` and context in `description`.
                   type: string
                 type:
                   type: string
@@ -95,12 +197,14 @@ paths:
                   description: ID of the [ExperimentTemplate](#tag/ExperimentTemplate_model) this experiment was created from. Template fields are applied by default and overridden by explicitly provided payload fields.
                   type: string
                 hypothesis:
-                  description: Hypothesis of the experiment
+                  description: Markdown. If we change X, metric Y will move because Z.
                   type: string
                 description:
-                  description: Description of the experiment
+                  description: Markdown. Put context here, not in the name.
                   type: string
+                  maxLength: 10000
                 tags:
+                  description: Tags for filtering and grouping. Use these instead of encoding groups in names.
                   type: array
                   items:
                     type: string
@@ -126,7 +230,7 @@ paths:
                   description: WHERE clause to add to the default experiment query
                   type: string
                 owner:
-                  description: The userId or email address of the owner. If an email address is provided, it will be used to look up the userId of the matching organization member. If an ID is provided, it will be validated as existing in the organization.
+                  description: 'The userId or email address of the owner. If an email address is provided, it will be used to look up the userId of the matching organization member. If an ID is provided, it will be validated as existing in the organization. When omitted, it defaults to the requesting member: a personal access token''s owner, or the member an organization API key assumes. An organization API key acting as itself leaves it empty.'
                   type: string
                 archived:
                   type: boolean
@@ -142,6 +246,9 @@ paths:
                   type: string
                 fallbackAttribute:
                   type: string
+                attributeScopeAllProjects:
+                  description: 'Picker preference: show attributes from all projects in this experiment''s targeting UI instead of only those in scope for its project and linked features. Does not loosen enforcement — when the organization requires registered attributes with project scoping, out-of-scope attributes are still rejected.'
+                  type: boolean
                 hashVersion:
                   anyOf:
                   - type: number
@@ -149,11 +256,14 @@ paths:
                   - type: number
                     const: 2
                 disableStickyBucketing:
+                  description: When true, disables Sticky Bucketing for this experiment. If omitted, defaults to your organization's Sticky Bucketing setting for new experiments. Sticky Bucketing only takes effect when it is also enabled at the organization level.
                   type: boolean
                 bucketVersion:
-                  type: number
+                  type: integer
+                  minimum: 0
                 minBucketVersion:
-                  type: number
+                  type: integer
+                  minimum: 0
                 releasedVariationId:
                   type: string
                 excludeFromPayload:
@@ -211,13 +321,21 @@ paths:
                     type: object
                     properties:
                       id:
+                        description: Stable variation id. On update, an omitted id is filled from the stored variation with the same key, or the same position, when the number of variations is unchanged.
+                        type: string
+                      variationId:
+                        description: Alias for `id`. Mirrors the GET response. `id` takes precedence.
                         type: string
                       key:
+                        description: Key sent with exposure events (e.g. `0`, `1`). Changing it after launch splits exposures.
                         type: string
                       name:
+                        description: Short label shown in results (e.g. `Control`).
                         type: string
                       description:
+                        description: What this variation changes.
                         type: string
+                        maxLength: 10000
                       screenshots:
                         type: array
                         items:
@@ -231,6 +349,7 @@ paths:
                               type: number
                             description:
                               type: string
+                              maxLength: 10000
                           required:
                           - path
                           additionalProperties: false
@@ -244,6 +363,7 @@ paths:
                     type: object
                     properties:
                       name:
+                        description: Short phase label (e.g. `Main`).
                         type: string
                       dateStarted:
                         format: date-time
@@ -257,19 +377,8 @@ paths:
                         type: string
                       coverage:
                         type: number
-                      trafficSplit:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            variationId:
-                              type: string
-                            weight:
-                              type: number
-                          required:
-                          - variationId
-                          - weight
-                          additionalProperties: false
+                        minimum: 0
+                        maximum: 1
                       namespace:
                         type: object
                         properties:
@@ -293,8 +402,6 @@ paths:
                         required:
                         - namespaceId
                         additionalProperties: false
-                      targetingCondition:
-                        type: string
                       prerequisites:
                         type: array
                         items:
@@ -310,10 +417,38 @@ paths:
                           - condition
                           additionalProperties: false
                       reason:
+                        description: 'Deprecated: use `reasonForStopping`. Takes precedence if set.'
+                        deprecated: true
                         type: string
                       condition:
+                        description: 'Deprecated: use `targetingCondition`. Takes precedence if set.'
+                        deprecated: true
                         type: string
+                      targetingCondition:
+                        description: Targeting condition as a JSON string. Mirrors the GET response.
+                        type: string
+                      savedGroups:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            match:
+                              type: string
+                              enum:
+                              - all
+                              - none
+                              - any
+                            ids:
+                              type: array
+                              items:
+                                type: string
+                          required:
+                          - match
+                          - ids
+                          additionalProperties: false
                       savedGroupTargeting:
+                        description: Deprecated — use `savedGroups`. Accepted so a GET response can be posted back unchanged; `savedGroups` takes precedence if both are sent.
+                        deprecated: true
                         type: array
                         items:
                           type: object
@@ -333,9 +468,29 @@ paths:
                           - savedGroups
                           additionalProperties: false
                       variationWeights:
+                        description: 'Deprecated: use `trafficSplit`. Takes precedence if set.'
+                        deprecated: true
                         type: array
                         items:
                           type: number
+                          minimum: 0
+                          maximum: 1
+                      trafficSplit:
+                        description: Per-variation weights. Mirrors the GET response.
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            variationId:
+                              type: string
+                            weight:
+                              type: number
+                              minimum: 0
+                              maximum: 1
+                          required:
+                          - variationId
+                          - weight
+                          additionalProperties: false
                     required:
                     - name
                     - dateStarted
@@ -432,6 +587,7 @@ paths:
                         type: number
                       properPriorStdDev:
                         type: number
+                        exclusiveMinimum: 0
                       regressionAdjustmentOverride:
                         description: Must be true for the override to take effect. If true, the other regression adjustment settings in this object will be used if present.
                         type: boolean
@@ -475,6 +631,45 @@ paths:
                     required:
                     - slices
                     additionalProperties: false
+                precomputedUnitDimensionIds:
+                  maxItems: 3
+                  type: array
+                  items:
+                    type: string
+                statusUpdateSchedule:
+                  type: object
+                  properties:
+                    startAt:
+                      description: ISO datetime when the experiment should start. Must be in the future. Setting or clearing this field invalidates any existing staged start (`nextScheduledStatusUpdate`); call POST /experiments/{id}/start to stage the new schedule.
+                      format: date-time
+                      type: string
+                    stopAt:
+                      description: ISO datetime when the experiment should stop. Resolved from `stopAfter` at start when a relative end was set.
+                      format: date-time
+                      type: string
+                    stopAfter:
+                      description: 'Relative end offset. Deferred: resolved to a concrete `stopAt` at the experiment''s actual start (or off `dateStarted` when already running).'
+                      type: object
+                      properties:
+                        value:
+                          type: integer
+                          exclusiveMinimum: 0
+                        unit:
+                          type: string
+                          enum:
+                          - hours
+                          - days
+                      required:
+                      - value
+                      - unit
+                      additionalProperties: false
+                    scheduledStopPlan:
+                      description: End-of-experiment automation applied at the scheduled end. Required whenever a `stopAt` or `stopAfter` is set (any mode, including `notify`).
+                      $ref: '#/components/schemas/ScheduledStopPlan'
+                  additionalProperties: false
+                ignoreWarnings:
+                  description: Set to true to acknowledge the warnings listed in a blocked response and continue. This covers experiment guards, locked dependents, and references affected by an archive. When the organization treats schema failures as warnings, it also covers schema and invariant warnings. It never bypasses a rejected Custom Hook. On revision publish endpoints, it can also force-publish an out-of-date draft when the caller has Bypass draft approvals access. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
               required:
               - trackingKey
               - name
@@ -482,6 +677,7 @@ paths:
               additionalProperties: false
       responses:
         '200':
+          description: Resource created
           content:
             application/json:
               schema:
@@ -492,9 +688,67 @@ paths:
                 required:
                 - experiment
                 additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
       x-codeSamples:
       - lang: cURL
         source: "curl -X POST 'https://api.growthbook.io/api/v1/experiments' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/experiments/results:
+    get:
+      operationId: listExperimentResults
+      summary: Get latest results for many experiments
+      description: 'Returns the latest non-dimension snapshot for each experiment matching the filters. Use this to scan results across a portfolio in one call.
+
+
+        Pagination semantics:
+
+        - `total` is the count of experiments matching the filters.
+
+        - `count` is the length of the returned `experimentResults` array.
+
+        - Experiments without a completed snapshot are omitted from `experimentResults`, so `count` may be less than the page slice and a page may legitimately return `count: 0` while `hasMore: true`.
+
+        - `hasMore` and `nextOffset` advance over experiments matching the filters, not over returned results.
+
+
+        Use the per-experiment `GET /experiments/{id}/results` endpoint to inspect specific phases or dimensions.'
+      tags:
+      - Experiments
+      parameters:
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/projectId'
+      - $ref: '#/components/parameters/datasourceId'
+      - $ref: '#/components/parameters/trackingKey'
+      - name: status
+        in: query
+        description: ''
+        schema:
+          type: string
+          enum:
+          - draft
+          - running
+          - stopped
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                - type: object
+                  properties:
+                    experimentResults:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/ExperimentResults'
+                  required:
+                  - experimentResults
+                  additionalProperties: false
+                - $ref: '#/components/schemas/PaginationFields'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/experiments/results' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
   /v1/experiments/{id}:
     get:
       operationId: getExperiment
@@ -505,6 +759,7 @@ paths:
       - $ref: '#/components/parameters/id'
       responses:
         '200':
+          description: Successful response
           content:
             application/json:
               schema:
@@ -535,15 +790,33 @@ paths:
                 datasourceId:
                   description: Can only be set if existing experiment does not have a datasource
                   type: string
+                assignmentQuery:
+                  description: The assignment query, grouping its ID with the identifier type analyzed on. Mutually exclusive with the deprecated `assignmentQueryId`.
+                  type: object
+                  properties:
+                    id:
+                      description: The ID of one of the data source's assignment queries.
+                      type: string
+                    identifierType:
+                      description: The identifier type to analyze on, which the query must declare. Required when selecting a different assignment query that declares several. Otherwise defaults to the current identifier type, or the query's only one. Null is treated as omitted, so a response's value can be sent back.
+                      anyOf:
+                      - type: string
+                      - type: 'null'
+                  required:
+                  - id
+                  additionalProperties: false
                 assignmentQueryId:
+                  deprecated: true
+                  description: 'Deprecated: use `assignmentQuery`. Rejected when selecting a different assignment query that declares several identifier types; set `assignmentQuery.identifierType` instead.'
                   type: string
                 trackingKey:
+                  description: Key sent with exposure events. Keep it short, in kebab-case (usually the Feature Flag key). If your organization requires a tracking key format, a key that doesn't match is rejected with `invalid_tracking_key`. Changing it after launch splits exposures across two keys.
                   type: string
                 bypassDuplicateKeyCheck:
-                  description: If true, allow updating the tracking key even if another experiment with the same tracking key already exist. This is ignored if the organization requires unique tracking keys as a rule.
+                  description: If true, allow updating the tracking key even if another experiment with the same tracking key already exist. This is ignored if the organization requires unique tracking keys as a rule. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
                   type: boolean
                 name:
-                  description: Name of the experiment
+                  description: Short display name (e.g. `Express checkout button`). Put reasoning in `hypothesis` and context in `description`.
                   type: string
                 type:
                   type: string
@@ -554,12 +827,14 @@ paths:
                   description: Project ID which the experiment belongs to
                   type: string
                 hypothesis:
-                  description: Hypothesis of the experiment
+                  description: Markdown. If we change X, metric Y will move because Z.
                   type: string
                 description:
-                  description: Description of the experiment
+                  description: Markdown. Put context here, not in the name.
                   type: string
+                  maxLength: 10000
                 tags:
+                  description: Tags for filtering and grouping. Use these instead of encoding groups in names.
                   type: array
                   items:
                     type: string
@@ -601,6 +876,9 @@ paths:
                   type: string
                 fallbackAttribute:
                   type: string
+                attributeScopeAllProjects:
+                  description: 'Picker preference: show attributes from all projects in this experiment''s targeting UI instead of only those in scope for its project and linked features. Does not loosen enforcement — when the organization requires registered attributes with project scoping, out-of-scope attributes are still rejected.'
+                  type: boolean
                 hashVersion:
                   anyOf:
                   - type: number
@@ -610,9 +888,11 @@ paths:
                 disableStickyBucketing:
                   type: boolean
                 bucketVersion:
-                  type: number
+                  type: integer
+                  minimum: 0
                 minBucketVersion:
-                  type: number
+                  type: integer
+                  minimum: 0
                 results:
                   description: The result status of the experiment. Maps to resultSummary.status in the GET response.
                   type: string
@@ -686,13 +966,21 @@ paths:
                     type: object
                     properties:
                       id:
+                        description: Stable variation id. On update, an omitted id is filled from the stored variation with the same key, or the same position, when the number of variations is unchanged.
+                        type: string
+                      variationId:
+                        description: Alias for `id`. Mirrors the GET response. `id` takes precedence.
                         type: string
                       key:
+                        description: Key sent with exposure events (e.g. `0`, `1`). Changing it after launch splits exposures.
                         type: string
                       name:
+                        description: Short label shown in results (e.g. `Control`).
                         type: string
                       description:
+                        description: What this variation changes.
                         type: string
+                        maxLength: 10000
                       screenshots:
                         type: array
                         items:
@@ -706,6 +994,7 @@ paths:
                               type: number
                             description:
                               type: string
+                              maxLength: 10000
                           required:
                           - path
                           additionalProperties: false
@@ -732,21 +1021,8 @@ paths:
                         type: string
                       coverage:
                         type: number
-                      trafficSplit:
-                        deprecated: true
-                        description: Deprecated and unused. Use variationWeights instead.
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            variationId:
-                              type: string
-                            weight:
-                              type: number
-                          required:
-                          - variationId
-                          - weight
-                          additionalProperties: false
+                        minimum: 0
+                        maximum: 1
                       namespace:
                         type: object
                         properties:
@@ -764,8 +1040,6 @@ paths:
                         - namespaceId
                         - range
                         additionalProperties: false
-                      targetingCondition:
-                        type: string
                       prerequisites:
                         type: array
                         items:
@@ -781,10 +1055,38 @@ paths:
                           - condition
                           additionalProperties: false
                       reason:
+                        description: 'Deprecated: use `reasonForStopping`. Takes precedence if set.'
+                        deprecated: true
                         type: string
                       condition:
+                        description: 'Deprecated: use `targetingCondition`. Takes precedence if set.'
+                        deprecated: true
                         type: string
+                      targetingCondition:
+                        description: Targeting condition as a JSON string. Mirrors the GET response.
+                        type: string
+                      savedGroups:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            match:
+                              type: string
+                              enum:
+                              - all
+                              - none
+                              - any
+                            ids:
+                              type: array
+                              items:
+                                type: string
+                          required:
+                          - match
+                          - ids
+                          additionalProperties: false
                       savedGroupTargeting:
+                        description: Deprecated — use `savedGroups`. Accepted so a GET response can be posted back unchanged; `savedGroups` takes precedence if both are sent.
+                        deprecated: true
                         type: array
                         items:
                           type: object
@@ -804,9 +1106,29 @@ paths:
                           - savedGroups
                           additionalProperties: false
                       variationWeights:
+                        description: 'Deprecated: use `trafficSplit`. Takes precedence if set.'
+                        deprecated: true
                         type: array
                         items:
                           type: number
+                          minimum: 0
+                          maximum: 1
+                      trafficSplit:
+                        description: Per-variation weights. Mirrors the GET response.
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            variationId:
+                              type: string
+                            weight:
+                              type: number
+                              minimum: 0
+                              maximum: 1
+                          required:
+                          - variationId
+                          - weight
+                          additionalProperties: false
                     required:
                     - name
                     - dateStarted
@@ -903,6 +1225,7 @@ paths:
                         type: number
                       properPriorStdDev:
                         type: number
+                        exclusiveMinimum: 0
                       regressionAdjustmentOverride:
                         description: Must be true for the override to take effect. If true, the other regression adjustment settings in this object will be used if present.
                         type: boolean
@@ -946,9 +1269,52 @@ paths:
                     required:
                     - slices
                     additionalProperties: false
+                statusUpdateSchedule:
+                  anyOf:
+                  - description: Scheduled start/end. Set to `null` to remove. Provide any of `startAt`, `stopAt`, or `stopAfter` (a deferred relative end resolved at start). End-of-experiment automation is set via the nested `scheduledStopPlan`, which is required whenever a `stopAt` or `stopAfter` is set.
+                    type: object
+                    properties:
+                      startAt:
+                        description: ISO datetime when the experiment should start. Must be in the future. Setting or clearing this field invalidates any existing staged start (`nextScheduledStatusUpdate`); call POST /experiments/{id}/start to stage the new schedule.
+                        format: date-time
+                        type: string
+                      stopAt:
+                        description: ISO datetime when the experiment should stop. Resolved from `stopAfter` at start when a relative end was set.
+                        format: date-time
+                        type: string
+                      stopAfter:
+                        description: 'Relative end offset. Deferred: resolved to a concrete `stopAt` at the experiment''s actual start (or off `dateStarted` when already running).'
+                        type: object
+                        properties:
+                          value:
+                            type: integer
+                            exclusiveMinimum: 0
+                          unit:
+                            type: string
+                            enum:
+                            - hours
+                            - days
+                        required:
+                        - value
+                        - unit
+                        additionalProperties: false
+                      scheduledStopPlan:
+                        description: End-of-experiment automation applied at the scheduled end. Required whenever a `stopAt` or `stopAfter` is set (any mode, including `notify`).
+                        $ref: '#/components/schemas/ScheduledStopPlan'
+                    additionalProperties: false
+                  - type: 'null'
+                precomputedUnitDimensionIds:
+                  maxItems: 3
+                  type: array
+                  items:
+                    type: string
+                ignoreWarnings:
+                  description: Set to true to acknowledge the warnings listed in a blocked response and continue. This covers experiment guards, locked dependents, and references affected by an archive. When the organization treats schema failures as warnings, it also covers schema and invariant warnings. It never bypasses a rejected Custom Hook. On revision publish endpoints, it can also force-publish an out-of-date draft when the caller has Bypass draft approvals access. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
               additionalProperties: false
       responses:
         '200':
+          description: Resource created
           content:
             application/json:
               schema:
@@ -959,9 +1325,63 @@ paths:
                 required:
                 - experiment
                 additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                description: One or more linked feature drafts could not be published
+                properties:
+                  message:
+                    type: string
+                  code:
+                    type: string
+                    enum:
+                    - pending_draft_publish_failed
+                  details:
+                    $ref: '#/components/schemas/ApiErrorPendingDraftPublishFailedDetails'
+                required:
+                - message
+                - code
+                - details
       x-codeSamples:
       - lang: cURL
         source: "curl -X POST 'https://api.growthbook.io/api/v1/experiments/{id}' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/experiments/{id}/start-checklist:
+    get:
+      operationId: getExperimentStartChecklist
+      summary: Get an experiment pre-launch checklist status
+      tags:
+      - Experiments
+      parameters:
+      - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  checklistItems:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/checklistItems'
+                  status:
+                    type: string
+                    enum:
+                    - ready
+                    - notReady
+                required:
+                - checklistItems
+                - status
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/experiments/exp_abc123/start-checklist' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
   /v1/experiments/{id}/results:
     get:
       operationId: getExperimentResults
@@ -974,14 +1394,18 @@ paths:
       - $ref: '#/components/parameters/dimension'
       responses:
         '200':
+          description: Successful response
           content:
             application/json:
               schema:
                 type: object
                 properties:
+                  experiment:
+                    $ref: '#/components/schemas/Experiment'
                   result:
                     $ref: '#/components/schemas/ExperimentResults'
                 required:
+                - experiment
                 - result
                 additionalProperties: false
       x-codeSamples:
@@ -990,7 +1414,8 @@ paths:
   /v1/experiments/{id}/start:
     post:
       operationId: postExperimentStart
-      summary: Start an experiment
+      summary: Start/Stage an experiment
+      description: Starts an experiment or stages it for a future start if a `statusUpdateSchedule` is set on the experiment.
       tags:
       - Experiments
       parameters:
@@ -1003,11 +1428,15 @@ paths:
               type: object
               properties:
                 skipChecklist:
-                  description: If true, skips validating the experiment satisifies all pre-launch checklist items
+                  description: If true, skips validating the experiment satisfies all pre-launch checklist items. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
+                ignoreWarnings:
+                  description: Set to true to acknowledge the warnings listed in a blocked response and continue. This covers experiment guards, locked dependents, and references affected by an archive. When the organization treats schema failures as warnings, it also covers schema and invariant warnings. It never bypasses a rejected Custom Hook. On revision publish endpoints, it can also force-publish an out-of-date draft when the caller has Bypass draft approvals access. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
                   type: boolean
               additionalProperties: false
       responses:
         '200':
+          description: Resource created
           content:
             application/json:
               schema:
@@ -1015,12 +1444,118 @@ paths:
                 properties:
                   experiment:
                     $ref: '#/components/schemas/ExperimentWithEnhancedStatus'
+                  message:
+                    description: Present only when the request staged a future scheduled start instead of starting the experiment immediately.
+                    type: string
                 required:
                 - experiment
                 additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - type: object
+                  description: Required checklist items are incomplete
+                  properties:
+                    message:
+                      type: string
+                    code:
+                      type: string
+                      enum:
+                      - checklist_incomplete
+                    details:
+                      $ref: '#/components/schemas/ApiErrorChecklistIncompleteDetails'
+                  required:
+                  - message
+                  - code
+                  - details
+                - type: object
+                  description: One or more linked feature drafts could not be published
+                  properties:
+                    message:
+                      type: string
+                    code:
+                      type: string
+                      enum:
+                      - pending_draft_publish_failed
+                    details:
+                      $ref: '#/components/schemas/ApiErrorPendingDraftPublishFailedDetails'
+                  required:
+                  - message
+                  - code
+                  - details
+                - type: object
+                  description: Resource is not in a valid status for this operation
+                  properties:
+                    message:
+                      type: string
+                    code:
+                      type: string
+                      enum:
+                      - invalid_status
+                    details:
+                      $ref: '#/components/schemas/ApiErrorInvalidStatusDetails'
+                  required:
+                  - message
+                  - code
+                  - details
       x-codeSamples:
       - lang: cURL
         source: "curl -X POST 'https://api.growthbook.io/api/v1/experiments/exp_abc123/start' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/experiments/{id}/start-checklist/manual/complete:
+    post:
+      operationId: postExperimentStartChecklistManualComplete
+      summary: Mark manual pre-launch checklist items complete
+      tags:
+      - Experiments
+      parameters:
+      - $ref: '#/components/parameters/id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                keys:
+                  description: Manual pre-launch checklist item keys to mark as complete (auto-computed items cannot be updated via this endpoint).
+                  minItems: 1
+                  type: array
+                  items:
+                    type: string
+              required:
+              - keys
+              additionalProperties: false
+      responses:
+        '200':
+          description: Resource created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  checklistItems:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/checklistItems'
+                  status:
+                    type: string
+                    enum:
+                    - ready
+                    - notReady
+                required:
+                - checklistItems
+                - status
+                additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/experiments/exp_abc123/start-checklist/manual/complete' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"keys\":[\"Stakeholder sign-off\",\"QA complete\"]}'"
   /v1/experiments/{id}/stop:
     post:
       operationId: postExperimentStop
@@ -1062,11 +1597,15 @@ paths:
                 dateEnded:
                   description: Optional ISO datetime for ending the latest phase. Defaults to the current date and time.
                   type: string
+                ignoreWarnings:
+                  description: Set to true to acknowledge the warnings listed in a blocked response and continue. This covers experiment guards, locked dependents, and references affected by an archive. When the organization treats schema failures as warnings, it also covers schema and invariant warnings. It never bypasses a rejected Custom Hook. On revision publish endpoints, it can also force-publish an out-of-date draft when the caller has Bypass draft approvals access. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
               required:
               - results
               additionalProperties: false
       responses:
         '200':
+          description: Resource created
           content:
             application/json:
               schema:
@@ -1077,9 +1616,117 @@ paths:
                 required:
                 - experiment
                 additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Resource is not in a valid status for this operation
+                properties:
+                  message:
+                    type: string
+                  code:
+                    type: string
+                    enum:
+                    - invalid_status
+                  details:
+                    $ref: '#/components/schemas/ApiErrorInvalidStatusDetails'
+                required:
+                - message
+                - code
+                - details
       x-codeSamples:
       - lang: cURL
         source: "curl -X POST 'https://api.growthbook.io/api/v1/experiments/exp_abc123/stop' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"results\":\"won\",\"releasedVariationId\":\"var_treatment\",\"winnerVariationId\":\"var_treatment\",\"enableTemporaryRollout\":true,\"analysis\":\"Reached desired sample size with statistically significant positive lift; shipping treatment\"}'"
+  /v1/experiments/{id}/schedule:
+    put:
+      operationId: putExperimentSchedule
+      summary: Set an experiment's schedule and shipping automation
+      description: 'Full-replace of the experiment''s scheduled start/end and end-of-experiment shipping automation. The body is the complete desired state: any omitted field is cleared (omit `startAt` to remove a scheduled start; send an empty body to clear the whole schedule). Provide either `stopAt` or `stopAfter`, not both; a relative `stopAfter` resolves to a concrete stop when the experiment starts. Setting a scheduled end (`stopAt` or `stopAfter`) requires a `scheduledStopPlan` (any mode, including `notify`). The scheduled end must be in the future: a `stopAt` (or a `stopAfter` that resolves) in the past is rejected — including one whose end date has already passed and been acted on, so changing the plan after a soft end requires committing to a new end date. Auto-ship shipping requires the Decision Framework.'
+      tags:
+      - Experiments
+      parameters:
+      - $ref: '#/components/parameters/id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                startAt:
+                  description: ISO datetime when the experiment should start; must be in the future. Omit to clear a scheduled start. Staging still happens via POST /experiments/{id}/start.
+                  format: date-time
+                  type: string
+                stopAt:
+                  description: Absolute ISO datetime to stop the experiment.
+                  format: date-time
+                  type: string
+                stopAfter:
+                  description: Deferred relative end, resolved to a concrete stop at the experiment's actual start (or now, if already running).
+                  type: object
+                  properties:
+                    value:
+                      type: integer
+                      exclusiveMinimum: 0
+                    unit:
+                      type: string
+                      enum:
+                      - hours
+                      - days
+                  required:
+                  - value
+                  - unit
+                  additionalProperties: false
+                scheduledStopPlan:
+                  description: End-of-experiment automation. Required whenever a `stopAt` or `stopAfter` is set (any mode, including `notify`).
+                  $ref: '#/components/schemas/ScheduledStopPlan'
+              additionalProperties: false
+      responses:
+        '200':
+          description: Resource updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  experiment:
+                    $ref: '#/components/schemas/ExperimentWithEnhancedStatus'
+                  warnings:
+                    type: array
+                    items:
+                      type: string
+                required:
+                - experiment
+                additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Resource is not in a valid status for this operation
+                properties:
+                  message:
+                    type: string
+                  code:
+                    type: string
+                    enum:
+                    - invalid_status
+                  details:
+                    $ref: '#/components/schemas/ApiErrorInvalidStatusDetails'
+                required:
+                - message
+                - code
+                - details
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X PUT 'https://api.growthbook.io/api/v1/experiments/exp_abc123/schedule' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"startAt\":\"2026-08-01T00:00:00Z\",\"stopAfter\":{\"value\":14,\"unit\":\"days\"},\"scheduledStopPlan\":{\"mode\":\"auto-ship\",\"tiebreakerMetricId\":\"met_revenue\",\"fallback\":\"force-ship\",\"fallbackVariationId\":\"var_treatment\"}}'"
   /v1/experiments/{id}/modify-temporary-rollout:
     post:
       operationId: postExperimentModifyTemporaryRollout
@@ -1101,11 +1748,15 @@ paths:
                 releasedVariationId:
                   description: Variation ID (e.g. var_abc123) to release to 100% of traffic eligible for this experiment. Required if enableTemporaryRollout is true.
                   type: string
+                ignoreWarnings:
+                  description: Set to true to acknowledge the warnings listed in a blocked response and continue. This covers experiment guards, locked dependents, and references affected by an archive. When the organization treats schema failures as warnings, it also covers schema and invariant warnings. It never bypasses a rejected Custom Hook. On revision publish endpoints, it can also force-publish an out-of-date draft when the caller has Bypass draft approvals access. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.
+                  type: boolean
               required:
               - enableTemporaryRollout
               additionalProperties: false
       responses:
         '200':
+          description: Resource created
           content:
             application/json:
               schema:
@@ -1116,6 +1767,28 @@ paths:
                 required:
                 - experiment
                 additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Resource is not in a valid status for this operation
+                properties:
+                  message:
+                    type: string
+                  code:
+                    type: string
+                    enum:
+                    - invalid_status
+                  details:
+                    $ref: '#/components/schemas/ApiErrorInvalidStatusDetails'
+                required:
+                - message
+                - code
+                - details
       x-codeSamples:
       - lang: cURL
         source: "curl -X POST 'https://api.growthbook.io/api/v1/experiments/exp_abc123/modify-temporary-rollout' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"enableTemporaryRollout\":false}'"
@@ -1141,13 +1814,13 @@ paths:
               type: object
               properties:
                 triggeredBy:
-                  description: Set to "schedule" if you want this request to trigger notifications and other events as it if were a scheduled update. Defaults to manual.
+                  description: Set to "schedule" if you want this request to trigger notifications and other events as if it were a scheduled update. Defaults to manual.
                   type: string
                   enum:
                   - manual
                   - schedule
                 dimension:
-                  description: Dimension to break results down by. For Unit Dimensions, use the dimension id (e.g. "dim_abc123"). For Experiment Dimensions, use "exp:<dimensionName>" (e.g. "exp:country"). Built-in pre-exposure dimensions include "pre:date" and, when configured, "pre:activation". Omit this field to create a standard snapshot.
+                  description: Dimension to break results down by. For Unit Dimensions, use the dimension id (e.g. "dim_abc123"). For Experiment Dimensions, use "exp:<dimensionName>" (e.g. "exp:country"). Built-in pre-exposure dimensions include "pre:date" and, when configured, "pre:activation". Use "cutoff:<ISO datetime>" (e.g. "cutoff:2026-01-15T00:12:00.000Z") to split units by whether they were first exposed before or after the cutoff; it must fall within the phase dates. Use "combo:<dimA>::<dimB>" (e.g. "combo:exp:country::dim_abc123") to break down by the intersection of two dimensions, each an Experiment Dimension or Unit Dimension id; values beyond the top 20 combined slices are merged into "(other)". Omit this field to create a standard snapshot.
                   type: string
                 phase:
                   description: Zero-based phase index to snapshot, where 0 is the first experiment phase. Defaults to the latest phase.
@@ -1156,6 +1829,7 @@ paths:
               additionalProperties: false
       responses:
         '200':
+          description: Resource created
           content:
             application/json:
               schema:
@@ -1166,6 +1840,42 @@ paths:
                 required:
                 - snapshot
                 additionalProperties: false
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - type: object
+                  description: The Incremental Pipeline needs a Full Refresh of Overall Results before this request can be served
+                  properties:
+                    message:
+                      type: string
+                    code:
+                      type: string
+                      enum:
+                      - requires_full_refresh
+                    details:
+                      $ref: '#/components/schemas/ApiErrorRequiresFullRefreshDetails'
+                  required:
+                  - message
+                  - code
+                  - details
+                - type: object
+                  description: The requested dimension was already computed from the latest Overall Results
+                  properties:
+                    message:
+                      type: string
+                    code:
+                      type: string
+                      enum:
+                      - dimension_already_up_to_date
+                    details:
+                      $ref: '#/components/schemas/ApiErrorDimensionAlreadyUpToDateDetails'
+                  required:
+                  - message
+                  - code
+                  - details
       x-codeSamples:
       - lang: cURL
         source: "curl -X POST 'https://api.growthbook.io/api/v1/experiments/{id}/snapshot' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"triggeredBy\":\"schedule\"}'"
@@ -1210,6 +1920,7 @@ paths:
               additionalProperties: false
       responses:
         '200':
+          description: Resource created
           content:
             application/json:
               schema:
@@ -1220,6 +1931,8 @@ paths:
                 required:
                 - screenshot
                 additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
       x-codeSamples:
       - lang: cURL
         source: "curl -X POST 'https://api.growthbook.io/api/v1/experiments/{id}/variation/{variationId}/screenshot/upload' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
@@ -1259,6 +1972,8 @@ paths:
                 type: object
                 properties: {}
                 additionalProperties: false
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
       x-codeSamples:
       - lang: cURL
         source: "curl -X DELETE 'https://api.growthbook.io/api/v1/experiments/{id}/variation/{variationId}/screenshot' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
@@ -1272,6 +1987,7 @@ paths:
       - $ref: '#/components/parameters/projectId'
       responses:
         '200':
+          description: Successful response
           content:
             application/json:
               schema:
@@ -1287,478 +2003,223 @@ paths:
       x-codeSamples:
       - lang: cURL
         source: "curl -X GET 'https://api.growthbook.io/api/v1/experiment-names' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
-components:
-  parameters:
-    datasourceId:
-      name: datasourceId
-      in: query
-      description: Filter by Data Source
-      schema:
-        description: Filter by Data Source
-        type: string
-    variationId:
-      name: variationId
-      in: path
-      required: true
-      description: ''
-      schema:
-        type: string
-    dimension:
-      name: dimension
-      in: query
-      description: ''
-      schema:
-        type: string
-    phase:
-      name: phase
-      in: query
-      description: ''
-      schema:
-        type: string
-    trackingKey:
-      name: trackingKey
-      in: query
-      description: Filter by experiment tracking key
-      schema:
-        description: Filter by experiment tracking key
-        type: string
-    projectId:
-      name: projectId
-      in: query
-      description: Filter by project id
-      schema:
-        description: Filter by project id
-        type: string
-    offset:
-      name: offset
-      in: query
-      description: How many items to skip (use in conjunction with limit for pagination)
-      schema:
-        default: 0
-        description: How many items to skip (use in conjunction with limit for pagination)
-        type: integer
-        minimum: 0
-    id:
-      name: id
-      in: path
-      required: true
-      description: The id of the requested resource
-      schema:
-        description: The id of the requested resource
-        type: string
-    limit:
-      name: limit
-      in: query
-      description: The number of items to return
-      schema:
-        default: 10
-        description: The number of items to return
-        type: integer
-        minimum: 1
-        maximum: 100
-    experimentId:
-      name: experimentId
-      in: query
-      description: Filter the returned list by the experiment tracking key (not the internal experiment ID). Note, this was deprecated to help reduce confusion, consider using `trackingKey` instead, which is functionally identical. You cannot use both params at the same time.
-      schema:
-        deprecated: true
-        description: Filter the returned list by the experiment tracking key (not the internal experiment ID). Note, this was deprecated to help reduce confusion, consider using `trackingKey` instead, which is functionally identical. You cannot use both params at the same time.
-        type: string
-  schemas:
-    ExperimentMetric:
-      type: object
-      properties:
-        metricId:
-          type: string
-        overrides:
-          type: object
-          properties:
-            delayHours:
-              type: number
-            windowHours:
-              type: number
-            window:
-              type: string
-              enum:
-              - conversion
-              - lookback
-              - ''
-            winRiskThreshold:
-              deprecated: true
-              type: number
-            loseRiskThreshold:
-              deprecated: true
-              type: number
-            properPriorOverride:
-              type: boolean
-            properPriorEnabled:
-              type: boolean
-            properPriorMean:
-              type: number
-            properPriorStdDev:
-              type: number
-            regressionAdjustmentOverride:
-              type: boolean
-            regressionAdjustmentEnabled:
-              type: boolean
-            regressionAdjustmentDays:
-              type: number
-          additionalProperties: false
-      required:
-      - metricId
-      - overrides
-      additionalProperties: false
-    ExperimentDecisionFrameworkSettings:
-      description: Controls the decision framework and metric overrides for the experiment. Replaces the entire stored object on update (does not patch individual fields).
-      type: object
-      properties:
-        decisionCriteriaId:
-          type: string
-        decisionFrameworkMetricOverrides:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                description: ID of the metric to override settings for.
-                type: string
-              targetMDE:
-                description: The target relative MDE to use for the metric, expressed as proportions (e.g. use 0.1 for 10%). Must be greater than 0.
-                type: number
-                exclusiveMinimum: 0
-            required:
-            - id
-            additionalProperties: false
-      additionalProperties: false
-    screenshot:
-      type: object
-      properties:
-        path:
-          description: URL or path to the uploaded screenshot
-          type: string
-        description:
-          description: Description of the screenshot
-          type: string
-      required:
-      - path
-      - description
-      additionalProperties: false
-    snapshot:
-      type: object
-      properties:
-        id:
-          type: string
-        experiment:
-          type: string
-        status:
-          type: string
-      required:
-      - id
-      - experiment
-      - status
-      additionalProperties: false
-    experiments:
-      type: object
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-      required:
-      - id
-      - name
-      additionalProperties: false
-    Experiment:
-      type: object
-      properties:
-        id:
-          type: string
-        trackingKey:
-          type: string
-        dateCreated:
-          format: date-time
-          type: string
-        dateUpdated:
-          format: date-time
-          type: string
-        name:
-          type: string
-        type:
-          type: string
-          enum:
-          - standard
-          - multi-armed-bandit
-        project:
-          type: string
-        hypothesis:
-          type: string
-        description:
-          type: string
-        tags:
-          type: array
-          items:
-            type: string
-        owner:
-          description: The userId of the owner (or raw owner name/email for legacy records)
-          type: string
-        ownerEmail:
-          description: The email address of the owner, when the owner can be resolved to a known user.
-          type: string
-        archived:
-          type: boolean
-        status:
-          type: string
-        autoRefresh:
-          type: boolean
-        hashAttribute:
-          type: string
-        fallbackAttribute:
-          type: string
-        hashVersion:
-          anyOf:
-          - type: number
-            const: 1
-          - type: number
-            const: 2
-        disableStickyBucketing:
-          type: boolean
-        bucketVersion:
-          type: number
-        minBucketVersion:
-          type: number
-        variations:
-          type: array
-          items:
-            type: object
-            properties:
-              variationId:
-                type: string
-              key:
-                type: string
-              name:
-                type: string
-              description:
-                type: string
-              screenshots:
-                type: array
-                items:
+  /v1/experiments/{id}/comment:
+    post:
+      operationId: postExperimentComment
+      summary: Post a comment on an experiment
+      description: Adds a new comment to an experiment's discussion thread, credited to the person behind the request. Needs a personal access token, or an organization API key that assumes a named member's role.
+      tags:
+      - Experiments
+      parameters:
+      - $ref: '#/components/parameters/id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                comment:
                   type: string
-            required:
-            - variationId
-            - key
-            - name
-            - description
-            - screenshots
-            additionalProperties: false
-        phases:
-          type: array
-          items:
-            type: object
-            properties:
-              name:
-                type: string
-              dateStarted:
-                type: string
-              dateEnded:
-                type: string
-              reasonForStopping:
-                type: string
-              seed:
-                type: string
-              coverage:
-                type: number
-              trafficSplit:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    variationId:
-                      type: string
-                    weight:
-                      type: number
-                  required:
-                  - variationId
-                  - weight
-                  additionalProperties: false
-              namespace:
+                  minLength: 1
+              required:
+              - comment
+              additionalProperties: false
+      responses:
+        '200':
+          description: Resource created
+          content:
+            application/json:
+              schema:
                 type: object
                 properties:
-                  namespaceId:
-                    type: string
-                  enabled:
-                    type: boolean
-                  range:
-                    minItems: 2
-                    maxItems: 2
-                    type: array
-                    items:
-                      type: number
-                  ranges:
-                    type: array
-                    items:
-                      type: array
-                      prefixItems:
-                      - type: number
-                      - type: number
+                  status:
+                    type: number
                 required:
-                - namespaceId
+                - status
                 additionalProperties: false
-              targetingCondition:
-                type: string
-              prerequisites:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: string
-                    condition:
-                      type: string
-                  required:
-                  - id
-                  - condition
-                  additionalProperties: false
-              savedGroupTargeting:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    matchType:
-                      type: string
-                      enum:
-                      - all
-                      - any
-                      - none
-                    savedGroups:
-                      type: array
-                      items:
-                        type: string
-                  required:
-                  - matchType
-                  - savedGroups
-                  additionalProperties: false
-            required:
-            - name
-            - dateStarted
-            - dateEnded
-            - reasonForStopping
-            - seed
-            - coverage
-            - trafficSplit
-            - targetingCondition
-            additionalProperties: false
-        settings:
-          $ref: '#/components/schemas/ExperimentAnalysisSettings'
-        resultSummary:
-          type: object
-          properties:
-            status:
-              type: string
-            winner:
-              type: string
-            conclusions:
-              type: string
-            releasedVariationId:
-              type: string
-            excludeFromPayload:
-              type: boolean
-          required:
-          - status
-          - winner
-          - conclusions
-          - releasedVariationId
-          - excludeFromPayload
-          additionalProperties: false
-        shareLevel:
+        '202':
+          $ref: '#/components/responses/ConfirmationHeld'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/experiments/exp_abc123/comment' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"comment\":\"This looks good to ship.\"}'"
+components:
+  schemas:
+    checklistItems:
+      type: object
+      properties:
+        key:
           type: string
-          enum:
-          - public
-          - organization
-        publicUrl:
-          type: string
-        banditScheduleValue:
-          type: number
-        banditScheduleUnit:
-          type: string
-          enum:
-          - days
-          - hours
-        banditBurnInValue:
-          type: number
-        banditBurnInUnit:
-          type: string
-          enum:
-          - days
-          - hours
-        banditConversionWindowValue:
-          type: number
-        banditConversionWindowUnit:
-          type: string
-          enum:
-          - days
-          - hours
-        linkedFeatures:
-          type: array
-          items:
-            type: string
-        hasVisualChangesets:
+        required:
           type: boolean
-        hasURLRedirects:
+        status:
+          type: string
+          enum:
+          - complete
+          - incomplete
+        manual:
           type: boolean
-        customFields:
-          type: object
-          propertyNames:
-            type: string
-          additionalProperties: {}
-        customMetricSlices:
-          description: Custom slices that apply to ALL applicable metrics in the experiment
+        reason:
+          type: string
+        hardBlock:
+          description: When true, this item cannot be bypassed with `skipChecklist` — the experiment cannot be started until it is resolved.
+          type: boolean
+      required:
+      - key
+      - required
+      - status
+      - manual
+      - reason
+      additionalProperties: false
+    ApiErrorPendingDraftPublishFailedDetails:
+      type: object
+      properties:
+        failedFeatureDrafts:
           type: array
           items:
             type: object
             properties:
-              slices:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    column:
-                      type: string
-                    levels:
-                      type: array
-                      items:
-                        type: string
-                  required:
-                  - column
-                  - levels
-                  additionalProperties: false
+              featureId:
+                type: string
+              revisionVersion:
+                type: number
+              reason:
+                type: string
+                enum:
+                - merge-conflict
+                - needs-rebase
+                - needs-approval
+                - publish-error
             required:
-            - slices
+            - featureId
+            - revisionVersion
+            - reason
             additionalProperties: false
-        defaultDashboardId:
-          description: ID of the default dashboard for this experiment.
+      required:
+      - failedFeatureDrafts
+      additionalProperties: false
+    ScheduledStopPlan:
+      description: What happens at the scheduled end date. `notify` keeps the experiment running and just notifies (soft). `auto-ship` (requires the Decision Framework) ships the winning variation and stops; multi-winner ties break on `tiebreakerMetricId` (higher lift); with no clear winner, `fallback` either keeps running (`notify`) or ships `fallbackVariationId`. `force-ship` stops and rolls out `fallbackVariationId`. `stop` is a hard deadline that stops with no rollout. For `force-ship` and `stop`, the Decision Framework verdict (won/lost/inconclusive) is recorded as metadata when available.
+      type: object
+      properties:
+        mode:
           type: string
-        templateId:
+          enum:
+          - notify
+          - auto-ship
+          - force-ship
+          - stop
+        tiebreakerMetricId:
+          type: string
+        fallback:
+          description: What to do at the scheduled end when there is no clear winner. Required when `mode` is `"auto-ship"`; ignored for other modes.
+          type: string
+          enum:
+          - notify
+          - force-ship
+        fallbackVariationId:
           type: string
       required:
-      - id
-      - trackingKey
-      - dateCreated
-      - dateUpdated
-      - name
-      - type
-      - project
-      - hypothesis
-      - description
-      - tags
-      - owner
-      - archived
-      - status
-      - autoRefresh
-      - hashAttribute
-      - hashVersion
-      - variations
-      - phases
-      - settings
+      - mode
+      additionalProperties: false
+    ExperimentAnalysisSettings:
+      type: object
+      properties:
+        datasourceId:
+          type: string
+        assignmentQuery:
+          description: The assignment query, grouping its ID with the identifier type analyzed on.
+          type: object
+          properties:
+            id:
+              description: The ID of one of the data source's assignment queries.
+              type: string
+            identifierType:
+              description: 'The identifier type analyzed on. Null when none can be resolved: no assignment query is selected, or a record saved before identifier types were stored points at a query that no longer exists.'
+              anyOf:
+              - type: string
+              - type: 'null'
+          required:
+          - id
+          - identifierType
+          additionalProperties: false
+        assignmentQueryId:
+          description: 'Deprecated: use `assignmentQuery`.'
+          deprecated: true
+          type: string
+        experimentId:
+          type: string
+        segmentId:
+          type: string
+        queryFilter:
+          type: string
+        inProgressConversions:
+          type: string
+          enum:
+          - include
+          - exclude
+        attributionModel:
+          description: Setting attribution model to `"experimentDuration"` is the same as selecting "Ignore Conversion Windows" for the Conversion Window Override. Setting it to `"lookbackOverride"` requires a `lookbackOverride` object to be provided.
+          type: string
+          enum:
+          - firstExposure
+          - experimentDuration
+          - lookbackOverride
+        lookbackOverride:
+          $ref: '#/components/schemas/LookbackOverride'
+        statsEngine:
+          type: string
+          enum:
+          - bayesian
+          - frequentist
+        regressionAdjustmentEnabled:
+          type: boolean
+        sequentialTestingEnabled:
+          type: boolean
+        sequentialTestingTuningParameter:
+          type: number
+        postStratificationEnabled:
+          description: When null, the organization default is used.
+          anyOf:
+          - description: When null, the organization default is used.
+            type: boolean
+          - description: When null, the organization default is used.
+            type: 'null'
+        decisionFrameworkSettings:
+          description: Controls the decision framework and metric overrides for the experiment. Replaces the entire stored object on update (does not patch individual fields).
+          $ref: '#/components/schemas/ExperimentDecisionFrameworkSettings'
+        metricOverrides:
+          description: Per-metric analysis overrides; also reflected in goals/secondaryMetrics/guardrails overrides when applicable. On create/update, this replaces the entire stored array (it does not patch individual entries).
+          type: array
+          items:
+            $ref: '#/components/schemas/ExperimentMetricOverrideEntry'
+        goals:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExperimentMetric'
+        secondaryMetrics:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExperimentMetric'
+        guardrails:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExperimentMetric'
+        activationMetric:
+          $ref: '#/components/schemas/ExperimentMetric'
+      required:
+      - datasourceId
+      - assignmentQuery
+      - assignmentQueryId
+      - experimentId
+      - segmentId
+      - queryFilter
+      - inProgressConversions
+      - attributionModel
+      - statsEngine
+      - goals
+      - secondaryMetrics
+      - guardrails
       additionalProperties: false
     ExperimentWithEnhancedStatus:
       allOf:
@@ -1781,12 +2242,14 @@ components:
             enum:
             - standard
             - multi-armed-bandit
+            - holdout
           project:
             type: string
           hypothesis:
             type: string
           description:
             type: string
+            maxLength: 10000
           tags:
             type: array
             items:
@@ -1832,6 +2295,7 @@ components:
                   type: string
                 description:
                   type: string
+                  maxLength: 10000
                 screenshots:
                   type: array
                   items:
@@ -1994,6 +2458,8 @@ components:
             type: array
             items:
               type: string
+          attributeScopeAllProjects:
+            type: boolean
           hasVisualChangesets:
             type: boolean
           hasURLRedirects:
@@ -2027,11 +2493,67 @@ components:
               required:
               - slices
               additionalProperties: false
+          precomputedUnitDimensionIds:
+            maxItems: 3
+            type: array
+            items:
+              type: string
           defaultDashboardId:
             description: ID of the default dashboard for this experiment.
             type: string
           templateId:
             type: string
+          statusUpdateSchedule:
+            anyOf:
+            - description: Scheduled start/end for an experiment. All fields optional; the end may be an absolute `stopAt` or a deferred relative `stopAfter`, but not both.
+              type: object
+              properties:
+                startAt:
+                  description: ISO datetime when the experiment should start. Must be in the future. Setting or clearing this field invalidates any existing staged start (`nextScheduledStatusUpdate`); call POST /experiments/{id}/start to stage the new schedule.
+                  format: date-time
+                  type: string
+                stopAt:
+                  description: ISO datetime when the experiment should stop. Resolved from `stopAfter` at start when a relative end was set.
+                  format: date-time
+                  type: string
+                stopAfter:
+                  description: 'Relative end offset. Deferred: resolved to a concrete `stopAt` at the experiment''s actual start (or off `dateStarted` when already running).'
+                  type: object
+                  properties:
+                    value:
+                      type: integer
+                      exclusiveMinimum: 0
+                    unit:
+                      type: string
+                      enum:
+                      - hours
+                      - days
+                  required:
+                  - value
+                  - unit
+                  additionalProperties: false
+                scheduledStopPlan:
+                  description: End-of-experiment automation applied at the scheduled end. Required whenever a `stopAt` or `stopAfter` is set (any mode, including `notify`).
+                  $ref: '#/components/schemas/ScheduledStopPlan'
+              additionalProperties: false
+            - type: 'null'
+          nextScheduledStatusUpdate:
+            anyOf:
+            - type: object
+              properties:
+                type:
+                  type: string
+                  enum:
+                  - start
+                  - stop
+                date:
+                  format: date-time
+                  type: string
+              required:
+              - type
+              - date
+              additionalProperties: false
+            - type: 'null'
         required:
         - id
         - trackingKey
@@ -2064,6 +2586,7 @@ components:
                 - Running
                 - Stopped
                 - Draft
+                - Scheduled
                 - Archived
               detailedStatus:
                 type: string
@@ -2071,6 +2594,483 @@ components:
             - status
             additionalProperties: false
         additionalProperties: false
+    screenshot:
+      type: object
+      properties:
+        path:
+          description: URL or path to the uploaded screenshot
+          type: string
+        description:
+          description: Description of the screenshot
+          type: string
+      required:
+      - path
+      - description
+      additionalProperties: false
+    ApiErrorDimensionAlreadyUpToDateDetails:
+      type: object
+      properties:
+        overallResultsAsOf:
+          type: string
+      required:
+      - overallResultsAsOf
+      additionalProperties: false
+    ExperimentDecisionFrameworkSettings:
+      description: Controls the decision framework and metric overrides for the experiment. Replaces the entire stored object on update (does not patch individual fields).
+      type: object
+      properties:
+        decisionCriteriaId:
+          type: string
+        decisionFrameworkMetricOverrides:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                description: ID of the metric to override settings for.
+                type: string
+              targetMDE:
+                description: The target relative MDE to use for the metric, expressed as proportions (e.g. use 0.1 for 10%). Must be greater than 0.
+                type: number
+                exclusiveMinimum: 0
+            required:
+            - id
+            additionalProperties: false
+      additionalProperties: false
+    ApiErrorChecklistIncompleteDetails:
+      type: object
+      properties:
+        remainingChecklistItems:
+          type: array
+          items:
+            type: object
+            properties:
+              key:
+                type: string
+              required:
+                type: boolean
+              status:
+                type: string
+                enum:
+                - complete
+                - incomplete
+              manual:
+                type: boolean
+              reason:
+                type: string
+              hardBlock:
+                type: boolean
+            required:
+            - key
+            - required
+            - status
+            - manual
+            - reason
+            additionalProperties: false
+      required:
+      - remainingChecklistItems
+      additionalProperties: false
+    ExperimentMetric:
+      type: object
+      properties:
+        metricId:
+          type: string
+        overrides:
+          type: object
+          properties:
+            delayHours:
+              type: number
+            windowHours:
+              type: number
+            window:
+              type: string
+              enum:
+              - conversion
+              - lookback
+              - ''
+            winRiskThreshold:
+              deprecated: true
+              type: number
+            loseRiskThreshold:
+              deprecated: true
+              type: number
+            properPriorOverride:
+              type: boolean
+            properPriorEnabled:
+              type: boolean
+            properPriorMean:
+              type: number
+            properPriorStdDev:
+              type: number
+            regressionAdjustmentOverride:
+              type: boolean
+            regressionAdjustmentEnabled:
+              type: boolean
+            regressionAdjustmentDays:
+              type: number
+          additionalProperties: false
+      required:
+      - metricId
+      - overrides
+      additionalProperties: false
+    PaginationFields:
+      type: object
+      properties:
+        limit:
+          type: integer
+        offset:
+          type: integer
+        count:
+          type: integer
+        total:
+          type: integer
+        hasMore:
+          type: boolean
+        nextOffset:
+          anyOf:
+          - type: integer
+          - type: 'null'
+      required:
+      - limit
+      - offset
+      - count
+      - total
+      - hasMore
+      - nextOffset
+      additionalProperties: false
+    snapshot:
+      type: object
+      properties:
+        id:
+          type: string
+        experiment:
+          type: string
+        status:
+          type: string
+      required:
+      - id
+      - experiment
+      - status
+      additionalProperties: false
+    ApiErrorRequiresFullRefreshDetails:
+      type: object
+      properties:
+        reason:
+          type: string
+      required:
+      - reason
+      additionalProperties: false
+    Confirmation:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+          enum:
+          - pending
+          - running
+          - completed
+          - rejected
+          - expired
+        actions:
+          type: array
+          items:
+            type: object
+            properties:
+              action:
+                type: string
+                enum:
+                - feature.create
+                - feature.draft
+                - feature.review
+                - feature.publish
+                - feature.archive
+                - feature.delete
+                - feature.other
+                - experiment.create
+                - experiment.draft
+                - experiment.start
+                - experiment.stop
+                - experiment.targeting
+                - experiment.traffic
+                - experiment.phases
+                - experiment.visualEditor
+                - experiment.other
+                - savedGroup.create
+                - savedGroup.draft
+                - savedGroup.review
+                - savedGroup.publish
+                - savedGroup.archive
+                - savedGroup.delete
+                - savedGroup.other
+                - constant.create
+                - constant.draft
+                - constant.review
+                - constant.publish
+                - constant.archive
+                - constant.delete
+                - constant.other
+                - config.create
+                - config.draft
+                - config.review
+                - config.publish
+                - config.archive
+                - config.delete
+                - config.other
+                - rampSchedule.create
+                - rampSchedule.start
+                - rampSchedule.pause
+                - rampSchedule.progression
+                - rampSchedule.approve
+                - rampSchedule.edit
+                - rampSchedule.delete
+                - rampSchedule.other
+                - settings.approvals
+                - settings.other
+                - access.members
+                - access.teams
+                - customHook.create
+                - customHook.edit
+                - customHook.delete
+                - environment.create
+                - environment.edit
+                - environment.delete
+                - project.create
+                - project.edit
+                - project.delete
+                - attribute.create
+                - attribute.edit
+                - attribute.delete
+                - customField.create
+                - customField.edit
+                - customField.delete
+                - sdkConnection.create
+                - sdkConnection.edit
+                - sdkConnection.delete
+                - metric.create
+                - metric.edit
+                - metric.delete
+                - factTable.create
+                - factTable.edit
+                - factTable.delete
+                - segment.create
+                - segment.edit
+                - segment.delete
+                - dimension.create
+                - dimension.edit
+                - dimension.delete
+                - override.ignoreWarnings
+                - override.skipSchemaValidation
+                - override.skipHooks
+                - override.bypassApproval
+                - override.restBypassesReviews
+                - override.draftLimit
+                - override.skipChecklist
+                - override.bypassDuplicateKeyCheck
+                - other.write
+              environments:
+                type: array
+                items:
+                  type: string
+            required:
+            - action
+            - environments
+            additionalProperties: false
+        summary:
+          type: string
+        url:
+          type: string
+        expiresAt:
+          type: string
+        response:
+          anyOf:
+          - type: object
+            properties:
+              status:
+                type: number
+              body: {}
+            required:
+            - status
+            - body
+            additionalProperties: false
+          - type: 'null'
+        note:
+          anyOf:
+          - type: string
+          - type: 'null'
+      required:
+      - id
+      - status
+      - actions
+      - summary
+      - url
+      - expiresAt
+      - response
+      - note
+      additionalProperties: false
+    ConfirmationHeld:
+      type: object
+      properties:
+        confirmation:
+          $ref: '#/components/schemas/Confirmation'
+        message:
+          type: string
+      required:
+      - confirmation
+      - message
+      additionalProperties: false
+      $defs:
+        Confirmation:
+          id: Confirmation
+          type: object
+          properties:
+            id:
+              type: string
+            status:
+              type: string
+              enum:
+              - pending
+              - running
+              - completed
+              - rejected
+              - expired
+            actions:
+              type: array
+              items:
+                type: object
+                properties:
+                  action:
+                    type: string
+                    enum:
+                    - feature.create
+                    - feature.draft
+                    - feature.review
+                    - feature.publish
+                    - feature.archive
+                    - feature.delete
+                    - feature.other
+                    - experiment.create
+                    - experiment.draft
+                    - experiment.start
+                    - experiment.stop
+                    - experiment.targeting
+                    - experiment.traffic
+                    - experiment.phases
+                    - experiment.visualEditor
+                    - experiment.other
+                    - savedGroup.create
+                    - savedGroup.draft
+                    - savedGroup.review
+                    - savedGroup.publish
+                    - savedGroup.archive
+                    - savedGroup.delete
+                    - savedGroup.other
+                    - constant.create
+                    - constant.draft
+                    - constant.review
+                    - constant.publish
+                    - constant.archive
+                    - constant.delete
+                    - constant.other
+                    - config.create
+                    - config.draft
+                    - config.review
+                    - config.publish
+                    - config.archive
+                    - config.delete
+                    - config.other
+                    - rampSchedule.create
+                    - rampSchedule.start
+                    - rampSchedule.pause
+                    - rampSchedule.progression
+                    - rampSchedule.approve
+                    - rampSchedule.edit
+                    - rampSchedule.delete
+                    - rampSchedule.other
+                    - settings.approvals
+                    - settings.other
+                    - access.members
+                    - access.teams
+                    - customHook.create
+                    - customHook.edit
+                    - customHook.delete
+                    - environment.create
+                    - environment.edit
+                    - environment.delete
+                    - project.create
+                    - project.edit
+                    - project.delete
+                    - attribute.create
+                    - attribute.edit
+                    - attribute.delete
+                    - customField.create
+                    - customField.edit
+                    - customField.delete
+                    - sdkConnection.create
+                    - sdkConnection.edit
+                    - sdkConnection.delete
+                    - metric.create
+                    - metric.edit
+                    - metric.delete
+                    - factTable.create
+                    - factTable.edit
+                    - factTable.delete
+                    - segment.create
+                    - segment.edit
+                    - segment.delete
+                    - dimension.create
+                    - dimension.edit
+                    - dimension.delete
+                    - override.ignoreWarnings
+                    - override.skipSchemaValidation
+                    - override.skipHooks
+                    - override.bypassApproval
+                    - override.restBypassesReviews
+                    - override.draftLimit
+                    - override.skipChecklist
+                    - override.bypassDuplicateKeyCheck
+                    - other.write
+                  environments:
+                    type: array
+                    items:
+                      type: string
+                required:
+                - action
+                - environments
+                additionalProperties: false
+            summary:
+              type: string
+            url:
+              type: string
+            expiresAt:
+              type: string
+            response:
+              anyOf:
+              - type: object
+                properties:
+                  status:
+                    type: number
+                  body: {}
+                required:
+                - status
+                - body
+                additionalProperties: false
+              - type: 'null'
+            note:
+              anyOf:
+              - type: string
+              - type: 'null'
+          required:
+          - id
+          - status
+          - actions
+          - summary
+          - url
+          - expiresAt
+          - response
+          - note
+          additionalProperties: false
     ExperimentMetricOverrideEntry:
       description: Per-metric analysis overrides stored on the experiment (matches internal metricOverrides).
       type: object
@@ -2107,30 +3107,371 @@ components:
       required:
       - id
       additionalProperties: false
-    PaginationFields:
+    Experiment:
       type: object
       properties:
-        limit:
-          type: integer
-        offset:
-          type: integer
-        count:
-          type: integer
-        total:
-          type: integer
-        hasMore:
+        id:
+          type: string
+        trackingKey:
+          type: string
+        dateCreated:
+          format: date-time
+          type: string
+        dateUpdated:
+          format: date-time
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+          enum:
+          - standard
+          - multi-armed-bandit
+          - holdout
+        project:
+          type: string
+        hypothesis:
+          type: string
+        description:
+          type: string
+          maxLength: 10000
+        tags:
+          type: array
+          items:
+            type: string
+        owner:
+          description: The userId of the owner (or raw owner name/email for legacy records)
+          type: string
+        ownerEmail:
+          description: The email address of the owner, when the owner can be resolved to a known user.
+          type: string
+        archived:
           type: boolean
-        nextOffset:
+        status:
+          type: string
+        autoRefresh:
+          type: boolean
+        hashAttribute:
+          type: string
+        fallbackAttribute:
+          type: string
+        hashVersion:
           anyOf:
-          - type: integer
+          - type: number
+            const: 1
+          - type: number
+            const: 2
+        disableStickyBucketing:
+          type: boolean
+        bucketVersion:
+          type: number
+        minBucketVersion:
+          type: number
+        variations:
+          type: array
+          items:
+            type: object
+            properties:
+              variationId:
+                type: string
+              key:
+                type: string
+              name:
+                type: string
+              description:
+                type: string
+                maxLength: 10000
+              screenshots:
+                type: array
+                items:
+                  type: string
+            required:
+            - variationId
+            - key
+            - name
+            - description
+            - screenshots
+            additionalProperties: false
+        phases:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              dateStarted:
+                type: string
+              dateEnded:
+                type: string
+              reasonForStopping:
+                type: string
+              seed:
+                type: string
+              coverage:
+                type: number
+              trafficSplit:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    variationId:
+                      type: string
+                    weight:
+                      type: number
+                  required:
+                  - variationId
+                  - weight
+                  additionalProperties: false
+              namespace:
+                type: object
+                properties:
+                  namespaceId:
+                    type: string
+                  enabled:
+                    type: boolean
+                  range:
+                    minItems: 2
+                    maxItems: 2
+                    type: array
+                    items:
+                      type: number
+                  ranges:
+                    type: array
+                    items:
+                      type: array
+                      prefixItems:
+                      - type: number
+                      - type: number
+                required:
+                - namespaceId
+                additionalProperties: false
+              targetingCondition:
+                type: string
+              prerequisites:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    condition:
+                      type: string
+                  required:
+                  - id
+                  - condition
+                  additionalProperties: false
+              savedGroupTargeting:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    matchType:
+                      type: string
+                      enum:
+                      - all
+                      - any
+                      - none
+                    savedGroups:
+                      type: array
+                      items:
+                        type: string
+                  required:
+                  - matchType
+                  - savedGroups
+                  additionalProperties: false
+            required:
+            - name
+            - dateStarted
+            - dateEnded
+            - reasonForStopping
+            - seed
+            - coverage
+            - trafficSplit
+            - targetingCondition
+            additionalProperties: false
+        settings:
+          $ref: '#/components/schemas/ExperimentAnalysisSettings'
+        resultSummary:
+          type: object
+          properties:
+            status:
+              type: string
+            winner:
+              type: string
+            conclusions:
+              type: string
+            releasedVariationId:
+              type: string
+            excludeFromPayload:
+              type: boolean
+          required:
+          - status
+          - winner
+          - conclusions
+          - releasedVariationId
+          - excludeFromPayload
+          additionalProperties: false
+        shareLevel:
+          type: string
+          enum:
+          - public
+          - organization
+        publicUrl:
+          type: string
+        banditScheduleValue:
+          type: number
+        banditScheduleUnit:
+          type: string
+          enum:
+          - days
+          - hours
+        banditBurnInValue:
+          type: number
+        banditBurnInUnit:
+          type: string
+          enum:
+          - days
+          - hours
+        banditConversionWindowValue:
+          type: number
+        banditConversionWindowUnit:
+          type: string
+          enum:
+          - days
+          - hours
+        linkedFeatures:
+          type: array
+          items:
+            type: string
+        attributeScopeAllProjects:
+          type: boolean
+        hasVisualChangesets:
+          type: boolean
+        hasURLRedirects:
+          type: boolean
+        customFields:
+          type: object
+          propertyNames:
+            type: string
+          additionalProperties: {}
+        customMetricSlices:
+          description: Custom slices that apply to ALL applicable metrics in the experiment
+          type: array
+          items:
+            type: object
+            properties:
+              slices:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    column:
+                      type: string
+                    levels:
+                      type: array
+                      items:
+                        type: string
+                  required:
+                  - column
+                  - levels
+                  additionalProperties: false
+            required:
+            - slices
+            additionalProperties: false
+        precomputedUnitDimensionIds:
+          maxItems: 3
+          type: array
+          items:
+            type: string
+        defaultDashboardId:
+          description: ID of the default dashboard for this experiment.
+          type: string
+        templateId:
+          type: string
+        statusUpdateSchedule:
+          anyOf:
+          - description: Scheduled start/end for an experiment. All fields optional; the end may be an absolute `stopAt` or a deferred relative `stopAfter`, but not both.
+            type: object
+            properties:
+              startAt:
+                description: ISO datetime when the experiment should start. Must be in the future. Setting or clearing this field invalidates any existing staged start (`nextScheduledStatusUpdate`); call POST /experiments/{id}/start to stage the new schedule.
+                format: date-time
+                type: string
+              stopAt:
+                description: ISO datetime when the experiment should stop. Resolved from `stopAfter` at start when a relative end was set.
+                format: date-time
+                type: string
+              stopAfter:
+                description: 'Relative end offset. Deferred: resolved to a concrete `stopAt` at the experiment''s actual start (or off `dateStarted` when already running).'
+                type: object
+                properties:
+                  value:
+                    type: integer
+                    exclusiveMinimum: 0
+                  unit:
+                    type: string
+                    enum:
+                    - hours
+                    - days
+                required:
+                - value
+                - unit
+                additionalProperties: false
+              scheduledStopPlan:
+                description: End-of-experiment automation applied at the scheduled end. Required whenever a `stopAt` or `stopAfter` is set (any mode, including `notify`).
+                $ref: '#/components/schemas/ScheduledStopPlan'
+            additionalProperties: false
+          - type: 'null'
+        nextScheduledStatusUpdate:
+          anyOf:
+          - type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - start
+                - stop
+              date:
+                format: date-time
+                type: string
+            required:
+            - type
+            - date
+            additionalProperties: false
           - type: 'null'
       required:
-      - limit
-      - offset
-      - count
-      - total
-      - hasMore
-      - nextOffset
+      - id
+      - trackingKey
+      - dateCreated
+      - dateUpdated
+      - name
+      - type
+      - project
+      - hypothesis
+      - description
+      - tags
+      - owner
+      - archived
+      - status
+      - autoRefresh
+      - hashAttribute
+      - hashVersion
+      - variations
+      - phases
+      - settings
+      additionalProperties: false
+    ApiErrorInvalidStatusDetails:
+      type: object
+      properties:
+        currentStatus:
+          type: string
+        expectedStatuses:
+          type: array
+          items:
+            type: string
+      required:
+      - currentStatus
+      - expectedStatuses
       additionalProperties: false
     LookbackOverride:
       description: Controls the lookback override for the experiment. For type "window", value must be a non-negative number and valueUnit is required.
@@ -2161,6 +3502,17 @@ components:
       - type
       - value
       additionalProperties: false
+    experiments:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+      required:
+      - id
+      - name
+      additionalProperties: false
     ExperimentResults:
       type: object
       properties:
@@ -2183,6 +3535,18 @@ components:
               type: string
             id:
               type: string
+            dimensions:
+              type: array
+              items:
+                type: object
+                properties:
+                  type:
+                    type: string
+                  id:
+                    type: string
+                required:
+                - type
+                additionalProperties: false
           required:
           - type
           additionalProperties: false
@@ -2216,12 +3580,16 @@ components:
                   properties:
                     metricId:
                       type: string
+                    metricName:
+                      type: string
                     variations:
                       type: array
                       items:
                         type: object
                         properties:
                           variationId:
+                            type: string
+                          variationName:
                             type: string
                           users:
                             type: number
@@ -2245,6 +3613,9 @@ components:
                                   type: number
                                 percentChange:
                                   type: number
+                                effectStandardError:
+                                  description: Standard error of the estimated effect (`percentChange`).
+                                  type: number
                                 ciLow:
                                   type: number
                                 ciHigh:
@@ -2255,6 +3626,8 @@ components:
                                   type: number
                                 chanceToBeatControl:
                                   type: number
+                                errorMessage:
+                                  type: string
                               required:
                               - engine
                               - numerator
@@ -2262,6 +3635,7 @@ components:
                               - mean
                               - stddev
                               - percentChange
+                              - effectStandardError
                               - ciLow
                               - ciHigh
                               additionalProperties: false
@@ -2291,85 +3665,188 @@ components:
       - queryIds
       - results
       additionalProperties: false
-    ExperimentAnalysisSettings:
-      type: object
-      properties:
-        datasourceId:
-          type: string
-        assignmentQueryId:
-          type: string
-        experimentId:
-          type: string
-        segmentId:
-          type: string
-        queryFilter:
-          type: string
-        inProgressConversions:
+  parameters:
+    offset:
+      name: offset
+      in: query
+      description: How many items to skip (use in conjunction with limit for pagination)
+      schema:
+        default: 0
+        description: How many items to skip (use in conjunction with limit for pagination)
+        type: integer
+        minimum: 0
+    id:
+      name: id
+      in: path
+      required: true
+      description: The id of the requested resource
+      schema:
+        description: The id of the requested resource
+        type: string
+    sortOrder:
+      name: sortOrder
+      in: query
+      description: Sort direction (used with `sortBy`)
+      schema:
+        default: asc
+        description: Sort direction (used with `sortBy`)
+        type: string
+        enum:
+        - asc
+        - desc
+    datasourceId:
+      name: datasourceId
+      in: query
+      description: Filter by Data Source
+      schema:
+        description: Filter by Data Source
+        type: string
+    sortBy:
+      name: sortBy
+      in: query
+      description: Field to sort the results by
+      schema:
+        default: dateCreated
+        description: Field to sort the results by
+        type: string
+        enum:
+        - dateCreated
+        - dateUpdated
+        - name
+    metricId:
+      name: metricId
+      in: query
+      description: Filter by comma-separated metric ids. Matches experiments that use a metric as a goal, secondary, or guardrail metric
+      schema:
+        description: Filter by comma-separated metric ids. Matches experiments that use a metric as a goal, secondary, or guardrail metric
+        type: string
+    experimentId:
+      name: experimentId
+      in: query
+      description: Filter the returned list by the experiment tracking key (not the internal experiment ID). Note, this was deprecated to help reduce confusion, consider using `trackingKey` instead, which is functionally identical. You cannot use both params at the same time.
+      schema:
+        deprecated: true
+        description: Filter the returned list by the experiment tracking key (not the internal experiment ID). Note, this was deprecated to help reduce confusion, consider using `trackingKey` instead, which is functionally identical. You cannot use both params at the same time.
+        type: string
+    variationId:
+      name: variationId
+      in: path
+      required: true
+      description: ''
+      schema:
+        type: string
+    projectId:
+      name: projectId
+      in: query
+      description: Filter by project id
+      schema:
+        description: Filter by project id
+        type: string
+    implementationType:
+      name: implementationType
+      in: query
+      description: Filter by comma-separated implementation types (feature, visualChange, redirect) — the kinds of changes linked to the experiment. To filter standard experiments vs bandits, use `bandits` instead
+      schema:
+        description: Filter by comma-separated implementation types (feature, visualChange, redirect) — the kinds of changes linked to the experiment. To filter standard experiments vs bandits, use `bandits` instead
+        type: array
+        items:
           type: string
           enum:
-          - include
-          - exclude
-        attributionModel:
-          description: Setting attribution model to `"experimentDuration"` is the same as selecting "Ignore Conversion Windows" for the Conversion Window Override. Setting it to `"lookbackOverride"` requires a `lookbackOverride` object to be provided.
+          - feature
+          - visualChange
+          - redirect
+      explode: false
+    limit:
+      name: limit
+      in: query
+      description: The number of items to return
+      schema:
+        default: 10
+        description: The number of items to return
+        type: integer
+        minimum: 1
+        maximum: 100
+    dimension:
+      name: dimension
+      in: query
+      description: ''
+      schema:
+        type: string
+    q:
+      name: q
+      in: query
+      description: Raw experiment search/filter string (same syntax as the app's experiment list filters, e.g. `status:running tag:checkout`). Negation (`!`) and operators (`~`, `^`, `>`, `<`, `=`) are not supported and return a 400
+      schema:
+        description: Raw experiment search/filter string (same syntax as the app's experiment list filters, e.g. `status:running tag:checkout`). Negation (`!`) and operators (`~`, `^`, `>`, `<`, `=`) are not supported and return a 400
+        type: string
+    result:
+      name: result
+      in: query
+      description: Filter by comma-separated results (won, lost, inconclusive, dnf). Matches the experiment's recorded result — set when an experiment is stopped and retained if it's later restarted, so running experiments can match too
+      schema:
+        description: Filter by comma-separated results (won, lost, inconclusive, dnf). Matches the experiment's recorded result — set when an experiment is stopped and retained if it's later restarted, so running experiments can match too
+        type: array
+        items:
           type: string
           enum:
-          - firstExposure
-          - experimentDuration
-          - lookbackOverride
-        lookbackOverride:
-          $ref: '#/components/schemas/LookbackOverride'
-        statsEngine:
-          type: string
-          enum:
-          - bayesian
-          - frequentist
-        regressionAdjustmentEnabled:
-          type: boolean
-        sequentialTestingEnabled:
-          type: boolean
-        sequentialTestingTuningParameter:
-          type: number
-        postStratificationEnabled:
-          description: When null, the organization default is used.
-          anyOf:
-          - description: When null, the organization default is used.
-            type: boolean
-          - description: When null, the organization default is used.
-            type: 'null'
-        decisionFrameworkSettings:
-          $ref: '#/components/schemas/ExperimentDecisionFrameworkSettings'
-        metricOverrides:
-          description: Per-metric analysis overrides; also reflected in goals/secondaryMetrics/guardrails overrides when applicable. On create/update, this replaces the entire stored array (it does not patch individual entries).
-          type: array
-          items:
-            $ref: '#/components/schemas/ExperimentMetricOverrideEntry'
-        goals:
-          type: array
-          items:
-            $ref: '#/components/schemas/ExperimentMetric'
-        secondaryMetrics:
-          type: array
-          items:
-            $ref: '#/components/schemas/ExperimentMetric'
-        guardrails:
-          type: array
-          items:
-            $ref: '#/components/schemas/ExperimentMetric'
-        activationMetric:
-          $ref: '#/components/schemas/ExperimentMetric'
-      required:
-      - datasourceId
-      - assignmentQueryId
-      - experimentId
-      - segmentId
-      - queryFilter
-      - inProgressConversions
-      - attributionModel
-      - statsEngine
-      - goals
-      - secondaryMetrics
-      - guardrails
-      additionalProperties: false
+          - dnf
+          - won
+          - lost
+          - inconclusive
+      explode: false
+    bandits:
+      name: bandits
+      in: query
+      description: When true, return only multi-armed bandits; when false, exclude them
+      schema:
+        description: When true, return only multi-armed bandits; when false, exclude them
+        type: string
+        enum:
+        - 'true'
+        - 'false'
+    tag:
+      name: tag
+      in: query
+      description: Filter by comma-separated tags
+      schema:
+        description: Filter by comma-separated tags
+        type: string
+    trackingKey:
+      name: trackingKey
+      in: query
+      description: Filter by experiment tracking key
+      schema:
+        description: Filter by experiment tracking key
+        type: string
+    phase:
+      name: phase
+      in: query
+      description: ''
+      schema:
+        type: string
+    owner:
+      name: owner
+      in: query
+      description: Filter by comma-separated owner ids, names, or emails
+      schema:
+        description: Filter by comma-separated owner ids, names, or emails
+        type: string
+  responses:
+    ConfirmationHeld:
+      description: Held until a person confirms it in GrowthBook. Poll the Location until the confirmation completes.
+      headers:
+        Location:
+          description: The confirmation to poll
+          schema:
+            type: string
+        Retry-After:
+          description: Seconds to wait before polling
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ConfirmationHeld'
   securitySchemes:
     bearerAuth:
       type: http
@@ -2416,9 +3893,17 @@ x-tagGroups:
   - snapshots
   - dimensions
   - segments
+  - reports
   - sdk-connections
   - visual-changesets
   - saved-groups
+  - saved-group-revisions
+  - constants
+  - constant-revisions
+  - configs
+  - config-revisions
+  - releases
+  - custom-hooks
   - organizations
   - members
   - code-references
@@ -2427,25 +3912,59 @@ x-tagGroups:
   - settings
   - attributes
   - usage
+  - meta
+  - ContextualBandits
   - Dashboards
+  - ContextualBanditQueries
   - CustomFields
   - MetricGroups
   - Teams
   - ExperimentTemplates
   - AnalyticsExplorations
   - RampScheduleTemplates
+  - Learnings
+  - Holdouts
+  - AutoRuns
+  - Populations
 - name: Models
   tags:
+  - AggregatedFactTable_model
   - AnalyticsExploration_model
   - Archetype_model
   - Attribute_model
+  - AutoRun_model
   - CodeRef_model
+  - Config_model
+  - ConfigKeyUsage_model
+  - ConfigLineage_model
+  - ConfigReferences_model
+  - ConfigRevision_model
+  - ConfigRevisionActivityLogEntry_model
+  - ConfigRevisionRef_model
+  - ConfigRevisionReview_model
+  - ConfigSchemaExport_model
+  - ConfigSchemaSource_model
+  - ConfigSchemaVerify_model
+  - ConfigSchemaWarning_model
+  - Confirmation_model
+  - ConfirmationHeld_model
+  - Constant_model
+  - ConstantReferences_model
+  - ConstantRevision_model
+  - ConstantRevisionActivityLogEntry_model
+  - ConstantRevisionRef_model
+  - ConstantRevisionReview_model
+  - ContextualBandit_model
+  - ContextualBanditQuery_model
   - CustomField_model
+  - CustomHook_model
   - Dashboard_model
   - DataSource_model
   - Dimension_model
   - Environment_model
+  - EventUser_model
   - Experiment_model
+  - Experiment Rule_model
   - ExperimentAnalysisSettings_model
   - ExperimentDecisionFrameworkSettings_model
   - ExperimentMetric_model
@@ -2458,25 +3977,30 @@ x-tagGroups:
   - FactTable_model
   - FactTableColumn_model
   - FactTableFilter_model
-  - Feature_model
   - FeatureBaseRule_model
+  - FeatureContextualBanditRefRule_model
   - FeatureDefinition_model
-  - FeatureEnvironment_model
+  - FeatureEnvironmentV1_model
   - FeatureEnvironmentV2_model
   - FeatureExperimentRefRule_model
   - FeatureExperimentRule_model
   - FeatureForceRule_model
-  - FeatureRevision_model
+  - FeatureRevisionRef_model
+  - FeatureRevisionSummary_model
+  - FeatureRevisionV1_model
   - FeatureRevisionV2_model
   - FeatureRolloutRule_model
-  - FeatureRule_model
+  - FeatureRuleV1_model
   - FeatureRuleV2_model
   - FeatureSafeRolloutRule_model
+  - FeatureV1_model
   - FeatureV2_model
-  - FeatureWithRevisions_model
+  - FeatureWithRevisionsV1_model
   - FeatureWithRevisionsV2_model
+  - Holdout_model
   - InformationSchema_model
   - InformationSchemaTable_model
+  - Learning_model
   - LookbackOverride_model
   - Member_model
   - Metric_model
@@ -2487,15 +4011,32 @@ x-tagGroups:
   - NamespaceExperimentMember_model
   - Organization_model
   - PaginationFields_model
+  - Population_model
   - Project_model
   - Query_model
   - RampSchedule_model
   - RampScheduleTemplate_model
+  - Report_model
+  - RequireReviewRule_model
+  - RequireReviewRuleInput_model
+  - RevisionIdRef_model
+  - Safe Rollout Rule_model
   - SavedGroup_model
+  - SavedGroupApprovalRule_model
+  - SavedGroupReferenceResource_model
+  - SavedGroupReferences_model
+  - SavedGroupRevision_model
+  - SavedGroupRevisionActivityLogEntry_model
+  - SavedGroupRevisionRef_model
+  - SavedGroupRevisionReview_model
   - ScheduleRule_model
+  - ScheduledStopPlan_model
   - SdkConnection_model
   - Segment_model
   - Settings_model
+  - Targeting Rule_model
+  - TargetingReviewRule_model
   - Team_model
   - VisualChange_model
   - VisualChangeset_model
+  - VisualEditorCbExperimentStub_model

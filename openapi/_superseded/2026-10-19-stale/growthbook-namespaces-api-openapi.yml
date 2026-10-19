@@ -1,0 +1,527 @@
+openapi: 3.2.0
+info:
+  version: 1.0.0
+  title: GrowthBook REST Namespaces API
+  description: GrowthBook offers a full REST API for interacting with the application.
+servers:
+- url: https://api.growthbook.io/api
+  description: GrowthBook Cloud
+- url: https://{domain}/api
+  description: Self-hosted GrowthBook
+security:
+- bearerAuth: []
+- basicAuth: []
+tags:
+- name: Namespaces
+  x-displayName: Namespaces
+  description: Namespaces partition your user population into buckets so that experiments using the same hash attribute do not overlap unintentionally. Each namespace defines a 0–1 range and individual experiments claim sub-ranges within it.
+paths:
+  /v1/namespaces:
+    get:
+      operationId: listNamespaces
+      summary: Get all namespaces
+      tags:
+      - Namespaces
+      parameters:
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                allOf:
+                - type: object
+                  properties:
+                    namespaces:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/Namespace'
+                  required:
+                  - namespaces
+                  additionalProperties: false
+                - $ref: '#/components/schemas/PaginationFields'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/namespaces' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+    post:
+      operationId: postNamespace
+      summary: Create a namespace
+      tags:
+      - Namespaces
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                displayName:
+                  description: Human-readable display name. Must be unique within the organization.
+                  type: string
+                description:
+                  type: string
+                status:
+                  type: string
+                  enum:
+                  - active
+                  - inactive
+                format:
+                  description: Namespace format. Defaults to 'multiRange', which supports multiple ranges per experiment and a configurable hash attribute.
+                  type: string
+                  enum:
+                  - legacy
+                  - multiRange
+                hashAttribute:
+                  description: Required when format is 'multiRange'. The user attribute (e.g. 'id', 'device_id') used to assign users to namespace buckets.
+                  type: string
+              required:
+              - displayName
+              additionalProperties: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  namespace:
+                    $ref: '#/components/schemas/Namespace'
+                required:
+                - namespace
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/namespaces' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"displayName\":\"Checkout Flow\",\"description\":\"Experiments on the checkout funnel\",\"format\":\"multiRange\",\"hashAttribute\":\"id\"}'"
+  /v1/namespaces/{id}:
+    get:
+      operationId: getNamespace
+      summary: Get a single namespace
+      tags:
+      - Namespaces
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: The unique id of the namespace
+        schema:
+          description: The unique id of the namespace
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  namespace:
+                    $ref: '#/components/schemas/Namespace'
+                required:
+                - namespace
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/namespaces/ns-abc123' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+    put:
+      operationId: putNamespace
+      summary: Update a namespace
+      tags:
+      - Namespaces
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: The unique id of the namespace
+        schema:
+          description: The unique id of the namespace
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                displayName:
+                  description: Human-readable display name.
+                  type: string
+                description:
+                  description: Namespace description.
+                  type: string
+                status:
+                  description: Set to 'inactive' to disable the namespace.
+                  type: string
+                  enum:
+                  - active
+                  - inactive
+                hashAttribute:
+                  description: Only applies to multiRange namespaces. Changes which user attribute is used for bucket hashing going forward.
+                  type: string
+              additionalProperties: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  namespace:
+                    $ref: '#/components/schemas/Namespace'
+                required:
+                - namespace
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X PUT 'https://api.growthbook.io/api/v1/namespaces/ns-abc123' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"displayName\":\"Checkout v2\",\"status\":\"inactive\"}'"
+    delete:
+      operationId: deleteNamespace
+      summary: Delete a namespace
+      description: Permanently removes a namespace from the organization. Returns a 409 error if any active experiments currently reference this namespace — disable or remove those references first.
+      tags:
+      - Namespaces
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: The unique id of the namespace
+        schema:
+          description: The unique id of the namespace
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deletedId:
+                    description: The ID of the deleted namespace.
+                    example: ns-abc123
+                    type: string
+                required:
+                - deletedId
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X DELETE 'https://api.growthbook.io/api/v1/namespaces/ns-abc123' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/namespaces/{id}/memberships:
+    get:
+      operationId: getNamespaceMemberships
+      summary: Get namespace membership
+      tags:
+      - Namespaces
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: The unique id of the namespace
+        schema:
+          description: The unique id of the namespace
+          type: string
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                allOf:
+                - type: object
+                  properties:
+                    experiments:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/NamespaceExperimentMember'
+                  required:
+                  - experiments
+                  additionalProperties: false
+                - $ref: '#/components/schemas/PaginationFields'
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X GET 'https://api.growthbook.io/api/v1/namespaces/ns-abc123/memberships' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+  /v1/namespaces/{id}/rotateSeed:
+    post:
+      operationId: postNamespaceRotateSeed
+      summary: Rotate namespace seed
+      description: '⚠️ Dangerous: sets a new seed for a multiRange namespace. Every user''s bucket position within the namespace is re-computed immediately, which re-randomizes traffic eligibility for **all** experiments currently using this namespace. Only do this if you intentionally want to reshuffle all allocations across experiments. This could be useful when re-using a namespace for a new set of experiments.'
+      tags:
+      - Namespaces
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: The unique id of the namespace
+        schema:
+          description: The unique id of the namespace
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                seed:
+                  description: A specific value to use as the new seed. If omitted, a random value is generated.
+                  type: string
+              additionalProperties: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  namespace:
+                    $ref: '#/components/schemas/Namespace'
+                required:
+                - namespace
+                additionalProperties: false
+      x-codeSamples:
+      - lang: cURL
+        source: "curl -X POST 'https://api.growthbook.io/api/v1/namespaces/ns-abc123/rotateSeed' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+components:
+  schemas:
+    PaginationFields:
+      type: object
+      properties:
+        limit:
+          type: integer
+        offset:
+          type: integer
+        count:
+          type: integer
+        total:
+          type: integer
+        hasMore:
+          type: boolean
+        nextOffset:
+          anyOf:
+          - type: integer
+          - type: 'null'
+      required:
+      - limit
+      - offset
+      - count
+      - total
+      - hasMore
+      - nextOffset
+      additionalProperties: false
+    NamespaceExperimentMember:
+      type: object
+      properties:
+        id:
+          description: The internal experiment ID.
+          type: string
+        name:
+          description: Display name of the experiment.
+          type: string
+        trackingKey:
+          description: The experiment tracking key used by the SDK.
+          type: string
+        status:
+          description: The current status of the experiment.
+          type: string
+          enum:
+          - draft
+          - running
+          - stopped
+        ranges:
+          description: The ranges claimed within this namespace, as [start, end] pairs between 0 and 1.
+          type: array
+          items:
+            type: array
+            prefixItems:
+            - type: number
+            - type: number
+      required:
+      - id
+      - name
+      - trackingKey
+      - status
+      - ranges
+      additionalProperties: false
+    Namespace:
+      type: object
+      properties:
+        id:
+          description: The unique internal identifier for the namespace (e.g. 'ns-abc123').
+          type: string
+        displayName:
+          description: Human-readable display name.
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+          enum:
+          - active
+          - inactive
+        format:
+          description: Namespace format. 'multiRange' supports multiple ranges per experiment and a configurable hash attribute.
+          type: string
+          enum:
+          - legacy
+          - multiRange
+        hashAttribute:
+          description: The user attribute used to assign bucket membership. Only present on multiRange namespaces.
+          type: string
+        seed:
+          description: The seed used for bucket hashing. Changing this re-randomizes which traffic is eligible for which experiment. Use the rotateSeed endpoint to change it.
+          type: string
+      required:
+      - id
+      - displayName
+      - description
+      - status
+      - format
+      additionalProperties: false
+  parameters:
+    offset:
+      name: offset
+      in: query
+      description: How many items to skip (use in conjunction with limit for pagination)
+      schema:
+        default: 0
+        description: How many items to skip (use in conjunction with limit for pagination)
+        type: integer
+        minimum: 0
+    limit:
+      name: limit
+      in: query
+      description: The number of items to return
+      schema:
+        default: 10
+        description: The number of items to return
+        type: integer
+        minimum: 1
+        maximum: 100
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: 'If using Bearer auth, pass the Secret Key as the token:
+
+        ```bash
+
+        curl https://api.growthbook.io/api/v1/features   -H "Authorization: Bearer secret_abc123DEF456"
+
+        ```
+
+        '
+    basicAuth:
+      type: http
+      scheme: basic
+      description: 'If using HTTP Basic auth, pass the Secret Key as the username and leave the password blank:
+
+        ```bash
+
+        curl https://api.growthbook.io/api/v1/features   -u secret_abc123DEF456:
+
+        # The ":" at the end stops curl from asking for a password
+
+        ```
+
+        '
+x-tagGroups:
+- name: Endpoints
+  tags:
+  - projects
+  - environments
+  - features-v2
+  - feature-revisions-v2
+  - features
+  - feature-revisions
+  - ramp-schedules
+  - data-sources
+  - fact-tables
+  - fact-metrics
+  - metrics
+  - experiments
+  - namespaces
+  - snapshots
+  - dimensions
+  - segments
+  - sdk-connections
+  - visual-changesets
+  - saved-groups
+  - organizations
+  - members
+  - code-references
+  - archetypes
+  - queries
+  - settings
+  - attributes
+  - usage
+  - Dashboards
+  - CustomFields
+  - MetricGroups
+  - Teams
+  - ExperimentTemplates
+  - AnalyticsExplorations
+  - RampScheduleTemplates
+- name: Models
+  tags:
+  - AnalyticsExploration_model
+  - Archetype_model
+  - Attribute_model
+  - CodeRef_model
+  - CustomField_model
+  - Dashboard_model
+  - DataSource_model
+  - Dimension_model
+  - Environment_model
+  - Experiment_model
+  - ExperimentAnalysisSettings_model
+  - ExperimentDecisionFrameworkSettings_model
+  - ExperimentMetric_model
+  - ExperimentMetricOverrideEntry_model
+  - ExperimentResults_model
+  - ExperimentSnapshot_model
+  - ExperimentTemplate_model
+  - ExperimentWithEnhancedStatus_model
+  - FactMetric_model
+  - FactTable_model
+  - FactTableColumn_model
+  - FactTableFilter_model
+  - Feature_model
+  - FeatureBaseRule_model
+  - FeatureDefinition_model
+  - FeatureEnvironment_model
+  - FeatureEnvironmentV2_model
+  - FeatureExperimentRefRule_model
+  - FeatureExperimentRule_model
+  - FeatureForceRule_model
+  - FeatureRevision_model
+  - FeatureRevisionV2_model
+  - FeatureRolloutRule_model
+  - FeatureRule_model
+  - FeatureRuleV2_model
+  - FeatureSafeRolloutRule_model
+  - FeatureV2_model
+  - FeatureWithRevisions_model
+  - FeatureWithRevisionsV2_model
+  - InformationSchema_model
+  - InformationSchemaTable_model
+  - LookbackOverride_model
+  - Member_model
+  - Metric_model
+  - MetricAnalysis_model
+  - MetricGroup_model
+  - MetricUsage_model
+  - Namespace_model
+  - NamespaceExperimentMember_model
+  - Organization_model
+  - PaginationFields_model
+  - Project_model
+  - Query_model
+  - RampSchedule_model
+  - RampScheduleTemplate_model
+  - SavedGroup_model
+  - ScheduleRule_model
+  - SdkConnection_model
+  - Segment_model
+  - Settings_model
+  - Team_model
+  - VisualChange_model
+  - VisualChangeset_model
