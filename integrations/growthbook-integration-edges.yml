@@ -1,20 +1,4 @@
 edges:
-- partner_name: Contentful (own)
-  partner: contentful
-  partner_match: mirror
-  mirror_match: domain
-  type: marketplace
-  relationship: platform-app
-  direction: third-party
-  channel: partner-built
-  marketplace: own
-  evidence: https://www.contentful.com/marketplace/growthbook-experiment/
-  mirror_of: contentful/integrations/contentful-integration-edges.yml
-  apps:
-  - GrowthBook Experiment
-  listing_count: 1
-  detected: '2026-10-15'
-  detected_by: mirror-platform-listings.py
 - partner_name: SkillsMP (skillsmp.com)
   partner: null
   partner_match: register
@@ -45,6 +29,39 @@ edges:
     detected: '2026-10-20'
   detected_by: sweep-agent-skills.py
   first_seen: '2026-10-20'
+- partner_name: Contentful (own)
+  partner: contentful
+  partner_match: mirror
+  mirror_match: domain
+  type: marketplace
+  relationship: platform-app
+  direction: third-party
+  channel: partner-built
+  marketplace: own
+  evidence: https://www.contentful.com/marketplace/growthbook-experiment/
+  mirror_of: contentful/integrations/contentful-integration-edges.yml
+  apps:
+  - GrowthBook Experiment
+  listing_count: 1
+  detected: '2026-10-15'
+  detected_by: mirror-platform-listings.py
+- partner_name: Atlassian (own)
+  partner: atlassian
+  partner_match: mirror
+  mirror_match: domain
+  type: marketplace
+  relationship: platform-app
+  direction: third-party
+  channel: partner-built
+  marketplace: own
+  evidence: https://marketplace.atlassian.com/vendors/331695400/growthbook
+  mirror_of: atlassian/integrations/atlassian-integration-edges.yml
+  apps:
+  - GrowthBook for Jira
+  listing_count: 1
+  detected: '2026-10-21'
+  detected_by: mirror-platform-listings.py
+  category: Integrations
 generated: '2026-10-15'
 method: searched
 checked:
@@ -55,5 +72,6 @@ checked:
 - https://officialskills.sh/sitemap.xml
 - https://skillsmp.com/sitemap.xml
 - https://www.skills.sh/sitemap.xml
+- atlassian/integrations/atlassian-integration-edges.yml
 source:
 - contentful/integrations/contentful-integration-edges.yml
