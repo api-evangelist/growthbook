@@ -24,31 +24,6 @@
     detected: '2026-10-20'
   status: not-a-workflow
   arazzo: null
-- slug: growthbook-contentful-own
-  label: Contentful (own)
-  partner: contentful
-  partner_name: Contentful (own)
-  type: marketplace
-  marketplace: own
-  channel: partner-built
-  evidence: https://www.contentful.com/marketplace/growthbook-experiment/
-  source: edge
-  relationship: platform-app
-  status: not-a-workflow
-  arazzo: null
-- slug: growthbook-atlassian-own
-  label: Atlassian (own)
-  partner: atlassian
-  partner_name: Atlassian (own)
-  category: Integrations
-  type: marketplace
-  marketplace: own
-  channel: partner-built
-  evidence: https://marketplace.atlassian.com/vendors/331695400/growthbook
-  source: edge
-  relationship: platform-app
-  status: not-a-workflow
-  arazzo: null
 - slug: growthbook-mozilla-firefox-add-ons-amo
   label: Mozilla Firefox Add-ons (AMO)
   partner_name: Mozilla Firefox Add-ons (AMO)
@@ -75,5 +50,43 @@
       to mirror.
     detected_by: sweep-browser-extension-stores.py
     detected: '2026-10-21'
+  status: not-a-workflow
+  arazzo: null
+- slug: growthbook-contentful-own
+  label: Contentful (own)
+  partner: contentful
+  partner_name: Contentful (own)
+  type: marketplace
+  marketplace: own
+  channel: partner-built
+  evidence: https://www.contentful.com/marketplace/growthbook-experiment/
+  source: edge
+  relationship: platform-app
+  status: not-a-workflow
+  arazzo: null
+- slug: growthbook-atlassian-own
+  label: Atlassian (own)
+  partner: atlassian
+  partner_name: Atlassian (own)
+  category: Integrations
+  type: marketplace
+  marketplace: own
+  channel: partner-built
+  evidence: https://marketplace.atlassian.com/vendors/331695400/growthbook
+  source: edge
+  relationship: platform-app
+  status: not-a-workflow
+  arazzo: null
+- slug: growthbook-vercel-own
+  label: Vercel (own)
+  partner: vercel
+  partner_name: Vercel (own)
+  category: Experimentation Flags
+  type: marketplace
+  marketplace: own
+  channel: partner-built
+  evidence: https://vercel.com/marketplace/growthbook
+  source: edge
+  relationship: platform-app
   status: not-a-workflow
   arazzo: null
