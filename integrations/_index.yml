@@ -131,3 +131,34 @@
     detected: '2026-10-22'
   status: not-a-workflow
   arazzo: null
+- slug: growthbook-jsr
+  label: JSR
+  partner_name: JSR
+  category: official SDK (JavaScript/TypeScript, JSR)
+  type: register
+  channel: package-registry
+  evidence: https://jsr.io/@growthbook/growthbook
+  source: edge
+  relationship: distribution-channel
+  contract_reference:
+    register: JSR (jsr.io public API JSON)
+    spec_file: null
+    language: JavaScript/TypeScript
+    packages:
+    - name: '@growthbook/growthbook'
+      version: 1.2.2
+      released: '2024-10-21'
+      released_field: versions.createdAt
+      lapsed: true
+      page: https://jsr.io/@growthbook/growthbook
+      github_repository: https://github.com/growthbook/growthbook
+      repo_leg: github-org:growthbook
+      publisher_leg: org:growthbook
+      matched_by: github-org
+    current: false
+    signal_note: 'an official package on the registry: distribution, not an integration; lapsed = no release in
+      24 months or archived'
+    detected_by: sweep-jsr-javascript-registry.py
+    detected: '2026-10-23'
+  status: not-a-workflow
+  arazzo: null

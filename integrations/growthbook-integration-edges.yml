@@ -155,6 +155,37 @@ edges:
   detected_by: sweep-raycast-store-extensions.py
   first_seen: '2026-10-22'
   direction: partner-built
+- partner_name: JSR
+  partner: null
+  partner_match: null
+  type: register
+  direction: provider-built
+  category: official SDK (JavaScript/TypeScript, JSR)
+  evidence: https://jsr.io/@growthbook/growthbook
+  channel: package-registry
+  relationship: distribution-channel
+  contract_reference:
+    register: JSR (jsr.io public API JSON)
+    spec_file: null
+    language: JavaScript/TypeScript
+    packages:
+    - name: '@growthbook/growthbook'
+      version: 1.2.2
+      released: '2024-10-21'
+      released_field: versions.createdAt
+      lapsed: true
+      page: https://jsr.io/@growthbook/growthbook
+      github_repository: https://github.com/growthbook/growthbook
+      repo_leg: github-org:growthbook
+      publisher_leg: org:growthbook
+      matched_by: github-org
+    current: false
+    signal_note: 'an official package on the registry: distribution, not an integration; lapsed = no release in
+      24 months or archived'
+    detected_by: sweep-jsr-javascript-registry.py
+    detected: '2026-10-23'
+  detected_by: sweep-jsr-javascript-registry.py
+  first_seen: '2026-10-23'
 generated: '2026-10-15'
 method: searched
 checked:
@@ -172,5 +203,7 @@ checked:
 - vercel/integrations/vercel-integration-edges.yml
 - https://github.com/raycast/extensions/tree/84f9ac51336a8c69f70974a75bc067c0feae3658/extensions
 - https://www.raycast.com/api/v1/store_listings
+- https://jsr.io/api/packages
+- https://jsr.io/api/scopes
 source:
 - contentful/integrations/contentful-integration-edges.yml
