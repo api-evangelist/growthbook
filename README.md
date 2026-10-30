@@ -1,4 +1,4 @@
-# GrowthBook (growthbook)
+# GrowthBook
 
 <!-- API-EVANGELIST-PROVENANCE:BEGIN -->
 > ### About this repository
@@ -66,37 +66,184 @@
 
 GrowthBook is an open source feature flagging and experimentation platform with a warehouse-native statistics engine.
 
-**URL:** [Visit APIs.json URL](https://raw.githubusercontent.com/api-evangelist/growthbook/refs/heads/main/apis.yml)
+**Areas:** Feature Flags · Experimentation · Open Source · A/B Testing · Analytics
 
-**Run:** [Capabilities Using Naftiko](https://github.com/naftiko/fleet?utm_source=api-evangelist&utm_medium=readme&utm_campaign=growthbook-api-evangelist&utm_content=repo)
+## GrowthBook on APIs.io
 
-## Type
-- **x-type:** company
+Everything profiled for GrowthBook is published on APIs.io rather than in this repository. Start at the provider page — **[apis.io/providers/growthbook/](https://apis.io/providers/growthbook/)** — or go straight to one of the APIs or properties below.
 
-## Tags:
- - Feature Flags, Experimentation, Open Source, AB Testing, Analytics
+### APIs (36)
 
-## Timestamps
-- **Created:** 2026-05-08
-- **Modified:** 2026-05-08
+- [GrowthBook AnalyticsExplorations API](https://apis.io/apis/growthbook/growthbook-analyticsexplorations-api/) — The AnalyticsExplorations API from GrowthBook — 3 operation(s) for analyticsexplorations.
+- [GrowthBook Archetypes API](https://apis.io/apis/growthbook/growthbook-archetypes-api/) — Archetypes allow you to simulate the result of targeting rules on pre-set user attributes
+- [GrowthBook Attributes API](https://apis.io/apis/growthbook/growthbook-attributes-api/) — Used when targeting feature flags and experiments.
+- [GrowthBook Code References API](https://apis.io/apis/growthbook/growthbook-code-references-api/) — Intended for use with our code reference CI utility, [`gb-find-code-refs`](https://github.com/growthbook/gb-find-code-refs).
+- [GrowthBook Dashboards API](https://apis.io/apis/growthbook/growthbook-dashboards-api/) — The Dashboards API from GrowthBook — 3 operation(s) for dashboards.
+- [GrowthBook Data Sources API](https://apis.io/apis/growthbook/growthbook-data-sources-api/) — How GrowthBook connects and queries your data, including cached database schema metadata (information schemas) for tables and columns.
+- [GrowthBook Dimensions API](https://apis.io/apis/growthbook/growthbook-dimensions-api/) — Dimensions used during experiment analysis
+- [GrowthBook Environments API](https://apis.io/apis/growthbook/growthbook-environments-api/) — GrowthBook comes with one environment by default (production), but you can add as many as you need. When used with feature flags, you can enable/disable…
+- [GrowthBook Experiments API](https://apis.io/apis/growthbook/growthbook-experiments-api/) — Experiments (A/B Tests)
+- [GrowthBook Fact Metrics API](https://apis.io/apis/growthbook/growthbook-fact-metrics-api/) — Fact Metrics are metrics built on top of Fact Table definitions
+- [GrowthBook Fact Tables API](https://apis.io/apis/growthbook/growthbook-fact-tables-api/) — Fact Tables describe the shape of your data warehouse tables
+- [GrowthBook Feature Revisions API](https://apis.io/apis/growthbook/growthbook-feature-revisions-api/) — Draft revisions for feature flags, including rules, scheduling, and approval workflows. **These are v1 endpoints.** New integrations should use the v2…
+- [GrowthBook Feature Revisions V2 API](https://apis.io/apis/growthbook/growthbook-feature-revisions-v2-api/) — Draft revisions for feature flags, including rules, scheduling, and approval workflows. Revision `rules` is a flat array with per-rule scope fields.
+- [GrowthBook Features API](https://apis.io/apis/growthbook/growthbook-features-api/) — Control your feature flags programatically. **These are v1 endpoints.** New integrations should use the v2 Feature Flags endpoints, which expose a unified…
+- [GrowthBook Features V2 API](https://apis.io/apis/growthbook/growthbook-features-v2-api/) — Control your feature flags programatically. Rules are returned as a unified top-level array; each rule carries `allEnvironments` / `environments` scope…
+- [GrowthBook Members API](https://apis.io/apis/growthbook/growthbook-members-api/) — Members are users who have been invited to an organization.
+- [GrowthBook Metrics API](https://apis.io/apis/growthbook/growthbook-metrics-api/) — Metrics used as goals and guardrails for experiments
+- [GrowthBook Namespaces API](https://apis.io/apis/growthbook/growthbook-namespaces-api/) — Namespaces partition your user population into buckets so that experiments using the same hash attribute do not overlap unintentionally. Each namespace…
+- [GrowthBook Organizations API](https://apis.io/apis/growthbook/growthbook-organizations-api/) — Organizations are used for multi-org deployments where different teams can run their own isolated feature flags and experiments. These endpoints are only…
+- [GrowthBook Projects API](https://apis.io/apis/growthbook/growthbook-projects-api/) — Projects are used to organize your feature flags and experiments
+- [GrowthBook Queries API](https://apis.io/apis/growthbook/growthbook-queries-api/) — Retrieve queries used in experiments to calculate results.
+- [GrowthBook Ramp Schedules API](https://apis.io/apis/growthbook/growthbook-ramp-schedules-api/) — Multi-step rollout schedules that gradually ramp feature rule changes over time, with support for interval, approval, and scheduled triggers.
+- [GrowthBook RampScheduleTemplates API](https://apis.io/apis/growthbook/growthbook-rampscheduletemplates-api/) — Reusable step configurations for ramp schedules.
+- [GrowthBook Saved Groups API](https://apis.io/apis/growthbook/growthbook-saved-groups-api/) — Defined sets of attribute values which can be used with feature rules for targeting features at particular users.
+- [GrowthBook SDK Connections API](https://apis.io/apis/growthbook/growthbook-sdk-connections-api/) — Client keys and settings for connecting SDKs to a GrowthBook instance
+- [GrowthBook Sdk Payload API](https://apis.io/apis/growthbook/growthbook-sdk-payload-api/) — The Sdk Payload API from GrowthBook — 1 operation(s) for sdk payload.
+- [GrowthBook Segments API](https://apis.io/apis/growthbook/growthbook-segments-api/) — Segments used during experiment analysis
+- [GrowthBook Settings API](https://apis.io/apis/growthbook/growthbook-settings-api/) — Get the organization settings.
+- [GrowthBook Snapshots API](https://apis.io/apis/growthbook/growthbook-snapshots-api/) — Experiment Snapshots (the individual updates of an experiment)
+- [GrowthBook Teams API](https://apis.io/apis/growthbook/growthbook-teams-api/) — The Teams API from GrowthBook — 3 operation(s) for teams.
+- [GrowthBook Transform Copy API](https://apis.io/apis/growthbook/growthbook-transform-copy-api/) — The Transform Copy API from GrowthBook — 1 operation(s) for transform copy.
+- [GrowthBook Usage API](https://apis.io/apis/growthbook/growthbook-usage-api/) — Usage information for metrics in experiments.
+- [GrowthBook Visual Changesets API](https://apis.io/apis/growthbook/growthbook-visual-changesets-api/) — Groups of visual changes made by the visual editor to a single page
+- [GrowthBook Custom Fields API](https://apis.io/apis/growthbook/growthbook-custom-fields-api/) — The Custom Fields API from GrowthBook — 2 operation(s) for custom fields.
+- [GrowthBook Experiment Templates API](https://apis.io/apis/growthbook/growthbook-experiment-templates-api/) — The Experiment Templates API from GrowthBook — 3 operation(s) for experiment templates.
+- [GrowthBook Metric Groups API](https://apis.io/apis/growthbook/growthbook-metric-groups-api/) — The Metric Groups API from GrowthBook — 2 operation(s) for metric groups.
 
-## APIs
+### Published properties
 
-### GrowthBook REST API
-GrowthBook REST API for managing projects, environments, feature flags, feature revisions, experiments, snapshots, metrics, fact tables, dimensions, segments, saved groups, teams, members, organizations, and dashboards.
+Each property below is a page on APIs.io carrying the machine-readable artifact and what it says.
 
-- **Human URL:** https://docs.growthbook.io/api
-- **Base URL:** https://api.growthbook.io/api
-- **OpenAPI:** [openapi/growthbook-openapi.yaml](openapi/growthbook-openapi.yaml)
+#### MCP servers (1)
 
-## Common Properties
+Model Context Protocol servers that expose the API to agents.
+
+- [growthbook](https://apis.io/servers/growthbook/growthbook/)
+
+#### Agentic access (1)
+
+Which operations an agent can call, which act, and which need a human in the loop.
+
+- [Growthbook Agentic Access](https://apis.io/agentic-access/growthbook/growthbook-agentic-access/)
+
+#### Collections (36)
+
+Postman and Open Collection request collections.
+
+- [GrowthBook REST AnalyticsExplorations API](https://apis.io/collections/growthbook/open-growthbook-analyticsexplorations-api/)
+- [GrowthBook REST AnalyticsExplorations archetypes API](https://apis.io/collections/growthbook/open-growthbook-archetypes-api/)
+- [GrowthBook REST AnalyticsExplorations attributes API](https://apis.io/collections/growthbook/open-growthbook-attributes-api/)
+- [GrowthBook REST AnalyticsExplorations code-references API](https://apis.io/collections/growthbook/open-growthbook-code-references-api/)
+- [GrowthBook REST AnalyticsExplorations CustomFields API](https://apis.io/collections/growthbook/open-growthbook-customfields-api/)
+- [GrowthBook REST AnalyticsExplorations Dashboards API](https://apis.io/collections/growthbook/open-growthbook-dashboards-api/)
+- [GrowthBook REST AnalyticsExplorations data-sources API](https://apis.io/collections/growthbook/open-growthbook-data-sources-api/)
+- [GrowthBook REST AnalyticsExplorations dimensions API](https://apis.io/collections/growthbook/open-growthbook-dimensions-api/)
+- [GrowthBook REST AnalyticsExplorations environments API](https://apis.io/collections/growthbook/open-growthbook-environments-api/)
+- [GrowthBook REST AnalyticsExplorations experiments API](https://apis.io/collections/growthbook/open-growthbook-experiments-api/)
+- [GrowthBook REST AnalyticsExplorations ExperimentTemplates API](https://apis.io/collections/growthbook/open-growthbook-experimenttemplates-api/)
+- [GrowthBook REST AnalyticsExplorations fact-metrics API](https://apis.io/collections/growthbook/open-growthbook-fact-metrics-api/)
+- [GrowthBook REST AnalyticsExplorations fact-tables API](https://apis.io/collections/growthbook/open-growthbook-fact-tables-api/)
+- [GrowthBook REST AnalyticsExplorations feature-revisions API](https://apis.io/collections/growthbook/open-growthbook-feature-revisions-api/)
+- [GrowthBook REST AnalyticsExplorations feature-revisions-v2 API](https://apis.io/collections/growthbook/open-growthbook-feature-revisions-v2-api/)
+- [GrowthBook REST AnalyticsExplorations features API](https://apis.io/collections/growthbook/open-growthbook-features-api/)
+- [GrowthBook REST AnalyticsExplorations features-v2 API](https://apis.io/collections/growthbook/open-growthbook-features-v2-api/)
+- [GrowthBook REST AnalyticsExplorations members API](https://apis.io/collections/growthbook/open-growthbook-members-api/)
+- [GrowthBook REST AnalyticsExplorations MetricGroups API](https://apis.io/collections/growthbook/open-growthbook-metricgroups-api/)
+- [GrowthBook REST AnalyticsExplorations metrics API](https://apis.io/collections/growthbook/open-growthbook-metrics-api/)
+- [GrowthBook REST AnalyticsExplorations namespaces API](https://apis.io/collections/growthbook/open-growthbook-namespaces-api/)
+- [GrowthBook REST AnalyticsExplorations organizations API](https://apis.io/collections/growthbook/open-growthbook-organizations-api/)
+- [GrowthBook REST AnalyticsExplorations projects API](https://apis.io/collections/growthbook/open-growthbook-projects-api/)
+- [GrowthBook REST AnalyticsExplorations queries API](https://apis.io/collections/growthbook/open-growthbook-queries-api/)
+- [GrowthBook REST AnalyticsExplorations ramp-schedules API](https://apis.io/collections/growthbook/open-growthbook-ramp-schedules-api/)
+- …and 11 more published on APIs.io
+
+#### Security (3)
+
+Authentication, trust centre, and vulnerability disclosure.
+
+- [Growthbook Authentication](https://apis.io/security/growthbook/growthbook-authentication/)
+- [Growthbook Domain Security](https://apis.io/security/growthbook/growthbook-domain-security/)
+- [Growthbook Trust Center](https://apis.io/security/growthbook/growthbook-trust-center/)
+
+#### Plans and pricing (1)
+
+Published plans, tiers and prices.
+
+- [Growthbook Plans Pricing](https://apis.io/plans/growthbook/growthbook-plans-pricing/)
+
+#### Rate limits (1)
+
+Published request limits.
+
+- [Growthbook Rate Limits](https://apis.io/rate-limits/growthbook/growthbook-rate-limits/)
+
+#### FinOps (1)
+
+What the API costs to run, by operation.
+
+- [Growthbook Finops](https://apis.io/finops/growthbook/growthbook-finops/)
+
+## Where to find this API
+
+Links to the company's own pages. This repository publishes no copy of their specifications — the canonical document is theirs and lives at the URLs below.
+
 - [Website](https://www.growthbook.io/)
 - [Documentation](https://docs.growthbook.io/api)
-- [Plans](plans/growthbook-plans-pricing.yml) — placeholder, pipeline reconciles later
-- [RateLimits](rate-limits/growthbook-rate-limits.yml) — placeholder
-- [FinOps](finops/growthbook-finops.yml) — FOCUS-aligned placeholder
+- [Blog](https://www.growthbook.io/blog)
+- [GitHub](https://github.com/growthbook)
 
-## Maintainers
-**FN:** Kin Lane
+## API Evangelist rating
 
-**Email:** kin@apievangelist.com
+**Kin Score 31.6** — thin · rubric 0.25.0 · scored 2026-10-23
+
+| Facet | Score |
+|---|---|
+| Discoverability | 66.7 |
+| Contract quality | 47.9 |
+| Contract governance | 0.0 |
+| Operational transparency | 7.9 |
+| Developer ergonomics | 23.8 |
+| Access clarity | 13.2 |
+
+**Agent readiness 53.3** — agent-ready (gated down from agent-native)
+
+| Agent-readiness dimension | Result |
+|---|---|
+| Spec Presence | yes |
+| Agentic Access | derived (partial credit) |
+| Reversibility Documented | documented (partial credit) |
+| MCP Server | verified |
+| Auth Clarity | served (partial credit) |
+| Idempotency | — |
+| Error Semantics | — |
+| OpenAPI Examples | partial |
+| Rate Limit Signal | verified |
+| Event Surface Described | — |
+| Agent Skills | — |
+| Well Known Catalog | — |
+| Consent Identity | — |
+| Agent Card | — |
+| Dry Run Mode | yes |
+| Delegated Identity | served (partial credit) |
+| Protected Resource Metadata | verified |
+| Dynamic Client Registration | yes |
+| Agentic Commerce | — |
+| Pagination Ratio | — |
+| Operation Distinctiveness | distinct |
+
+**Regulatory alignment 16.7** — Horizontal (data, software, accessibility, platform)
+
+The rubric is published at [github.com/api-evangelist/kin-score](https://github.com/api-evangelist/kin-score). The per-check breakdown behind these numbers — which checks were earned, partial or missed — along with score history and how this provider compares to its peers, is available at [apis.io/providers/growthbook/](https://apis.io/providers/growthbook/).
+
+## How this profile is made
+
+API Evangelist profiles a company's public API surface the way a developer would find it: the website, developer portal and documentation, the specifications it publishes, its public repositories, and its pricing, status and changelog pages. From that it derives the properties above — contracts split per API, workflows, schemas, collections, governance rules, plans and rate limits — and scores them against the published [Kin Score rubric](https://github.com/api-evangelist/kin-score).
+
+The artifacts are published on [APIs.io](https://apis.io), not in this repository. This repository is the public record for GrowthBook: the place to say something is wrong, missing or out of date, and to ask for a re-score or a removal.
+
+## Open an issue
+
+- **Something about this listing** — a wrong description, a missing API, a stale artifact or a question about the rating: [open an issue on this repository](https://github.com/api-evangelist/growthbook/issues/new).
+- **A new API, or one that is not in the catalog yet** — [submit it on APIs.io](https://apis.io/add/).
+- **Anything else** — [the APIs.io inbox](https://github.com/api-search/inbox/issues/new) or [info@apievangelist.com](mailto:info@apievangelist.com).
